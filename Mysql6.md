@@ -1,6 +1,3 @@
-
-
-
 ---
 title: "Mysql技术内幕：InnoDB学习 (7)"
 author: "jask"
