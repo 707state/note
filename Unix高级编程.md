@@ -79,3 +79,6 @@ int __builtin_clz(unsigned int x);
 ## autoconf
 用于在sh环境下制作编译，打包，安装的配置脚本的工具。通过从模板中生成Makefiule与头文件等从而调整软件包。  
 autoconf通过检查特性而不是软件版本来确保可移植性。
+
+## qwt
+一个绘图库，用来绘制2D图形。

@@ -66,4 +66,19 @@ int main()
 ## std::move_only_function::move_only_function
 
 
+# 一些库
+
+## 测试
+
+### doctest
+single-header, 开箱即用
+
+### gtest
+功能丰富
+
+## rpc 
+
+### json-rpc-cxx 
+学习ing, 功能相对简单，依赖简单。
+
 
