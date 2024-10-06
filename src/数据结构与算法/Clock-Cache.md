@@ -1,18 +1,3 @@
----
-title: "Clocking Cache Algorithm"
-author: "jask"
-date: "09/30/2024"
-output: pdf_document
-header-includes:
-  - \usepackage{fontspec}
-  - \usepackage{xeCJK}
-  - \setmainfont{ComicShannsMono Nerd Font}
-  - \setCJKmainfont{Noto Sans CJK SC}  # 替换为可用的字体
-  - \setCJKmonofont{Noto Sans CJK SC}
-  - \setCJKsansfont{Noto Sans CJK SC}
-  - \usepackage[top=1cm, bottom=1cm, left=1cm, right=1cm]{geometry}
----
-
 # Clocking Cache 
 
 时钟置换算法是一种性能和开销较均衡的算法，又称CLOCK算法，或最近未用算法（NRU，Not Recently Used）。

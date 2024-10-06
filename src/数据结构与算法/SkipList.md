@@ -1,17 +1,3 @@
----
-title: "SkipList学习"
-author: "jask"
-date: "2024-08-26"
-output: pdf_document
-header-includes:
-  - \usepackage{fontspec}
-  - \usepackage{xeCJK}
-  - \setmainfont{ComicShannsMono Nerd Font} 
-  - \setCJKmainfont{Noto Sans CJK SC}  # 替换为可用的字体
-  - \setCJKmonofont{Noto Sans CJK SC}
-  - \setCJKsansfont{Noto Sans CJK SC}
-  - \usepackage[top=1cm, bottom=1cm, left=1cm, right=1cm]{geometry}
----
 
 # 什么是SkipList 
 在计算机科学中，跳跃列表是一种数据结构。它使得包含n个元素的有序序列的查找和插入操作的平均时间复杂度都是 $ O(log(n)) $ 复杂度。
