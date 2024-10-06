@@ -158,7 +158,17 @@ abi::__cxa_demangle() 是一个 GCC 和 Clang 提供的函数，用于将 C++ �
 
 如果解析成功，函数将这个可读的函数名返回；否则返回原始字符串。
 
+## std::bitset
 
+bitset存储二进制数位。
+
+bitset就像一个bool类型的数组一样，但是有空间优化——bitset中的一个元素一般只占1 bit，相当于一个char元素所占空间的八分之一。
+
+bitset中的每个元素都能单独被访问，例如对于一个叫做foo的bitset，表达式foo[3]访问了它的第4个元素，就像数组一样。
+
+bitset有一个特性：整数类型和布尔数组都能转化成bitset。
+
+bitset的大小在编译时就需要确定。如果你想要不确定长度的bitset，请使用（奇葩的）vector<bool>。
 
 
 # 一些库

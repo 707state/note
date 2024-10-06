@@ -67,6 +67,10 @@ GCC在编译过程中，会将可能性更大的代码紧跟着前面的代码�
 
 使用时，要与if关键字一起使用。
 
+## __builtin_popcount
+
+返回输入的数据中二进制1的个数
+
 ### C++
 在C++20中，有了两个attribute: [[likely]]和[[unlinkely]]，放置在if后面的block前面。作用是相同的。
 
