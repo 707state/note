@@ -1,0 +1,6 @@
+[book]
+authors = ["Jask"]
+language = "en"
+multilingual = false
+src = "src"
+title = "学习笔记"
