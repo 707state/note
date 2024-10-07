@@ -1,17 +1,3 @@
----
-title: "生命周期"
-author: "jask"
-date: "09/28/2024"
-output: pdf_document
-header-includes:
-  - \usepackage{fontspec}
-  - \usepackage{xeCJK}
-  - \setmainfont{ComicShannsMono Nerd Font} 
-  - \setCJKmainfont{Noto Sans CJK SC}  # 替换为可用的字体
-  - \setCJKmonofont{Noto Sans CJK SC}
-  - \setCJKsansfont{Noto Sans CJK SC}
-  - \usepackage[top=1cm, bottom=1cm, left=1cm, right=1cm]{geometry}
----
 
 在存在多个引用时，编译器有时会无法自动推导生命周期，此时就需要我们手动去标注，通过为参数标注合适的生命周期来帮助编译器进行借用检查的分析。
 

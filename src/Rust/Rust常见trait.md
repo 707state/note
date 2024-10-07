@@ -1,17 +1,3 @@
----
-title: "常见Trait"
-author: "jask"
-date: "09/27/2024"
-output: pdf_document
-header-includes:
-  - \usepackage{fontspec}
-  - \usepackage{xeCJK}
-  - \setmainfont{ComicShannsMono Nerd Font} 
-  - \setCJKmainfont{Noto Sans CJK SC}  # 替换为可用的字体
-  - \setCJKmonofont{Noto Sans CJK SC}
-  - \setCJKsansfont{Noto Sans CJK SC}
-  - \usepackage[top=1cm, bottom=1cm, left=1cm, right=1cm]{geometry}
----
 
 # 什么是Trait 
 Trait 机制是 Rust 中用于定义共享行为的一种重要特性。Trait 可以被视为一种接口，允许你为不同的类型定义共享的方法，提供了高度的灵活性和复用性。
