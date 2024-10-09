@@ -183,3 +183,56 @@ return dp[n];
 }
 };
 ```
+
+# 32 最长有效括号
+
+给你一个只包含 '(' 和 ')' 的字符串，找出最长有效（格式正确且连续）括号
+子串
+的长度。
+
+```c++ 
+class Solution {
+public:
+    int longestValidParentheses(string s) {
+        int maxans = 0, n = s.length();
+        vector<int> dp(n, 0);
+        for (int i = 1; i < n; i++) {
+            if (s[i] == ')') {
+                if (s[i - 1] == '(') {
+                    dp[i] = (i >= 2 ? dp[i - 2] : 0) + 2;
+                } else if (i - dp[i - 1] > 0 && s[i - dp[i - 1] - 1] == '(') {
+                    dp[i] = dp[i - 1] + ((i - dp[i - 1]) >= 2 ? dp[i - dp[i - 1] - 2] : 0) + 2;
+                }
+                maxans = max(maxans, dp[i]);
+            }
+        }
+        return maxans;
+    }
+};
+```
+
+# 322 零钱兑换
+
+给你一个整数数组 coins ，表示不同面额的硬币；以及一个整数 amount ，表示总金额。
+
+计算并返回可以凑成总金额所需的 最少的硬币个数 。如果没有任何一种硬币组合能组成总金额，返回 -1 。
+
+你可以认为每种硬币的数量是无限的。
+
+```c++ 
+class Solution {
+public:
+    int coinChange(vector<int>& coins, int amount) {
+        vector<int> dp(amount+1,INT_MAX);
+        dp[0]=0;
+        for(int i=0;i<coins.size();i++){
+            for(int j=coins[i];j<=amount;j++){
+                if(dp[j-coins[i]]!=INT_MAX){
+                    dp[j]=min(dp[j-coins[i]]+1,dp[j]);
+                }
+            }
+        }
+        return dp[amount]>amount? -1: dp[amount];
+    }
+};
+```

@@ -14,6 +14,7 @@
   - [LRUCache](./数据结构与算法/LRUCache.md)
   - [BTree](./数据结构与算法/BTree.md)
   - [图算法](./数据结构与算法/图算法.md)
+  - [栈](./数据结构与算法/栈.md)
 
 - [Rust](./Rust/README.md)
   - [Trait](./Rust/RustTrait使用与实现.md)
@@ -28,3 +29,18 @@
 - [Docker](./Docker/README.md)
   - [容器网络](./Docker/容器网络.md)
   - [镜像](./Docker/镜像.md)
+
+
+- [xv6学习](./xv6/README.md)
+  - [接口](./xv6/xv6学习1.md)
+  - [系统组织](./xv6/xv6学习2.md)
+  - [页表](./xv6/xv6学习3.md)
+  - [陷阱与系统调用](./xv6/xv6学习4.md)
+  - [中断与驱动设备](./xv6/xv6学习5.md)
+  - [锁](./xv6/xv6学习6.md)
+  - [调度](./xv6/xv6学习7.md)
+  - [文件系统](./xv6/xv6学习8.md)
+  - [并行](./xv6/xv6学习9.md)
+
+- [rCore](./rCore/README.md)
+  
