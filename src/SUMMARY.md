@@ -15,6 +15,7 @@
   - [BTree](./数据结构与算法/BTree.md)
   - [图算法](./数据结构与算法/图算法.md)
   - [栈](./数据结构与算法/栈.md)
+  - [一些有技巧的题目](./数据结构与算法/tricky.md)
 
 - [Rust](./Rust/README.md)
   - [Trait](./Rust/RustTrait使用与实现.md)
@@ -43,4 +44,5 @@
   - [并行](./xv6/xv6学习9.md)
 
 - [rCore](./rCore/README.md)
-  
+  - [批处理系统](./rCore/批处理系统.md)
+  - [多道程序与分时多任务](./rCore/多道程序与分时多任务.md)
