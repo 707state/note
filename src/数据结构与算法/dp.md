@@ -306,4 +306,76 @@ public:
 };
 ```
 
+# 213 打家劫舍2 
 
+你是一个专业的小偷，计划偷窃沿街的房屋，每间房内都藏有一定的现金。这个地方所有的房屋都 围成一圈 ，这意味着第一个房屋和最后一个房屋是紧挨着的。同时，相邻的房屋装有相互连通的防盗系统，如果两间相邻的房屋在同一晚上被小偷闯入，系统会自动报警 。
+
+给定一个代表每个房屋存放金额的非负整数数组，计算你 在不触动警报装置的情况下 ，今晚能够偷窃到的最高金额。
+
+```c++ 
+```c++ 
+class Solution {
+public:
+    int rob_helper(vector<int>& nums,int start,int end){
+        int first=nums[start],second=max(nums[start],nums[start+1]);
+        for(int i=start+2;i<=end;i++){
+            int tmp=second;
+            second=max(nums[i]+first,second);
+            first=tmp;
+        }
+        return second;
+    }
+    int rob(vector<int>& nums) {
+        if(nums.size()==1) return nums[0];
+        if(nums.size()==2) return max(nums[0],nums[1]);
+        return max(rob_helper(nums,0,nums.size()-2),rob_helper(nums,1,nums.size()-1));
+    }
+};
+```
+# 3193 统计逆序对的数量
+
+给你一个整数 n 和一个二维数组 requirements ，其中 requirements[i] = [endi, cnti] 表示这个要求中的末尾下标和 逆序对 的数目。
+
+整数数组 nums 中一个下标对 (i, j) 如果满足以下条件，那么它们被称为一个 逆序对 ：
+
+    i < j 且 nums[i] > nums[j]
+
+请你返回 [0, 1, 2, ..., n - 1] 的 
+排列
+perm 的数目，满足对 所有 的 requirements[i] 都有 perm[0..endi] 恰好有 cnti 个逆序对。
+
+由于答案可能会很大，将它对 109 + 7 取余 后返回。
+
+```c++ 
+class Solution {
+    static constexpr int MOD=1'000'000'007;
+public:
+    int numberOfPermutations(int n, vector<vector<int>>& requirements) {
+        vector<int> req(n,-1);
+        req[0]=0;
+        for(auto& p: requirements){
+            req[p[0]]=p[1];
+        }
+        if(req[0]){
+            return 0;
+        }
+        int m=ranges::max(req);
+        vector<vector<int>> memo(n,vector<int>(m+1,-1));
+        auto dfs=[&](auto &&dfs,int i,int j)->int{
+            if(i==0) return 1;//边界条件
+            int &res=memo[i][j];
+            if(res!=-1) return res;
+            res=0;
+            if(int r=req[i-1];r>=0){
+                if(j>=r&&j-i<=r){
+                    res=dfs(dfs,i-1,r);
+                }
+            }else{
+                for(int k=0;k<=min(i,j);k++) res=(res+dfs(dfs,i-1,j-k))%MOD;
+            }
+            return res;
+        };
+        return dfs(dfs,n-1,req[n-1]);
+    }
+};
+```
