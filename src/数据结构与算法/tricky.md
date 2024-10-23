@@ -408,4 +408,108 @@ public:
 };
 ```
 
+# 910 最小差值1 
+
+给你一个整数数组 nums，和一个整数 k 。
+
+对于每个下标 i（0 <= i < nums.length），将 nums[i] 变成 nums[i] + k 或 nums[i] - k 。
+
+nums 的 分数 是 nums 中最大元素和最小元素的差值。
+
+在更改每个下标对应的值之后，返回 nums 的最小 分数 。
+
+```c++ 
+class Solution {
+public:
+    int smallestRangeII(vector<int>& nums, int k) {
+        ranges::sort(nums);
+        int ans=nums.back()-nums.front();
+        for(int i=1;i<nums.size();++i){
+            int mx=max(nums[i-1]+k,nums.back()-k);
+            int mn=min(nums[0]+k,nums[i]-k);
+            ans=min(ans,mx-mn);
+        }
+        return ans;
+    }
+};
+```
+
+# 31 下一个排列
+
+整数数组的一个 排列  就是将其所有成员以序列或线性顺序排列。
+
+    例如，arr = [1,2,3] ，以下这些都可以视作 arr 的排列：[1,2,3]、[1,3,2]、[3,1,2]、[2,3,1] 。
+
+整数数组的 下一个排列 是指其整数的下一个字典序更大的排列。更正式地，如果数组的所有排列根据其字典顺序从小到大排列在一个容器中，那么数组的 下一个排列 就是在这个有序容器中排在它后面的那个排列。如果不存在下一个更大的排列，那么这个数组必须重排为字典序最小的排列（即，其元素按升序排列）。
+
+    例如，arr = [1,2,3] 的下一个排列是 [1,3,2] 。
+    类似地，arr = [2,3,1] 的下一个排列是 [3,1,2] 。
+    而 arr = [3,2,1] 的下一个排列是 [1,2,3] ，因为 [3,2,1] 不存在一个字典序更大的排列。
+
+给你一个整数数组 nums ，找出 nums 的下一个排列。
+
+必须 原地 修改，只允许使用额外常数空间。
+
+```c++
+class Solution {
+public:
+    void nextPermutation(vector<int>& nums) {
+        int i=nums.size()-2;
+        while(i>=0&&nums[i]>=nums[i+1]){
+            i--;
+        }
+        if(i>=0){
+            int j=nums.size()-1;
+            while(j>=0&&nums[i]>=nums[j]){
+                j--;
+            }
+            swap(nums[i],nums[j]);
+        }
+        reverse(nums.begin()+i+1,nums.end());
+    }
+};
+```
+
+# 287 寻找重复数
+
+给定一个包含 n + 1 个整数的数组 nums ，其数字都在 [1, n] 范围内（包括 1 和 n），可知至少存在一个重复的整数。
+
+假设 nums 只有 一个重复的整数 ，返回 这个重复的数 。
+
+你设计的解决方案必须 不修改 数组 nums 且只用常量级 O(1) 的额外空间。
+
+思路和算法
+
+这个方法我们来将所有数二进制展开按位考虑如何找出重复的数，如果我们能确定重复数每一位是 1 还是 0 就可以按位还原出重复的数是什么。
+
+考虑第 i 位，我们记 nums 数组中二进制展开后第 i 位为 1 的数有 x 个，数字 [1,n] 这 n 个数二进制展开后第 i 位为 1 的数有 y 个，那么重复的数第 i 位为 1 当且仅当 x>y。
+
+
+```c++
+class Solution {
+public:
+    int findDuplicate(vector<int>& nums) {
+        int n=nums.size(),ans=0;
+        int bit_max=31;
+        while(!((n-1)>>bit_max)){
+            bit_max-=1;
+        }
+        for(int bit=0;bit<=bit_max;++bit){
+            int x=0,y=0;
+            for(int i=0;i<n;i++){
+                if(nums[i]&(1<<bit)){
+                    x+=1;
+                }
+                if(i>=1&&(i&(1<<bit))){
+                    y+=1;
+                }
+            }
+            if(x>y){
+                ans|=1<<bit;
+            }
+        }
+        return ans;
+    }
+};
+```
 
