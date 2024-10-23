@@ -46,6 +46,8 @@
 - [rCore](./rCore/README.md)
   - [批处理系统](./rCore/批处理系统.md)
   - [多道程序与分时多任务](./rCore/多道程序与分时多任务.md)
+  - [rCore第三章作业](./rCore/第三章作业.md)
+  - [rCore第四章作业](rCore/第四章作业.md)
 
 
 - [RxJava](./RxJava/README.md)
