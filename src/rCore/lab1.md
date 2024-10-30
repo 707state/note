@@ -30,38 +30,6 @@ syscall ID: 410
 
 需要实现syscall_num，需要给每一个系统调用自增，因此需要给TaskManager实现一个increase_syscall的函数，接受一个syscall_id : usize，给TaskControlBlock自增。
 
-```rust
-    ///WARNING: 返回引用还是拷贝？
-    ///应该返回拷贝，引用应该由调用者自行处理
-    pub fn get_current_task(&self) -> TaskControlBlock {
-        let inner = self.inner.exclusive_access();
-        let current_task_id = inner.current_task;
-        inner.tasks[current_task_id]
-    }
-    fn increase_syscall(&self, sys_call_id: usize) {
-        let mut inner = self.inner.exclusive_access();
-        let current_task = inner.current_task;
-        inner.tasks[current_task].syscall_times[sys_call_id] += 1;
-    }
-/// 增加系统调用次数，传入一个SYSCALL 的id
-pub fn increase_syscall_number(syscall_id: usize) {
-    TASK_MANAGER.increase_syscall(syscall_id);
-}
-pub fn sys_task_info(ti: *mut TaskInfo) -> isize {
-    trace!("kernel: sys_task_info");
-    increase_syscall_number(SYSCALL_TASK_INFO);
-    if ti.is_null() {
-        return -1;
-    }
-    let current_task = TASK_MANAGER.get_current_task();
-    unsafe {
-        (*ti).status = current_task.task_status;
-        (*ti).syscall_times = current_task.syscall_times;
-        (*ti).time = get_time_ms();
-    };
-    0
-}
-```
 
 ## 注意
 
@@ -145,6 +113,7 @@ sp被更新为原本的sscratch中的值，也就是栈指针指向用户栈，s
 无。
 
 2.  此外，我也参考了 以下资料 ，还在代码中对应的位置以注释形式记录了具体的参考来源及内容：
+
 
 [寄存器信息](https://tclin914.github.io/77838749/)
 
