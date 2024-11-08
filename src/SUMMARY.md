@@ -15,6 +15,7 @@
   - [BTree](./数据结构与算法/BTree.md)
   - [图算法](./数据结构与算法/图算法.md)
   - [栈](./数据结构与算法/栈.md)
+  - [线段树](./数据结构与算法/线段树.md)
   - [一些有技巧的题目](./数据结构与算法/tricky.md)
 
 - [Rust](./Rust/README.md)
@@ -25,6 +26,8 @@
   - [智能指针](./Rust/Rust所有权与智能指针.md)
   - [生命周期](./Rust/Rust生命周期.md)
   - [线程安全](./Rust/Rust的线程安全.md)
+  - [函数式](./Rust/FPRust.md)
+
 
 
 - [Docker](./Docker/README.md)
@@ -48,6 +51,8 @@
   - [多道程序与分时多任务](./rCore/多道程序与分时多任务.md)
   - [rCore第三章作业](./rCore/第三章作业.md)
   - [rCore第四章作业](rCore/第四章作业.md)
+  - [rCore第五章作业](rCore/第五章作业.md)
+  - [rCore第六章作业](rCore/第六章作业.md)
 
 
 - [RxJava](./RxJava/README.md)

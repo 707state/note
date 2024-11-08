@@ -513,3 +513,45 @@ public:
 };
 ```
 
+# 41 缺失的第一个正数
+
+给你一个未排序的整数数组 nums ，请你找出其中没有出现的最小的正整数。
+请你实现时间复杂度为 O(n) 并且只使用常数级别额外空间的解决方案。 
+
+```cpp
+class Solution {
+public:
+    int firstMissingPositive(vector<int>& nums) {
+        int n=nums.size();
+        for(int& num:nums){
+            if(num<=0) num=n+1;
+        }   
+        for(int i=0;i<n;i++){
+            int num=abs(nums[i]);
+            if(num<=n) nums[num-1]=-abs(nums[num-1]);
+        }
+        for(int i=0;i<n;i++){
+            if(nums[i]>0){
+                return i+1;
+            }
+        }
+        return n+1;
+    }
+};
+```
+# 3222 求出硬币游戏的赢家
+
+给你两个 正 整数 x 和 y ，分别表示价值为 75 和 10 的硬币的数目。
+
+Alice 和 Bob 正在玩一个游戏。每一轮中，Alice 先进行操作，Bob 后操作。每次操作中，玩家需要拿出价值 总和 为 115 的硬币。如果一名玩家无法执行此操作，那么这名玩家 输掉 游戏。
+
+两名玩家都采取 最优 策略，请你返回游戏的赢家。
+
+```cpp
+class Solution {
+public:
+    string losingPlayer(int x, int y) {
+        return min(x,y/4)%2?"Alice":"Bob";
+    }
+};
+```

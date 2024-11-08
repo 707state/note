@@ -1,4 +1,3 @@
-
 # 983 最低票价
 
 在一个火车旅行很受欢迎的国度，你提前一年计划了一些火车旅行。在接下来的一年里，你要旅行的日子将以一个名为 days 的数组给出。每一项是一个从 1 到 365 的整数。
@@ -520,6 +519,186 @@ public:
             }
         }
         return s.substr(begin,maxLen);
+    }
+};
+```
+
+# 3259  最多能量
+
+来自未来的体育科学家给你两个整数数组 energyDrinkA 和 energyDrinkB，数组长度都等于 n。这两个数组分别代表 A、B 两种不同能量饮料每小时所能提供的强化能量。
+
+你需要每小时饮用一种能量饮料来 最大化 你的总强化能量。然而，如果从一种能量饮料切换到另一种，你需要等待一小时来梳理身体的能量体系（在那个小时里你将不会获得任何强化能量）。
+
+返回在接下来的 n 小时内你能获得的 最大 总强化能量。
+
+注意 你可以选择从饮用任意一种能量饮料开始。
+
+```cpp
+class Solution {
+public:
+    long long maxEnergyBoost(vector<int>& energyDrinkA, vector<int>& energyDrinkB) {
+        int n=energyDrinkA.size();
+        vector<array<long long,2>> dp(n+2);
+        for(int i=0;i<n;i++){
+            dp[i+2][0]=max(dp[i+1][0],dp[i][1])+energyDrinkA[i];
+            dp[i+2][1]=max(dp[i][0],dp[i+1][1])+energyDrinkB[i];
+        }
+        return ranges::max(dp.back());
+    }
+};
+```
+
+# 72 编辑距离
+
+给你两个单词 word1 和 word2， 请返回将 word1 转换成 word2 所使用的最少操作数  。
+
+你可以对一个单词进行如下三种操作：
+
+    插入一个字符
+    删除一个字符
+    替换一个字符
+```cpp
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        int n=word1.length();
+        int m=word2.length();
+        vector<vector<int>> memo(n,vector<int>(m,-1));
+        auto dfs=[&](auto&& dfs,int i,int j)->int{
+            if(i<0){
+                return j+1;
+            }
+            if(j<0) return i+1;
+            int &res=memo[i][j];
+            if(res!=-1) return res;
+            if(word1[i]==word2[j]){
+                return res=dfs(dfs,i-1,j-1);
+            }
+            return res=min(min(dfs(dfs,i-1,j),dfs(dfs,i,j-1)),dfs(dfs,i-1,j-1))+1;
+        };
+        return dfs(dfs,n-1,m-1);
+    }
+};
+```
+
+# UNRESOLVED 638  大礼包
+
+在 LeetCode 商店中， 有 n 件在售的物品。每件物品都有对应的价格。然而，也有一些大礼包，每个大礼包以优惠的价格捆绑销售一组物品。
+
+给你一个整数数组 price 表示物品价格，其中 price[i] 是第 i 件物品的价格。另有一个整数数组 needs 表示购物清单，其中 needs[i] 是需要购买第 i 件物品的数量。
+
+还有一个数组 special 表示大礼包，special[i] 的长度为 n + 1 ，其中 special\[i]\[j] 表示第 i 个大礼包中内含第 j 件物品的数量，且 special[i][n] （也就是数组中的最后一个整数）为第 i 个大礼包的价格。
+
+返回 确切 满足购物清单所需花费的最低价格，你可以充分利用大礼包的优惠活动。你不能购买超出购物清单指定数量的物品，即使那样会降低整体价格。任意大礼包可无限次购买。
+
+```cpp
+class Solution {
+public:
+    map<vector<int>, int> memo;
+
+    int shoppingOffers(vector<int>& price, vector<vector<int>>& special, vector<int>& needs) {
+        int n = price.size();
+
+        // 过滤不需要计算的大礼包，只保留需要计算的大礼包
+        vector<vector<int>> filterSpecial;
+        for (auto & sp : special) {
+            int totalCount = 0, totalPrice = 0;
+            for (int i = 0; i < n; ++i) {
+                totalCount += sp[i];
+                totalPrice += sp[i] * price[i];
+            }
+            if (totalCount > 0 && totalPrice > sp[n]) {
+                filterSpecial.emplace_back(sp);
+            }
+        }
+
+        return dfs(price, special, needs, filterSpecial, n);
+    }
+
+    // 记忆化搜索计算满足购物清单所需花费的最低价格
+    int dfs(vector<int> price,const vector<vector<int>> & special, vector<int> curNeeds, vector<vector<int>> & filterSpecial, int n) {
+        if (!memo.count(curNeeds)) {
+            int minPrice = 0;
+            for (int i = 0; i < n; ++i) {
+                minPrice += curNeeds[i] * price[i]; // 不购买任何大礼包，原价购买购物清单中的所有物品
+            }
+            for (auto & curSpecial : filterSpecial) {
+                int specialPrice = curSpecial[n];
+                vector<int> nxtNeeds;
+                for (int i = 0; i < n; ++i) {
+                    if (curSpecial[i] > curNeeds[i]) { // 不能购买超出购物清单指定数量的物品
+                        break;
+                    }
+                    nxtNeeds.emplace_back(curNeeds[i] - curSpecial[i]);
+                }
+                if (nxtNeeds.size() == n) { // 大礼包可以购买
+                    minPrice = min(minPrice, dfs(price, special, nxtNeeds, filterSpecial, n) + specialPrice);
+                }
+            }
+            memo[curNeeds] = minPrice;
+        }
+        return memo[curNeeds];
+    }
+};
+```
+# 1326 灌溉花园的最少水龙头数目
+
+在 x 轴上有一个一维的花园。花园长度为 n，从点 0 开始，到点 n 结束。
+
+花园里总共有 n + 1 个水龙头，分别位于 [0, 1, ..., n] 。
+
+给你一个整数 n 和一个长度为 n + 1 的整数数组 ranges ，其中 ranges[i] （下标从 0 开始）表示：如果打开点 i 处的水龙头，可以灌溉的区域为 [i -  ranges[i], i + ranges[i]] 。
+
+请你返回可以灌溉整个花园的 最少水龙头数目 。如果花园始终存在无法灌溉到的地方，请你返回 -1 。
+
+```cpp
+class Solution {
+public:
+    int minTaps(int n, vector<int>& ranges) {
+        vector<int> right_most(n+1);
+        for(int i=0;i<=n;i++){
+            int r=ranges[i];
+            //减少一次判断
+            if (i>r) right_most[i-r]=i+r;//i-r处能到达的最右端必然是i+r
+            else right_most[0]=max(right_most[0],i+r);
+        }
+        int ans=0;
+        int cur_right=0;//已经建造的桥的右端点
+        int next_right=0;//下一座桥的右端点的最大值
+        for(int i=0;i<n;i++){//如果走到n-1时没有返回-1, 那么必然可以到达n
+            next_right=max(next_right,right_most[i]);
+            if(i==cur_right){//到达已建造的桥的右端点
+                if(i==next_right) return -1;//无论怎么造桥，都无法从i到i+1
+                cur_right=next_right;//造一座桥
+                ans++;
+            }
+        }
+        return ans;
+    }
+};
+```
+
+# 152 乘积最大子数组
+
+给你一个整数数组 nums ，请你找出数组中乘积最大的非空连续
+子数组
+（该子数组中至少包含一个数字），并返回该子数组所对应的乘积。
+
+测试用例的答案是一个 32-位 整数。
+
+```cpp
+class Solution {
+public:
+    int maxProduct(vector<int>& nums) {
+        int n=nums.size();
+        vector<int> f_max(n),f_min(n);
+        f_max[0]=f_min[0]=nums[0];
+        for(int i=1;i<n;i++){
+            int x=nums[i];
+            f_max[i]=max({f_max[i-1]*x,f_min[i-1]*x,x});
+            f_min[i]=min({f_max[i-1]*x,f_min[i-1]*x,x});
+        }
+        return ranges::max(f_max);
     }
 };
 ```
