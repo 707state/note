@@ -702,3 +702,41 @@ public:
     }
 };
 ```
+# 1547 UNSOLVED 切棍子的最小成本
+
+给你一个整数数组 cuts ，其中 cuts[i] 表示你需要将棍子切开的位置。
+
+你可以按顺序完成切割，也可以根据需要更改切割的顺序。
+
+每次切割的成本都是当前要切割的棍子的长度，切棍子的总成本是历次切割成本的总和。对棍子进行切割将会把一根木棍分成两根较小的木棍（这两根木棍的长度和就是切割前木棍的长度）。请参阅第一个示例以获得更直观的解释。
+
+返回切棍子的 最小总成本 。
+
+```cpp
+class Solution {
+public:
+    int minCost(int n, vector<int>& cuts) {
+        cuts.emplace_back(0);
+        cuts.emplace_back(n);
+        ranges::sort(cuts);
+        int m=cuts.size();
+        vector<vector<int>> memo(m,vector<int>(m));
+        auto dfs=[&](auto&& dfs,int i,int j)->int{
+            if(i+1==j){
+                return 0;
+            }
+            int &res=memo[i][j];
+            if(res){
+                return res;
+            }
+            res=INT_MAX;
+            for(int k=i+1;k<j;k++){
+                res=min(res,dfs(dfs,i,k)+dfs(dfs,k,j));
+            }
+            res+=cuts[j]-cuts[i];
+            return res;
+        };
+        return dfs(dfs,0,m-1);
+    }
+};
+```

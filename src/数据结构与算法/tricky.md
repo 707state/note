@@ -14,7 +14,7 @@
     double findMedian() 返回到目前为止所有元素的中位数。与实际答案相差 10-5 以内的答案将被接受。
 
 
-```c++ 
+```cpp 
 class MedianFinder {
     priority_queue<int,vector<int>,greater<>>  queMax;
     priority_queue<int,vector<int>,less<>> queMin;
@@ -52,7 +52,7 @@ public:
 
 给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
 
-```c++ 
+```cpp 
 class Solution {
 public:
     int trap(vector<int>& height) {
@@ -83,7 +83,7 @@ public:
 返回 优质数对 的总数。
 
 
-```c++ 
+```cpp 
 class Solution {
 public:
     long long numberOfPairs(vector<int>& nums1, vector<int>& nums2, int k) {
@@ -122,7 +122,7 @@ public:
 
 1. 归并排序
 
-```c++ 
+```cpp 
 class Solution {
 public:
     int mergeSort(vector<int>& record,vector<int>& tmp,int l,int r){
@@ -179,7 +179,7 @@ value  ->  0 1 1 0 2 1 0 0 0
 
 离散化一个序列的前提是我们只关心这个序列里面元素的相对大小，而不关心绝对大小（即只关心元素在序列中的排名）；离散化的目的是让原来分布零散的值聚集到一起，减少空间浪费。那么如何获得元素排名呢，我们可以对原序列排序后去重，对于每一个 ai 通过二分查找的方式计算排名作为离散化之后的值。当然这里也可以不去重，不影响排名。
 
-```c++ 
+```cpp 
 class BIT{
     vector<int> tree;
     int n;
@@ -234,7 +234,7 @@ public:
 每一行的球必须是 相同 颜色，且相邻行的颜色必须 不同。
 
 返回可以实现的三角形的 最大 高度。
-```c++ 
+```cpp 
 class Solution {
 public:
     int maxHeight(int a,int b){
@@ -277,7 +277,7 @@ public:
 
 返回简化后得到的 规范路径 。
 
-```c++ 
+```cpp 
 class Solution {
 public:
     string simplifyPath(string path) {
@@ -323,7 +323,7 @@ public:
 
 注意，dx, dy有顺序要求。
 
-```c++ 
+```cpp 
 class Solution {
     constexpr static array<int,4> dy={1,0,-1,0};
     constexpr static array<int,4> dx={0,1,0,-1};
@@ -366,7 +366,7 @@ public:
 
 设 n 为 nums 的长度，m 为 nums 的最小值，M 为 nums 的最大值。
 
-m=M 时，直接返回 0；m+1=M 时，直接返回 1。下面讨论 m+1<M 的情况，注意这意味着 n≥2。
+m=M 时，直接返回 0；m+1=M 时，直接返回 1。下面讨论 m+1\<M 的情况，注意这意味着 n≥2。
 
 木棍的长度为 M−m，我们要切 n−2 刀，分成 n−1 个小木棍，那么小木棍的平均长度为(M-m)/(n-1)。
 
@@ -377,11 +377,12 @@ d=(M-m+n-1)/(n-1)的下取整。
 
 如果把两两之差小于 d 的数，分到同一组（桶）中，那么答案一定不会是同一个桶内的两数之差，而是不同的桶的两数之差！
 
-示例 1 的 nums=[3,6,9,1]，分到三个桶中：第一个桶装入 1 和 3，第二个桶装入 6，第三个桶装入 9。答案一定不会是第一个桶的两数之差，因为 3−1=2<d=3。所以我们只需要考虑不同的桶之间的两数之差。由于题目要计算的是排序后相邻元素之间的差值，所以应当取第一个桶的最大值，和第二个桶的最小值作差；取第二个桶的最大值，和第三个桶的最小值作差；依此类推。这些差值中的最大值即为答案。对于示例 1 来说，答案为 max(6−3,9−6)=3。
+示例 1 的 nums=[3,6,9,1]，分到三个桶中：第一个桶装入 1 和 3，第二个桶装入 6，第三个桶装入 9。答案一定不会是第一个桶的两数之差，因为 3−1=2\<d=3。所以我们只需要考虑不同的桶之间的两数之差。由于题目要计算的是排序后相邻元素之间的差值，所以应当取第一个桶的最大值，和第二个桶的最小值作差；取第二个桶的最大值，和第三个桶的最小值作差；依此类推。这些差值中的最大值即为答案。对于示例 1 来说，答案为 max(6−3,9−6)=3。
 
 一般地，从 m 开始，把元素值在 m,m+1,⋯,m+d−1 中的数分到第一个桶，把元素值在 m+d,m+d+1,⋯,m+2d−1 中的数分到第二个桶，依此类推。
 
-```c++
+
+```cpp
 class Solution {
 public:
     int maximumGap(vector<int>& nums) {
@@ -418,7 +419,7 @@ nums 的 分数 是 nums 中最大元素和最小元素的差值。
 
 在更改每个下标对应的值之后，返回 nums 的最小 分数 。
 
-```c++ 
+```cpp 
 class Solution {
 public:
     int smallestRangeII(vector<int>& nums, int k) {
@@ -450,7 +451,7 @@ public:
 
 必须 原地 修改，只允许使用额外常数空间。
 
-```c++
+```cpp
 class Solution {
 public:
     void nextPermutation(vector<int>& nums) {
@@ -485,7 +486,7 @@ public:
 考虑第 i 位，我们记 nums 数组中二进制展开后第 i 位为 1 的数有 x 个，数字 [1,n] 这 n 个数二进制展开后第 i 位为 1 的数有 y 个，那么重复的数第 i 位为 1 当且仅当 x>y。
 
 
-```c++
+```cpp
 class Solution {
 public:
     int findDuplicate(vector<int>& nums) {
@@ -555,3 +556,63 @@ public:
     }
 };
 ```
+# 936 戳印序列
+
+你想要用小写字母组成一个目标字符串 target。 
+
+开始的时候，序列由 target.length 个 '?' 记号组成。而你有一个小写字母印章 stamp。
+
+在每个回合，你可以将印章放在序列上，并将序列中的每个字母替换为印章上的相应字母。你最多可以进行 10 * target.length  个回合。
+
+举个例子，如果初始序列为 "?????"，而你的印章 stamp 是 "abc"，那么在第一回合，你可以得到 "abc??"、"?abc?"、"??abc"。（请注意，印章必须完全包含在序列的边界内才能盖下去。）
+
+如果可以印出序列，那么返回一个数组，该数组由每个回合中被印下的最左边字母的索引组成。如果不能印出序列，就返回一个空数组。
+
+例如，如果序列是 "ababc"，印章是 "abc"，那么我们就可以返回与操作 "?????" -> "abc??" -> "ababc" 相对应的答案 [0, 2]；
+
+另外，如果可以印出序列，那么需要保证可以在 10 * target.length 个回合内完成。任何超过此数字的答案将不被接受。
+
+```cpp 
+class Solution {
+public:
+    vector<int> movesToStamp(string stamp, string target) {
+        auto m=stamp.size();
+        auto n=target.size();
+        vector<int> inDegreee(n-m+1,m);
+        vector<vector<int>> edges(n);
+        vector<int> seen(n);
+        vector<int> q;
+        for(auto i=0;i<n-m+1;i++){
+            for(auto j=0;j<m;j++){
+                if(target[i+j]==stamp[j]){
+                    inDegreee[i]-=1;
+                    if(inDegreee[i]==0) q.emplace_back(i);
+                }else{
+                    edges[i+j].emplace_back(i);
+                }
+            }
+        }
+        vector<int> ans;
+        while(!q.empty()){
+            int cur=q.back();
+            q.pop_back();
+            ans.emplace_back(cur);
+            for(size_t i=0;i<m;i++){
+                if(!seen[cur+i]){
+                    seen[cur+i]=true;
+                    for(auto &&edge: edges[cur+i]){
+                        inDegreee[edge]-=1;
+                        if(inDegreee[edge]==0) q.emplace_back(edge);
+                    }
+                }
+            }
+        }
+        if(ans.size()<n-m+1) return {};
+        ranges::reverse(ans);
+        return ans;
+    }
+};
+```
+
+
+

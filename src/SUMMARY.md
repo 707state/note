@@ -17,6 +17,9 @@
   - [栈](./数据结构与算法/栈.md)
   - [线段树](./数据结构与算法/线段树.md)
   - [一些有技巧的题目](./数据结构与算法/tricky.md)
+  - [队列](./数据结构与算法/队列.md)
+  - [哈希表](./数据结构与算法/哈希表.md)
+
 
 - [Rust](./Rust/README.md)
   - [Trait](./Rust/RustTrait使用与实现.md)
@@ -27,7 +30,7 @@
   - [生命周期](./Rust/Rust生命周期.md)
   - [线程安全](./Rust/Rust的线程安全.md)
   - [函数式](./Rust/FPRust.md)
-
+  - [Hashbrown哈希](./Rust/Hashbrown.md)
 
 
 - [Docker](./Docker/README.md)
@@ -60,3 +63,5 @@
   - [Scheduler](./RxJava/Scheduler.md)
   - [踩坑](./RxJava/踩坑.md)
 
+- [ArceOS](./ArceOS/README.md)
+  - [系统调用](./ArceOS/系统调用.md)
