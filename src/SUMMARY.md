@@ -68,3 +68,7 @@
 
 - [数据库](./数据库/README.md)
 
+
+- [cpp](./cpp/README.md)
+  - [基本知识](./cpp/cpp_basic.md)
+  - [内存模型](./cpp/深度探索C++对象模型（总结篇）.md)
