@@ -67,8 +67,13 @@
   - [系统调用](./ArceOS/系统调用.md)
 
 - [数据库](./数据库/README.md)
+  - [乐观锁](./数据库/乐观锁.md)
+  - [悲观锁](./数据库/悲观锁.md)
 
 
 - [cpp](./cpp/README.md)
   - [基本知识](./cpp/cpp_basic.md)
   - [内存模型](./cpp/深度探索C++对象模型（总结篇）.md)
+
+- [零零碎碎](./零零碎碎/README.md)
+  - [Github Action](./零零碎碎/Github%20Action.md)
