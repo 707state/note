@@ -19,7 +19,7 @@
   - [一些有技巧的题目](./数据结构与算法/tricky.md)
   - [队列](./数据结构与算法/队列.md)
   - [哈希表](./数据结构与算法/哈希表.md)
-
+  - [排序](./数据结构与算法/排序.md)
 
 - [Rust](./Rust/README.md)
   - [Trait](./Rust/RustTrait使用与实现.md)
@@ -70,10 +70,17 @@
   - [乐观锁](./数据库/乐观锁.md)
   - [悲观锁](./数据库/悲观锁.md)
 
-
+- [分布式协议](./分布式协议/README.md)
+  - [Raft选举领导者](./分布式协议/Raft.md)
 - [cpp](./cpp/README.md)
   - [基本知识](./cpp/cpp_basic.md)
   - [内存模型](./cpp/深度探索C++对象模型（总结篇）.md)
+
+- [Go](./Go/README.md)
+
+- [前端](./前端/README.md)
+  - [移动应用开发技术一览](./前端/移动开发技术.md) 
+  - [Flutter](./前端/Flutter.md)
 
 - [零零碎碎](./零零碎碎/README.md)
   - [Github Action](./零零碎碎/Github%20Action.md)

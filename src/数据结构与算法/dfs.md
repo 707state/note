@@ -72,7 +72,72 @@ public:
     }
 };
 ```
+# 486 预测赢家
+
+给你一个整数数组 nums 。玩家 1 和玩家 2 基于这个数组设计了一个游戏。
+
+玩家 1 和玩家 2 轮流进行自己的回合，玩家 1 先手。开始时，两个玩家的初始分值都是 0 。每一回合，玩家从数组的任意一端取一个数字（即，nums[0] 或 nums[nums.length - 1]），取到的数字将会从数组中移除（数组长度减 1 ）。玩家选中的数字将会加到他的得分上。当数组中没有剩余数字可取时，游戏结束。
+
+如果玩家 1 能成为赢家，返回 true 。如果两个玩家得分相等，同样认为玩家 1 是游戏的赢家，也返回 true 。你可以假设每个玩家的玩法都会使他的分数最大化。
+
+```cpp
+class Solution {
+public:
+    bool predictTheWinner(vector<int>& nums) {
+        function<int(int,int,int)> dfs=[&](int start,int end,int turn){
+            if(start==end){
+                return nums[start]*turn;
+            }
+            int scoreStat=nums[start]*turn+dfs(start+1,end,-turn);
+            int scoreEnd=nums[end]*turn+dfs(start,end-1,-turn);
+            return max(scoreStat*turn,scoreEnd*turn)*turn;
+        };
+        return dfs(0,nums.size()-1,1)>=0;
+    }
+};
+```
+# 365 水壶问题
+
+有两个水壶，容量分别为 x 和 y 升。水的供应是无限的。确定是否有可能使用这两个壶准确得到 target 升。
+
+你可以：
+
+    装满任意一个水壶
+    清空任意一个水壶
+    将水从一个水壶倒入另一个水壶，直到接水壶已满，或倒水壶已空。
 
 
+```cpp
+class Solution {
+public:
+    bool canMeasureWater(int x, int y, int target) {
+        stack<pair<int,int>> stk;
+        stk.emplace(0,0);
+        auto hasher=[](const pair<int,int> &o){
+            return hash<int>()(o.first)^hash<int>()(o.second);
+        };
+        unordered_set<pair<int,int>,decltype(hasher)> seen(0,hasher);
+        while(stk.size()){
+            if(seen.count(stk.top())){
+                stk.pop();
+                continue;
+            }
+            seen.emplace(stk.top());
+            auto [remain_x,remain_y]=stk.top();
+            stk.pop();
+            if(remain_x==target||remain_y==target||remain_x+remain_y==target){
+                return true;
+            }
+            stk.emplace(x,remain_y);
+            stk.emplace(remain_x,y);
+            stk.emplace(0,remain_y);
+            stk.emplace(remain_x,0);
+            stk.emplace(remain_x-min(remain_x,y-remain_y),remain_y+min(remain_x,y-remain_y));
+            stk.emplace(remain_x+min(remain_y,x-remain_x),remain_y-min(remain_y,x-remain_x));
+        }
+        return false;
+    }
+};
+```
 
 
