@@ -139,5 +139,111 @@ public:
     }
 };
 ```
+# 130 被围绕的区域
+
+给你一个 m x n 的矩阵 board ，由若干字符 'X' 和 'O' 组成，捕获 所有 被围绕的区域：
+
+    连接：一个单元格与水平或垂直方向上相邻的单元格连接。
+    区域：连接所有 'O' 的单元格来形成一个区域。
+    围绕：如果您可以用 'X' 单元格 连接这个区域，并且区域中没有任何单元格位于 board 边缘，则该区域被 'X' 单元格围绕。
+
+通过将输入矩阵 board 中的所有 'O' 替换为 'X' 来 捕获被围绕的区域。
+
+```cpp
+class Solution {
+public:
+    void solve(vector<vector<char>>& board) {
+       int n=board.size();
+       int m=board[0].size();
+       if(n==0) return;
+       auto dfs=[&](auto&& dfs,int x,int y){
+        if(x<0||x>=n||y<0||y>=m||board[x][y]!='O'){
+            return;
+        }
+        board[x][y]='A';
+        dfs(dfs,x+1,y);
+        dfs(dfs,x-1,y);
+        dfs(dfs,x,y-1);
+        dfs(dfs,x,y+1);
+       }; 
+       for(int i=0;i<n;i++){
+        dfs(dfs,i,0);
+        dfs(dfs,i,m-1);
+       }
+        for(int j=0;j<m;j++){
+            dfs(dfs,0,j);
+            dfs(dfs,n-1,j);
+        }
+        for(int i=0;i<n;i++){
+            for(int j=0;j<m;j++){
+                if(board[i][j]=='A'){
+                    board[i][j]='O';
+                }else if(board[i][j]=='O'){
+                    board[i][j]='X';
+                }
+            }
+        }
+    }
+};
+```
+# 529 扫地雷
 
 
+
+给你一个大小为 m x n 二维字符矩阵 board ，表示扫雷游戏的盘面，其中：
+
+    'M' 代表一个 未挖出的 地雷，
+    'E' 代表一个 未挖出的 空方块，
+    'B' 代表没有相邻（上，下，左，右，和所有4个对角线）地雷的 已挖出的 空白方块，
+    数字（'1' 到 '8'）表示有多少地雷与这块 已挖出的 方块相邻，
+    'X' 则表示一个 已挖出的 地雷。
+
+给你一个整数数组 click ，其中 click = [clickr, clickc] 表示在所有 未挖出的 方块（'M' 或者 'E'）中的下一个点击位置（clickr 是行下标，clickc 是列下标）。
+
+根据以下规则，返回相应位置被点击后对应的盘面：
+
+    如果一个地雷（'M'）被挖出，游戏就结束了- 把它改为 'X' 。
+    如果一个 没有相邻地雷 的空方块（'E'）被挖出，修改它为（'B'），并且所有和其相邻的 未挖出 方块都应该被递归地揭露。
+    如果一个 至少与一个地雷相邻 的空方块（'E'）被挖出，修改它为数字（'1' 到 '8' ），表示相邻地雷的数量。
+    如果在此次点击中，若无更多方块可被揭露，则返回盘面。
+
+```cpp
+class Solution {
+    constexpr static array<int,8> dx={1,0,-1,0,1,1,-1,-1},dy={0,1,0,-1,-1,1,-1,1};
+public:
+    void dfs(vector<vector<char>>& board,int x,int y){
+        int cnt=0;
+        for(int i=0;i<8;i++){
+            int tx=x+dx[i];
+            int ty=y+dy[i];
+            if(tx<0||tx>=board.size()||ty<0||ty>=board[0].size()){
+                continue;
+            }
+            cnt+=board[tx][ty]=='M';
+        }
+        if(cnt>0){
+            board[x][y]=cnt+'0';
+        }else{
+            board[x][y]='B';
+            for(int i=0;i<8;i++){
+                int tx=x+dx[i];
+                int ty=y+dy[i];
+                if(tx<0||tx>=board.size()||ty<0||ty>=board[0].size()||board[tx][ty]!='E'){
+                    continue;
+                }
+                dfs(board,tx,ty);
+            }
+        }
+    }
+    vector<vector<char>> updateBoard(vector<vector<char>>& board, vector<int>& click) {
+        int x=click[0];
+        int y=click[1];
+        if(board[x][y]=='M'){
+            board[x][y]='X';
+        }else{
+            dfs(board,x,y);
+        }
+        return board;
+    }
+};
+```

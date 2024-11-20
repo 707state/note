@@ -111,3 +111,110 @@ pub struct Bucket<T> {
 
 
 
+# 恶补数学基础
+
+## 如何衡量哈希函数的？
+
+1. 性能：
+  哈希小对象的速度：uint64
+  哈希大对象的速度：string
+  占用内存
+
+2. 质量：
+  能否预防DDOS攻击
+  是否存在Bad Seeds
+  是否存在未定义行为
+
+## AHash
+
+AHash是hashbrown默认的hash函数，被设计在内存使用。
+
+```rust
+///This constant comes from Kunth's prng (Empirically it works better than those from splitmix32).
+
+pub(crate) const MULTIPLE: u64 = 6364136223846793005;
+
+
+pub(crate) const fn folded_multiply(s: u64, by: u64) -> u64 {
+
+    let result = (s as u128).wrapping_mul(by as u128);
+
+    ((result & 0xffff_ffff_ffff_ffff) as u64) ^ ((result >> 64) as u64)
+
+}
+
+
+impl AHasher {
+
+    // ...
+
+    #[inline(always)]
+
+    fn update(&mut self, new_data: u64) {
+
+        self.buffer = folded_multiply(new_data ^ self.buffer, MULTIPLE);
+
+    }
+
+}
+```
+
+这是实现，看不懂...
+
+## 前置知识
+
+### 三角数mod 2^n
+
+hashbrown 内部用的不是 拉链法，而是 基于 三角数 （杨辉三角每一行的中间数）的探测法。
+
+假设 i = hash(x)，那么 hashbrown 会依次访问大小为 N 的数组的第 i % N, (i + 1) % N, (i + 1 + 2) % N, (i + 1 + 2 + 3) % N, ... 位。可以证明，访问 N 次时，恰好访问且仅访问了数组中的每一位一次。
+
+### 位操作
+
+#### 删掉最后一位1
+
+```rust
+x&(x-1)
+```
+很好理解，将 x 表述为 ...10000...000，x - 1 为 ...01111...111，相与最后 1 位变为 0。 
+
+#### 最后一位1的位置
+
+本质上是个二分算法，但直接用 trailing_zeros 计算（C++ 用 __builtin_ctz），编译器可能会翻译为 CPU 指令，性能会高出很多。 
+
+#### hashbrown 中的一些位运算
+
+现在有一个 u8 的数组，其中的值只可能是 0x80, 0x8f 或 0x00 至 0x7f 中的任何数。我们可能从数组的任意位置视为 u32 将数据读出来做运算。
+
+将 0x80, 0xff 转为 0x80，剩下的转为 0x00。
+
+直接和 0x80808080 相与。
+
+```rust
+x& u32::from_ne_bytes(0x80)
+```
+将 0xff 转为 0x80，剩下的转为 0x00
+
+实际上是判断最高位和次高位为 1。让自己与自己左移一位相与，再与 0x80，结果为 0x80 说明最高位和次高位都为 1。
+```rust
+x&(x<<1)&u32::from_ne_bytes(0x80)
+```
+将指定的 y 转为 0x80，剩下的转为 0x00。
+
+操作 (t - 1) & ~t 能得到取最低位 1 再减 1 的结果，当 t = 0 时结果为 0xff，是唯一能让最高位为 1 的值。所以先异或 x，再应用这个操作，最后直接与 0x80。
+
+```rust
+let z=x^u32::from_ne_bytes(y);
+z.wrapping_sub(repeat(0x01))&!z&reoeat(0x80)
+```
+
+将 0x80 转为 0xff，0xff 保持 0xff，其他转为 0x80。
+
+首先将自己取反后与 0x80 相与，这样 0x80 与 0xff 会转为 0x00，其他会转为 0x80。再取最高位后加上取反的结果，那么 0x00 会变为 0x7f，0x80 会变为 0x80。 
+
+```rust
+let y=!x & repeat(0x80);
+!y+(y>>7)
+```
+
+

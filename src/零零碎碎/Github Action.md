@@ -8,7 +8,7 @@ Github Action是用YAML来定义的一套模板，触发工作流等都可以通
 
 记录这个只是因为mdbook+gh page要用到，顺便了解一下。
 
-```yml 
+```yaml 
 name: Deploy
 on:
   push:
