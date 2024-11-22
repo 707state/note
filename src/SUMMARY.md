@@ -49,6 +49,7 @@
   - [双指针](./数据结构与算法/双指针.md)
   - [滑动窗口](./数据结构与算法/滑动窗口.md)
   - [LRUCache](./数据结构与算法/LRUCache.md)
+  - [ClockCache](./数据结构与算法/Clock-Cache.md)
   - [BTree](./数据结构与算法/BTree.md)
   - [图算法](./数据结构与算法/图算法.md)
   - [栈](./数据结构与算法/栈.md)
@@ -58,6 +59,10 @@
   - [哈希表](./数据结构与算法/哈希表.md)
   - [排序](./数据结构与算法/排序.md)
   - [并查集](./数据结构与算法/并查集.md)
+  - [LSM Tree](./数据结构与算法/LSMTree.md)
+  - [深搜](./数据结构与算法/dfs.md)
+  - [广搜](./数据结构与算法/bfs.md)
+
 - [RxJava](./RxJava/README.md)
   - [基本操作符](./RxJava/介绍.md)
   - [Scheduler](./RxJava/Scheduler.md)
