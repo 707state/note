@@ -40,6 +40,8 @@ Mem Tables适用于处理Batch Write批量写的。
 
 用cross-beam的SkipList来实现，因为cross-beam的SkipList支持无锁并发。并且都支持insert, get和iter。
 
+<details><summary>Click to expand</summary>
+
 ```rust
 pub struct MemTable {
     map: Arc<SkipMap<Bytes, Bytes>>,
@@ -48,7 +50,10 @@ pub struct MemTable {
     approximate_size: Arc<AtomicUsize>,
 }
 ```
+</details>
 这是MemTable的结构体。需要实现get和delete方法。
+
+<details><summary>Click to expand</summary>
 
 ```rust
     /// Get a value by key.
@@ -56,8 +61,11 @@ pub struct MemTable {
         self.map.get(key).map(|e| e.value().clone())
     }
 ```
+</details>
 
 get通过在SkipMap中寻找key来获取对应的值。
+
+<details><summary>Click to expand</summary>
 
 ```rust
     pub fn put(&self, key: &[u8], value: &[u8]) -> Result<()> {
@@ -76,11 +84,14 @@ get通过在SkipMap中寻找key来获取对应的值。
         Ok(())
     }
 ```
+</details>
 这是put方法的实现，要放入一个键值对到SkipMap中，并且为后面的WAL做准备。
 
 注意，Mem Table不提供delete方法，在这里如果一个键对应的值是空的就视为被删除了。
 
 ## 一个MemTable的实现
+
+<details><summary>Click to expand</summary>
 
 ```rust
 /// Represents the state of the storage engine.
@@ -99,6 +110,7 @@ pub struct LsmStorageState {
     pub sstables: HashMap<usize, Arc<SsTable>>,
 }
 ```
+</details>
 表示存储引擎的状态，在任何时刻，引擎中只能由一个可变的MemTable。当一个MemTable达到存储上限的时候就会被冻结为一个不可变的MemTable。
 
 在lsm_storage.rs中有两个表示存储引擎的结构：MiniLSM和LsmStorageInner。MiniLSM是对于LsmStorageInner的一层封装。

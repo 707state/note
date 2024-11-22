@@ -6,6 +6,8 @@
 
 如果存在这样的路径，请你返回 true ，否则返回 false 。
 
+<details><summary>Click to expand</summary>
+
 ```cpp
 class Solution {
 public:
@@ -45,12 +47,15 @@ public:
     }
 };
 ```
+</details>
 
 # 386 字典序排数
 
 给你一个整数 n ，按字典序返回范围 [1, n] 内所有整数。
 
 你必须设计一个时间复杂度为 O(n) 且使用 O(1) 额外空间的算法。
+<details><summary>Click to expand</summary>
+
 ```cpp 
 class Solution {
 public:
@@ -72,6 +77,7 @@ public:
     }
 };
 ```
+</details>
 # 486 预测赢家
 
 给你一个整数数组 nums 。玩家 1 和玩家 2 基于这个数组设计了一个游戏。
@@ -79,6 +85,8 @@ public:
 玩家 1 和玩家 2 轮流进行自己的回合，玩家 1 先手。开始时，两个玩家的初始分值都是 0 。每一回合，玩家从数组的任意一端取一个数字（即，nums[0] 或 nums[nums.length - 1]），取到的数字将会从数组中移除（数组长度减 1 ）。玩家选中的数字将会加到他的得分上。当数组中没有剩余数字可取时，游戏结束。
 
 如果玩家 1 能成为赢家，返回 true 。如果两个玩家得分相等，同样认为玩家 1 是游戏的赢家，也返回 true 。你可以假设每个玩家的玩法都会使他的分数最大化。
+
+<details><summary>Click to expand</summary>
 
 ```cpp
 class Solution {
@@ -96,6 +104,7 @@ public:
     }
 };
 ```
+</details>
 # 365 水壶问题
 
 有两个水壶，容量分别为 x 和 y 升。水的供应是无限的。确定是否有可能使用这两个壶准确得到 target 升。
@@ -106,6 +115,8 @@ public:
     清空任意一个水壶
     将水从一个水壶倒入另一个水壶，直到接水壶已满，或倒水壶已空。
 
+
+<details><summary>Click to expand</summary>
 
 ```cpp
 class Solution {
@@ -139,6 +150,7 @@ public:
     }
 };
 ```
+</details>
 # 130 被围绕的区域
 
 给你一个 m x n 的矩阵 board ，由若干字符 'X' 和 'O' 组成，捕获 所有 被围绕的区域：
@@ -148,6 +160,8 @@ public:
     围绕：如果您可以用 'X' 单元格 连接这个区域，并且区域中没有任何单元格位于 board 边缘，则该区域被 'X' 单元格围绕。
 
 通过将输入矩阵 board 中的所有 'O' 替换为 'X' 来 捕获被围绕的区域。
+
+<details><summary>Click to expand</summary>
 
 ```cpp
 class Solution {
@@ -186,6 +200,7 @@ public:
     }
 };
 ```
+</details>
 # 529 扫地雷
 
 
@@ -206,6 +221,8 @@ public:
     如果一个 没有相邻地雷 的空方块（'E'）被挖出，修改它为（'B'），并且所有和其相邻的 未挖出 方块都应该被递归地揭露。
     如果一个 至少与一个地雷相邻 的空方块（'E'）被挖出，修改它为数字（'1' 到 '8' ），表示相邻地雷的数量。
     如果在此次点击中，若无更多方块可被揭露，则返回盘面。
+
+<details><summary>Click to expand</summary>
 
 ```cpp
 class Solution {
@@ -247,3 +264,4 @@ public:
     }
 };
 ```
+</details>

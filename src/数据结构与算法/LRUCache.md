@@ -5,6 +5,8 @@ LRU是Least Recently Used的缩写，即最近最少使用，是一种常用的�
 
 ## 实现
 
+<details><summary>Click to expand</summary>
+
 ```c++
 struct Node{
     int key,val;
@@ -67,5 +69,6 @@ public:
     }
 };
 ```
+</details>
 
 

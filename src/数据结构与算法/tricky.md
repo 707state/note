@@ -14,6 +14,8 @@
     double findMedian() 返回到目前为止所有元素的中位数。与实际答案相差 10-5 以内的答案将被接受。
 
 
+<details><summary>Click to expand</summary>
+
 ```cpp 
 class MedianFinder {
     priority_queue<int,vector<int>,greater<>>  queMax;
@@ -47,10 +49,13 @@ public:
     }
 };
 ```
+</details>
 
 # 42 接雨水
 
 给定 n 个非负整数表示每个宽度为 1 的柱子的高度图，计算按此排列的柱子，下雨之后能接多少雨水。
+
+<details><summary>Click to expand</summary>
 
 ```cpp 
 class Solution {
@@ -73,6 +78,7 @@ public:
     }
 };
 ```
+</details>
 
 # 3162 优质数对的总数1 
 
@@ -82,6 +88,8 @@ public:
 
 返回 优质数对 的总数。
 
+
+<details><summary>Click to expand</summary>
 
 ```cpp 
 class Solution {
@@ -112,6 +120,7 @@ public:
     }
 };
 ```
+</details>
 
 
 # LCR 170 交易逆序对的总数
@@ -121,6 +130,8 @@ public:
 思路：
 
 1. 归并排序
+
+<details><summary>Click to expand</summary>
 
 ```cpp 
 class Solution {
@@ -156,6 +167,7 @@ public:
     }
 };
 ```
+</details>
 
 2. 树状数组
 
@@ -178,6 +190,8 @@ value  ->  0 1 1 0 2 1 0 0 0
 我们显然可以用数组来实现这个桶，可问题是如果 ai 中有很大的元素，比如 109，我们就要开一个大小为 109 的桶，内存中是存不下的。这个桶数组中很多位置是 0，有效位置是稀疏的，我们要想一个办法让有效的位置全聚集到一起，减少无效位置的出现，这个时候我们就需要用到一个方法——离散化。
 
 离散化一个序列的前提是我们只关心这个序列里面元素的相对大小，而不关心绝对大小（即只关心元素在序列中的排名）；离散化的目的是让原来分布零散的值聚集到一起，减少空间浪费。那么如何获得元素排名呢，我们可以对原序列排序后去重，对于每一个 ai 通过二分查找的方式计算排名作为离散化之后的值。当然这里也可以不去重，不影响排名。
+
+<details><summary>Click to expand</summary>
 
 ```cpp 
 class BIT{
@@ -226,6 +240,7 @@ public:
     }
 };
 ```
+</details>
 
 # 3200 三角形的最大高度
 
@@ -234,6 +249,8 @@ public:
 每一行的球必须是 相同 颜色，且相邻行的颜色必须 不同。
 
 返回可以实现的三角形的 最大 高度。
+<details><summary>Click to expand</summary>
+
 ```cpp 
 class Solution {
 public:
@@ -256,6 +273,7 @@ public:
     }
 };
 ```
+</details>
 
 # 71 简化路径
 
@@ -276,6 +294,8 @@ public:
     此外，路径仅包含从根目录到目标文件或目录的路径上的目录（即，不含 '.' 或 '..'）。
 
 返回简化后得到的 规范路径 。
+
+<details><summary>Click to expand</summary>
 
 ```cpp 
 class Solution {
@@ -316,12 +336,15 @@ public:
     }
 };
 ```
+</details>
 
 # 54 螺旋矩阵
 
 给你一个 m 行 n 列的矩阵 matrix ，请按照 顺时针螺旋顺序 ，返回矩阵中的所有元素。
 
 注意，dx, dy有顺序要求。
+
+<details><summary>Click to expand</summary>
 
 ```cpp 
 class Solution {
@@ -350,6 +373,7 @@ public:
     }
 };
 ```
+</details>
 
 # 164 最大间距
 
@@ -382,6 +406,8 @@ d=(M-m+n-1)/(n-1)的下取整。
 一般地，从 m 开始，把元素值在 m,m+1,⋯,m+d−1 中的数分到第一个桶，把元素值在 m+d,m+d+1,⋯,m+2d−1 中的数分到第二个桶，依此类推。
 
 
+<details><summary>Click to expand</summary>
+
 ```cpp
 class Solution {
 public:
@@ -408,6 +434,7 @@ public:
     }
 };
 ```
+</details>
 
 # 910 最小差值1 
 
@@ -418,6 +445,8 @@ public:
 nums 的 分数 是 nums 中最大元素和最小元素的差值。
 
 在更改每个下标对应的值之后，返回 nums 的最小 分数 。
+
+<details><summary>Click to expand</summary>
 
 ```cpp 
 class Solution {
@@ -434,6 +463,7 @@ public:
     }
 };
 ```
+</details>
 
 # 31 下一个排列
 
@@ -450,6 +480,8 @@ public:
 给你一个整数数组 nums ，找出 nums 的下一个排列。
 
 必须 原地 修改，只允许使用额外常数空间。
+
+<details><summary>Click to expand</summary>
 
 ```cpp
 class Solution {
@@ -470,6 +502,7 @@ public:
     }
 };
 ```
+</details>
 
 # 287 寻找重复数
 
@@ -485,6 +518,8 @@ public:
 
 考虑第 i 位，我们记 nums 数组中二进制展开后第 i 位为 1 的数有 x 个，数字 [1,n] 这 n 个数二进制展开后第 i 位为 1 的数有 y 个，那么重复的数第 i 位为 1 当且仅当 x>y。
 
+
+<details><summary>Click to expand</summary>
 
 ```cpp
 class Solution {
@@ -513,11 +548,14 @@ public:
     }
 };
 ```
+</details>
 
 # 41 缺失的第一个正数
 
 给你一个未排序的整数数组 nums ，请你找出其中没有出现的最小的正整数。
 请你实现时间复杂度为 O(n) 并且只使用常数级别额外空间的解决方案。 
+
+<details><summary>Click to expand</summary>
 
 ```cpp
 class Solution {
@@ -540,6 +578,7 @@ public:
     }
 };
 ```
+</details>
 # 3222 求出硬币游戏的赢家
 
 给你两个 正 整数 x 和 y ，分别表示价值为 75 和 10 的硬币的数目。
@@ -547,6 +586,8 @@ public:
 Alice 和 Bob 正在玩一个游戏。每一轮中，Alice 先进行操作，Bob 后操作。每次操作中，玩家需要拿出价值 总和 为 115 的硬币。如果一名玩家无法执行此操作，那么这名玩家 输掉 游戏。
 
 两名玩家都采取 最优 策略，请你返回游戏的赢家。
+
+<details><summary>Click to expand</summary>
 
 ```cpp
 class Solution {
@@ -556,6 +597,7 @@ public:
     }
 };
 ```
+</details>
 # 936 戳印序列
 
 你想要用小写字母组成一个目标字符串 target。 
@@ -571,6 +613,8 @@ public:
 例如，如果序列是 "ababc"，印章是 "abc"，那么我们就可以返回与操作 "?????" -> "abc??" -> "ababc" 相对应的答案 [0, 2]；
 
 另外，如果可以印出序列，那么需要保证可以在 10 * target.length 个回合内完成。任何超过此数字的答案将不被接受。
+
+<details><summary>Click to expand</summary>
 
 ```cpp 
 class Solution {
@@ -613,6 +657,7 @@ public:
     }
 };
 ```
+</details>
 # 60 排列序列
 
 给出集合 [1,2,3,...,n]，其所有元素共有 n! 种排列。
@@ -627,6 +672,8 @@ public:
     "321"
 
 给定 n 和 k，返回第 k 个排列。
+
+<details><summary>Click to expand</summary>
 
 ```cpp
 class Solution {
@@ -645,5 +692,6 @@ public:
     }
 };
 ```
+</details>
 
 

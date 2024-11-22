@@ -15,12 +15,15 @@ Redis 只有 Zset 对象的底层实现用到了跳表，跳表的优势是能�
 
 zset 结构体里有两个数据结构：一个是跳表，一个是哈希表。这样的好处是既能进行高效的范围查询，也能进行高效单点查询。
 
+<details><summary>Click to expand</summary>
+
 ```c 
 typedef struct zset {
     dict *dict;
     zskiplist *zsl;
 } zset;
 ```
+</details>
 Zset 对象在执行数据插入或是数据更新的过程中，会依次在跳表和哈希表中插入或更新相应的数据，从而保证了跳表和哈希表中记录的信息一致。
 
 Zset 对象能支持范围查询（如 ZRANGEBYSCORE 操作），这是因为它的数据结构设计采用了跳表，而又能以常数复杂度获取元素权重（如 ZSCORE 操作），这是因为它同时采用了哈希表进行索引。
@@ -42,6 +45,8 @@ level 数组中的每一个元素代表跳表的一层，也就是由 zskiplistL
 
 因为跳表中的节点都是按序排列的，那么计算某个节点排位的时候，从头节点到该结点的查询路径上，将沿途访问过的所有层的跨度累加起来，得到的结果就是目标节点在跳表中的排位。
 
+<details><summary>Click to expand</summary>
+
 ```c 
 typedef struct zskiplist {
     struct zskiplistNode *header, *tail;
@@ -49,6 +54,7 @@ typedef struct zskiplist {
     int level;
 } zskiplist;
 ```
+</details>
 跳表结构里包含了：
 
     跳表的头尾节点，便于在O(1)时间复杂度内访问跳表的头节点和尾节点；

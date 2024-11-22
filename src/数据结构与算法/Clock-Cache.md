@@ -8,6 +8,8 @@
 
 ## 代码
 
+<details><summary>Click to expand</summary>
+
 ```rs 
     struct NodeType: u8 {
         const EMPTY     = 0b00001;
@@ -18,9 +20,12 @@
         const REFERENCE = 0b10000;
     }
 ```
+</details>
 
 这个 NodeType 结构体的作用是为时钟算法提供节点状态的表示和管理。通过使用位标志，算法可以有效地存储和处理节点的多种状态。使用位运算提高了存储效率，并简化了状态的检查和更新。
 
+
+<details><summary>Click to expand</summary>
 
 ```rs 
 struct Node<K, V> {
@@ -29,6 +34,7 @@ struct Node<K, V> {
     node_type: NodeType,
 }
 ```
+</details>
 
 key: MaybeUninit<K>:
 MaybeUninit 是一个用于未初始化数据的类型，意味着 key 字段在创建时可能还未被初始化。这在需要优化性能或控制初始化时很有用。
@@ -39,6 +45,8 @@ Option 是 Rust 中的一个枚举，表示可能存在的值或不存在的值�
 node_type: NodeType:
 node_type 字段是前面提到的 NodeType 枚举，用于标识该节点的状态，比如是否为空、热、冷、测试或引用。
 
+
+<details><summary>Click to expand</summary>
 
 ```rs 
 pub struct ClockProCache<K, V> {
@@ -58,6 +66,7 @@ pub struct ClockProCache<K, V> {
     evicted: u64,
 }
 ```
+</details>
 
 ClockProCache 结构体实现了一种基于时钟算法的缓存，使用多种容量控制和节点管理策略，允许在不同频率的访问模式下高效地存储和检索数据。通过将热、冷和测试节点分开管理，它能够优化缓存命中率并有效处理数据。
 

@@ -12,6 +12,8 @@
 
 返回 你想要完成在给定的列表 days 中列出的每一天的旅行所需要的最低消费 。
 
+<details><summary>Click to expand</summary>
+
 ```cpp 
 class Solution {
 public:
@@ -53,10 +55,13 @@ public:
     }
 };
 ```
+</details>
 
 # 组合总和 4 
 
 给定一个由 不同 正整数组成的数组 nums ，和一个目标整数 target 。请从 nums 中找出并返回总和为 target 的元素组合的个数。数组中的数字可以在一次排列中出现任意次，但是顺序不同的序列被视作不同的组合。
+
+<details><summary>Click to expand</summary>
 
 ```cpp 
 class Solution {
@@ -75,6 +80,7 @@ public:
     }
 };
 ```
+</details>
 
 # 1928 规定时间内到达终点的最小花费
 
@@ -85,6 +91,8 @@ public:
 一开始，你在城市 0 ，你想要在 maxTime 分钟以内 （包含 maxTime 分钟）到达城市 n - 1 。旅行的 费用 为你经过的所有城市 通行费之和 （包括 起点和终点城市的通行费）。
 
 给你 maxTime，edges 和 passingFees ，请你返回完成旅行的 最小费用 ，如果无法在 maxTime 分钟以内完成旅行，请你返回 -1 。
+
+<details><summary>Click to expand</summary>
 
 ```cpp 
 class Solution {
@@ -110,6 +118,7 @@ public:
     }
 };
 ```
+</details>
 
 # LCP 09 最小跳跃次数
 
@@ -121,6 +130,8 @@ public:
 思路：
 
 从右向左计算dp值(从后向前)，当前位置如果为i 则它如果直接跳到右边（前面）去就是dp[jump[i]+i]+1（这个值已经计算过了），计算出当前位置dp[i]之后，当前位置i可以影响 i+1到dp[j] >= dp[i]+1位置上的值（因为某个位置可以跳到左边任意位置）注意遍历到dp[j]>=dp[i]+1即可。
+<details><summary>Click to expand</summary>
+
 ```cpp 
 class Solution {
 public:
@@ -138,9 +149,12 @@ public:
     }
 };
 ```
+</details>
 
 
 # 790 多米诺和托米诺平铺
+
+<details><summary>Click to expand</summary>
 
 ```cpp 
 class Solution {
@@ -160,12 +174,15 @@ public:
     }
 };
 ```
+</details>
 
 # 96 不同的二叉搜索树
 
 给定一个整数 n,求以 1 ... n 为节点组成的二叉搜索树有多少种?
 
 同义题：给定n,求所有二叉树的形状
+
+<details><summary>Click to expand</summary>
 
 ```cpp
 class Solution {
@@ -182,12 +199,15 @@ return dp[n];
 }
 };
 ```
+</details>
 
 # 32 最长有效括号
 
 给你一个只包含 '(' 和 ')' 的字符串，找出最长有效（格式正确且连续）括号
 子串
 的长度。
+
+<details><summary>Click to expand</summary>
 
 ```cpp 
 class Solution {
@@ -209,6 +229,7 @@ public:
     }
 };
 ```
+</details>
 
 # 322 零钱兑换
 
@@ -217,6 +238,8 @@ public:
 计算并返回可以凑成总金额所需的 最少的硬币个数 。如果没有任何一种硬币组合能组成总金额，返回 -1 。
 
 你可以认为每种硬币的数量是无限的。
+
+<details><summary>Click to expand</summary>
 
 ```cpp 
 class Solution {
@@ -235,6 +258,7 @@ public:
     }
 };
 ```
+</details>
 
 # 375 猜数字大小 2 
 
@@ -267,6 +291,8 @@ f(1,n)=min{x+max(f(1,x−1),f(x+1,n))} (1≤x≤n)
 当 i<j 时，在范围 [i,j] 内第一次猜的数字可能是该范围内的任何一个数字。在第一次猜的数字是 k 的情况下（i≤k≤j），在范围 [i,j] 内确保胜利的最少金额是 k+max(f(i,k−1),f(k+1,j))。需要遍历全部可能的 k 找到在范围 [i,j] 内确保胜利的最少金额，因此状态转移方程如下：
 
 f(i,j)=(i≤k≤j) min{k+max(f(i,k−1),f(k+1,j))}
+<details><summary>Click to expand</summary>
+
 ```cpp 
 //逆序
 class Solution {
@@ -304,6 +330,7 @@ public:
     }
 };
 ```
+</details>
 
 # 213 打家劫舍2 
 
@@ -311,8 +338,11 @@ public:
 
 给定一个代表每个房屋存放金额的非负整数数组，计算你 在不触动警报装置的情况下 ，今晚能够偷窃到的最高金额。
 
+<details><summary>Click to expand</summary>
+
 ```cpp 
 ```cpp 
+</details>
 class Solution {
 public:
     int rob_helper(vector<int>& nums,int start,int end){
@@ -330,6 +360,8 @@ public:
         return max(rob_helper(nums,0,nums.size()-2),rob_helper(nums,1,nums.size()-1));
     }
 };
+<details><summary>Click to expand</summary>
+
 ```
 # 3193 统计逆序对的数量
 
@@ -346,6 +378,7 @@ perm 的数目，满足对 所有 的 requirements[i] 都有 perm[0..endi] 恰�
 由于答案可能会很大，将它对 109 + 7 取余 后返回。
 
 ```cpp 
+</details>
 class Solution {
     static constexpr int MOD=1'000'000'007;
 public:
@@ -377,6 +410,8 @@ public:
         return dfs(dfs,n-1,req[n-1]);
     }
 };
+<details><summary>Click to expand</summary>
+
 ```
 
 # 3180 执行操作可获得的最大总奖励 1 
@@ -391,6 +426,7 @@ public:
 以整数形式返回执行最优操作能够获得的 最大 总奖励。
 
 ```cpp
+</details>
 class Solution {
 public:
     int maxTotalReward(vector<int>& rewardValues) {
@@ -414,6 +450,8 @@ public:
         return res;
     }
 };
+<details><summary>Click to expand</summary>
+
 ```
 
 # 3181 执行操作可获得的最大总奖励 2 
@@ -467,6 +505,7 @@ f\[i][j]=f\[i−1][j]|f\[i−1][j−v]
 答案为 f 的最高位，即 f 的二进制长度减一。
 
 ```cpp
+</details>
 class Solution {
 public:
     int maxTotalReward(vector<int>& rewardValues) {
@@ -484,6 +523,8 @@ public:
         }
     }
 };
+<details><summary>Click to expand</summary>
+
 ```
 
 # 5 最长回文子串
@@ -491,6 +532,7 @@ public:
 给你一个字符串 s，找到 s 中最长的回文子串。
 
 ```cpp
+</details>
 class Solution {
 public:
     string longestPalindrome(string s) {
@@ -521,6 +563,8 @@ public:
         return s.substr(begin,maxLen);
     }
 };
+<details><summary>Click to expand</summary>
+
 ```
 
 # 3259  最多能量
@@ -534,6 +578,7 @@ public:
 注意 你可以选择从饮用任意一种能量饮料开始。
 
 ```cpp
+</details>
 class Solution {
 public:
     long long maxEnergyBoost(vector<int>& energyDrinkA, vector<int>& energyDrinkB) {
@@ -546,6 +591,8 @@ public:
         return ranges::max(dp.back());
     }
 };
+<details><summary>Click to expand</summary>
+
 ```
 
 # 72 编辑距离
@@ -558,6 +605,7 @@ public:
     删除一个字符
     替换一个字符
 ```cpp
+</details>
 class Solution {
 public:
     int minDistance(string word1, string word2) {
@@ -579,6 +627,8 @@ public:
         return dfs(dfs,n-1,m-1);
     }
 };
+<details><summary>Click to expand</summary>
+
 ```
 
 # UNRESOLVED 638  大礼包
@@ -592,6 +642,7 @@ public:
 返回 确切 满足购物清单所需花费的最低价格，你可以充分利用大礼包的优惠活动。你不能购买超出购物清单指定数量的物品，即使那样会降低整体价格。任意大礼包可无限次购买。
 
 ```cpp
+</details>
 class Solution {
 public:
     map<vector<int>, int> memo;
@@ -640,6 +691,8 @@ public:
         return memo[curNeeds];
     }
 };
+<details><summary>Click to expand</summary>
+
 ```
 # 1326 灌溉花园的最少水龙头数目
 
@@ -652,6 +705,7 @@ public:
 请你返回可以灌溉整个花园的 最少水龙头数目 。如果花园始终存在无法灌溉到的地方，请你返回 -1 。
 
 ```cpp
+</details>
 class Solution {
 public:
     int minTaps(int n, vector<int>& ranges) {
@@ -676,6 +730,8 @@ public:
         return ans;
     }
 };
+<details><summary>Click to expand</summary>
+
 ```
 
 # 152 乘积最大子数组
@@ -687,6 +743,7 @@ public:
 测试用例的答案是一个 32-位 整数。
 
 ```cpp
+</details>
 class Solution {
 public:
     int maxProduct(vector<int>& nums) {
@@ -701,6 +758,8 @@ public:
         return ranges::max(f_max);
     }
 };
+<details><summary>Click to expand</summary>
+
 ```
 # 1547 UNSOLVED 切棍子的最小成本
 
@@ -713,6 +772,7 @@ public:
 返回切棍子的 最小总成本 。
 
 ```cpp
+</details>
 class Solution {
 public:
     int minCost(int n, vector<int>& cuts) {
@@ -739,6 +799,8 @@ public:
         return dfs(dfs,0,m-1);
     }
 };
+<details><summary>Click to expand</summary>
+
 ```
 
 # 718 最长重复子数组
@@ -746,6 +808,7 @@ public:
 给两个整数数组 nums1 和 nums2 ，返回 两个数组中 公共的 、长度最长的子数组的长度 。
 
 ```cpp 
+</details>
 class Solution {
 public:
     int findLength(vector<int>& nums1, vector<int>& nums2) {
@@ -764,6 +827,8 @@ public:
         return result;
     }
 };
+<details><summary>Click to expand</summary>
+
 ```
 # 410 分割数组的最大值
 
@@ -790,6 +855,7 @@ f[i][j]=k=min{max(f[k][j−1],sub(k+1,i))}
 
 
 ```cpp
+</details>
 class Solution {
 public:
     int splitArray(vector<int>& nums, int k) {
@@ -810,6 +876,8 @@ public:
         return (int)f[n][k];
     }
 };
+<details><summary>Click to expand</summary>
+
 ```
 
 

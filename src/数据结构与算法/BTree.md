@@ -4,6 +4,8 @@
 
 记录根节点偏移量，实现如下：
 
+<details><summary>Click to expand</summary>
+
 ```rs 
 pub struct Wal {
     file: File,
@@ -38,12 +40,15 @@ impl Wal {
     }
 }
 ```
+</details>
 
 ## Pager页面管理
 
 负责管理文件中的页面（即数据块），并提供从磁盘读取和写入页面的接口。
 
 ### get_page
+
+<details><summary>Click to expand</summary>
 
 ```rs 
     pub fn get_page(&mut self, offset: &Offset) -> Result<Page, Error> {
@@ -53,10 +58,13 @@ impl Wal {
         Ok(Page::new(page))
     }
 ```
+</details>
 
 从磁盘上的特定偏移量读取一个页面。B+ 树的节点通常被存储在磁盘上的不同页面中，因此当需要访问特定节点时，Pager 会从磁盘中读取相应的页面。偏移量 Offset 指向页面在文件中的位置。
 
 ### write_page
+
+<details><summary>Click to expand</summary>
 
 ```rs 
     pub fn write_page(&mut self, page: Page) -> Result<Offset, Error> {
@@ -67,10 +75,13 @@ impl Wal {
         Ok(res)
     }
 ```
+</details>
 
 将页面写入磁盘文件的当前游标位置，并返回该页面的偏移量（Offset）。在 B+ 树的插入或删除操作后，节点可能会发生变动，此时 Pager 会将变动后的节点（即页面）写入磁盘。这个函数通常在插入新节点或页面时使用，并自动将页面顺序写入磁盘。
 
 # write_page_at_offset
+
+<details><summary>Click to expand</summary>
 
 ```rs 
     pub fn write_page_at_offset(&mut self, page: Page, offset: &Offset) -> Result<(), Error> {
@@ -78,12 +89,15 @@ impl Wal {
         self.file.write_all(&page.get_data())?;
         Ok(())
 ```
+</details>
 
 在给定的偏移量 Offset 上写入页面。用于覆盖磁盘中某个位置的页面数据。B+ 树中如果某个页面（节点）需要更新，而位置已经确定，则通过这个函数覆盖原有页面的数据。
 
 ## page 
 
 ### insert_byte_at_offset
+
+<details><summary>Click to expand</summary>
 
 ```rs 
     pub fn insert_bytes_at_offset(
@@ -104,12 +118,15 @@ impl Wal {
         Ok(())
     }
 ```
+</details>
 
 在指定offset处插入size大小的bytes。
 
 ## node 
 
 定义：
+
+<details><summary>Click to expand</summary>
 
 ```rs 
 pub struct Node {
@@ -118,8 +135,11 @@ pub struct Node {
     pub parent_offset: Option<Offset>,
 }
 ```
+</details>
 
 ### split 
+
+<details><summary>Click to expand</summary>
 
 ```rs 
     pub fn split(&mut self, b: usize) -> Result<(Key, Node), Error> {
@@ -160,12 +180,15 @@ pub struct Node {
     }
 }
 ```
+</details>
 
 节点分裂操作。
 
 ## BTree 
 
 ### BTree 
+
+<details><summary>Click to expand</summary>
 
 ```rs 
 pub struct BTree {
@@ -174,8 +197,11 @@ pub struct BTree {
     wal: Wal,
 }
 ```
+</details>
 
 ### B树Builder
+
+<details><summary>Click to expand</summary>
 
 ```rs 
 pub struct BTreeBuilder {
@@ -186,10 +212,13 @@ pub struct BTreeBuilder {
     b: usize,
 }
 ```
+</details>
 
 ### BTree操作
 
 判断node有没有满
+<details><summary>Click to expand</summary>
+
 ```rs 
     fn is_node_full(&self, node: &Node) -> Result<bool, Error> {
         match &node.node_type {
@@ -199,10 +228,13 @@ pub struct BTreeBuilder {
         }
     }
 ```
+</details>
 
 #### 插入
 
 插入的逻辑（不包含实际操作）
+<details><summary>Click to expand</summary>
+
 ```rs 
     pub fn insert(&mut self, kv: KeyValuePair) -> Result<(), Error> {
         let root_offset = self.wal.get_root()?;
@@ -240,10 +272,13 @@ pub struct BTreeBuilder {
         self.wal.set_root(new_root_offset)
     }
 ```
+</details>
 
 
 插入非满的节点
 
+
+<details><summary>Click to expand</summary>
 
 ```rs 
     fn insert_non_full(
@@ -303,10 +338,13 @@ pub struct BTreeBuilder {
         }
     }
 ```
+</details>
 
 #### 搜索
 
 搜索一个节点
+<details><summary>Click to expand</summary>
+
 ```rs 
     fn search_node(&mut self, node: Node, search: &str) -> Result<KeyValuePair, Error> {
         match node.node_type {
@@ -332,10 +370,13 @@ pub struct BTreeBuilder {
         }
     }
 ```
+</details>
 
 #### 删除
 
 删除的逻辑
+<details><summary>Click to expand</summary>
+
 ```rs 
     pub fn delete(&mut self, key: Key) -> Result<(), Error> {
         let root_offset = self.wal.get_root()?;
@@ -348,8 +389,11 @@ pub struct BTreeBuilder {
         self.wal.set_root(new_root_offset)
     }
 ```
+</details>
 
 从子树删除一个key 
+<details><summary>Click to expand</summary>
+
 ```rs 
     fn delete_key_from_subtree(
         &mut self,
@@ -395,8 +439,11 @@ pub struct BTreeBuilder {
         Ok(())
     }
 ```
+</details>
 
 #### 合并
+
+<details><summary>Click to expand</summary>
 
 ```rs 
     fn merge(&self, first: Node, second: Node) -> Result<Node, Error> {
@@ -433,3 +480,4 @@ pub struct BTreeBuilder {
         }
     }
 ```
+</details>
