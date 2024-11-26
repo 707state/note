@@ -7,7 +7,7 @@ LRU是Least Recently Used的缩写，即最近最少使用，是一种常用的�
 
 <details><summary>Click to expand</summary>
 
-```c++
+```cpp
 struct Node{
     int key,val;
     Node *prev,*next;

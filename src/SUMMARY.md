@@ -49,6 +49,7 @@
   - [双指针](./数据结构与算法/双指针.md)
   - [滑动窗口](./数据结构与算法/滑动窗口.md)
   - [LRUCache](./数据结构与算法/LRUCache.md)
+  - [LFUCache](./数据结构与算法/LFUCache.md)
   - [ClockCache](./数据结构与算法/Clock-Cache.md)
   - [BTree](./数据结构与算法/BTree.md)
   - [图算法](./数据结构与算法/图算法.md)
@@ -59,9 +60,11 @@
   - [哈希表](./数据结构与算法/哈希表.md)
   - [排序](./数据结构与算法/排序.md)
   - [并查集](./数据结构与算法/并查集.md)
-  - [LSM Tree](./数据结构与算法/LSMTree.md)
   - [深搜](./数据结构与算法/dfs.md)
   - [广搜](./数据结构与算法/bfs.md)
+  - [数学](./数据结构与算法/数学.md)
+  - [洗牌算法](./数据结构与算法/Shuffle.md)
+
 
 - [RxJava](./RxJava/README.md)
   - [基本操作符](./RxJava/介绍.md)
@@ -87,6 +90,9 @@
   - [Raft日志](./分布式协议/Raft2.md)
   - [Raft成员变更](./分布式协议/Raft3.md)
 
+- [LSM Tree](./LSM-Tree/README.md)
+  - [Overview & Memtable](./LSM-Tree/LSMTree.md)
+  - [Iterators](./LSM-Tree/LSMTree2.md)
 
 - [cpp](./cpp/README.md)
   - [基本知识](./cpp/cpp_basic.md)
@@ -105,6 +111,7 @@
 - [前端](./前端/README.md)
   - [移动应用开发技术一览](./前端/移动开发技术.md) 
   - [Flutter](./前端/Flutter.md)
+  - [JS Framework](./前端/JSFramework.md)
 
 - [零零碎碎](./零零碎碎/README.md)
   - [Github Action](./零零碎碎/Github%20Action.md)

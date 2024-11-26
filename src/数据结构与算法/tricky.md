@@ -694,4 +694,250 @@ public:
 ```
 </details>
 
+# 3233 统计不是特殊数字的数字数量
 
+给你两个 正整数 l 和 r。对于任何数字 x，x 的所有正因数（除了 x 本身）被称为 x 的 真因数。
+
+如果一个数字恰好仅有两个 真因数，则称该数字为 特殊数字。例如：
+
+    数字 4 是 特殊数字，因为它的真因数为 1 和 2。
+    数字 6 不是 特殊数字，因为它的真因数为 1、2 和 3。
+
+返回区间 [l, r] 内 不是 特殊数字 的数字数量。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    int nonSpecialCount(int l, int r) {
+        int n=sqrt(r);
+        vector<int> v(n+1);
+        int res=r-l+1;
+        for(int i=2;i<=n;i++){
+            if(v[i]==0){
+                if(i*i>=l&&i*i<=r){
+                    res--;
+                }
+            }
+            for(int j=i*i;j<=n;j+=i){
+                v[j]=1;
+            }
+        }
+        return res;
+    }
+};
+```
+
+</details>
+ 
+
+# 1739 放置盒子
+
+有一个立方体房间，其长度、宽度和高度都等于 n 个单位。请你在房间里放置 n 个盒子，每个盒子都是一个单位边长的立方体。放置规则如下：
+
+    你可以把盒子放在地板上的任何地方。
+    如果盒子 x 需要放置在盒子 y 的顶部，那么盒子 y 竖直的四个侧面都 必须 与另一个盒子或墙相邻。
+
+给你一个整数 n ，返回接触地面的盒子的 最少 可能数量。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    int minimumBoxes(int n) {
+        int ans = 0, max_n = 0;
+        for (int i = 1; max_n + ans + i <= n; ++i) {
+            ans += i;
+            max_n += ans;
+        }
+        for (int j = 1; max_n < n; ++j) {
+            ++ans;
+            max_n += j;
+        }
+        return ans;
+    }
+};
+```
+
+</details>
+
+# 407 接雨水 2 
+
+给你一个 m x n 的矩阵，其中的值均为非负整数，代表二维高度图每个单元的高度，请计算图中形状最多能接多少体积的雨水。
+
+ <details>
+
+ 思路：
+ 哪个格子的接水量，在一开始就能确定？
+
+    最外面一圈的格子是无法接水的。
+    假设 (0,1) 的高度是最外面一圈的格子中最小的，且高度等于 5，那么和它相邻的 (1,1)，我们能知道：
+        (1,1) 的水位不能超过 5，否则水会从 (0,1) 流出去。
+        (1,1) 的水位一定可以等于 5，这是因为 (0,1) 的高度是最外面一圈的格子中最小的，(1,1) 的水不可能从其他地方流出去。
+
+我们从最外面一圈的格子开始。想象成一个木桶，最外面一圈格子的高度视作木板的高度。
+
+接着上面的讨论：
+
+    如果 (1,1) 的高度 ≥5，那么 (0,1) 这块木板就没用了，我们去掉 (0,1) 这块木板，改用 (1,1) 这块木板。
+    如果 (1,1) 的高度 <5，假设我们接的不是水，是水泥。那么把 (1,1) 的高度填充为 5，仍然可以去掉 (0,1) 这块木板，改用 (1,1) 这块（填充水泥后）高为 5 的木板水泥板。
+
+继续，从当前木板中，找到一根最短的木板。假设 (1,1) 是当前所有木板中最短的，那么其邻居 (1,2) 和 (2,1) 的水位就是 (1,1) 的高度，因为超过 (1,1) 高度的水会流出去。然后，去掉 (1,1) 这块木板，改用 (1,2) 和 (2,1) 这两块木板。依此类推。
+
+由于每次都要找最短的木板，所以用一个最小堆维护木板的高度。按照上述做法，不断循环，直到堆为空。
+
+
+```cpp
+class Solution {
+    static constexpr int dxy[4][2]={{1,0},{-1,0},{0,1},{0,-1}};
+public:
+    int trapRainWater(vector<vector<int>>& heightMap) {
+        int m=heightMap.size(),n=heightMap[0].size();
+        priority_queue<tuple<int,int,int>,vector<tuple<int,int,int>>,greater<>> pq;
+        for(int i=0;i<m;i++){
+            for(int j=0;j<n;j++){
+                if(i==0||i==m-1||j==0||j==n-1){
+                    pq.emplace(heightMap[i][j],i,j);
+                    heightMap[i][j]=-1;//标记(i,j)，表示访问过
+                }
+            }
+        }
+        int ans=0;
+        while(!pq.empty()){
+            auto [min_height,i,j]=pq.top();
+            pq.pop();
+            for(auto& [dx,dy]:dxy){
+                int x=i+dx,y=j+dy;//(x,y)的邻居
+                if(x>=0&&x<m&&y>=0&&y<n&&heightMap[x][y]>=0){//(x,y)没有访问过
+                    //如果(x,y)的高度小于min_height,那么接水量为min_height-heightMap[x][y]
+                    ans+=max(min_height-heightMap[x][y],0);
+                    //给木桶新增一块高为max(heightMap[x][y],min_height)的木板
+                    pq.emplace(max(min_height,heightMap[x][y]),x,y);
+                    heightMap[x][y]=-1;
+                }
+            }
+        }
+        return ans;
+    }
+};
+```
+
+ </details>
+
+# 408 有效单词缩写
+
+字符串可以用 缩写 进行表示，缩写 的方法是将任意数量的 不相邻 的子字符串替换为相应子串的长度。例如，字符串 "substitution" 可以缩写为（不止这几种方法）：
+
+    "s10n" ("s ubstitutio n")
+    "sub4u4" ("sub stit u tion")
+    "12" ("substitution")
+    "su3i1u2on" ("su bst i t u ti on")
+    "substitution" (没有替换子字符串)
+
+下列是不合法的缩写：
+
+    "s55n" ("s ubsti tutio n"，两处缩写相邻)
+    "s010n" (缩写存在前导零)
+    "s0ubstitution" (缩写是一个空字符串)
+
+给你一个字符串单词 word 和一个缩写 abbr ，判断这个缩写是否可以是给定单词的缩写。
+
+子字符串是字符串中连续的非空字符序列。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    bool validWordAbbreviation(string word, string abbr) {
+        int len=abbr.size();
+        int wordLen=word.size();
+        int abbrLen=0,num=0;
+        for(int i=0;i<len;i++){
+            if(abbr[i]>='a'&&abbr[i]<='z'){
+                abbrLen+=num+1;
+                num=0;
+                if(abbrLen>wordLen||abbr[i]!=word[abbrLen-1]){
+                    return false;
+                }
+            }else{
+                if(!num&&abbr[i]=='0'){
+                    return false;
+                }
+                num=num*10+abbr[i]-'0';
+            }
+        }
+        return abbrLen+num==wordLen;
+    }
+};
+```
+
+</details>
+
+
+# 3208 交替数组
+
+给你一个整数数组 colors 和一个整数 k ，colors表示一个由红色和蓝色瓷砖组成的环，第 i 块瓷砖的颜色为 colors[i] ：
+
+    colors[i] == 0 表示第 i 块瓷砖的颜色是 红色 。
+    colors[i] == 1 表示第 i 块瓷砖的颜色是 蓝色 。
+
+环中连续 k 块瓷砖的颜色如果是 交替 颜色（也就是说除了第一块和最后一块瓷砖以外，中间瓷砖的颜色与它 左边 和 右边 的颜色都不同），那么它被称为一个 交替 组。
+
+请你返回 交替 组的数目。
+
+注意 ，由于 colors 表示一个 环 ，第一块 瓷砖和 最后一块 瓷砖是相邻的。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    int numberOfAlternatingGroups(vector<int>& colors, int k) {
+        int n=colors.size();
+        int ans=0,cnt=0;
+        for(int i=0;i<n*2;i++){
+            if(i>0&&colors[i%n]==colors[(i-1)%n]){
+                cnt=0;
+            }
+            cnt++;
+            ans+=i>=n&&cnt>=k;
+        }
+        return ans;
+    }
+};
+```
+
+</details>
+ 
+# UNSOLVED 3209 子数组按位与值为 K 的数目
+
+给你一个整数数组 nums 和一个整数 k ，请你返回 nums 中有多少个子数组满足：子数组中所有元素按位 AND 的结果为 k 。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    long long countSubarrays(vector<int>& nums, int k) {
+        long long ans=0;
+        for(int i=0;i<nums.size();i++){
+            int x=nums[i];
+            for(int j=i-1;j>=0&&(nums[j]&x)!=nums[j];j--){
+                nums[j]&=x;
+            }
+            ans+=upper_bound(nums.begin(),nums.begin()+i+1,k)-lower_bound(nums.begin(),nums.begin()+i+1,k);
+        }
+        return ans;
+    }
+};
+```
+
+</details>
+ 
+
+
+
+ 

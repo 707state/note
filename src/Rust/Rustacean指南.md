@@ -113,7 +113,7 @@ Rust 编译器要求变量要根据其类型正确初始化。
 由调用者来保证MaybeUninit<T>确实处于初始化状态。当内存尚未完全初始化时调用 assume_init() 会导致立即未定义的行为。
 
 
-```rs 
+```rust
 
 #![allow(unused)]
 
@@ -139,4 +139,21 @@ reader.read(&mut vec); // undefined behavior!
 }
 ```
 
+# 特殊符号
+
+## @ 
+
+并没有特殊语义，对于模式匹配而言，@可以在把一个值绑定到一个变量上的时候，对其进行一些检查。
+
+例如：
+
+```rust
+let x = Some(5);
+match x {
+    Some(y @ 3..=7) => println!("x is between 3 and 7, inclusive: {}", y),
+    _ => (),
+}
+```
+
+这个例子中，如果 x 是 Some 类型且其内部值在 3 到 7 范围内，那么该值将被绑定到变量 y 上。
 

@@ -7,7 +7,6 @@
 queries[i] = [ui, vi] 表示新建一条从城市 ui 到城市 vi 的单向道路。每次查询后，你需要找到从城市 0 到城市 n - 1 的最短路径的长度。
 
 返回一个数组 answer，对于范围 [0, queries.length - 1] 中的每个 i，answer[i] 是处理完前 i + 1 个查询后，从城市 0 到城市 n - 1 的最短路径的长度。
-<details>
 
 <details><summary>Click to expand</summary>
 
@@ -45,5 +44,3 @@ public:
 };
 ```
 </details>
-</details>
- 

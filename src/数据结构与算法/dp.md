@@ -154,6 +154,13 @@ public:
 
 # 790 多米诺和托米诺平铺
 
+有两种形状的瓷砖：一种是 2 x 1 的多米诺形，另一种是形如 "L" 的托米诺形。两种形状都可以旋转。
+
+给定整数 n ，返回可以平铺 2 x n 的面板的方法的数量。返回对 109 + 7 取模 的值。
+
+平铺指的是每个正方形都必须有瓷砖覆盖。两个平铺不同，当且仅当面板上有四个方向上的相邻单元中的两个，使得恰好有一个平铺有一个瓷砖占据两个正方形。
+
+
 <details><summary>Click to expand</summary>
 
 ```cpp 
@@ -288,7 +295,7 @@ f(1,n)=min{x+max(f(1,x−1),f(x+1,n))} (1≤x≤n)
 
 当 i=j 时范围 [i,j] 只包含 1 个数字，所选数字一定是范围内的唯一的数字，不存在猜错的情况，因此 f(i,j)=0；当 i>j 时范围 [i,j] 不存在，因此 f(i,j)=0。综合上述两种情况可知，动态规划的边界情况是：当 i≥j 时，f(i,j)=0。
 
-当 i<j 时，在范围 [i,j] 内第一次猜的数字可能是该范围内的任何一个数字。在第一次猜的数字是 k 的情况下（i≤k≤j），在范围 [i,j] 内确保胜利的最少金额是 k+max(f(i,k−1),f(k+1,j))。需要遍历全部可能的 k 找到在范围 [i,j] 内确保胜利的最少金额，因此状态转移方程如下：
+当 i\<j 时，在范围 [i,j] 内第一次猜的数字可能是该范围内的任何一个数字。在第一次猜的数字是 k 的情况下（i≤k≤j），在范围 [i,j] 内确保胜利的最少金额是 k+max(f(i,k−1),f(k+1,j))。需要遍历全部可能的 k 找到在范围 [i,j] 内确保胜利的最少金额，因此状态转移方程如下：
 
 f(i,j)=(i≤k≤j) min{k+max(f(i,k−1),f(k+1,j))}
 <details><summary>Click to expand</summary>
@@ -341,8 +348,6 @@ public:
 <details><summary>Click to expand</summary>
 
 ```cpp 
-```cpp 
-</details>
 class Solution {
 public:
     int rob_helper(vector<int>& nums,int start,int end){
@@ -360,9 +365,11 @@ public:
         return max(rob_helper(nums,0,nums.size()-2),rob_helper(nums,1,nums.size()-1));
     }
 };
-<details><summary>Click to expand</summary>
 
 ```
+</details>
+
+
 # 3193 统计逆序对的数量
 
 给你一个整数 n 和一个二维数组 requirements ，其中 requirements[i] = [endi, cnti] 表示这个要求中的末尾下标和 逆序对 的数目。
@@ -377,8 +384,9 @@ perm 的数目，满足对 所有 的 requirements[i] 都有 perm[0..endi] 恰�
 
 由于答案可能会很大，将它对 109 + 7 取余 后返回。
 
+<details>
+
 ```cpp 
-</details>
 class Solution {
     static constexpr int MOD=1'000'000'007;
 public:
@@ -410,9 +418,11 @@ public:
         return dfs(dfs,n-1,req[n-1]);
     }
 };
-<details><summary>Click to expand</summary>
 
 ```
+
+</details>
+
 
 # 3180 执行操作可获得的最大总奖励 1 
 
@@ -425,8 +435,9 @@ public:
 
 以整数形式返回执行最优操作能够获得的 最大 总奖励。
 
+<details>
+
 ```cpp
-</details>
 class Solution {
 public:
     int maxTotalReward(vector<int>& rewardValues) {
@@ -450,9 +461,9 @@ public:
         return res;
     }
 };
-<details><summary>Click to expand</summary>
 
 ```
+</details>
 
 # 3181 执行操作可获得的最大总奖励 2 
 
@@ -504,8 +515,9 @@ f\[i][j]=f\[i−1][j]|f\[i−1][j−v]
 
 答案为 f 的最高位，即 f 的二进制长度减一。
 
+<details>
+
 ```cpp
-</details>
 class Solution {
 public:
     int maxTotalReward(vector<int>& rewardValues) {
@@ -523,16 +535,17 @@ public:
         }
     }
 };
-<details><summary>Click to expand</summary>
 
 ```
+</details>
 
 # 5 最长回文子串
 
 给你一个字符串 s，找到 s 中最长的回文子串。
 
+<details>
+
 ```cpp
-</details>
 class Solution {
 public:
     string longestPalindrome(string s) {
@@ -563,9 +576,9 @@ public:
         return s.substr(begin,maxLen);
     }
 };
-<details><summary>Click to expand</summary>
 
 ```
+</details>
 
 # 3259  最多能量
 
@@ -577,8 +590,9 @@ public:
 
 注意 你可以选择从饮用任意一种能量饮料开始。
 
+<details><summary>Click to expand</summary>
+
 ```cpp
-</details>
 class Solution {
 public:
     long long maxEnergyBoost(vector<int>& energyDrinkA, vector<int>& energyDrinkB) {
@@ -591,9 +605,9 @@ public:
         return ranges::max(dp.back());
     }
 };
-<details><summary>Click to expand</summary>
 
 ```
+</details>
 
 # 72 编辑距离
 
@@ -604,8 +618,9 @@ public:
     插入一个字符
     删除一个字符
     替换一个字符
+<details>
+
 ```cpp
-</details>
 class Solution {
 public:
     int minDistance(string word1, string word2) {
@@ -627,9 +642,9 @@ public:
         return dfs(dfs,n-1,m-1);
     }
 };
-<details><summary>Click to expand</summary>
-
 ```
+
+</details>
 
 # UNRESOLVED 638  大礼包
 
@@ -641,8 +656,9 @@ public:
 
 返回 确切 满足购物清单所需花费的最低价格，你可以充分利用大礼包的优惠活动。你不能购买超出购物清单指定数量的物品，即使那样会降低整体价格。任意大礼包可无限次购买。
 
+<details>
+
 ```cpp
-</details>
 class Solution {
 public:
     map<vector<int>, int> memo;
@@ -691,9 +707,10 @@ public:
         return memo[curNeeds];
     }
 };
-<details><summary>Click to expand</summary>
-
 ```
+
+</details>
+
 # 1326 灌溉花园的最少水龙头数目
 
 在 x 轴上有一个一维的花园。花园长度为 n，从点 0 开始，到点 n 结束。
@@ -704,8 +721,9 @@ public:
 
 请你返回可以灌溉整个花园的 最少水龙头数目 。如果花园始终存在无法灌溉到的地方，请你返回 -1 。
 
+<details><summary>Click to expand</summary>
+
 ```cpp
-</details>
 class Solution {
 public:
     int minTaps(int n, vector<int>& ranges) {
@@ -730,9 +748,9 @@ public:
         return ans;
     }
 };
-<details><summary>Click to expand</summary>
 
 ```
+</details>
 
 # 152 乘积最大子数组
 
@@ -742,8 +760,10 @@ public:
 
 测试用例的答案是一个 32-位 整数。
 
+<details>
+
+
 ```cpp
-</details>
 class Solution {
 public:
     int maxProduct(vector<int>& nums) {
@@ -758,9 +778,10 @@ public:
         return ranges::max(f_max);
     }
 };
-<details><summary>Click to expand</summary>
 
 ```
+</details>
+ 
 # 1547 UNSOLVED 切棍子的最小成本
 
 给你一个整数数组 cuts ，其中 cuts[i] 表示你需要将棍子切开的位置。
@@ -771,8 +792,9 @@ public:
 
 返回切棍子的 最小总成本 。
 
+<details>
+
 ```cpp
-</details>
 class Solution {
 public:
     int minCost(int n, vector<int>& cuts) {
@@ -799,16 +821,18 @@ public:
         return dfs(dfs,0,m-1);
     }
 };
-<details><summary>Click to expand</summary>
 
 ```
+</details>
+ 
 
 # 718 最长重复子数组
 
 给两个整数数组 nums1 和 nums2 ，返回 两个数组中 公共的 、长度最长的子数组的长度 。
 
+<details>
+
 ```cpp 
-</details>
 class Solution {
 public:
     int findLength(vector<int>& nums1, vector<int>& nums2) {
@@ -827,10 +851,13 @@ public:
         return result;
     }
 };
-<details><summary>Click to expand</summary>
 
 ```
+
+</details>
+
 # 410 分割数组的最大值
+
 
 给定一个非负整数数组 nums 和一个整数 k ，你需要将这个数组分成 k 个非空的连续子数组，使得这 k 个子数组各自和的最大值 最小。
 
@@ -853,9 +880,9 @@ f[i][j]=k=min{max(f[k][j−1],sub(k+1,i))}
 
 最终的答案即为 f[n][m]。
 
+<details>
 
 ```cpp
-</details>
 class Solution {
 public:
     int splitArray(vector<int>& nums, int k) {
@@ -876,8 +903,203 @@ public:
         return (int)f[n][k];
     }
 };
-<details><summary>Click to expand</summary>
 
 ```
 
+</details>
 
+# 403 青蛙过河
+
+一只青蛙想要过河。 假定河流被等分为若干个单元格，并且在每一个单元格内都有可能放有一块石子（也有可能没有）。 青蛙可以跳上石子，但是不可以跳入水中。
+
+给你石子的位置列表 stones（用单元格序号 升序 表示）， 请判定青蛙能否成功过河（即能否在最后一步跳至最后一块石子上）。开始时， 青蛙默认已站在第一块石子上，并可以假定它第一步只能跳跃 1 个单位（即只能从单元格 1 跳至单元格 2 ）。
+
+如果青蛙上一步跳跃了 k 个单位，那么它接下来的跳跃距离只能选择为 k - 1、k 或 k + 1 个单位。 另请注意，青蛙只能向前方（终点的方向）跳跃。
+
+<details>
+
+我们也可以使用动态规划的方法，令 dp[i][k] 表示青蛙能否达到「现在所处的石子编号」为 i 且「上一次跳跃距离」为 k 的状态。
+
+这样我们可以写出状态转移方程：
+
+dp[i][k]=dp[j][k−1]⋁dp[j][k]⋁dp[j][k+1]
+
+式中 j 代表了青蛙的「上一次所在的石子编号」，满足 stones[i]−stones[j]=k。
+
+和方法一相同，状态转移的初始条件为 dp[0][0]=true，表示：「现在所处的石子编号」为 0（石子从 0 开始编号），「上一次跳跃距离」为 0（这样可以保证青蛙的第一次跳跃距离为 1）。当我们找到一个 dp[n−1][k] 为真时，我们就知道青蛙可以到达终点（第 n−1 个石子）。
+
+具体地，对于第 i 个石子，我们首先枚举所有的 j（即上一次所在的石子编号），那么「上一次跳跃距离」k 即为 stones[i]−stones[j]。如果在第 j 个石子上，青蛙的「上一次跳跃距离」可以为 k−1,k,k+1 三者之一，那么我们此时的方案即为合法方案。因此我们只需要检查 dp[j][k−1],dp[j][k],dp[j][k+1] 是否有至少一个为真即可。
+
+为了优化程序运行速度，我们还将推出两个结论，并做出优化：
+
+    「现在所处的石子编号」为 i 时，「上一次跳跃距离」k 必定满足 k≤i。
+        当青蛙位于第 0 个石子上时，青蛙的上一次跳跃距离限定为 0，之后每次跳跃，青蛙所在的石子编号至少增加 1，而每次跳跃距离至多增加 1。
+        跳跃 m 次后，青蛙「现在所处的石子编号」i≥m，「上一次跳跃距离」k≤m，因此 k≤i。
+        这样我们可以将状态数约束在 O(n2)。
+        我们可以从后向前枚举「上一次所在的石子编号」j，当「上一次跳跃距离」k 超过了 j+1 时，我们即可以停止跳跃，因为在第 j 个石子上我们至多只能跳出 j+1 的距离。
+    当第 i 个石子与第 i−1 个石子距离超过 i 时，青蛙必定无法到达终点。
+        由结论 1 可知，当青蛙到达第 i−1 个石子时，它的「上一次跳跃距离」至多为 i−1，因此青蛙在第 i 个石子上最远只能跳出 i 的距离。
+        而距离第 i−1 个石子最近的石子即为第 i 个石子，它们的距离超过了青蛙当前能跳出的最远距离，因此青蛙无路可跳。
+        因此我们可以提前检查是否有相邻的石子不满足条件，如果有，我们可以提前返回 false。
+
+
+```cpp
+class Solution {
+public:
+    bool canCross(vector<int>& stones) {
+        int n=stones.size();
+        vector<vector<int>> dp(n,vector<int>(n));
+        dp[0][0]=true;
+        for(int i=1;i<n;++i){
+            if(stones[i]-stones[i-1]>i){
+                return false;
+            }
+        }
+        for(int i=1;i<n;i++){
+            for(int j=i-1;j>=0;j--){
+                int k=stones[i]-stones[j];
+                if(k>j+1) break;
+                dp[i][k]=dp[j][k-1]||dp[j][k]||dp[j][k+1];
+                if(i==n-1&&dp[i][k]){return true;}
+            }
+        }
+        return false;
+    }
+};
+```
+
+</details>
+ 
+
+# 416 分割等和子集
+
+给你一个 只包含正整数 的 非空 数组 nums 。请你判断是否可以将这个数组分割成两个子集，使得两个子集的元素和相等。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    bool canPartition(vector<int>& nums) {
+        int target=accumulate(nums.begin(),nums.end(),0);
+        if(target&1) return false;
+        target/=2;
+        int dp[20001]{};
+        for(int i=0;i<nums.size();i++){
+            for(int j=target;j>=nums[i];j--){
+                dp[j]=max(dp[j],dp[j-nums[i]]+nums[i]);
+            }
+        }
+        return dp[target]==target;
+    }
+};
+```
+
+</details>
+ 
+
+# UNSOLVED 329 矩阵中的最长递增路径
+
+给定一个 m x n 整数矩阵 matrix ，找出其中 最长递增路径 的长度。
+
+对于每个单元格，你可以往上，下，左，右四个方向移动。 你 不能 在 对角线 方向上移动或移动到 边界外（即不允许环绕）。
+
+
+<details>
+
+```cpp
+class Solution {
+    static constexpr array<int,4>dx={0,1,0,-1},dy={1,0,-1,0};
+    int rows,columns;
+public:
+    int longestIncreasingPath(vector<vector<int>>& matrix) {
+        if(matrix.size()==0||matrix[0].size()==0) return 0;
+        rows=matrix.size();
+        columns=matrix[0].size();
+        vector<vector<int>> memo(rows,vector<int>(columns));
+        int ans=0;
+        for(int i=0;i<rows;++i){
+            for(int j=0;j<columns;j++){
+                ans=max(ans,dfs(matrix,i,j,memo));
+            }
+        }
+        return ans;
+    }
+    int dfs(vector<vector<int>>& matrix,int row,int column,vector<vector<int>> &memo){
+        if(memo[row][column]!=0){
+            return memo[row][column];
+        }
+        ++memo[row][column];
+        for(int i=0;i<4;i++){
+            int x=dx[i],y=dy[i];
+            int newRow=row+x,newColumn=column+y;
+            if(newRow>=0&&newRow<rows&&newColumn>=0&&newColumn<columns&&matrix[newRow][newColumn]>matrix[row][column]){
+                memo[row][column]=max(memo[row][column],dfs(matrix,newRow,newColumn,memo)+1);
+            }
+        }
+        return memo[row][column];
+    }
+};
+```
+
+</details>
+ 
+
+# 1621 大小为K的不重叠线段的数目
+
+给你一维空间的 n 个点，其中第 i 个点（编号从 0 到 n-1）位于 x = i 处，请你找到 恰好 k 个不重叠 线段且每个线段至少覆盖两个点的方案数。线段的两个端点必须都是 整数坐标 。这 k 个线段不需要全部覆盖全部 n 个点，且它们的端点 可以 重合。
+
+请你返回 k 个不重叠线段的方案数。由于答案可能很大，请将结果对 109 + 7 取余 后返回。
+
+<details>
+
+思路与算法
+
+记 f[i][j] 表示使用 0 .. i 的点构造了 j 条线段的方案数。我们需要区分第 j 条线段的右端点是否就是 i，因此可以考虑把 f[i][j] 拆分成两个状态：
+
+    f[i][j][0] 表示第 j 条线段的右端点不是 i，也就是说我们没有办法继续延长第 j 条线段；
+
+    f[i][j][1] 表示第 j 条线段的右端点就是 i，也就是说我们可以选择是否继续延长第 j 条线段。
+
+如何进行状态转移呢？
+
+首先考虑 f[i][j][0]，因为第 j 条线段的右端点不是 i，因此第 i 个点没有用上，那么 0 .. i-1 的点构造了 j 条线段，即
+f[i][j][0]=f[i−1][j][0]+f[i−1][j][1]
+
+再考虑 f[i][j][1]，因为第 j 条线段的右端点就是 i，因此有两种情况：
+
+    第 j 条线段长度为 1，那么 0 .. i-1 的点构造了 j−1 条线段，即
+    f[i][j][1]=f[i−1][j−1][0]+f[i−1][j−1][1]
+
+    第 j 条线段长度大于 1，那么删去第 j 条线段 i-1 .. i 的这一部分，0 .. i-1 的点仍然构造了 j 条线段，并且点 i−1 是属于第 j 条线段的，即
+    f[i][j][1]=f[i−1][j][1]
+
+加上边界条件 f[0][0][0]=1，最终答案即为 f[n−1][k][0]+f[n−1][k][1]。
+
+
+```cpp
+class Solution {
+    static constexpr int mod=1e9+7;
+    int f[1000][1001][2];
+public:
+    int numberOfSets(int n, int k) {
+        memset(f,0,sizeof(f));
+        f[0][0][0]=1;
+        for(int i=1;i<n;++i){
+            for(int j=0;j<=k;j++){
+                f[i][j][0]=(f[i-1][j][0]+f[i-1][j][1])%mod;
+                f[i][j][1]=f[i-1][j][1];
+                if(j>0){
+                    f[i][j][1]+=f[i-1][j-1][0];
+                    f[i][j][1]%=mod;
+                    f[i][j][1]+=f[i-1][j-1][1];
+                    f[i][j][1]%=mod;
+                }
+            }
+        }
+        return (f[n-1][k][0]+f[n-1][k][1])%mod;
+    }
+};
+```
+
+</details>
