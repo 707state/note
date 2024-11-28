@@ -1,32 +1,55 @@
+-   [什么是LSM Tree?](#什么是lsm-tree)
+    -   [一个LSM Storage
+        Engine](#一个lsm-storage-engine)
+-   [Mem Tables](#mem-tables)
+    -   [用SkipList实现Mem
+        Table](#用skiplist实现mem-table)
+    -   [一个MemTable的实现](#一个memtable的实现)
+    -   [冻结一个MemTable](#冻结一个memtable)
+        -   [Leveled Compaction
+            分层压缩](#leveled-compaction-分层压缩)
+        -   [Tiered Compaction
+            分级压缩](#tiered-compaction-分级压缩)
+    -   [一些思考题](#一些思考题)
+        -   [为什么Mem Table不需要一个delete
+            API?](#为什么mem-table不需要一个delete-api)
+        -   [Memtable能不能用除了SkipList之外的数据结构？](#memtable能不能用除了skiplist之外的数据结构)
+
 # 什么是LSM Tree?
 
-Log-Structured Merge Tree, 是一种分层，有序，面向磁盘的数据结构，其核心思想是充分了利用了，磁盘批量的顺序写要远比随机写性能高出很多。
+Log-Structured Merge Tree,
+是一种分层，有序，面向磁盘的数据结构，其核心思想是充分了利用了，磁盘批量的顺序写要远比随机写性能高出很多。
 
 相对于RB-Tree, B-Tree, 所有的修改操作都是惰性的。
 
 LSM-Tree对于以下情况非常适用：
 
-1. 数据在持久化存储上是不可变的，这使得并发控制更加简单。可以将后台任务（如压缩操作）卸载到远程服务器执行。直接从云原生存储系统（如 S3）中存储和服务数据也是可行的。
+1.  数据在持久化存储上是不可变的，这使得并发控制更加简单。可以将后台任务（如压缩操作）卸载到远程服务器执行。直接从云原生存储系统（如
+    S3）中存储和服务数据也是可行的。
 
-2. 更改压缩算法可以使存储引擎在读取、写入和空间放大之间找到平衡。LSM 树结构非常灵活，通过调整压缩参数，我们可以针对不同的工作负载优化 LSM 结构。
+2.  更改压缩算法可以使存储引擎在读取、写入和空间放大之间找到平衡。LSM
+    树结构非常灵活，通过调整压缩参数，我们可以针对不同的工作负载优化 LSM
+    结构。
 
 ## 一个LSM Storage Engine
 
-1. WAL日志机制，用来做数据持久化。
+1.  WAL日志机制，用来做数据持久化。
 
-2. 硬盘上的SST(Sorted String Tables)，用来保持LSM Tree的结构。
+2.  硬盘上的SST(Sorted String Tables)，用来保持LSM Tree的结构。
 
-3. Mem-Tables。是驻留在内存中的数据结构，用于暂存小的写入操作。小写入会被批量写入 Mem-table，等 Mem-table 满了后再刷新到磁盘生成新的 SST 文件。这种方式可以提高写入性能并减少磁盘 I/O 开销。
+3.  Mem-Tables。是驻留在内存中的数据结构，用于暂存小的写入操作。小写入会被批量写入
+    Mem-table，等 Mem-table 满了后再刷新到磁盘生成新的 SST
+    文件。这种方式可以提高写入性能并减少磁盘 I/O 开销。
 
 通常要提供以下操作：
 
-1. Put(Key, Value);
+1.  Put(Key, Value);
 
-2. Delete(Key);
+2.  Delete(Key);
 
-3. Get(Key);
+3.  Get(Key);
 
-4. Scan(Range);
+4.  Scan(Range);
 
 为了处理持久化，通常还会有:
 
@@ -38,11 +61,12 @@ Mem Tables适用于处理Batch Write批量写的。
 
 ## 用SkipList实现Mem Table
 
-用cross-beam的SkipList来实现，因为cross-beam的SkipList支持无锁并发。并且都支持insert, get和iter。
+用cross-beam的SkipList来实现，因为cross-beam的SkipList支持无锁并发。并且都支持insert,
+get和iter。
 
 <details><summary>Click to expand</summary>
 
-```rust
+``` rust
 pub struct MemTable {
     map: Arc<SkipMap<Bytes, Bytes>>,
     wal: Option<Wal>,
@@ -50,24 +74,26 @@ pub struct MemTable {
     approximate_size: Arc<AtomicUsize>,
 }
 ```
+
 </details>
 这是MemTable的结构体。需要实现get和delete方法。
 
 <details><summary>Click to expand</summary>
 
-```rust
+``` rust
     /// Get a value by key.
     pub fn get(&self, key: &[u8]) -> Option<Bytes> {
         self.map.get(key).map(|e| e.value().clone())
     }
 ```
+
 </details>
 
 get通过在SkipMap中寻找key来获取对应的值。
 
 <details><summary>Click to expand</summary>
 
-```rust
+``` rust
     pub fn put(&self, key: &[u8], value: &[u8]) -> Result<()> {
         //预估总长度
         let estimated_size = key.len() + value.len();
@@ -84,16 +110,18 @@ get通过在SkipMap中寻找key来获取对应的值。
         Ok(())
     }
 ```
+
 </details>
 这是put方法的实现，要放入一个键值对到SkipMap中，并且为后面的WAL做准备。
 
-注意，Mem Table不提供delete方法，在这里如果一个键对应的值是空的就视为被删除了。
+注意，Mem
+Table不提供delete方法，在这里如果一个键对应的值是空的就视为被删除了。
 
 ## 一个MemTable的实现
 
 <details><summary>Click to expand</summary>
 
-```rust
+``` rust
 /// Represents the state of the storage engine.
 #[derive(Clone)]
 pub struct LsmStorageState {
@@ -110,12 +138,14 @@ pub struct LsmStorageState {
     pub sstables: HashMap<usize, Arc<SsTable>>,
 }
 ```
+
 </details>
 表示存储引擎的状态，在任何时刻，引擎中只能由一个可变的MemTable。当一个MemTable达到存储上限的时候就会被冻结为一个不可变的MemTable。
 
 在lsm_storage.rs中有两个表示存储引擎的结构：MiniLSM和LsmStorageInner。MiniLSM是对于LsmStorageInner的一层封装。
 
-LsmStorageInner存储了当前的LSM存储引擎的结构。需要在LsmStorageInner中实现get, put和delete方法
+LsmStorageInner存储了当前的LSM存储引擎的结构。需要在LsmStorageInner中实现get,
+put和delete方法
 
 ## 冻结一个MemTable
 
@@ -130,36 +160,45 @@ LsmStorageInner存储了当前的LSM存储引擎的结构。需要在LsmStorageI
 <details> 
 <summary>展开查看</summary>
 
-广泛应用于分布式数据库（如 RocksDB 和 LevelDB）。这种策略通过将数据分层组织并压缩，优化了查询性能和存储空间利用率。
+广泛应用于分布式数据库（如 RocksDB 和
+LevelDB）。这种策略通过将数据分层组织并压缩，优化了查询性能和存储空间利用率。
 
 LSM Tree的基本结构：
 
-在 LSM 树中，数据首先写入内存表（memtable），然后定期刷新到磁盘，形成不可变的文件（称为 SSTable）。这些文件按照不同的层次组织，每一层存储一定范围的数据。
+在 LSM
+树中，数据首先写入内存表（memtable），然后定期刷新到磁盘，形成不可变的文件（称为
+SSTable）。这些文件按照不同的层次组织，每一层存储一定范围的数据。
 
 Leveled Compaction的核心思想：
 
 将数据组织成多层（Levels），每一层具有以下特性：
 
-1. 分层结构：从L0到Ln层级逐渐增加。
+1.  分层结构：从L0到Ln层级逐渐增加。
 
-2. 层的大小递增：每一层的存储容量比上一层更大，通常是上一层的 10 倍。
+2.  层的大小递增：每一层的存储容量比上一层更大，通常是上一层的 10 倍。
 
-3. 数据范围无重叠：L0 层的数据可能有重叠，因为它直接存储从内存刷盘的多个 SSTable 文件；L1 及以上，每个 SSTable 文件存储的数据范围不重叠，便于快速定位。
+3.  数据范围无重叠：L0
+    层的数据可能有重叠，因为它直接存储从内存刷盘的多个 SSTable 文件；L1
+    及以上，每个 SSTable 文件存储的数据范围不重叠，便于快速定位。
 
 数据流动的过程：
 
-写入L0: 
-数据首先写入内存（memtable），然后刷新到磁盘生成 L0 层的 SSTable。
+写入L0: 数据首先写入内存（memtable），然后刷新到磁盘生成 L0 层的
+SSTable。
 
-L0到L1的压缩:
-当 L0 层文件数量超过阈值（比如 4 个文件），触发压缩操作；将 L0 中的所有文件与 L1 中的文件进行合并，写入新的 L1 文件，确保 L1 中的数据范围不重叠。
+L0到L1的压缩: 当 L0 层文件数量超过阈值（比如 4
+个文件），触发压缩操作；将 L0 中的所有文件与 L1
+中的文件进行合并，写入新的 L1 文件，确保 L1 中的数据范围不重叠。
 
-更高层次的压缩:
-当 L1 的大小超过限制，触发向 L2 层的压缩；同样遵循合并并去重的逻辑，确保 L2 中的数据范围不重叠；这种过程会依次向更高层流动。
+更高层次的压缩: 当 L1 的大小超过限制，触发向 L2
+层的压缩；同样遵循合并并去重的逻辑，确保 L2
+中的数据范围不重叠；这种过程会依次向更高层流动。
 
 #### 优点
 
-高效的点查询：从 L1 层开始，各层的文件之间数据范围不重叠，可以通过范围查找快速定位目标 SSTable；性能比Size-Tiered Compaction更好。
+高效的点查询：从 L1
+层开始，各层的文件之间数据范围不重叠，可以通过范围查找快速定位目标
+SSTable；性能比Size-Tiered Compaction更好。
 
 压缩节省空间：每次压缩会移除重复数据，确保存储效率。
 
@@ -173,36 +212,45 @@ L0到L1的压缩:
 
 </details>
 
-> 具体资料可见[RocksDB Wiki](https://github.com/facebook/rocksdb/wiki/Leveled-Compaction)
+> 具体资料可见[RocksDB
+> Wiki](https://github.com/facebook/rocksdb/wiki/Leveled-Compaction)
 
 ### Tiered Compaction 分级压缩
 
 <details>
 <summary>具体信息</summary>
 
-与 Leveled Compaction 不同，Tiered Compaction 优先优化写入性能，通过将小文件简单归并，减少写入阻塞。它通常用于写密集型工作负载，比如日志存储或批量写入的场景。
+与 Leveled Compaction 不同，Tiered Compaction
+优先优化写入性能，通过将小文件简单归并，减少写入阻塞。它通常用于写密集型工作负载，比如日志存储或批量写入的场景。
 
-核心概念：在 Tiered Compaction 中，数据分为多个层（Tiers），每一层都包含一组 SSTable 文件。这些文件内的数据范围可以重叠，层与层之间也可能有重叠。Tiered Compaction 的压缩操作是基于文件数量而不是数据范围重叠触发的。
+核心概念：在 Tiered Compaction
+中，数据分为多个层（Tiers），每一层都包含一组 SSTable
+文件。这些文件内的数据范围可以重叠，层与层之间也可能有重叠。Tiered
+Compaction 的压缩操作是基于文件数量而不是数据范围重叠触发的。
 
 数据流动的过程：
 
 写入数据到内存：
 
-1. 新数据首先写入内存；memtable满了之后，刷盘生成一个新的SSTable，这些文件直接写入L0。
+1.  新数据首先写入内存；memtable满了之后，刷盘生成一个新的SSTable，这些文件直接写入L0。
 
-2. L0层的文件合并，当 L0 层的文件数量超过预设的阈值（如 4 个文件），触发压缩操作。压缩的方式是将这些文件简单合并，生成更大的文件，写入下一层（L1 层）。L1 层的文件通常存储更多数据，其大小和数量的阈值也更高。
+2.  L0层的文件合并，当 L0 层的文件数量超过预设的阈值（如 4
+    个文件），触发压缩操作。压缩的方式是将这些文件简单合并，生成更大的文件，写入下一层（L1
+    层）。L1 层的文件通常存储更多数据，其大小和数量的阈值也更高。
 
-3. 当某一层的文件数量超过阈值时，这些文件会被合并为更大的文件并移到下一层；合并时只是将文件归并到一起，不一定消除重复数据，也不保证数据范围不重叠。
+3.  当某一层的文件数量超过阈值时，这些文件会被合并为更大的文件并移到下一层；合并时只是将文件归并到一起，不一定消除重复数据，也不保证数据范围不重叠。
 
 #### 优点
 
-高写入性能：Tiered Compaction 避免了频繁的合并和去重操作，写入过程简单高效。写密集型的场景中，可以显著减少写阻塞。
+高写入性能：Tiered Compaction
+避免了频繁的合并和去重操作，写入过程简单高效。写密集型的场景中，可以显著减少写阻塞。
 
 实现简单：不需要维护分割的逻辑，只要根据文件数量就可以压缩。
 
 #### 缺点
 
-查询效率低：因为文件和层之间可能有重叠，点查询或范围查询时需要检查更多的 SSTable 文件。随着层数增加，文件数量可能显著增多，查询成本上升。
+查询效率低：因为文件和层之间可能有重叠，点查询或范围查询时需要检查更多的
+SSTable 文件。随着层数增加，文件数量可能显著增多，查询成本上升。
 
 空间利用率低：重复文件的压缩。
 
@@ -222,14 +270,15 @@ Tiered Compaction 更适合 写密集型 场景，如：
 
 > [不同压缩算法之间的比较](https://opensource.docs.scylladb.com/stable/architecture/compaction/compaction-strategies.html)
 
-
 ## 一些思考题
 
 ### 为什么Mem Table不需要一个delete API?
 
-LSM Tree的核心思想是追加写入，所有数据的修改都是通过追加写入的方式实现的。
+LSM
+Tree的核心思想是追加写入，所有数据的修改都是通过追加写入的方式实现的。
 
-删除操作不会真的从mem table中添加或者在磁盘中删除，而是通过一个特殊标记（通常叫做tombstone）来实现逻辑上的删除。
+删除操作不会真的从mem
+table中添加或者在磁盘中删除，而是通过一个特殊标记（通常叫做tombstone）来实现逻辑上的删除。
 
 ### Memtable能不能用除了SkipList之外的数据结构？
 
@@ -238,19 +287,18 @@ LSM Tree的核心思想是追加写入，所有数据的修改都是通过追加
 SkipList优点：
 
 简单且高效的实现
-    跳表是通过多层链表实现的，结构简单，代码易于实现，插入和删除操作相对直观。
-    时间复杂度接近于平衡树，通常为 O(log⁡n)O(logn)。
+跳表是通过多层链表实现的，结构简单，代码易于实现，插入和删除操作相对直观。
+时间复杂度接近于平衡树，通常为 O(log⁡n)O(logn)。
 
-顺序存储，支持范围查询
-    跳表的本质是有序的，能够高效支持范围查询（Range Query），这是 LSM 树的重要需求之一。
-    例如：在查询 [key1, key2] 范围内的所有数据时，可以从 key1 开始沿链表逐步查找，直到 key2。
+顺序存储，支持范围查询 跳表的本质是有序的，能够高效支持范围查询（Range
+Query），这是 LSM 树的重要需求之一。 例如：在查询 \[key1, key2\]
+范围内的所有数据时，可以从 key1 开始沿链表逐步查找，直到 key2。
 
 并发支持较好
-    跳表在设计上天然支持分层，允许更高效的并发控制。通过对不同层加锁，可以实现高效的多线程读写。
+跳表在设计上天然支持分层，允许更高效的并发控制。通过对不同层加锁，可以实现高效的多线程读写。
 
 内存管理友好
-    跳表的节点是链表形式，支持按需动态分配内存。相比需要预分配大量内存的哈希表，它的内存使用更加灵活。
-
+跳表的节点是链表形式，支持按需动态分配内存。相比需要预分配大量内存的哈希表，它的内存使用更加灵活。
 
 缺点：
 
@@ -269,6 +317,3 @@ SkipList优点：
 实现复杂性随着优化增加
 
     基础跳表简单，但为了支持并发或更高性能，通常需要增加锁机制或实现无锁设计，这会显著提高实现复杂性。
-
-
-

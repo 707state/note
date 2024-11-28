@@ -1,6 +1,9 @@
+-   [LFU Cache](#lfu-cache)
+-   [实现](#实现)
+
 # LFU Cache
 
- 一个缓存结构需要实现如下功能。
+一个缓存结构需要实现如下功能。
 
     set(key, value)：将记录(key, value)插入该结构
     get(key)：返回key对应的value值 
@@ -9,12 +12,11 @@
 如果调用次数最少的key有多个，上次调用发生最早的key被删除
 这就是LFU缓存替换算法。实现这个结构，K作为参数给出。
 
-
 # 实现
 
 <details>
 
-```cpp
+``` cpp
 class Solution {
   private:
     typedef list<vector<int> >
@@ -80,5 +82,3 @@ class Solution {
 ```
 
 </details>
- 
-

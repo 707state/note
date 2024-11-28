@@ -1,14 +1,19 @@
+-   [Github Action](#github-action)
+
 # Github Action
 
-GitHub Actions 是一种持续集成和持续交付 (CI/CD) 平台，可用于自动执行生成、测试和部署管道。 你可以创建工作流，以便在推送更改到存储库时运行测试，或将合并的拉取请求部署到生产环境。
+GitHub Actions 是一种持续集成和持续交付 (CI/CD)
+平台，可用于自动执行生成、测试和部署管道。
+你可以创建工作流，以便在推送更改到存储库时运行测试，或将合并的拉取请求部署到生产环境。
 
 工作环境(.github/workflow)这里面定义的是一些工作流，这些工作流可以用来执行一些预设的操作，诸如编译、部署等。
 
-Github Action是用YAML来定义的一套模板，触发工作流等都可以通过定义变量来触发。
+Github
+Action是用YAML来定义的一套模板，触发工作流等都可以通过定义变量来触发。
 
 记录这个只是因为mdbook+gh page要用到，顺便了解一下。
 
-```yaml 
+``` yaml
 name: Deploy
 on:
   push:

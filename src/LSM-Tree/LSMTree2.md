@@ -1,8 +1,22 @@
+-   [Mem Table Iterator](#mem-table-iterator)
+    -   [实现Memtable
+        Iterator](#实现memtable-iterator)
+    -   [Merge Iterator](#merge-iterator)
+    -   [LSM Iterator + Fused
+        Iterator](#lsm-iterator--fused-iterator)
+    -   [Concat Iterator](#concat-iterator)
+    -   [Merge Two
+        Iterator](#merge-two-iterator)
+-   [思考题](#思考题)
+    -   [使用Merge
+        Iterator的时间/空间复杂度是多大？](#使用merge-iterator的时间空间复杂度是多大)
+
 # Mem Table Iterator
 
 这一部分需要实现Scan函数，Scan函数会通过一个迭代器API按顺序返回一组键值对。
 
-所有的LSM 迭代器都要实现StorageIterator这一个Trait，也就是实现key, value, next和is_valid这四个函数。
+所有的LSM 迭代器都要实现StorageIterator这一个Trait，也就是实现key,
+value, next和is_valid这四个函数。
 
 ## 实现Memtable Iterator
 
@@ -10,25 +24,26 @@ next用来移动到下一个位置，is_valid返回迭代器是否走到终点�
 
 当迭代器无法有效避免用户滥用迭代器时，有FusedIterator会阻塞next调用。
 
-对于memtable iterator, 迭代器并没有与之关联的生命周期，不向SkipMap的iter API会返回带有生命周期的迭代器。
+对于memtable iterator, 迭代器并没有与之关联的生命周期，不向SkipMap的iter
+API会返回带有生命周期的迭代器。
 
-如果迭代器并没有生命周期的泛型参数，我们就要保证任何时候，在迭代器被使用时，对应的SKipList中的对象不会被释放。唯一能保证这点的就是用Arc<SkipMap>。
+如果迭代器并没有生命周期的泛型参数，我们就要保证任何时候，在迭代器被使用时，对应的SKipList中的对象不会被释放。唯一能保证这点的就是用Arc`<SkipMap>`{=html}。
 
 因此MemtableIterator就要如下定义：
 
-```rust
+``` rust
 pub struct MemtableIterator {
     map: Arc<SkipMap<Bytes, Bytes>>,
     iter: SkipMapRangeIter<'???>,
 }
 ```
 
-这里，我们怎么表达迭代器和map有一样的生命周期呢？这就是Rust语言中的一个技巧型的特质：Self-referential Structure。
+这里，我们怎么表达迭代器和map有一样的生命周期呢？这就是Rust语言中的一个技巧型的特质：Self-referential
+Structure。
 
-这里的常见实现方案有Pin和ouroboros。
-最终的实现：
+这里的常见实现方案有Pin和ouroboros。 最终的实现：
 
-```rust
+``` rust
 #[self_referencing]
 pub struct MemTableIterator {
     /// Stores a reference to the skipmap.
@@ -44,7 +59,7 @@ pub struct MemTableIterator {
 
 对于几个API的实现如下：
 
-```rust
+``` rust
 impl MemTableIterator {
     fn entry_to_item(entry: Option<Entry<'_, Bytes, Bytes>>) -> (Bytes, Bytes) {
         entry
@@ -77,16 +92,16 @@ impl StorageIterator for MemTableIterator {
 
 ## Merge Iterator
 
-Merge Iterator的主要作用是合并多个有序的迭代器，并为调用方提供一个统一的、案件排序的视图。以便同时查询多个Memtables或者SSTable的内容。
+Merge
+Iterator的主要作用是合并多个有序的迭代器，并为调用方提供一个统一的、案件排序的视图。以便同时查询多个Memtables或者SSTable的内容。
 
 管理的内容：
 
-1. 多个有序迭代器。MergeIterator可以管理一组已经按键排序的迭代器；每个迭代器代表一个数据来源。
+1.  多个有序迭代器。MergeIterator可以管理一组已经按键排序的迭代器；每个迭代器代表一个数据来源。
 
-2. 优先队列：他维护一个二叉堆，用于追踪当前各个迭代器中键值最小的项；如果同一个键在多个迭代器中出现，MergeIterator可以根据规则选择优先级最高的。
+2.  优先队列：他维护一个二叉堆，用于追踪当前各个迭代器中键值最小的项；如果同一个键在多个迭代器中出现，MergeIterator可以根据规则选择优先级最高的。
 
-3. 当前结果项：记录当前选中的键值对，每次调用next时，更新当前项并保证堆的正确性。
-
+3.  当前结果项：记录当前选中的键值对，每次调用next时，更新当前项并保证堆的正确性。
 
 如果next返回一个错误，就说明这个项已经不再有效，这时需要从堆里面取出这个元素。
 
@@ -94,8 +109,7 @@ Merge Iterator的主要作用是合并多个有序的迭代器，并为调用方
 
 <details>
 
-
-```rust
+``` rust
 /// Merge multiple iterators of the same type. If the same key occurs multiple times in some
 /// iterators, prefer the one with smaller index.
 pub struct MergeIterator<I: StorageIterator> {
@@ -202,33 +216,37 @@ impl<I: 'static + for<'a> StorageIterator<KeyType<'a> = KeySlice<'a>>> StorageIt
 
 </details>
 
+## LSM Iterator + Fused Iterator {#lsm-iterator--fused-iterator}
 
-## LSM Iterator + Fused Iterator
-
-在LSM Tree的内部，用LSM Iterator作为迭代器，当更多的迭代器加入到系统中是需要修改树的结构。
+在LSM Tree的内部，用LSM
+Iterator作为迭代器，当更多的迭代器加入到系统中是需要修改树的结构。
 
 目前的定义如下：
-```rust
+
+``` rust
 type LsmIterator=MergeIterator<MemTableIterator>;
 ```
 
-为了提高安全性和避免滥用，还需要一层FusedIterator的封装，确保无效的迭代器不会用key, value或者next方法。
+为了提高安全性和避免滥用，还需要一层FusedIterator的封装，确保无效的迭代器不会用key,
+value或者next方法。
 
-LsmIterator用于遍历LSM Tree，对LSM Tree的数据进行统一抽象，提供一个简单的接口用于查询数据，同时支持对删除标记（空值）和边界约束的处理。
+LsmIterator用于遍历LSM Tree，对LSM
+Tree的数据进行统一抽象，提供一个简单的接口用于查询数据，同时支持对删除标记（空值）和边界约束的处理。
 
 核心功能：
 
-1. 封装合并后的迭代器：LsmIteratorInner负责从数据源中合并有序数据；LsmIterator封装了它，加入了额外的逻辑，比如过滤删除标记和边界检查。
+1.  封装合并后的迭代器：LsmIteratorInner负责从数据源中合并有序数据；LsmIterator封装了它，加入了额外的逻辑，比如过滤删除标记和边界检查。
 
-2. 处理删除标记：删除标记在LSM树中用作逻辑删除的标识，通常以空值表示；move_to_non_delete方法会跳过所有包含删除标记的键，确保数据是有效的。
+2.  处理删除标记：删除标记在LSM树中用作逻辑删除的标识，通常以空值表示；move_to_non_delete方法会跳过所有包含删除标记的键，确保数据是有效的。
 
-3. 支持查询边界：end_bound用来表示查询终止的条件，并且检查是否越过边界。
+3.  支持查询边界：end_bound用来表示查询终止的条件，并且检查是否越过边界。
 
-4. 统一接口：通过实现StorageIterator Trait，提供了key, next, value和num_active_iterators的接口。
+4.  统一接口：通过实现StorageIterator Trait，提供了key, next,
+    value和num_active_iterators的接口。
 
 具体实现：
 
-```rust
+``` rust
 /// Represents the internal type for an LSM iterator. This type will be changed across the tutorial for multiple times.
 type LsmIteratorInner = MergeIterator<MemTableIterator>;
 
@@ -297,7 +315,7 @@ impl StorageIterator for LsmIterator {
 
 相对而言，FusedIterator的实现要简单很多。
 
-```rust
+``` rust
 pub struct FusedIterator<I: StorageIterator> {
     iter: I,
     has_errored: bool,
@@ -351,5 +369,45 @@ impl<I: StorageIterator> StorageIterator for FusedIterator<I> {
 }
 ```
 
+## Concat Iterator
 
+用于将多个不重叠键区间的SsTable拼接成一个连续的、有序的键值对流。
 
+主要用于 LSM Tree 等多层存储结构的场景：
+
+1.  顺序扫描：合并多个SsTable，实现按键顺序的高效遍历。
+
+2.  范围查询：支持从特定键开始的快速查找与遍历。
+
+3.  减少资源消耗：延迟初始化迭代器，避免不必要的计算。
+
+## Merge Two Iterator
+
+用于合并两个不同类型的迭代器，并对他们的键值对进行去重和优先级控制。具体来说，如果两个迭代器中存在相同的键（key），那么结果中只会保留一个键值对，并优先选择
+A 的条目。
+
+核心功能：
+
+1.  合并两个迭代器：该迭代器将两个类型为StorageIterator的迭代器A和B合并为一个迭代器；保证合并后的迭代器输出键值对是按顺序的。
+
+2.  去重逻辑：如果两个迭代器的当前键相同，就只保留一个条目，优先选择A。
+
+3.  动态选择数据源：由choose_a来控制选择的数据源。
+
+# 思考题
+
+## 使用Merge Iterator的时间/空间复杂度是多大？
+
+初始化时，将所有有效的迭代器（O(k)，其中 k
+是迭代器数量）插入到一个二叉堆中。
+
+每次插入操作的时间复杂度是 O(log k)，因此总时间复杂度为：
+
+O(k \* log k)
+
+假定总数据量为N, 每个键最多出现N次，则遍历的时间复杂度为O(n \* log k)。
+
+空间复杂度为O(k)。
+
+这种复杂度对于合并多个有序迭代器的场景（例如 LSM Tree
+的多层合并）是高效的，尤其是当 k 比较小（通常是 LSM Tree 的层数）时。

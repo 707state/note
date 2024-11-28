@@ -1,3 +1,12 @@
+-   [InfluxDB: Why Time
+    Series](#influxdb-why-time-series)
+    -   [什么是时序数据？](#什么是时序数据)
+    -   [时序数据的使用场景](#时序数据的使用场景)
+        -   [DevOps监控](#devops监控)
+        -   [实时分析](#实时分析)
+        -   [IoT](#iot)
+-   [InfluxDB数据模型](#influxdb数据模型)
+
 # InfluxDB: Why Time Series
 
 不懂，学学
@@ -32,12 +41,13 @@ OLAP类业务
 
 InfluxDB发送数据的协议如下：
 
-<measurement>, <tag set> <field set> <timestamp>
+`<measurement>`{=html}, `<tag set>`{=html} `<field set>`{=html}
+`<timestamp>`{=html}
 
-measurement是一个字符串，tag set是一组键值对，所有的值都是字符串，field set是彝族键值对，值是int64, float64, bool或者字符串。
+measurement是一个字符串，tag set是一组键值对，所有的值都是字符串，field
+set是彝族键值对，值是int64, float64, bool或者字符串。
 
 measurement和tag set都保存在倒排索引中。
 
-在硬盘上，数据是按照列式格式，其中时间、测量值、标签集和字段集按照连续的块进行存储。标签和字段的数量没有限制。其他时间序列解决方案不支持多个字段，这会导致在传输共享标签集的数据时，其网络协议变得臃肿。此外，大多数其他时间序列解决方案仅支持 float64 类型的值，这意味着用户无法将额外的元数据与时间序列数据一同编码。
-
-
+在硬盘上，数据是按照列式格式，其中时间、测量值、标签集和字段集按照连续的块进行存储。标签和字段的数量没有限制。其他时间序列解决方案不支持多个字段，这会导致在传输共享标签集的数据时，其网络协议变得臃肿。此外，大多数其他时间序列解决方案仅支持
+float64 类型的值，这意味着用户无法将额外的元数据与时间序列数据一同编码。

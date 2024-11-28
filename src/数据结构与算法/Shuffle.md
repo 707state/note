@@ -1,17 +1,26 @@
+-   [Fisher-Yates
+    shuffle](#fisher-yates-shuffle)
+    -   [C++实现](#c实现)
+-   [Inside-out
+    Algorithm](#inside-out-algorithm)
+    -   [C++实现](#c实现-1)
+-   [Sattolo\'s algorithm](#sattolos-algorithm)
+-   [其他Shuffle算法](#其他shuffle算法)
+    -   [Naive 的方法](#naive-的方法)
+
 # Fisher-Yates shuffle
 
 又称为洗牌算法。这个算法生成的随机排列是等概率的，并且非常高效。
 
 伪代码表述：
 
--- To shuffle an array a of n elements (indices 0..n-1):
-for i from n−1 downto 1 do
-     j ← random integer such that 0 ≤ j ≤ i
-     exchange a[j] and a[i]
+\-- To shuffle an array a of n elements (indices 0..n-1): for i from n−1
+downto 1 do j ← random integer such that 0 ≤ j ≤ i exchange a\[j\] and
+a\[i\]
 
 ## C++实现
 
-```cpp
+``` cpp
 
 template<typename T>
 void Shuffle(T& container){
@@ -29,7 +38,7 @@ void Shuffle(T& container){
 
 # Inside-out Algorithm
 
-"inside-out"算法的核心思想是逐步生成一个随机排列。每次将当前元素放置到一个随机位置，生成的数组会在每一步保证是部分随机排列。
+\"inside-out\"算法的核心思想是逐步生成一个随机排列。每次将当前元素放置到一个随机位置，生成的数组会在每一步保证是部分随机排列。
 
     遍历数组的每个位置 ii：
         生成一个随机索引 jj，其中 j∈[0,i]j∈[0,i]。
@@ -40,7 +49,7 @@ void Shuffle(T& container){
 
 ## C++实现
 
-```cpp
+``` cpp
 // The "inside-out" shuffle algorithm
 template <typename Container>
 void InsideOutShuffle(Container& container) {
@@ -64,11 +73,11 @@ void InsideOutShuffle(Container& container) {
 }
 ```
 
-# Sattolo's algorithm
+# Sattolo\'s algorithm
 
 实现：
 
-```python
+``` python
 from random import randrange
 
 def sattolo_cycle(items) -> None:
@@ -84,7 +93,7 @@ def sattolo_cycle(items) -> None:
 
 ## Naive 的方法
 
-```python
+``` python
 from random import randrange
 
 def naive_shuffle(items) -> None:
@@ -94,4 +103,3 @@ def naive_shuffle(items) -> None:
         j = randrange(n)  # 0 <= j <= n-1
         items[j], items[i] = items[i], items[j]
 ```
-
