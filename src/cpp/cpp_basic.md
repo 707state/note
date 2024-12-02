@@ -16,12 +16,14 @@
     -   [cxxabi
         abi::\_\_cxa_demangle()](#cxxabi-abi__cxa_demangle)
     -   [std::bitset](#stdbitset)
+    -   [std::common_type](#std::common_type)
 -   [一些库](#一些库)
     -   [测试](#测试)
         -   [doctest](#doctest)
         -   [gtest](#gtest)
     -   [rpc](#rpc)
         -   [json-rpc-cxx](#json-rpc-cxx)
+    -   [neither](#neither)
 -   [什么是多态？](#什么是多态)
     -   [Ad-hoc Polymorphism
         特设多态](#ad-hoc-polymorphism-特设多态)
@@ -41,36 +43,6 @@
         declaration](#forward-declaration)
     -   [std::swap VS xor](#stdswap-vs-xor)
     -   [cbrt](#cbrt)
-
-<!-- --- -->
-
-<!-- title: "CPP_BASIC" -->
-
-<!-- author: "jask" -->
-
-<!-- date: "2024-08-11" -->
-
-<!-- output: pdf_document -->
-
-<!-- header-includes: -->
-
-<!--   - \usepackage{fontspec} -->
-
-<!--   - \usepackage{xeCJK} -->
-
-<!--   - \setmainfont{ComicShannsMono Nerd Font}  -->
-
-<!--   - \setCJKmainfont{Noto Sans CJK SC}  # 替换为可用的字体 -->
-
-<!--   - \setCJKmonofont{Noto Sans CJK SC} -->
-
-<!--   - \setCJKsansfont{Noto Sans CJK SC} -->
-
-<!--   - \usepackage[top=1cm, bottom=1cm, left=1cm, right=1cm]{geometry} -->
-
-<!---->
-
-<!-- --- -->
 
 # 重读\<\<C++程序设计语言\>\>
 
@@ -263,6 +235,18 @@ bitset有一个特性：整数类型和布尔数组都能转化成bitset。
 
 bitset的大小在编译时就需要确定。如果你想要不确定长度的bitset，请使用（奇葩的）vector`<bool>`{=html}。
 
+## std::common_type
+
+确定多个类型之间的公共类型。也就是给定类型之间转换结果最合适的类型。
+
+规则：
+
+1. 如果所有类型 T1, T2, ..., Tn 是同一种类型，那么公共类型就是该类型。
+
+2. 如果可以找到一个类型 T，使得所有 T1, T2, ..., Tn 都可以隐式转换为 T，那么公共类型是 T。
+
+3. 如果前两条规则都失败，并且用户没有为类型定义隐式转换或者重载操作符，std::common_type 将导致编译错误。
+
 # 一些库
 
 ## 测试
@@ -280,6 +264,10 @@ single-header, 开箱即用
 ### json-rpc-cxx
 
 学习ing, 功能相对简单，依赖简单。
+
+## neither
+
+一个基于Either Type的函数式库，设计思路有点意思。
 
 # 什么是多态？
 

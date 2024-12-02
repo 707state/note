@@ -65,7 +65,9 @@
     -   [并查集](./数据结构与算法/并查集.md)
     -   [深搜](./数据结构与算法/dfs.md)
     -   [广搜](./数据结构与算法/bfs.md)
+    -   [单调栈](./数据结构与算法/单调栈.md)
     -   [数学](./数据结构与算法/数学.md)
+    -   [AC自动机](./数据结构与算法/AC自动机.md)
     -   [洗牌算法](./数据结构与算法/Shuffle.md)
     -   [随机数算法](./数据结构与算法/随机数算法.md)
 
@@ -102,6 +104,8 @@
 
     -   [Overview & Memtable](./LSM-Tree/LSMTree.md)
     -   [Iterators](./LSM-Tree/LSMTree2.md)
+    -   [Block](./LSM-Tree/LSMTree3.md)
+    -   [Sorted String Table](./LSM-Tree/LSMTree4.md)
 
 -   [cpp](./cpp/README.md)
 
@@ -109,6 +113,7 @@
     -   [内存模型](./cpp/深度探索C++对象模型（总结篇）.md)
     -   [标准库容器](./cpp/标准库算法.md)
     -   [短字符串优化](./cpp/SSO.md)
+    -   [Folly库](./cpp/Folly.md)
 
 -   [The Art Of Computer
     Programming](./TheArtOfComputerProgramming/README.md)

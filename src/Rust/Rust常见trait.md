@@ -33,11 +33,15 @@ Box`<dyn TraitName>`{=html}），在运行时确定具体类型。
 
 ## Default
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 trait Default{
   fn default()->Self;
 }
 ```
+</details>
+
 
 其他一些地方用到了 Default,比如 Option`<T>`{=html} 的
 unwrap_or_default(),在类型参数上调用 default() 函数。
@@ -53,11 +57,15 @@ trait,因为它们出现的位置不一样。
 
 ## Display
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 trait Display{
   fn fmt(&self,f:&mut Formatter<'_>)->Result;
 }
 ```
+</details>
+
 
 ## ToString
 
@@ -88,9 +96,13 @@ std::ops定义了Add, Mul, Sub等Trait, 实现这些Trait从而实现重载。
 
 ## Clone和Copy
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 trait Copy: Clone{}
 ```
+</details>
+
 
 定义为 Clone 的 subtrait,并且不包含任何内容,仅仅是一个标记(marker)。
 
@@ -140,6 +152,8 @@ trait,除非遇到特殊情况,比如我们要调用外部的 C 库函数,然后
 标准库中有 3 个 trait 与闭包相关,分别是
 FnOnce、FnMut、Fn。你可以看一下它们的定义。
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 trait FnOnce<Args>{
   type Output;
@@ -152,6 +166,8 @@ trait Fn<Args>: FnMut<Args>{
   fn call(&self,args: Args)->Self::Output;
 }
 ```
+</details>
+
 
 这里有闭包的三种行为：
 
@@ -174,6 +190,8 @@ Fn 代表的这类闭包能被调用多次,但是对上下文环境变量没有�
 
 ## From`<T>`{=html}和Into`<T>`{=html}
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 trait From<T>{
   fn from(T)->Self;
@@ -182,6 +200,8 @@ trait Into<T>{
   fn into(self)->T;
 }
 ```
+</details>
+
 
 From`<T>`{=html} 可以把类型 T 转为自己,而Into`<T>`{=html}
 可以把自己转为类型 T。
@@ -199,11 +219,15 @@ From`<T>`{=html},因为实现了 From后,自动就实现了 Into。
 
 ## AsRef`<T>`{=html}
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 trait AsRef<T>{
   fn as_ref(&self)->&T;
 }
 ```
+</details>
+
 
 它把自身的引用转换成目标类型的引用。和 Deref
 的区别是,\*\*deref()是隐式调用的,而as_ref() 需要你显式地调用 \*\*。

@@ -1,45 +1,12 @@
 -   [深度探索C++对象模型（总结篇）](#深度探索c对象模型总结篇)
--   
--   [](#-1)
 -   [C++自己的对象模式](#c自己的对象模式)
 -   [Data member](#data-member)
 -   [Function](#function)
 -   [Constructor
     ,Destructor,copy](#constructor-destructorcopy)
 
-<!-- --- -->
-
-<!-- title: "C++对象模型" -->
-
-<!-- author: "jask" -->
-
-<!-- date: "09/10/2024" -->
-
-<!-- output: pdf_document -->
-
-<!-- header-includes: -->
-
-<!--   - \usepackage{fontspec} -->
-
-<!--   - \usepackage{xeCJK} -->
-
-<!--   - \setmainfont{ComicShannsMono Nerd Font} -->
-
-<!--   - \setCJKmainfont{Noto Sans CJK SC}  # 替换为可用的字体 -->
-
-<!--   - \setCJKmonofont{Noto Sans CJK SC} -->
-
-<!--   - \setCJKsansfont{Noto Sans CJK SC} -->
-
-<!--   - \usepackage[top=1cm, bottom=1cm, left=1cm, right=1cm]{geometry} -->
-
-<!-- --- -->
 
 ### 深度探索C++对象模型（总结篇）
-
-### 
-
-###  {#-1}
 
 ### C++自己的对象模式
 

@@ -23,6 +23,8 @@ x、y 和返回值至少活得和 \'a 一样久(因为返回值要么是 x，要
 
 举例：
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 struct ImportantExcerpt<'a> {
     part: &'a str,
@@ -36,6 +38,8 @@ fn main() {
     };
 }
 ```
+</details>
+
 
 ImportantExcerpt 结构体中有一个引用类型的字段
 part，因此需要为它标注上生命周期。结构体的生命周期标注语法跟泛型参数语法很像，需要对生命周期参数进行声明
@@ -52,6 +56,8 @@ part，因此需要为它标注上生命周期。结构体的生命周期标注�
 
 举例：
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 fn first_word(s: &str) -> &str {
     let bytes = s.as_bytes();
@@ -65,6 +71,8 @@ fn first_word(s: &str) -> &str {
     &s[..]
 }
 ```
+</details>
+
 
 对于 first_word 函数，它的返回值是一个引用类型，那么该引用只有两种情况：
 
@@ -100,6 +108,8 @@ fn first_word(s: &str) -> &str {
 
 首先看一下泛型的语法：
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 struct Point<T> {
     x: T,
@@ -112,8 +122,12 @@ impl<T> Point<T> {
     }
 }
 ```
+</details>
+
 
 实际上，为具有生命周期的结构体实现方法时，我们使用的语法跟泛型参数语法很相似：
+
+<details><summary>Click to expand</summary>
 
 ``` rs
 struct ImportantExcerpt<'a> {
@@ -126,6 +140,8 @@ impl<'a> ImportantExcerpt<'a> {
     }
 }
 ```
+</details>
+
 
 其中有几点需要注意的：
 
@@ -136,6 +152,8 @@ impl 中必须使用结构体的完整名称，包括
 
 但是注意，如果要手动修改返回值的生命周期，就要注意到：
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 impl<'a: 'b, 'b> ImportantExcerpt<'a> {
     fn announce_and_return_part(&'a self, announcement: &'b str) -> &'b str {
@@ -144,6 +162,8 @@ impl<'a: 'b, 'b> ImportantExcerpt<'a> {
     }
 }
 ```
+</details>
+
 
 需要指明输入参数的生命周期之间的关系。
 
@@ -160,9 +180,13 @@ impl<'a: 'b, 'b> ImportantExcerpt<'a> {
 在之前我们学过字符串字面量，提到过它是被硬编码进 Rust
 的二进制文件中，因此这些字符串变量全部具有 \'static 的生命周期：
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 let s: &'static str = "我没啥优点，就是活得久，嘿嘿";
 ```
+</details>
+
 
 在不少情况下，\'static
 约束确实可以解决生命周期编译不通过的问题，但是问题来了：本来该引用没有活那么久，但是你非要说它活那么久，万一引入了潜在的
@@ -195,6 +219,8 @@ drop，因此它能跟程序活得一样久，自然它的生命周期是 \'stat
 首先，在以下两种情况下，T: \'static 与 &\'static 有相同的约束：T
 必须活得和程序一样久
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 use std::fmt::Debug;
 
@@ -215,11 +241,15 @@ fn main() {
     print_it1(&i);
 }
 ```
+</details>
+
 
 以上代码会报错，原因很简单: &i 的生命周期无法满足 \'static
 的约束，如果大家将 i 修改为常量，那自然一切 OK。
 
 稍加修改
+
+<details><summary>Click to expand</summary>
 
 ``` rs
 use std::fmt::Debug;
@@ -234,6 +264,8 @@ fn main() {
     print_it(&i);
 }
 ```
+</details>
+
 
 就不会报错了
 
@@ -249,6 +281,8 @@ fn main() {
 
 答案是引用指向的数据，而引用本身是要遵循其作用域范围的，我们来简单验证下：
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 fn main() {
     {
@@ -261,6 +295,8 @@ fn main() {
     println!("static_string reference remains alive: {}", static_string);
 }
 ```
+</details>
+
 
 以上代码不出所料会报错，原因在于虽然字符串字面量 \"I\'m in read-only
 memory\" 的生命周期是

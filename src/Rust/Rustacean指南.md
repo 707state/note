@@ -15,11 +15,15 @@
 
 # Rusty 阶乘
 
+<details><summary>Click to expand</summary>
+
 ``` rust
 pub fn factorial(num: u64) -> u64 {
     (1..=num).fold(1, |acc, x| acc * x)
 }
 ```
+</details>
+
 
 范围 (1..=num)：
 
@@ -163,6 +167,8 @@ Unsafe
 由调用者来保证MaybeUninit`<T>`{=html}确实处于初始化状态。当内存尚未完全初始化时调用
 assume_init() 会导致立即未定义的行为。
 
+<details><summary>Click to expand</summary>
+
 ``` rust
 
 #![allow(unused)]
@@ -188,6 +194,8 @@ unsafe { vec.set_len(1000); }
 reader.read(&mut vec); // undefined behavior!
 }
 ```
+</details>
+
 
 # 特殊符号
 
@@ -197,6 +205,8 @@ reader.read(&mut vec); // undefined behavior!
 
 例如：
 
+<details><summary>Click to expand</summary>
+
 ``` rust
 let x = Some(5);
 match x {
@@ -204,6 +214,8 @@ match x {
     _ => (),
 }
 ```
+</details>
+
 
 这个例子中，如果 x 是 Some 类型且其内部值在 3 到 7
 范围内，那么该值将被绑定到变量 y 上。

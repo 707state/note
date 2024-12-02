@@ -40,6 +40,8 @@ pointers](https://iandouglasscott.com/2018/05/28/exploring-rust-fat-pointers/)
 一文中，该作者通过 transmute 将 trait object 的引用转为两个
 usize，并且验证它们是指向数据与函数虚表的指针：
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 use std::mem::transmute;
 use std::fmt::Debug;
@@ -56,6 +58,8 @@ fn main() {
 // a: 140735227204568
 // b: (140735227204568, 94484672107880)
 ```
+</details>
+
 
 从这里可以看出：Rust 使用 fat pointer（即两个指针） 来表示 trait object
 的引用，分布指向 data 与 vtable，这和 Go 中的 interface 十分类似。
@@ -92,6 +96,8 @@ object，需要满足一定的条件，称之为 object safety 属性。
 
 例如：
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 
 #![allow(unused)]
@@ -111,9 +117,13 @@ fn call_foo(thing: Box<Trait>) {
 // 总共会有 10 * 3 = 30 个实现
 }
 ```
+</details>
+
 
 3.  Trait 不能继承 Sized。这是由于 Rust 会默认为 trait object 实现该
     trait，生成类似下面的代码：
+
+<details><summary>Click to expand</summary>
 
 ``` rs
 
@@ -141,6 +151,8 @@ impl Foo for TraitObject {
 }
 }
 ```
+</details>
+
 
 如果 Foo 继承了 Sized，那么就要求 trait object 也是 Sized，而 trait
 object 是 DST 类型，属于 ?Sized ，所以 trait 不能继承 Sized。

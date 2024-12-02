@@ -101,6 +101,8 @@ fingerprints），这是哈希值的高几位。利用这个简化的哈希值�
 桶（bucket）
 是用来存储哈希表中每个元素的位置。每个桶可以包含一个元素或为空，它是哈希表用来组织和管理数据的基础单元。在实现上，桶是一个连续的内存位置，用于存储键值对或者表示桶的状态。
 
+<details><summary>Click to expand</summary>
+
 ``` rust
 /// A reference to a hash table bucket containing a `T`.
 ///
@@ -115,6 +117,8 @@ pub struct Bucket<T> {
     ptr: NonNull<T>,
 }
 ```
+</details>
+
 
 #### 桶的结构
 
@@ -160,6 +164,8 @@ group）查找，直到找到匹配元素或遇到空桶为止。
 
 AHash是hashbrown默认的hash函数，被设计在内存使用。
 
+<details><summary>Click to expand</summary>
+
 ``` rust
 ///This constant comes from Kunth's prng (Empirically it works better than those from splitmix32).
 
@@ -189,6 +195,8 @@ impl AHasher {
 
 }
 ```
+</details>
+
 
 这是实现，看不懂\...
 
@@ -207,9 +215,13 @@ hashbrown 内部用的不是 拉链法，而是 基于 三角数
 
 #### 删掉最后一位1
 
+<details><summary>Click to expand</summary>
+
 ``` rust
 x&(x-1)
 ```
+</details>
+
 
 很好理解，将 x 表述为 \...10000\...000，x - 1 为
 \...01111\...111，相与最后 1 位变为 0。
@@ -228,18 +240,26 @@ x&(x-1)
 
 直接和 0x80808080 相与。
 
+<details><summary>Click to expand</summary>
+
 ``` rust
 x& u32::from_ne_bytes(0x80)
 ```
+</details>
+
 
 将 0xff 转为 0x80，剩下的转为 0x00
 
 实际上是判断最高位和次高位为 1。让自己与自己左移一位相与，再与
 0x80，结果为 0x80 说明最高位和次高位都为 1。
 
+<details><summary>Click to expand</summary>
+
 ``` rust
 x&(x<<1)&u32::from_ne_bytes(0x80)
 ```
+</details>
+
 
 将指定的 y 转为 0x80，剩下的转为 0x00。
 
@@ -247,10 +267,14 @@ x&(x<<1)&u32::from_ne_bytes(0x80)
 0xff，是唯一能让最高位为 1 的值。所以先异或
 x，再应用这个操作，最后直接与 0x80。
 
+<details><summary>Click to expand</summary>
+
 ``` rust
 let z=x^u32::from_ne_bytes(y);
 z.wrapping_sub(repeat(0x01))&!z&reoeat(0x80)
 ```
+</details>
+
 
 将 0x80 转为 0xff，0xff 保持 0xff，其他转为 0x80。
 
@@ -258,7 +282,11 @@ z.wrapping_sub(repeat(0x01))&!z&reoeat(0x80)
 0x80。再取最高位后加上取反的结果，那么 0x00 会变为 0x7f，0x80 会变为
 0x80。
 
+<details><summary>Click to expand</summary>
+
 ``` rust
 let y=!x & repeat(0x80);
 !y+(y>>7)
 ```
+</details>
+

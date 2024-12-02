@@ -79,6 +79,8 @@ tuple 的结构和 Struct 一致，只是元素是通过 index 进行访问的�
 
 闭包相当于一个捕获变量的结构体，实现了 FnOnce 或 FnMut 或 Fn。
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 
 #![allow(unused)]
@@ -97,8 +99,12 @@ f(|| {
 // Prints "foobar".
 }
 ```
+</details>
+
 
 生成了一个闭包类型：
+
+<details><summary>Click to expand</summary>
 
 ``` rs
 
@@ -119,6 +125,8 @@ impl<'a> FnOnce<()> for Closure<'a> {
 f(Closure{s: s, t: &t});
 }
 ```
+</details>
+
 
 ## union
 

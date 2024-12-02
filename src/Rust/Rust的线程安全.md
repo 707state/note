@@ -11,6 +11,8 @@
 
 例如:
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 use std::thread;
 use std::rc::Rc;
@@ -22,12 +24,16 @@ fn main(){
   t.join().unwrap();
 }
 ```
+</details>
+
 
 这段代码看似正确，实则报错。
 
 因为Rc无法在线程间安全转移，也就是 Send 没有给Rc`<i32>`{=html}的实现。
 
 ## Rc和Arc的比较
+
+<details><summary>Click to expand</summary>
 
 ``` rs
 // Rc源码片段
@@ -38,6 +44,8 @@ impl<T: ?Sized> !marker::Sync for Rc<T> {}
 unsafe impl<T: ?Sized + Sync + Send> Send for Arc<T> {}
 unsafe impl<T: ?Sized + Sync + Send> Sync for Arc<T> {}
 ```
+</details>
+
 
 !代表移除特征的相应实现，上面代码中Rc`<T>`{=html}的Send和Sync特征被特地移除了实现，而Arc`<T>`{=html}则相反，实现了Sync +
 Send，再结合之前的编译器报错，大概可以明白了：Send和Sync是在线程间安全使用一个值的关键。
@@ -57,17 +65,25 @@ trait，该特征未定义任何行为，因此非常适合用于标记), 来看
 
 参考RwLock的实现：
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 unsafe impl<T: ?Sized + Send + Sync> Sync for RwLock<T> {}
 ```
+</details>
+
 
 首先RwLock可以在线程间安全的共享，那它肯定是实现了Sync，但是我们的关注点不在这里。众所周知，RwLock可以并发的读，说明其中的值T必定也可以在线程间共享，那T必定要实现Sync。
 
 果不其然，上述代码中，T的特征约束中就有一个Sync特征，那问题又来了，Mutex是不是相反？再来看看:
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 unsafe impl<T: ?Sized + Send> Sync for Mutex<T> {}
 ```
+</details>
+
 
 不出所料，Mutex`<T>`{=html}中的T并没有Sync特征约束。
 

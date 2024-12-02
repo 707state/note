@@ -178,6 +178,8 @@ RefMut`<T>`{=html} 智能指针。每次调用 borrow，RefCell`<T>`{=html}
 
 举例：
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -192,6 +194,8 @@ fn main() {
     println!("{:?}\n{:?}\n{:?}", s, s1, s2);
 }
 ```
+</details>
+
 
 上面代码中，我们使用 RefCell`<String>`{=html} 包裹一个字符串，同时通过
 Rc 创建了它的三个所有者：s、s1和s2，并且通过其中一个所有者 s2
@@ -210,6 +214,8 @@ C++ std::shared_ptr 指针，事实上，C++
 
 ### 内存损耗
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 struct Wrapper<T> {
     // Rc
@@ -223,6 +229,8 @@ struct Wrapper<T> {
     item: T,
 }
 ```
+</details>
+
 
 ### CPU损耗
 

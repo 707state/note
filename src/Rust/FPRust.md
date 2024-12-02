@@ -18,6 +18,8 @@
 
 实现如下：
 
+<details><summary>Click to expand</summary>
+
 ``` rust
 pub trait Functor<'a> {
     /// The inner type which will be mapped over
@@ -32,6 +34,8 @@ pub trait Functor<'a> {
         F: Fn(Self::Unwrapped) -> B + 'a;
 }
 ```
+</details>
+
 
 fmap是Functor的核心方法，用于将一个函数应用到Functor包含的值上，生成一个新的Functor实例。
 fmap方法接受一个函数f和一个泛型类型参数B，并将f应用于当前Functor实例的Unwrapped值。
@@ -39,6 +43,8 @@ f的类型是Fn(Self::Unwrapped) -\> B，即一个从Unwrapped到B的函数。
 fmap的返回类型是Self::Wrapped\<B\>，即内部值被映射后的新Functor类型。
 
 Option就是一种Functor
+
+<details><summary>Click to expand</summary>
 
 ``` rust
 impl<'a, A> Functor<'a> for Option<A> {
@@ -57,8 +63,12 @@ impl<'a, A> Functor<'a> for Option<A> {
     }
 }
 ```
+</details>
+
 
 同样的Result也是。
+
+<details><summary>Click to expand</summary>
 
 ``` rust
 impl<'a, A, E> Functor<'a> for Result<A, E> {
@@ -76,11 +86,15 @@ impl<'a, A, E> Functor<'a> for Result<A, E> {
     }
 }
 ```
+</details>
+
 
 ## Monad
 
 Rust缺少Higher-Kind
 Type，不能直接在trait之间构建严格的继承关系，因此Monad没有直接从Applicative派生，而是作为一个独立的trait，实现了"单子"所需的bind和of操作。
+
+<details><summary>Click to expand</summary>
 
 ``` rust
 pub trait Monad<'a> {
@@ -102,6 +116,8 @@ pub trait Monad<'a> {
     fn of<T: 'a>(value: T) -> Self::Wrapped<T>;
 }
 ```
+</details>
+
 
 核心：
 
@@ -115,6 +131,8 @@ pub trait Monad<'a> {
 > Monad可以对Option实现。
 
 ------------------------------------------------------------------------
+
+<details><summary>Click to expand</summary>
 
 ``` rust
 impl<'a, A> Monad<'a> for Option<A> {
@@ -138,6 +156,10 @@ impl<'a, A> Monad<'a> for Option<A> {
     }
 }
 ```
+</details>
+
+
+<details><summary>Click to expand</summary>
 
 ``` rust
 /// Provides the Haskell monadic syntactic sugar `do`.
@@ -166,6 +188,8 @@ macro_rules! m {
 }
 }
 ```
+</details>
+
 
 m!宏提供了一种类似于Haskell中do语法的语法糖，用于简化对单子（Monad）的操作，使链式调用更加直观。这种宏可以帮助我们以接近命令式的风格编写代码，而实际上是通过链式绑定操作来完成单子的组合。
 
@@ -181,6 +205,8 @@ m!宏提供了一种类似于Haskell中do语法的语法糖，用于简化对单
 ## Monoid
 
 单位元，类似于数学概念中的具有一个结合律的二元操作和一个单位元。
+
+<details><summary>Click to expand</summary>
 
 ``` rust
 /// In abstract algebra, a `Monoid` is a set equipped with an associative binary operation and an identity element.
@@ -204,10 +230,14 @@ impl Monoid for i32 {
     }
 }
 ```
+</details>
+
 
 ## Apply
 
 Functor的扩展，提供了一种"在上下文中"应用函数的方式。该trait允许在容器类型（如Option、Result等）中将一个函数应用到另一个值上，从而提供了更丰富的操作语义。这种结构通常被称为"Applicative"，在函数式编程中用于将多个上下文包装的值组合起来。
+
+<details><summary>Click to expand</summary>
 
 ``` rust
 /// An extension of `Functor`, `Apply` provides a way to _apply_ arguments
@@ -237,8 +267,12 @@ pub trait Apply<'a>: Functor<'a> {
     // Some(f(a, b))
 }
 ```
+</details>
+
 
 对Option的实现：
+
+<details><summary>Click to expand</summary>
 
 ``` rust
 impl<'a, A> Apply<'a> for Option<A> {
@@ -273,6 +307,8 @@ impl<'a, A> Apply<'a> for Option<A> {
     }
 }
 ```
+</details>
+
 
 ap方法接受一个包含函数的容器f，并将它应用到self这个包含值的容器中。
 
@@ -283,14 +319,20 @@ x + 1)，调用ap会返回Some(3)。
 
 对Apply的扩展。
 
+<details><summary>Click to expand</summary>
+
 ``` rust
 pub trait Applicative<'a>: Apply<'a> {
     /// Lift a value into a context
     fn of(value: Self::Unwrapped) -> Self::Wrapped<Self::Unwrapped>;
 }
 ```
+</details>
+
 
 从value解析为当前类型。
+
+<details><summary>Click to expand</summary>
 
 ``` rust
 impl<'a, A: 'a + Clone> Applicative<'a> for Option<A> {
@@ -299,12 +341,16 @@ impl<'a, A: 'a + Clone> Applicative<'a> for Option<A> {
     }
 }
 ```
+</details>
+
 
 ## SemiGroup
 
 Semigroup是一个具有结合性操作的代数结构。这个trait要求实现一个结合性操作mappend，它接受两个值并将它们组合在一起。
 结合律：mappend必须满足结合律，即对于任意a、b和c，都有a.mappend(b).mappend(c)
 == a.mappend(b.mappend(c))。
+
+<details><summary>Click to expand</summary>
 
 ``` rust
 pub trait Semigroup {
@@ -323,10 +369,14 @@ impl<A: Monoid> Semigroup for Option<A> {
     }
 }
 ```
+</details>
+
 
 这样就为Option提供了结合性操作。
 
 ## Semigroupoid
+
+<details><summary>Click to expand</summary>
 
 ``` rust
 pub trait Semigroupoid {
@@ -356,6 +406,8 @@ where
     }
 }
 ```
+</details>
+
 
 Semigroupoid是一个代数结构，要求类型具备组合两个映射（函数）或"态射"（morphisms）的能力。
 
@@ -381,6 +433,8 @@ State类型及其实现，模拟了具有隐式状态的纯函数式编程中的
 monad（状态单子）。它展示了如何在Rust中实现和使用State
 monad，同时为它实现了Functor、Apply、Applicative和Monad四个类型的trait。
 
+<details><summary>Click to expand</summary>
+
 ``` rust
 pub struct State<'a, S, A> {
     /// The (apparently) "stateful" function
@@ -404,11 +458,15 @@ impl<'a, S: 'a, A: 'a> State<'a, S, A> {
     }
 }
 ```
+</details>
+
 
 **execute**方法接受一个初始状态，并通过runner函数执行状态变换，返回值(A,
 S)，其中A是计算结果，S是更新后的状态。
 
 以Functor为例：
+
+<details><summary>Click to expand</summary>
 
 ``` rust
 impl<'a, S: 'a, A: 'a> Functor<'a> for State<'a, S, A> {
@@ -429,6 +487,8 @@ impl<'a, S: 'a, A: 'a> Functor<'a> for State<'a, S, A> {
     }
 }
 ```
+</details>
+
 
 State类型实现了Functor，允许通过fmap方法对状态的计算结果进行变换。
 
@@ -437,6 +497,8 @@ fmap接受一个函数f，它将状态计算结果A变换为B，并返回一个�
 ## Fold
 
 没什么好说的。
+
+<details><summary>Click to expand</summary>
 
 ``` rust
 pub trait Foldable {
@@ -465,6 +527,8 @@ impl<A: Monoid> Foldable for Vec<A> {
     }
 }
 ```
+</details>
+
 
 ## Free
 
@@ -480,6 +544,8 @@ Free是一个枚举类型，表示一个自由单子。它有两种变体：
 F是一个泛型，要求它实现FunctorOnce\<\'a\>，这表示F是一个可应用的容器，并且能够将函数映射到其内部的值上。FunctorOnce的fmap操作允许将一个函数作用于其内的值，并将结果返回。
 
 A是自由单子的返回类型。
+
+<details><summary>Click to expand</summary>
 
 ``` rust
 pub enum Free<'a, F, A: 'a>
@@ -544,6 +610,8 @@ where
     Free::Free(Box::new(command.fmap(|a| Free::Pure(a))))
 }
 ```
+</details>
+
 
 Free
 monad：通过自由单子的结构，可以延迟执行计算，并通过fmap和bind操作构建复杂的计算链。自由单子广泛应用于实现DSL（领域特定语言），它能够在纯函数式编程中模拟对状态、IO等副作用的处理。
@@ -554,6 +622,8 @@ lift_f：提供了一种将普通的FunctorOnce命令提升为自由单子的机
 ## Traverse
 
 对结构中所有的元素执行操作。
+
+<details><summary>Click to expand</summary>
 
 ``` rust
 pub trait Traversable<'a>: Functor<'a> {
@@ -618,3 +688,5 @@ impl<'a, A: Monoid> Traversable<'a> for Vec<A> {
     }
 }
 ```
+</details>
+

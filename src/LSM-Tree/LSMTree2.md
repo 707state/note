@@ -1,15 +1,11 @@
 -   [Mem Table Iterator](#mem-table-iterator)
-    -   [实现Memtable
-        Iterator](#实现memtable-iterator)
+    -   [实现Memtable Iterator](#实现memtable-iterator)
     -   [Merge Iterator](#merge-iterator)
-    -   [LSM Iterator + Fused
-        Iterator](#lsm-iterator--fused-iterator)
+    -   [LSM Iterator + Fused Iterator ](#lsm-iterator--fused-iterator-lsm-iterator--fused-iterator)
     -   [Concat Iterator](#concat-iterator)
-    -   [Merge Two
-        Iterator](#merge-two-iterator)
+    -   [Merge Two Iterator](#merge-two-iterator)
 -   [思考题](#思考题)
-    -   [使用Merge
-        Iterator的时间/空间复杂度是多大？](#使用merge-iterator的时间空间复杂度是多大)
+    -   [使用Merge Iterator的时间/空间复杂度是多大？](#使用merge-iterator的时间空间复杂度是多大)
 
 # Mem Table Iterator
 
@@ -216,7 +212,7 @@ impl<I: 'static + for<'a> StorageIterator<KeyType<'a> = KeySlice<'a>>> StorageIt
 
 </details>
 
-## LSM Iterator + Fused Iterator {#lsm-iterator--fused-iterator}
+## LSM Iterator + Fused Iterator {#lsm-iterator\--fused-iterator} {#lsm-iterator--fused-iterator-lsm-iterator--fused-iterator}
 
 在LSM Tree的内部，用LSM
 Iterator作为迭代器，当更多的迭代器加入到系统中是需要修改树的结构。

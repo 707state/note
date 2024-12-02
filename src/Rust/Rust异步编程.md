@@ -105,6 +105,8 @@ CPU 核心数
 
 我们来看看一个简化版的 Future 特征:
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 trait SimpleFuture{
   type Output;
@@ -115,6 +117,8 @@ enum Poll<T>{
   Pending,
 }
 ```
+</details>
+
 
 我们提到过 Future 需要被执行器poll(轮询)后才能运行，诺，这里 poll
 就来了，通过调用该方法，可以推进 Future 的进一步执行，直到被切走为止(
@@ -135,6 +139,8 @@ Future，确认它是否能被执行，但这种作法效率较低。而有了 w
 进行一次全遍历来的高效。
 
 下面的 SocketRead 结构体就是一个 Future:
+
+<details><summary>Click to expand</summary>
 
 ``` rs
 pub struct SocketRead<'a> {
@@ -159,10 +165,14 @@ impl SimpleFuture for SocketRead<'_> {
     }
 }
 ```
+</details>
+
 
 这种 Future
 模型允许将多个异步操作组合在一起，同时还无需任何内存分配。不仅仅如此，如果你需要同时运行多个
 Future或链式调用多个 Future ，也可以通过无内存分配的状态机实现，例如：
+
+<details><summary>Click to expand</summary>
 
 ``` rs
 trait SimpleFuture {
@@ -217,8 +227,12 @@ where
     }
 }
 ```
+</details>
+
 
 ## 真实的Future Trait
+
+<details><summary>Click to expand</summary>
 
 ``` rs
 trait Future {
@@ -231,6 +245,8 @@ trait Future {
     ) -> Poll<Self::Output>;
 }
 ```
+</details>
+
 
 首先这里多了一个 Pin
 ，关于它我们会在后面章节详细介绍，现在你只需要知道使用它可以创建一个无法被移动的
@@ -286,12 +302,16 @@ poll 。
 
 自引用类型，大魔王来了，大家快跑，在之前章节我们已经见识过它的厉害
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 struct SelfRef{
   value: String,
   pointer_to_value: *mut String,
 }
 ```
+</details>
+
 
 在上面的结构体中，pointer_to_value 是一个裸指针，指向第一个字段 value
 持有的字符串 String 。很简单对吧？现在考虑一个情况， 若String
@@ -318,11 +338,15 @@ Unpin 特征。
 从名字推测，大家可能以为 Pin 和 Unpin 都是特征吧？实际上，Pin
 不按套路出牌，它是一个结构体：
 
+<details><summary>Click to expand</summary>
+
 ``` rs
 pub struct Pin<P> {
     pointer: P,
 }
 ```
+</details>
+
 
 它包裹一个指针，并且能确保该指针指向的数据不会被移动，例如 Pin\<&mut T\>
 , Pin\<&T\> , Pin\<Box`<T>`{=html}\> ，都能确保 T 不会被移动。
@@ -347,6 +371,8 @@ Pin
 ## Pin 的实际应用
 
 ### 将值固定在栈上
+
+<details><summary>Click to expand</summary>
 
 ``` rs
 use std::pin::Pin;
@@ -385,6 +411,8 @@ impl Test {
     }
 }
 ```
+</details>
+
 
 可以解决指针指向的数据被移动的问题。
 
@@ -400,6 +428,8 @@ impl Test {
 将一个 !Unpin
 类型的值固定到堆上，会给予该值一个稳定的内存地址，它指向的堆中的值在 Pin
 后是无法被移动的。而且与固定在栈上不同，我们知道堆上的值在整个生命周期内都会被稳稳地固定住。
+
+<details><summary>Click to expand</summary>
 
 ``` rs
 use std::pin::Pin;
@@ -443,6 +473,8 @@ pub fn main() {
     println!("a: {}, b: {}",test2.as_ref().a(), test2.as_ref().b());
 }
 ```
+</details>
+
 
 ### 将固定住的Future变为Unpin
 
@@ -457,6 +489,8 @@ Future 进行固定:
 
 固定后获得的 Pin\<Box`<T>`{=html}\> 和 Pin\<&mut T\> 既可以用于 Future
 ，又会自动实现 Unpin。
+
+<details><summary>Click to expand</summary>
 
 ``` rs
 use pin_utils::pin_mut; // `pin_utils` 可以在crates.io中找到
@@ -478,6 +512,8 @@ let fut = async { /* ... */ };
 pin_mut!(fut);
 execute_unpin_future(fut); // OK
 ```
+</details>
+
 
 ## 总结
 
