@@ -27,7 +27,7 @@ Trait 作为动态和静态分发: Rust 支持两种 Trait 使用方式：
 静态分发：使用泛型（如上例），在编译时确定具体类型。
 
 动态分发：使用 Trait 对象，通过引用或指针来实现（如
-Box`<dyn TraitName>`{=html}），在运行时确定具体类型。
+Box`<dyn TraitName>`），在运行时确定具体类型。
 
 # 常用Trait
 
@@ -43,7 +43,7 @@ trait Default{
 </details>
 
 
-其他一些地方用到了 Default,比如 Option`<T>`{=html} 的
+其他一些地方用到了 Default,比如 Option`<T>` 的
 unwrap_or_default(),在类型参数上调用 default() 函数。
 
 如果是 struct,还可以使用部分更新语法,这个时候其实是 Default 在发挥作用。
@@ -132,7 +132,7 @@ ToOwned 相当于是 Clone 更宽泛的版本。ToOwned 给类型提供了一个
 Deref trait 可以用来把一种类型转换成另一种类型,但是要在引用符号
 &、点号操作符 . 或其他智能指针的触发下才会产生转换。
 
-还有 &Vec`<T>`{=html} 可以自动转换为 &\[T\],也是因为 Vec\[T\] 实现了
+还有 &Vec`<T>` 可以自动转换为 &\[T\],也是因为 Vec\[T\] 实现了
 Deref。
 
 ## Drop
@@ -188,7 +188,7 @@ FnMut
 
 Fn 代表的这类闭包能被调用多次,但是对上下文环境变量没有副作用。
 
-## From`<T>`{=html}和Into`<T>`{=html}
+## From`<T>`和Into`<T>`
 
 <details><summary>Click to expand</summary>
 
@@ -203,21 +203,21 @@ trait Into<T>{
 </details>
 
 
-From`<T>`{=html} 可以把类型 T 转为自己,而Into`<T>`{=html}
+From`<T>` 可以把类型 T 转为自己,而Into`<T>`
 可以把自己转为类型 T。
 
 可以看到它们是互逆的 trait。实际上,Rust 只允许我们实现
-From`<T>`{=html},因为实现了 From后,自动就实现了 Into。
+From`<T>`,因为实现了 From后,自动就实现了 Into。
 
 其实 From 是单向的。对于两个类型要互相转的话,是需要互相实现 From 的。
 
-本身,From`<T>`{=html} 和 Into`<T>`{=html}
-都隐含了所有权,From`<T>`{=html} 的 Self 是具有所有权的,Into`<T>`{=html}
-的 T 也是具有所有权的。 Into`<T>`{=html} 有个常用的比 From`<T>`{=html}
+本身,From`<T>` 和 Into`<T>`
+都隐含了所有权,From`<T>` 的 Self 是具有所有权的,Into`<T>`
+的 T 也是具有所有权的。 Into`<T>` 有个常用的比 From`<T>`
 更自然的场景是,如果你已经拿到了一个变量,想把它变成具有所有权的值,Into
 写起来更顺手。因为 into()是方法,而 from() 是关联函数。
 
-## AsRef`<T>`{=html}
+## AsRef`<T>`
 
 <details><summary>Click to expand</summary>
 
@@ -232,6 +232,6 @@ trait AsRef<T>{
 它把自身的引用转换成目标类型的引用。和 Deref
 的区别是,\*\*deref()是隐式调用的,而as_ref() 需要你显式地调用 \*\*。
 
-AsRef`<T>`{=html}可以让函数参数传入的类型更加多样化，不管是引用类型还是具有所有权的类型都可以传递。
+AsRef`<T>`可以让函数参数传入的类型更加多样化，不管是引用类型还是具有所有权的类型都可以传递。
 
-可以把 Deref 看成是隐式化(或自动化)+ 弱化版本的 AsRef`<T>`{=html}。
+可以把 Deref 看成是隐式化(或自动化)+ 弱化版本的 AsRef`<T>`。

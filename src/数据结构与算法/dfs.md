@@ -1,10 +1,12 @@
--   [3235
-    判断矩形的两个角落是否可达](#3235-判断矩形的两个角落是否可达)
+-   [3235判断矩形的两个角落是否可达](#3235-判断矩形的两个角落是否可达)
 -   [386 字典序排数](#386-字典序排数)
 -   [486 预测赢家](#486-预测赢家)
 -   [365 水壶问题](#365-水壶问题)
 -   [130 被围绕的区域](#130-被围绕的区域)
 -   [529 扫地雷](#529-扫地雷)
+-   [2056 棋盘上有效移动组合的数目](#2056-棋盘上有效移动组合的数目)
+-   [688 骑士落在棋盘上的概率](#688-骑士落在棋盘上的概率)
+
 
 # 3235 判断矩形的两个角落是否可达 {#3235-判断矩形的两个角落是否可达}
 
@@ -230,7 +232,7 @@ public:
 
 </details>
 
-# 529 扫地雷 {#529-扫地雷}
+# 529 UNSOLVED 扫地雷 {#529-扫地雷}
 
 给你一个大小为 m x n 二维字符矩阵 board ，表示扫雷游戏的盘面，其中：
 
@@ -295,3 +297,219 @@ public:
 ```
 
 </details>
+
+# 2056 棋盘上有效移动组合的数目 {#2056-棋盘上有效移动组合的数目}
+
+有一个 8 x 8 的棋盘，它包含 n 个棋子（棋子包括车，后和象三种）。给你一个长度为 n 的字符串数组 pieces ，其中 pieces[i] 表示第 i 个棋子的类型（车，后或象）。除此以外，还给你一个长度为 n 的二维整数数组 positions ，其中 positions[i] = [ri, ci] 表示第 i 个棋子现在在棋盘上的位置为 (ri, ci) ，棋盘下标从 1 开始。
+
+棋盘上每个棋子都可以移动 至多一次 。每个棋子的移动中，首先选择移动的 方向 ，然后选择 移动的步数 ，同时你要确保移动过程中棋子不能移到棋盘以外的地方。棋子需按照以下规则移动：
+
+    车可以 水平或者竖直 从 (r, c) 沿着方向 (r+1, c)，(r-1, c)，(r, c+1) 或者 (r, c-1) 移动。
+    后可以 水平竖直或者斜对角 从 (r, c) 沿着方向 (r+1, c)，(r-1, c)，(r, c+1)，(r, c-1)，(r+1, c+1)，(r+1, c-1)，(r-1, c+1)，(r-1, c-1) 移动。
+    象可以 斜对角 从 (r, c) 沿着方向 (r+1, c+1)，(r+1, c-1)，(r-1, c+1)，(r-1, c-1) 移动。
+
+移动组合 包含所有棋子的 移动 。每一秒，每个棋子都沿着它们选择的方向往前移动 一步 ，直到它们到达目标位置。所有棋子从时刻 0 开始移动。如果在某个时刻，两个或者更多棋子占据了同一个格子，那么这个移动组合 不有效 。
+
+请你返回 有效 移动组合的数目。
+
+注意：
+
+    初始时，不会有两个棋子 在 同一个位置 。
+    有可能在一个移动组合中，有棋子不移动。
+    如果两个棋子 直接相邻 且两个棋子下一秒要互相占据对方的位置，可以将它们在同一秒内 交换位置 。
+
+<details>
+
+```cpp
+class Solution {
+    struct Move{
+        int x0,y0;
+        int dx,dy;
+        int step;
+    };
+    constexpr static auto DIRS= array<pair<int,int>,8>{{
+        {-1,0},{1,0},{0,-1},{0,1},{1,1},{-1,1},{-1,-1},{1,-1}
+    }};
+    unordered_map<char,vector<pair<int,int>>> PIECE_DIRS={
+        {'r',{DIRS.begin(),DIRS.begin()+4}},
+        {'b',{DIRS.begin()+4,DIRS.end()}},
+        {'q',{DIRS.begin(),DIRS.end()}}
+    };
+public:
+    vector<Move> generate_moves(int x0,int y0,vector<pair<int,int>>& dirs){
+        const int SIZE=8;
+        vector<Move> moves={{x0,y0,0,0,0}};
+        for(auto [dx,dy]:dirs){
+            int x=x0+dx,y=y0+dy;
+            for(int step=1;x>0&&x<=SIZE&&y>0&&y<=SIZE;step++){
+                moves.emplace_back(x0,y0,dx,dy,step);
+                x+=dx;
+                y+=dy;
+            }
+        }
+        return moves;
+    }
+    bool is_valid(Move& m1,Move& m2){
+        int x1=m1.x0,y1=m1.y0;
+        int x2=m2.x0,y2=m2.y0;
+        for(int i=0;i<max(m1.step,m2.step);++i){
+            if(i<m1.step){
+                x1+=m1.dx;
+                y1+=m1.dy;
+            }
+            if(i<m2.step){
+                x2+=m2.dx;
+                y2+=m2.dy;
+            }
+            if(x1==x2 && y1==y2){
+                return false;
+            }
+        }
+        return true;
+    }
+    int countCombinations(vector<string>& pieces, vector<vector<int>>& positions) {
+        int n=pieces.size();
+        vector<vector<Move>> all_moves(n);
+        for(int i=0;i<n;i++){
+            all_moves[i]=generate_moves(positions[i][0], positions[i][1],PIECE_DIRS[pieces[i][0]]);
+        }
+        vector<Move> path(n);
+        int ans=0;
+        auto dfs=[&](auto&& dfs,int i)->void{
+            if(i==n){
+                ans++;
+                return;
+            }
+            for(auto& move1: all_moves[i]){
+                bool ok=true;
+                for(int j=0;j<i;j++){
+                    if(!is_valid(move1,path[j])){
+                        ok=false;
+                        break;
+                    }
+                }
+                if(ok){
+                    path[i]=move1;
+                    dfs(dfs,i+1);
+                }
+            }
+        };
+        dfs(dfs,0);
+        return ans;
+    }
+};
+```
+
+</details>
+ 
+# 688 骑士落在棋盘上的概率 (#688-骑士落在棋盘上的概率)
+
+在一个 n x n 的国际象棋棋盘上，一个骑士从单元格 (row, column) 开始，并尝试进行 k 次移动。行和列是 从 0 开始 的，所以左上单元格是 (0,0) ，右下单元格是 (n - 1, n - 1) 。
+
+象棋骑士有8种可能的走法，如下图所示。每次移动在基本方向上是两个单元格，然后在正交方向上是一个单元格。
+
+每次骑士要移动时，它都会随机从8种可能的移动中选择一种(即使棋子会离开棋盘)，然后移动到那里。
+
+骑士继续移动，直到它走了 k 步或离开了棋盘。
+
+返回 骑士在棋盘停止移动后仍留在棋盘上的概率 。
+
+<details>
+
+```cpp
+class Solution {
+    static constexpr array<pair<int, int>, 8> DIRS = {{{2, 1},
+                                                       {1, 2},
+                                                       {-1, 2},
+                                                       {-2, 1},
+                                                       {-2, -1},
+                                                       {-1, -2},
+                                                       {1, -2},
+                                                       {2, -1}}};
+
+public:
+    double knightProbability(int n, int k, int row, int column) {
+        vector<vector<vector<double>>> memo(
+            k + 1, vector<vector<double>>(n, vector<double>(n)));
+        auto dfs = [&](auto&& dfs, int k, int i, int j) -> double {
+            if (i < 0 || i >= n || j < 0 || j >= n) {
+                return 0;
+            }
+            if (k == 0)
+                return 1;
+            double& res = memo[k][i][j];
+            if (res) { // 之前已经算过
+                return res;
+            }
+            for (auto& [dx, dy] : DIRS) {
+                res += dfs(dfs, k - 1, i + dx, j + dy);
+            }
+            res /= 8;
+            return res;
+        };
+        return dfs(dfs, k, row, column);
+    }
+};
+```
+
+```rust
+use std::cell::RefCell;
+use std::rc::Rc;
+impl Solution {
+    pub fn knight_probability(n: i32, k: i32, row: i32, column: i32) -> f64 {
+        let dirs = [
+            (2, 1),
+            (1, 2),
+            (-1, 2),
+            (-2, 1),
+            (-2, -1),
+            (-1, -2),
+            (1, -2),
+            (2, -1),
+        ];
+
+        // 创建一个 3D 动态数组用于记忆化存储
+        let mut memo = vec![vec![vec![None; n as usize]; n as usize]; (k + 1) as usize];
+
+        // 定义递归函数
+        fn dfs(
+            n: i32,
+            k: i32,
+            i: i32,
+            j: i32,
+            dirs: &[(i32, i32)],
+            memo: &mut Vec<Vec<Vec<Option<f64>>>>,
+        ) -> f64 {
+            // 边界检查
+            if i < 0 || i >= n || j < 0 || j >= n {
+                return 0.0;
+            }
+            if k == 0 {
+                return 1.0;
+            }
+            // 检查是否已经计算过
+            if let Some(res) = memo[k as usize][i as usize][j as usize] {
+                return res;
+            }
+
+            // 计算当前状态的概率
+            let mut res = 0.0;
+            for &(dx, dy) in dirs {
+                res += dfs(n, k - 1, i + dx, j + dy, dirs, memo);
+            }
+            res /= 8.0;
+
+            // 存入记忆化数组
+            memo[k as usize][i as usize][j as usize] = Some(res);
+            res
+        }
+
+        // 调用递归函数
+        dfs(n, k, row, column, &dirs, &mut memo)
+    }
+}
+```
+
+</details>
+ 
+ 

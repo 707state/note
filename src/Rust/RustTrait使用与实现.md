@@ -70,14 +70,11 @@ fn main() {
 可以为已有类型实现 trait（比如 blanket implementations）
 
 调用虚表中的函数时，只需要引用一次，而在 C++ 中，vtable
-是存在对象内部的，导致每一次函数调用都需要两次引用，如下图所示：
+是存在对象内部的，导致每一次函数调用都需要两次引用
 
-![如图](../../Pictures/Screenshots/Screenshot_2024-09-27-19-45-12_1920x1080.png)
 
 如果 trait 有继承关系时，vtable 是怎么存储不同 trait
 的方法的呢？在目前的实现中，是依次存放在一个 vtable 中的:
-
-![如图](../../Pictures/Screenshots/Screenshot_2024-09-27-19-45-55_1920x1080.png)
 
 可以看到，所有 trait 的方法是顺序放在一起，并没有区分方法属于哪个
 trait，这样也就导致无法进行 upcast

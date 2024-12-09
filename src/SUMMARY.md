@@ -3,7 +3,7 @@
 -   [Rust](./Rust/README.md)
 
     -   [Trait](./Rust/RustTrait使用与实现.md)
-    -   [常见Trait](./Rust/Rust生命周期.md)
+    -   [常见Trait](./Rust/Rust常见trait.md)
     -   [异步编程](./Rust/Rust异步编程.md)
     -   [所有权](./Rust/Rust所有权.md)
     -   [智能指针](./Rust/Rust所有权与智能指针.md)
@@ -11,6 +11,8 @@
     -   [线程安全](./Rust/Rust的线程安全.md)
     -   [函数式](./Rust/FPRust.md)
     -   [Hashbrown哈希](./Rust/Hashbrown.md)
+    -   [Rustacean指南](./Rust/Rustacean指南.md)
+    -   [Tokio](./Rust/Tokio.md)
 
 -   [Docker](./Docker/README.md)
 
@@ -76,6 +78,8 @@
     -   [基本操作符](./RxJava/介绍.md)
     -   [Scheduler](./RxJava/Scheduler.md)
     -   [踩坑](./RxJava/踩坑.md)
+    -   [Spring相关](./RxJava/Spring相关.md)
+    -   [Java一些知识](./RxJava/Java一些知识.md)
 
 -   [ArceOS](./ArceOS/README.md)
 
@@ -115,8 +119,7 @@
     -   [短字符串优化](./cpp/SSO.md)
     -   [Folly库](./cpp/Folly.md)
 
--   [The Art Of Computer
-    Programming](./TheArtOfComputerProgramming/README.md)
+-   [The Art Of ComputerProgramming](./TheArtOfComputerProgramming/README.md)
 
     -   [基本算法](./TheArtOfComputerProgramming/基本算法.md)
 
@@ -131,6 +134,8 @@
     -   [移动应用开发技术一览](./前端/移动开发技术.md)
     -   [Flutter](./前端/Flutter.md)
     -   [JS Framework](./前端/JSFramework.md)
+    -   [SolidJS踩坑](./前端/SolidJS.md)
+    -   [路由到底是怎么回事](./前端/Router.md)
 
 -   [零零碎碎](./零零碎碎/README.md)
 

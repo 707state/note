@@ -349,7 +349,7 @@ pub struct Pin<P> {
 
 
 它包裹一个指针，并且能确保该指针指向的数据不会被移动，例如 Pin\<&mut T\>
-, Pin\<&T\> , Pin\<Box`<T>`{=html}\> ，都能确保 T 不会被移动。
+, Pin\<&T\> , Pin\<Box`<T>`\> ，都能确保 T 不会被移动。
 
 而 Unpin
 才是一个特征，它表明一个类型可以随意被移动，那么问题来了，可以被 Pin
@@ -487,7 +487,7 @@ Future 进行固定:
     Box::pin， 创建一个 Pin<Box<T>>
     pin_utils::pin_mut!， 创建一个 Pin<&mut T>
 
-固定后获得的 Pin\<Box`<T>`{=html}\> 和 Pin\<&mut T\> 既可以用于 Future
+固定后获得的 Pin\<Box`<T>`\> 和 Pin\<&mut T\> 既可以用于 Future
 ，又会自动实现 Unpin。
 
 <details><summary>Click to expand</summary>

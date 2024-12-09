@@ -6,6 +6,7 @@
 -   [Any Trait](#any-trait)
 -   [UnsafeCell](#unsafecell)
 -   [std::mem::MaybeUninit](#stdmemmaybeuninit)
+-   [分割所有权](#分割所有权)
 -   [特殊符号](#特殊符号)
     -   @
 
@@ -78,10 +79,10 @@ trait允许在运行时进行类型检查和类型转换。这个类型在处理
 
 功能：
 
-1.  类型检查：通过is::`<T>`{=html}()方法，可以检查一个值是否是某种特定类型。
+1.  类型检查：通过is::`<T>`()方法，可以检查一个值是否是某种特定类型。
 
-2.  类型转换：使用downcast_ref::`<T>`{=html}()和downcast::`<T>`{=html}()方法，可以将一个&dyn
-    Any或者Box`<dyn Any>`{=html}类型的值转换回具体类型T。
+2.  类型转换：使用downcast_ref::`<T>`()和downcast::`<T>`()方法，可以将一个&dyn
+    Any或者Box`<dyn Any>`类型的值转换回具体类型T。
 
 注意：Any trait只能用于\'static
 生命周期的类型，这意味着他不能用于包含非静态引用的类型。
@@ -94,15 +95,15 @@ Rust 中内部可变性的核心原语。
 
 如果您使用的是 &T，则通常在 Rust 中，编译器基于 &T
 指向不可变数据的知识来执行优化。例如通过别名或通过将 &T 转换为 &mut T
-来可变的该数据，被认为是未定义的行为。 UnsafeCell`<T>`{=html} 选择退出
-&T 的不可变性保证：共享的引用 &UnsafeCell`<T>`{=html}
+来可变的该数据，被认为是未定义的行为。 UnsafeCell`<T>` 选择退出
+&T 的不可变性保证：共享的引用 &UnsafeCell`<T>`
 可能指向正在发生可变的数据。这称为内部可变性。
 
-所有其他允许内部可变性的类型，例如 Cell`<T>`{=html} 和
-RefCell`<T>`{=html}，在内部使用 UnsafeCell 来包装它们的数据。
+所有其他允许内部可变性的类型，例如 Cell`<T>` 和
+RefCell`<T>`，在内部使用 UnsafeCell 来包装它们的数据。
 
-所有其他允许内部可变性的类型，例如 Cell`<T>`{=html} 和
-RefCell`<T>`{=html}，在内部使用 UnsafeCell 来包装它们的数据。
+所有其他允许内部可变性的类型，例如 Cell`<T>` 和
+RefCell`<T>`，在内部使用 UnsafeCell 来包装它们的数据。
 
 UnsafeCell API 本身在技术上非常简单: .get() 为其内容提供了裸指针 \*mut
 T。正确使用该裸指针取决于您。
@@ -110,7 +111,7 @@ T。正确使用该裸指针取决于您。
 如果您使用生命周期 \'a (&T 或 &mut T 引用)
 创建安全引用，那么您不得以任何与 \'a
 其余部分的引用相矛盾的方式访问数据。 例如，这意味着如果您从
-UnsafeCell`<T>`{=html} 中取出 \*mut T 并将其转换为 &T，则 T
+UnsafeCell`<T>` 中取出 \*mut T 并将其转换为 &T，则 T
 中的数据必须保持不可变 (当然，对 T 中找到的任何 UnsafeCell
 数据取模)，直到引用的生命周期到期为止。 同样，如果您创建的 &mut T
 引用已发布为安全代码，则在引用终止之前，您不得访问 UnsafeCell 中的数据。
@@ -124,7 +125,7 @@ T，在引用过期之前，您也不得释放数据。作为一个特殊的例�
 UnsafeCell 中时，&T 指向的内存才能被释放。
 
 但是，无论何时构造或解引用
-&UnsafeCell`<T>`{=html}，它仍必须指向活动内存，并且如果编译器可以证明该内存尚未被释放，则允许编译器插入虚假读取。
+&UnsafeCell`<T>`，它仍必须指向活动内存，并且如果编译器可以证明该内存尚未被释放，则允许编译器插入虚假读取。
 
 在任何时候，您都必须避免数据竞争。如果多个线程可以访问同一个
 UnsafeCell，那么任何写操作都必须在与所有其他访问 (或使用原子)
@@ -138,20 +139,20 @@ UnsafeCell，那么任何写操作都必须在与所有其他访问 (或使用�
 &mut T 引用可以发布为安全代码，前提是其他 &mut T 和 &T 都不共存。&mut T
 必须始终是唯一的。
 
-请注意，虽然可以更改 &UnsafeCell`<T>`{=html} 的内容 (即使其他
-&UnsafeCell`<T>`{=html} 引用了该 cell 的别名) 也可以
+请注意，虽然可以更改 &UnsafeCell`<T>` 的内容 (即使其他
+&UnsafeCell`<T>` 引用了该 cell 的别名) 也可以
 (只要以其他方式实现上述不变量即可)，但是具有多个 &mut
-UnsafeCell`<T>`{=html} 别名仍然是未定义的行为。 也就是说，UnsafeCell
+UnsafeCell`<T>` 别名仍然是未定义的行为。 也就是说，UnsafeCell
 是一个包装器，旨在通过 &UnsafeCell\<*\> 与 shared accesses (i.e.
 进行特殊交互 (引用) ； 通过 &mut UnsafeCell\<*\> 处理 exclusive accesses
 (e.g. 时没有任何魔术) : 在该 &mut 借用期间， cell 和包装值都不能被别名。
 
 .get_mut() 访问器展示了这一点，该访问器是产生 &mut T 的 safe getter。
 
-UnsafeCell`<T>`{=html} 与其内部类型 T
-具有相同的内存表示。此保证的结果是可以在 T 和 UnsafeCell`<T>`{=html}
-之间进行转换。 将 Outer`<T>`{=html} 类型内的嵌套 T 转换为
-Outer\<UnsafeCell`<T>`{=html}\> 类型时必须特别小心: 当 Outer`<T>`{=html}
+UnsafeCell`<T>` 与其内部类型 T
+具有相同的内存表示。此保证的结果是可以在 T 和 UnsafeCell`<T>`
+之间进行转换。 将 Outer`<T>` 类型内的嵌套 T 转换为
+Outer\<UnsafeCell`<T>`\> 类型时必须特别小心: 当 Outer`<T>`
 类型启用 niche 优化时，这不是正确的。
 
 # std::mem::MaybeUninit
@@ -164,7 +165,7 @@ Unsafe
 
 编译器利用这一点，进行各种优化，并且可以省略运行时检查。
 
-由调用者来保证MaybeUninit`<T>`{=html}确实处于初始化状态。当内存尚未完全初始化时调用
+由调用者来保证MaybeUninit`<T>`确实处于初始化状态。当内存尚未完全初始化时调用
 assume_init() 会导致立即未定义的行为。
 
 <details><summary>Click to expand</summary>
@@ -194,7 +195,45 @@ unsafe { vec.set_len(1000); }
 reader.read(&mut vec); // undefined behavior!
 }
 ```
+
 </details>
+
+#  分割所有权
+
+Rust里，Vec, String这样的对象都是有所有权的，如果我们想要把一个对象的完整所有权拆分成两部分而不Clone, 就需要一些技巧。
+
+1. 采用split_off: 
+
+```rust
+fn main() {
+    let mut v = vec![1, 2, 3, 4, 5, 6];
+
+    // 分割点
+    let split_index = 3;
+
+    // 分割所有权
+    let v2 = v.split_off(split_index);
+
+    println!("First part: {:?}", v);  // [1, 2, 3]
+    println!("Second part: {:?}", v2); // [4, 5, 6]
+}
+```
+
+2. drain
+
+drain 方法允许你从 Vec 中提取一部分的所有权，同时移除这些元素。
+
+```rust
+fn main() {
+    let mut v = vec![1, 2, 3, 4, 5, 6];
+
+    // 使用 drain 提取前半部分
+    let part1: Vec<_> = v.drain(..3).collect();
+
+    println!("First part: {:?}", part1); // [1, 2, 3]
+    println!("Remaining: {:?}", v);      // [4, 5, 6]
+}
+```
 
 
 # 特殊符号

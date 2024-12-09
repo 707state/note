@@ -29,7 +29,7 @@ fn main(){
 
 这段代码看似正确，实则报错。
 
-因为Rc无法在线程间安全转移，也就是 Send 没有给Rc`<i32>`{=html}的实现。
+因为Rc无法在线程间安全转移，也就是 Send 没有给Rc`<i32>`的实现。
 
 ## Rc和Arc的比较
 
@@ -47,7 +47,7 @@ unsafe impl<T: ?Sized + Sync + Send> Sync for Arc<T> {}
 </details>
 
 
-!代表移除特征的相应实现，上面代码中Rc`<T>`{=html}的Send和Sync特征被特地移除了实现，而Arc`<T>`{=html}则相反，实现了Sync +
+!代表移除特征的相应实现，上面代码中Rc`<T>`的Send和Sync特征被特地移除了实现，而Arc`<T>`则相反，实现了Sync +
 Send，再结合之前的编译器报错，大概可以明白了：Send和Sync是在线程间安全使用一个值的关键。
 
 ## Send和Sync
@@ -85,7 +85,7 @@ unsafe impl<T: ?Sized + Send> Sync for Mutex<T> {}
 </details>
 
 
-不出所料，Mutex`<T>`{=html}中的T并没有Sync特征约束。
+不出所料，Mutex`<T>`中的T并没有Sync特征约束。
 
 ## 实现Send和Sync的类型
 
