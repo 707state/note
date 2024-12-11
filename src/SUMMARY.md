@@ -139,6 +139,8 @@
 
 -   [Redis](./Redis/README.md)
     -   [常见问题](./Redis/redisOverview.md)
+    -   [SDS](./Redis/sds.md)
+    -   [intset](./Redis/Intset.md)
 
 
 -   [零零碎碎](./零零碎碎/README.md)
