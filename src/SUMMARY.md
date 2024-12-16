@@ -68,6 +68,7 @@
     -   [深搜](./数据结构与算法/dfs.md)
     -   [广搜](./数据结构与算法/bfs.md)
     -   [单调栈](./数据结构与算法/单调栈.md)
+    -   [单调队列](./数据结构与算法/单调队列.md)
     -   [数学](./数据结构与算法/数学.md)
     -   [AC自动机](./数据结构与算法/AC自动机.md)
     -   [洗牌算法](./数据结构与算法/Shuffle.md)
@@ -142,6 +143,8 @@
     -   [常见问题](./Redis/redisOverview.md)
     -   [SDS](./Redis/sds.md)
     -   [intset](./Redis/Intset.md)
+    -   [listpack](./Redis/listpack.md)
+    -   [LDKV-一次kv的尝试](./Redis/LDKV-一个尝试实现KV的尝试.md)
 
 
 -   [零零碎碎](./零零碎碎/README.md)
