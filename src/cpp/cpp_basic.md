@@ -45,6 +45,7 @@
         declaration](#forward-declaration)
     -   [std::swap VS xor](#stdswap-vs-xor)
     -   [cbrt](#cbrt)
+    -   [sendto](#sendto)
 
 # 重读\<\<C++程序设计语言\>\>
 
@@ -405,3 +406,7 @@ CDB）将已计算出的值广播给所有需要这个值作为指令源操作�
 ## cbrt
 
 cube root,开立方根。
+
+## sendot
+
+sys/socket.h中的函数，用来将消息发送到dest_addr。被用于实现ping。

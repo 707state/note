@@ -89,6 +89,10 @@
 - [ArceOS](./ArceOS/README.md)
 
   - [系统调用](./ArceOS/系统调用.md)
+- [RiscvCPU](./RiscvCPU/README.md)
+
+  - [Chisel](./RiscvCPU/Chisel.md)
+  - [设计文档](./RiscvCPU/设计文档.md)
 
 - [计算机网络](./计网/README.md)
 
@@ -131,6 +135,7 @@
 - [Linux](./Linux/README.md)
 
   - [NAPI](./Linux/NAPI.md)
+  - [binfmt](./Linux/binfmt.md)
 
 - [Go](./Go/README.md)
 
