@@ -130,6 +130,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # Upload to crates.io
+  #
   publish:
     name: Publish to crates.io
     needs: github_release
