@@ -1,1 +1,6 @@
 复习资料/ltximg
+# 忽略 book 文件夹及其所有内容
+/book/**
+
+# 例外：不忽略 scripts 目录及其内容
+!/book/scripts

@@ -11,7 +11,7 @@ function eprintln() {
 }
 
 eprintln "Installing mdbook-admonish (to system)"
-cargo install --path . --force
+cargo install mdbook-admonish
 
 pushd book
 eprintln "Installing mdbook-admonish (to book)"
