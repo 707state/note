@@ -1,0 +1,497 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>内存模型 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#%E6%B7%B1%E5%BA%A6%E6%8E%A2%E7%B4%A2c%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E6%80%BB%E7%BB%93%E7%AF%87">深度探索C++对象模型（总结篇）</a></li>
+<li><a href="#c%E8%87%AA%E5%B7%B1%E7%9A%84%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%BC%8F">C++自己的对象模式</a></li>
+<li><a href="#data-member">Data member</a></li>
+<li><a href="#function">Function</a></li>
+<li><a href="#constructor-destructorcopy">Constructor
+,Destructor,copy</a></li>
+</ul>
+<h3 id="深度探索c对象模型总结篇"><a class="header" href="#深度探索c对象模型总结篇">深度探索C++对象模型（总结篇）</a></h3>
+<h3 id="c自己的对象模式"><a class="header" href="#c自己的对象模式">C++自己的对象模式</a></h3>
+<p>C++对象采用一个连续的内存进行储存，一个内存大致会被分为两块，一块是数据本身的储存，一块是virtual
+table的储存</p>
+<p>对于数据本身的存储</p>
+<ul>
+<li>static member和static function与nonstatic
+function一样，都单独的储存在属于他们的内存中。</li>
+<li>nonstatic member
+data一般会和虚函数表放在一起，可能会在虚函数表的前面或者后面。</li>
+</ul>
+<p>对于virtual table的存储</p>
+<ul>
+<li>
+<p>virtual table里面储存大量的指针，这些指针包括</p>
+<ul>
+<li>
+<p>virtual 析构函数的指针</p>
+</li>
+<li>
+<p>virtual member</p>
+</li>
+<li>
+<p>每一个class 所关联的type-info指针</p>
+</li>
+<li>
+<p>虚拟继承的关系</p>
+</li>
+</ul>
+</li>
+<li>
+<p>使用virtual table带来的好处与坏处</p>
+<ul>
+<li>好处：真正使得virtual function得以实现，一并的也有virtual
+class（保证多次继承只有一个实例）</li>
+<li>坏处：增加了访问成本，导致额外的时间与空间负担</li>
+</ul>
+</li>
+<li>
+<p>一个object里面可以含有多个virtual
+table，这个情况就是在多重继承的情况下。</p>
+</li>
+</ul>
+<h3 id="data-member"><a class="header" href="#data-member">Data member</a></h3>
+<p>布局</p>
+<ul>
+<li>对于nonstatic data member，他们会按照声明的顺序，依次进行创建和排列</li>
+<li>对于no data member
+的class，编译器回往里面塞上一个char，确保他占用一个字节的空间，在运行的时候，编译器也会为他合成出来对应的constructor和destructor</li>
+<li>对于static 类型的数据，他只有一个实例，并且存在data
+segment中，如果去他的地址，得到的是对于数据类型的指针，而与其所在的对象毫无关联</li>
+<li>对于function
+member，只有他们在需要的时候会被编译器合成出来，并且放在内存中，一般是与对应的class在连续的内存中</li>
+</ul>
+<p>存取（通过指针和通过对象进行存取的区别）</p>
+<ul>
+<li>对于static data
+member，无论是通过指针还是通过对象都是一样的，因为他是单独放在data
+segment中。</li>
+<li>对于nonstatic data member
+<ul>
+<li>一般来说通过对象存取的本质是通过this指针完成</li>
+<li>在内存上的时候，想要对一个nonstatic data
+member进行存取操作的时候，编译器需要将class
+object的起始地址加上data member的偏移位置</li>
+<li>从时间上看，从对象的角度来说存取一个nonstatic data
+member，与C存取一个struct member是没有区别的</li>
+<li>但是在与virtual class，virtual
+function来说，使用指针和使用class，存取速度就会有重大的差别，指针一般就会更加慢一些，class则不然，原因之一就是其使用了virtual
+table，其次就是因为编译时期我们不知道他到底是那种类型，需要在执行期间确定，也就是我们说的动态绑定</li>
+</ul>
+</li>
+</ul>
+<p>继承</p>
+<ul>
+<li>一般来讲，非virtual的继承相对于比virtual的继承存取时间上不会增加额外的负担</li>
+<li>对于单一或多次继承，without virtual
+<ul>
+<li>对于单一继承或者是多次继承，无论是继承几次，其访问时间上是不会有很多差异的，基本与C
+struct相同</li>
+<li>对于单一继承或者是多次继承，在空间上，随着继承次数的增多，空间的变化往往要比class内部所含的数据所占的总内存要大，原因是他有需要用来进行内存对齐，填补的bytes</li>
+</ul>
+</li>
+<li>对于带有virtual function的继承
+<ul>
+<li>空间上，由于导入了一个和class有关的virtual
+table，用来存放他申明每一个virtual
+function，这样会导致空间的增加，</li>
+<li>时间上，也是因为table 间接转换导致的效率低下也是可见的</li>
+<li>他也带来的加上constructor和destcuctor，可以帮助他们设定vptr和销毁vptr</li>
+</ul>
+</li>
+<li>对于多重继承
+<ul>
+<li>对于多重继承，其时间上的差异与空间上的差异很多，因为它是有多个class继承到单一class的一个非自然继承</li>
+<li>在内存上，对于一个多重派生对象，一般来讲将起始地址给定一个基本的base
+class，其后面的class都要加上或者减去一个对应的数字，用于修改地址</li>
+<li>在时间上，多重继承的对象，使用指针和对象进行访问的时间与单一继承带有virtual访问的时间相似</li>
+</ul>
+</li>
+<li>对于虚拟继承
+<ul>
+<li>与多重继承不同，虚拟继承要支持一种share类型的存储方式（也就是所谓菱形储存）</li>
+<li>布局的策略一般是先安排好 derived class
+的不变部分，再安排其共享部分</li>
+</ul>
+</li>
+</ul>
+<p>效率</p>
+<ul>
+<li>对于封装：对于封装如果把优化开关打开，封装就不会带来执行期间的效率成本</li>
+<li>对于聚合：单一的聚合操作也是一样，在优化开关打开的情况下，聚合也不会带来执行期间的效率成本</li>
+<li>对于继承：非virtual 的继承效率要远远好处virtual。</li>
+</ul>
+<p>指针</p>
+<ul>
+<li>取得一个nonstatic data
+member（例如：&amp;A：：x）的地址，将会得到他在class 中的offset，</li>
+<li>取一个绑定于真正class object身上的data member（例如&amp;A.x
+)的地址，将会得到真正的地址</li>
+<li>如果进行优化，那么在运行的时候，非virtual
+继承使用指针或者是对象的存取效率是相同的</li>
+<li>virtual 继承随着虚拟函数增多而变大，额外的间接性会降低优化能力</li>
+</ul>
+<h3 id="function"><a class="header" href="#function">Function</a></h3>
+<p>function的底层的调用方式</p>
+<ul>
+<li>
+<p>对于nonstatic member function：</p>
+<ul>
+<li>效率上，他与nonmember function，static
+member具有相同的效率，原因是nonstatic member
+function会被转换为nonmember function。（this指针）</li>
+<li>名称上，class内部的value和function会拥有独一无二的姓名，一般是class名字+变量名</li>
+</ul>
+</li>
+<li>
+<p>对于virtual member function</p>
+<ul>
+<li>
+<p>对于一个指针去调用virtual member
+function，将会转化成指针指向对于的virtual
+table解引用再连接对应的成员指针</p>
+<pre><code class="language-c++">ptr-&gt;a()==(*ptr-&gt;vptr[1])(ptr);
+//其中，vptr也有可能有多个，并且可能会被重新转化成一个新的，独一无二的姓名
+</code></pre>
+</li>
+<li>
+<p>在多重继承之下，所有的指针问题都需要在执行期间进行操作</p>
+</li>
+</ul>
+</li>
+<li>
+<p>静态成员函数</p>
+<ul>
+<li>static memeber
+function的特性是没有this指针，因此他不能直接存取nonstatic
+members，不能被声明为const ,volatile,virtual，不需要经过class
+object才能调用（但是可以通过class object调用，这是允许的）</li>
+<li>由于它缺乏this指针，因此差不多等同于nonmember function</li>
+</ul>
+</li>
+<li>
+<p>inline函数</p>
+<ul>
+<li>毫无疑问，inline函数能一定幅度提升函数性能，与之而来的付出代价是程序体积的增大</li>
+<li>一般来说，编译器通过计算assignments，function call，virtual
+function calls的操作次数的综合计算inline函数的复杂性</li>
+</ul>
+</li>
+</ul>
+<p>Pointer-to-member-Function</p>
+<ul>
+<li>对于一个nonmember function，static member
+function取地址的话，所取即所得</li>
+<li>对于member
+function取地址的话并不是真实的地址，而是对应的offset（上面有写）</li>
+<li>对于一个virtual member function取地址的话，得到的是virtual
+table的索引值。</li>
+</ul>
+<h3 id="constructor-destructorcopy"><a class="header" href="#constructor-destructorcopy">Constructor ,Destructor,copy</a></h3>
+<h4 id="default-constructor"><a class="header" href="#default-constructor">default constructor</a></h4>
+<p>合成</p>
+<ul>
+<li>default constructor:对于default
+constructor，只有其在需要的时候才会出现，并不是所有的时候都会合成出来一个default
+constructor，甚至是class本身都没有指定的constructor的情况下</li>
+<li>如果class 内部含有value且没有对应的default
+constructor，那么编译器会帮你合成一个，合成的时机是当真正要用到class
+的时候</li>
+<li>如果class 中声明，继承有virtual
+class/function，那么也编译器也会合成出default
+constructor，以便正确初始化class object 的vptr以及virtual table</li>
+<li>编译器合成出来的default constructor不会显式设定class每一个data
+member的默认值，编译器合成出来的只是编译器需要的，与是否初始化毫无关系</li>
+</ul>
+<p>调用</p>
+<ul>
+<li>如果class A内含一个或者一个以上的member class objects，那么class
+A的每一个constructor都调用对应的default
+constructor，如果不想让A调用default
+constructor，那么记得在初始化列表中加入对应的初始化</li>
+<li>如果设计者提供多个constructor，但是其中都没有default
+constructor的情况下，那么编译器会扩展每一个constructors，将用以所必要的default
+constructor加进去</li>
+<li>不要把纯虚函数用在声明constructor上</li>
+</ul>
+<p>什么时候使用初始化队列</p>
+<ul>
+<li>当你初始化一个reference member时候</li>
+<li>当你初始化一个const member时候</li>
+<li>当你调用一个base class constructor，而他有参数的时候</li>
+<li>当你调用一个member class的constructor，而它拥有一组参数时</li>
+<li>注意：list 中的项目顺序是由class 中member
+声明顺序决定的，不是由初始化队列中的排列顺序决定的</li>
+</ul>
+<h4 id="copy-constructor"><a class="header" href="#copy-constructor">copy constructor</a></h4>
+<p>合成</p>
+<ul>
+<li>所谓的default copy constructor，也就是bitwise
+copy，这就是默认的拷贝构造</li>
+<li>在class 不展现bitwise copy的情况下，默认的copy
+constructor才会被编译器产生出来</li>
+</ul>
+<p>调用</p>
+<ul>
+<li>三种可能的调用动作：X xx=x，作为函数初值，return xx
+1.如果一个类没有拷贝构造函数，但该类含有一个类类型的成员变量，类类型含有拷贝构造。</li>
+</ul>
+<p>2.如果一个类CTBSon没有拷贝构造函数，但是有一个父类CTB，父类CTb含有拷贝构造函数。</p>
+<p>3.如果一个类CTBSOn没有拷贝构造函数，但是该类定义了虚函数或者该类的父类定义了虚函数。</p>
+<p>4.没有构造函数，但是该类含有虚基类。</p>
+<p>什么时候不展现bitwise copy</p>
+<ul>
+<li>当class 内含有一个member object但是后者class 声明有一个copy
+constructor时候。</li>
+<li>当class 继承自一个base class 而后者存在一个copy constructor时</li>
+<li>当class 声明了一个或多个virtual function时</li>
+<li>当class 派生自一个继承串链，其中有一个或者多个virtual base class</li>
+</ul>
+<h4 id="destructror"><a class="header" href="#destructror">destructror</a></h4>
+<ul>
+<li>destructor：如果class 没有定义destructor，那么只有在class
+内含有的member object
+拥有destructor的情况下，编译器才会自动合成出一个，否则destructor被视为不需要，也就不需要合成</li>
+<li>destructor的调用顺序
+<ul>
+<li>destructor的函数本体首先被执行</li>
+<li>如果class 拥有member class object
+而后者拥有destructor，那么他们会以其声明顺序相反顺序调用。</li>
+<li>如果object内含一个vptr，现在被重新设定，指向适当的base
+class的virtual table</li>
+<li>如果有任何直接上一层的nonvirtual base
+classes拥有destructor，他们会以声明的顺序相反的顺序进行调用</li>
+<li>如果有任何virtual base classes拥有destructor，且目前这个class
+是最尾端的class 那么他们会以其原来的构造顺序相反的顺序被调用</li>
+</ul>
+</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../cpp/cpp_basic.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../cpp/标准库算法.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../cpp/cpp_basic.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../cpp/标准库算法.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

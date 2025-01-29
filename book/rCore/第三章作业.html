@@ -1,0 +1,387 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>rCore 第三章作业 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#%E4%BD%9C%E4%B8%9A">作业</a>
+<ul>
+<li><a href="#%E9%A2%98%E7%9B%AE">题目</a></li>
+<li><a href="#%E6%80%9D%E8%B7%AF">思路</a></li>
+<li><a href="#%E6%B3%A8%E6%84%8F">注意</a></li>
+</ul>
+</li>
+<li><a href="#%E7%AE%80%E7%AD%94%E4%BD%9C%E4%B8%9A">简答作业</a>
+<ul>
+<li><a href="#1">1</a>
+<ul>
+<li><a href="#ch2b_bad_addressrs">ch2b_bad_address.rs</a></li>
+<li><a href="#ch2b_bad_instructionsrs">ch2b_bad_instructions.rs</a></li>
+<li><a href="#ch2b_bad_registerrs">ch2b_bad_register.rs</a></li>
+</ul>
+</li>
+<li><a href="#2">2</a>
+<ul>
+<li><a href="#1-1">1</a></li>
+<li><a href="#2-1">2</a></li>
+<li><a href="#3">3</a></li>
+<li><a href="#4">4</a></li>
+<li><a href="#5">5</a></li>
+<li><a href="#6">6</a></li>
+<li><a href="#7">7</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="作业"><a class="header" href="#作业">作业</a></h1>
+<h2 id="题目"><a class="header" href="#题目">题目</a></h2>
+<p>获取任务信息</p>
+<p>ch3
+中，我们的系统已经能够支持多个任务分时轮流运行，我们希望引入一个新的系统调用
+sys_task_info 以获取当前任务的信息，定义如下：</p>
+<pre><code class="language-c++">fn sys_task_info(ti: *mut TaskInfo) -&gt; isize;
+</code></pre>
+<p>syscall ID: 410</p>
+<p>查询当前正在执行的任务信息，任务信息包括任务控制块相关信息（任务状态）、任务使用的系统调用及调用次数、系统调用时刻距离任务第一次被调度时刻的时长（单位ms）。</p>
+<h2 id="思路"><a class="header" href="#思路">思路</a></h2>
+<p>系统调用获取当前正在运行的任务的TaskInfo, 类似于xv6当中的myproc()调用。</p>
+<p>通过TaskManager来获取当前正在运行的任务，然后填充这一部分的信息。</p>
+<p>具体流程：</p>
+<ol>
+<li>
+<p>TaskManager中的inner包含了所有的tasks和正在运行的current_task，通过这里获得当前运行任务。</p>
+</li>
+<li>
+<p>status赋值，syscall_num赋值</p>
+</li>
+</ol>
+<p>这里，syscall_num需要新开一个数组，在TaskControlBlock之中，[u32;MAX_SYSCALL_NUM];</p>
+<p>需要实现syscall_num，需要给每一个系统调用自增，因此需要给TaskManager实现一个increase_syscall的函数，接受一个syscall_id
+: usize，给TaskControlBlock自增。</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    ///WARNING: 返回引用还是拷贝？
+    ///应该返回拷贝，引用应该由调用者自行处理
+    pub fn get_current_task(&amp;self) -&gt; TaskControlBlock {
+        let inner = self.inner.exclusive_access();
+        let current_task_id = inner.current_task;
+        inner.tasks[current_task_id]
+    }
+    fn increase_syscall(&amp;self, sys_call_id: usize) {
+        let mut inner = self.inner.exclusive_access();
+        let current_task = inner.current_task;
+        inner.tasks[current_task].syscall_times[sys_call_id] += 1;
+    }
+/// 增加系统调用次数，传入一个SYSCALL 的id
+pub fn increase_syscall_number(syscall_id: usize) {
+    TASK_MANAGER.increase_syscall(syscall_id);
+}
+pub fn sys_task_info(ti: *mut TaskInfo) -&gt; isize {
+    trace!("kernel: sys_task_info");
+    increase_syscall_number(SYSCALL_TASK_INFO);
+    if ti.is_null() {
+        return -1;
+    }
+    let current_task = TASK_MANAGER.get_current_task();
+    unsafe {
+        (*ti).status = current_task.task_status;
+        (*ti).syscall_times = current_task.syscall_times;
+        (*ti).time = get_time_ms();
+    };
+    0
+}
+<span class="boring">}</span></code></pre></pre>
+<h2 id="注意"><a class="header" href="#注意">注意</a></h2>
+<p>syscall中的时间调用应该返回get_time_ms()而不是原始时间。</p>
+<h1 id="简答作业"><a class="header" href="#简答作业">简答作业</a></h1>
+<h2 id="1"><a class="header" href="#1">1</a></h2>
+<h3 id="ch2b_bad_addressrs"><a class="header" href="#ch2b_bad_addressrs">ch2b_bad_address.rs</a></h3>
+<p>ch2b_bad_address.rs中访问0x0并且进行写操作会导致Page Fault。</p>
+<p>0x0是未映射的内存区域，没有关联到任何物理页，因此会导致Page Fault。</p>
+<p>如果该代码运行在用户态，那么尝试访问 0x0 会立即导致操作系统抛出 Page
+Fault，因为用户态程序无权访问此地址。即使在内核态，如果该地址未被映射（如没有正确初始化页表），也会触发
+Page Fault。操作系统需要显式映射地址空间，才能进行合法的读写。</p>
+<h3 id="ch2b_bad_instructionsrs"><a class="header" href="#ch2b_bad_instructionsrs">ch2b_bad_instructions.rs</a></h3>
+<p>会发生IllegalInstruction。</p>
+<p>sret是RISC-V架构的一条特权指令，用于从S态返回U态。</p>
+<p>只有在 S态下才能合法执行 sret
+指令。当前状态为U态，因此无法执行，因为权限不足。</p>
+<h3 id="ch2b_bad_registerrs"><a class="header" href="#ch2b_bad_registerrs">ch2b_bad_register.rs</a></h3>
+<p>发生IllegalInstruction。</p>
+<p>csrr用于从控制状态寄存器读取数据，status是一个特权寄存器，只能在S态下访问，如果在用户态下访问就会触发异常。</p>
+<h2 id="2"><a class="header" href="#2">2</a></h2>
+<h3 id="1-1"><a class="header" href="#1-1">1</a></h3>
+<p>a0代表了sp的值，也就是当前的内核态指针。</p>
+<p>__restore用于：1.从用户态陷入内核态，处理系统调用或者恢复上下文。2.内核态中处理异常后恢复之前的上下文。</p>
+<h3 id="2-1"><a class="header" href="#2-1">2</a></h3>
+<p>sstatus、sepc 和 sscratch。</p>
+<p>sstatus用于存储当前的信息，spec用来存储程序计数器的地址，sscratch保存用户栈指针，用于正确切换用户栈。</p>
+<h3 id="3"><a class="header" href="#3">3</a></h3>
+<p>x2对应的是sp，恢复上下文时需要保证状态正正确以便于从内核栈切换到用户栈，恢复过程在__alltraps中分配了新的内核栈。</p>
+<p>x4对应的是tp,用于保存线程指针，应用程序并不使用这个指针因此可以跳过。</p>
+<h3 id="4"><a class="header" href="#4">4</a></h3>
+<p>csrrw将特定的CSR与一个通用寄存器的值进行交换，在这条指令执行之后，sp被更新为原来存储在sscratch中的值，切换到用户栈。</p>
+<p>sscratch则交换为内核栈指针的值，此时，sscratch仍然保留着用户栈的地址信息。</p>
+<h3 id="5"><a class="header" href="#5">5</a></h3>
+<p>sret。sret使用S态向U态切换的指令，处理器会根据保存在sstatus, sepc,
+sscratch中的值进行切换。</p>
+<p>__restore中，执行csrw恢复了sstatus, sepc,
+sscratch的值，sstatus中的特定位决定处理器的执行模式。</p>
+<p>sepc中存的是用户程序恢复时的执行地址，处理器将在这个地址继续执行。</p>
+<p>sret执行后，处理器会读取sstatus的状态信息，根据设置的模式进行切换。如果状态信息指示进入用户态，处理器就切换到用户模式，执行sepc指定的地址处的指令。</p>
+<h3 id="6"><a class="header" href="#6">6</a></h3>
+<p>sp被更新为原本的sscratch中的值，也就是栈指针指向用户栈，sscratch保存的是原本的sp的值，保留切换之前的内核栈信息。</p>
+<h3 id="7"><a class="header" href="#7">7</a></h3>
+<p>在执行了csrrw sp, sscratch,
+sp之后用户态触发了陷入内核态的操作，也就是调用 __alltraps
+时就触发了切换。</p>
+<ol>
+<li>在完成本次实验的过程（含此前学习的过程）中，我曾分别与 以下各位
+就（与本次实验相关的）以下方面做过交流，还在代码中对应的位置以注释形式记录了具体的交流对象及内容：</li>
+</ol>
+<p>无。</p>
+<ol start="2">
+<li>此外，我也参考了 以下资料
+，还在代码中对应的位置以注释形式记录了具体的参考来源及内容：</li>
+</ol>
+<p><a href="https://tclin914.github.io/77838749/">寄存器信息</a></p>
+<p><a href="https://blog.csdn.net/weixin_42031299/article/details/136844715">sret, ret,
+mret</a></p>
+<ol start="3">
+<li>
+<p>我独立完成了本次实验除以上方面之外的所有工作，包括代码与文档。
+我清楚地知道，从以上方面获得的信息在一定程度上降低了实验难度，可能会影响起评分。</p>
+</li>
+<li>
+<p>我从未使用过他人的代码，不管是原封不动地复制，还是经过了某些等价转换。
+我未曾也不会向他人（含此后各届同学）复制或公开我的实验代码，我有义务妥善保管好它们。
+我提交至本实验的评测系统的代码，均无意于破坏或妨碍任何计算机系统的正常运转。
+我清楚地知道，以上情况均为本课程纪律所禁止，若违反，对应的实验成绩将按"-100"分计。</p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../rCore/多道程序与分时多任务.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../rCore/第四章作业.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../rCore/多道程序与分时多任务.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../rCore/第四章作业.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

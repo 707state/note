@@ -1,0 +1,437 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>智能指针 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#box">Box<code>&lt;T&gt;</code></a>
+<ul>
+<li><a href="#box%E7%9A%84%E6%89%80%E6%9C%89%E6%9D%83%E5%88%86%E6%9E%90">Box<code>&lt;T&gt;</code>的所有权分析</a></li>
+<li><a href="#box-%E7%9A%84%E8%A7%A3%E5%BC%95%E7%94%A8">Box <code>&lt;T&gt;</code>的解引用</a></li>
+<li><a href="#box%E5%AE%9E%E7%8E%B0%E4%BA%86trait">Box<code>&lt;T&gt;</code>实现了trait</a></li>
+<li><a href="#box-clone">Box<code>&lt;T&gt;</code> Clone</a></li>
+<li><a href="#box-1">Box<code>&lt;dyn trait&gt;</code></a></li>
+</ul>
+</li>
+<li><a href="#arc-t-">Arc&lt; T &gt;</a>
+<ul>
+<li><a href="#clone">clone</a></li>
+<li><a href="#%E5%80%BC%E7%9A%84%E4%BF%AE%E6%94%B9">值的修改</a></li>
+<li><a href="#arc%E5%92%8C%E4%B8%8D%E5%8F%AF%E5%8F%98%E5%BC%95%E7%94%A8%E7%9A%84%E5%8C%BA%E5%88%AB">Arc和不可变引用&amp;的区别</a></li>
+</ul>
+</li>
+<li><a href="#rc%E5%92%8Carc">Rc和Arc</a></li>
+<li><a href="#refcell%E5%92%8C%E5%86%85%E9%83%A8%E5%8F%AF%E5%8F%98%E6%80%A7">RefCell和内部可变性</a>
+<ul>
+<li><a href="#%E9%80%9A%E8%BF%87-refcell-%E5%9C%A8%E8%BF%90%E8%A1%8C%E6%97%B6%E6%A3%80%E6%9F%A5%E5%80%9F%E7%94%A8%E8%A7%84%E5%88%99">通过 RefCell<code>&lt;T&gt;</code>
+在运行时检查借用规则</a>
+<ul>
+<li><a href="#%E5%86%85%E9%83%A8%E5%8F%AF%E5%8F%98%E6%80%A7%E4%B8%8D%E5%8F%AF%E5%8F%98%E5%80%BC%E7%9A%84%E5%8F%AF%E5%8F%98%E5%80%9F%E7%94%A8">内部可变性：不可变值的可变借用</a></li>
+</ul>
+</li>
+<li><a href="#refcell-t-%E5%9C%A8%E8%BF%90%E8%A1%8C%E6%97%B6%E8%AE%B0%E5%BD%95%E5%80%9F%E7%94%A8">RefCell&lt; T
+&gt;在运行时记录借用</a></li>
+<li><a href="#rc%E5%92%8Crefcell%E7%BB%84%E5%90%88%E4%BD%BF%E7%94%A8">Rc和RefCell组合使用</a>
+<ul>
+<li><a href="#%E6%80%A7%E8%83%BD%E6%8D%9F%E8%80%97">性能损耗</a></li>
+<li><a href="#%E5%86%85%E5%AD%98%E6%8D%9F%E8%80%97">内存损耗</a></li>
+<li><a href="#cpu%E6%8D%9F%E8%80%97">CPU损耗</a></li>
+</ul>
+</li>
+<li><a href="#%E9%80%9A%E8%BF%87cellfrom_mut%E8%A7%A3%E5%86%B3%E5%80%9F%E7%94%A8%E5%86%B2%E7%AA%81">通过Cell::from_mut解决借用冲突</a></li>
+</ul>
+</li>
+</ul>
+<p>Rust 中智能指针的概念也直接来自于 C++。C++ 里面有 unique_ptr、
+shared_ptr。</p>
+<h1 id="boxt"><a class="header" href="#boxt">Box<code>&lt;T&gt;</code></a></h1>
+<p>Box<code>&lt;T&gt;</code>是一个类型整体，作为智能指针Box<code>&lt;T&gt;</code>可以把资源强行创建在堆上并且获得资源的所有权。</p>
+<h2 id="boxt的所有权分析"><a class="header" href="#boxt的所有权分析">Box<code>&lt;T&gt;</code>的所有权分析</a></h2>
+<p>在创建 Box<code>&lt;Point&gt;</code> 实例的时候会发生所有权转移:资源从栈上 move
+到了堆上,原来栈上的那片资源被置为无效状态。</p>
+<h2 id="box-t的解引用"><a class="header" href="#box-t的解引用">Box <code>&lt;T&gt;</code>的解引用</a></h2>
+<p>创建一个 Box 实例把栈上的内容包起来,可以把栈上的值移动到堆上。</p>
+<p>还可以在 Box 实例上使用解引用符号 *,把里面的堆上的值再次移动回栈上。</p>
+<p>解引用是 Box::new() 的逆操作,可以看到整个过程是相反的。</p>
+<p>对于具有 copy 语义的 u8 类型来说,解引用回来后,boxed 还能使用。</p>
+<p>而对于具有 move 语义的类型来说,情况就不一样了,会发生所有权的转移。</p>
+<h2 id="boxt实现了trait"><a class="header" href="#boxt实现了trait">Box<code>&lt;T&gt;</code>实现了trait</a></h2>
+<p>在栈上还是堆上这种细节问题了。一种类型,被 Box&lt;&gt;
+包起来的过程就叫作这个类型的盒化(boxed)。</p>
+<p>Box<code>&lt;T&gt;</code> Rust 在标准库里为 Box<code>&lt;T&gt;</code> 实现了
+Deref、Drop、AsRef<code>&lt;T&gt;</code> 等 trait,所以 Box<code>&lt;T&gt;</code>
+可以直接调用 T 实例的方法。</p>
+<h2 id="boxt-clone"><a class="header" href="#boxt-clone">Box<code>&lt;T&gt;</code> Clone</a></h2>
+<p>Box<code>&lt;T&gt;</code>能否 Clone,需要看 T 是否实现了 Clone。</p>
+<h2 id="boxdyn-trait"><a class="header" href="#boxdyn-trait">Box<code>&lt;dyn trait&gt;</code></a></h2>
+<p>trait object,它代表一种类型,这种类型可以代理一批其他的类型。但是dyn
+trait 本身的尺寸在编译期是未知的,所以 dyn trait
+的出现总是要借助于引用或智能指针。而 Box<code>&lt;dyn trait&gt;</code>
+是最常见的,甚至比 &amp;dyn trait 更常见。原因就是 Box<code>&lt;dynTrait&gt;</code>
+拥有所有权,这就是 Box<code>&lt;T&gt;</code> 方便的地方,而 &amp;dyn Trait
+不拥有所有权,有的时候就没那么方便。</p>
+<p>如果 dyn trait 出现在结构体里,那么 Box<code>&lt;dyn trait&gt;</code> 形式就比 &amp;dyn
+trait 形式要方便得多。</p>
+<h1 id="arc-t-"><a class="header" href="#arc-t-">Arc&lt; T &gt;</a></h1>
+<p>Arc&lt; T &gt; 是共享所有权模型的智能指针，也就是shared_ptr。</p>
+<h2 id="clone"><a class="header" href="#clone">clone</a></h2>
+<p>Arc 的主要功能是和 clone() 配合使用。在 Arc 实例上每一次新的 clone()
+操作,总是会将资源的引用数 +1,而保持原来那一份资源不动,这个信息记录在 Arc
+实例里面。每一个指向同一个资源的 Arc 实例走出作用域,就会给这个引用计数
+-1。直到最后一个 Arc 实例消失,目标资源才会被销毁释放。</p>
+<p>Arc&lt; T &gt;的克隆行为只为改变引用计数不会克隆里面的内容。</p>
+<h2 id="值的修改"><a class="header" href="#值的修改">值的修改</a></h2>
+<p>多所有权条件下,怎么修改 Arc 里面的值呢?答案是不能修改。虽然
+Arc<code>&lt;T&gt;</code> 是拥有所有权的,但 Arc<code>&lt;T&gt;</code> 不提供修改 T
+的能力,这也是 Arc<code>&lt;T&gt;</code> 和 Box<code>&lt;T&gt;</code>
+不一样的地方。后面我们在并发编程部分会讲到 Mutex、RwLock 等锁。想要修改
+Arc 里面的内容,必须配合这些锁才能完成,比如 Arc&lt;Mutex<code>&lt;T&gt;</code>&gt;。</p>
+<p>共享所有权的场景下,如果任意一方能随意修改被包裹的值,那就会影响其他所有权的持有者,整个就乱套了。所以要修改的话必须引入锁的机制。</p>
+<h2 id="arc和不可变引用的区别"><a class="header" href="#arc和不可变引用的区别">Arc和不可变引用&amp;的区别</a></h2>
+<p>首先,它们都是共享对象的行为,本质上都是指针。但 Arc<code>&lt;T&gt;</code>
+是共享了所有权模型,而
+&amp;只是共享借用模型。共享借用模型就得遵循借用检查器的规则------借用的有效性依赖于被借用资源的
+scope。对于这个的分析是非常复杂的。而所有权模型是由自己来管理资源的scope,所以处理起来比较方便。</p>
+<h1 id="rc和arc"><a class="header" href="#rc和arc">Rc和Arc</a></h1>
+<p>Arc和Rc之间的区别在与线程安全，Rc相对而言并没有保证线程安全，允许更快的更新引用计数。</p>
+<p>Rc<code>&lt;T&gt;</code>
+用于当我们希望在堆上分配一些内存供程序的多个部分读取，而且无法在编译时确定程序的哪一部分会最后结束使用它的时候。如果确实知道哪部分是最后一个结束使用的话，就可以令其成为数据的所有者，正常的所有权规则就可以在编译时生效。</p>
+<h1 id="refcell和内部可变性"><a class="header" href="#refcell和内部可变性">RefCell和内部可变性</a></h1>
+<p>内部可变性（Interior mutability）是 Rust
+中的一个设计模式，它允许你即使在有不可变引用时也可以改变数据，这通常是借用规则所不允许的。为了改变数据，该模式在数据结构中使用
+unsafe 代码来模糊 Rust
+通常的可变性和借用规则。不安全代码表明我们在手动检查这些规则而不是让编译器替我们检查。第十九章会更详细地介绍不安全代码。</p>
+<p>当可以确保代码在运行时会遵守借用规则，即使编译器不能保证的情况，可以选择使用那些运用内部可变性模式的类型。所涉及的
+unsafe 代码将被封装进安全的 API 中，而外部类型仍然是不可变的。</p>
+<h2 id="通过-refcellt-在运行时检查借用规则"><a class="header" href="#通过-refcellt-在运行时检查借用规则">通过 RefCell<code>&lt;T&gt;</code> 在运行时检查借用规则</a></h2>
+<p>不同于 Rc<code>&lt;T&gt;</code>，RefCell<code>&lt;T&gt;</code>
+代表其数据的唯一的所有权。那么是什么让 RefCell<code>&lt;T&gt;</code> 不同于像
+Box<code>&lt;T&gt;</code> 这样的类型呢？</p>
+<p>回忆一下借用规则：</p>
+<ol>
+<li>
+<p>在任意时刻，只能拥有一个可变引用或任意数量的不可变引用（二者至多一个）</p>
+</li>
+<li>
+<p>引用必须总是有效的。</p>
+</li>
+</ol>
+<p>对于引用和 Box<code>&lt;T&gt;</code>，借用规则的不可变性作用于编译时。对于
+RefCell<code>&lt;T&gt;</code>，这些不可变性作用于
+运行时。对于引用，如果违反这些规则，会得到一个编译错误。而对于
+RefCell<code>&lt;T&gt;</code>，如果违反这些规则程序会 panic 并退出。</p>
+<p>在编译时检查借用规则的优势是这些错误将在开发过程的早期被捕获，同时对运行时没有性能影响，因为所有的分析都提前完成了。为此，在编译时检查借用规则是大部分情况的最佳选择，这也正是其为何是
+Rust 的默认行为。</p>
+<p>类似于 Rc<code>&lt;T&gt;</code>，RefCell<code>&lt;T&gt;</code>
+只能用于单线程场景。如果尝试在多线程上下文中使用RefCell<code>&lt;T&gt;</code>，会得到一个编译错误。</p>
+<p>如下为选择 Box<code>&lt;T&gt;</code>，Rc<code>&lt;T&gt;</code> 或 RefCell<code>&lt;T&gt;</code>
+的理由：</p>
+<pre><code>Rc&lt;T&gt; 允许相同数据有多个所有者；Box&lt;T&gt; 和 RefCell&lt;T&gt; 有单一所有者。
+Box&lt;T&gt; 允许在编译时执行不可变或可变借用检查；Rc&lt;T&gt;仅允许在编译时执行不可变借用检查；RefCell&lt;T&gt; 允许在运行时执行不可变或可变借用检查。
+因为 RefCell&lt;T&gt; 允许在运行时执行可变借用检查，所以我们可以在即便 RefCell&lt;T&gt; 自身是不可变的情况下修改其内部的值。
+</code></pre>
+<p>在不可变值内部改变值就是 内部可变性
+模式。让我们看看何时内部可变性是有用的，并讨论这是如何成为可能的。</p>
+<h3 id="内部可变性不可变值的可变借用"><a class="header" href="#内部可变性不可变值的可变借用">内部可变性：不可变值的可变借用</a></h3>
+<p>然而，特定情况下，令一个值在其方法内部能够修改自身，而在其他代码中仍视为不可变，是很有用的。值方法外部的代码就不能修改其值了。RefCell<code>&lt;T&gt;</code>
+是一个获得内部可变性的方法。RefCell<code>&lt;T&gt;</code>
+并没有完全绕开借用规则，编译器中的借用检查器允许内部可变性并相应地在运行时检查借用规则。如果违反了这些规则，会出现
+panic 而不是编译错误。</p>
+<h2 id="refcell-t-在运行时记录借用"><a class="header" href="#refcell-t-在运行时记录借用">RefCell&lt; T &gt;在运行时记录借用</a></h2>
+<p>当创建不可变和可变引用时，我们分别使用 &amp; 和 &amp;mut 语法。对于
+RefCell<code>&lt;T&gt;</code> 来说，则是 borrow 和 borrow_mut 方法，这属于
+RefCell<code>&lt;T&gt;</code> 安全 API 的一部分。borrow 方法返回 Ref<code>&lt;T&gt;</code>
+类型的智能指针，borrow_mut 方法返回 RefMut<code>&lt;T&gt;</code>
+类型的智能指针。这两个类型都实现了 Deref，所以可以当作常规引用对待。</p>
+<p>RefCell<code>&lt;T&gt;</code> 记录当前有多少个活动的 Ref<code>&lt;T&gt;</code> 和
+RefMut<code>&lt;T&gt;</code> 智能指针。每次调用 borrow，RefCell<code>&lt;T&gt;</code>
+将活动的不可变借用计数加一。当 Ref<code>&lt;T&gt;</code>
+值离开作用域时，不可变借用计数减一。就像编译时借用规则一样，RefCell<code>&lt;T&gt;</code>
+在任何时候只允许有多个不可变借用或一个可变借用。</p>
+<h2 id="rc和refcell组合使用"><a class="header" href="#rc和refcell组合使用">Rc和RefCell组合使用</a></h2>
+<p>在 Rust 中，一个常见的组合就是 Rc 和 RefCell
+在一起使用，前者可以实现一个数据拥有多个所有者，后者可以实现数据的可变性：</p>
+<p>举例：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">use std::cell::RefCell;
+use std::rc::Rc;
+fn main() {
+    let s = Rc::new(RefCell::new("我很善变，还拥有多个主人".to_string()));
+
+    let s1 = s.clone();
+    let s2 = s.clone();
+    // let mut s2 = s.borrow_mut();
+    s2.borrow_mut().push_str(", oh yeah!");
+
+    println!("{:?}\n{:?}\n{:?}", s, s1, s2);
+}
+</code></pre>
+</details>
+<p>上面代码中，我们使用 RefCell<code>&lt;String&gt;</code> 包裹一个字符串，同时通过
+Rc 创建了它的三个所有者：s、s1和s2，并且通过其中一个所有者 s2
+对字符串内容进行了修改。</p>
+<p>由于 Rc
+的所有者们共享同一个底层的数据，因此当一个所有者修改了数据时，会导致全部所有者持有的数据都发生了变化。</p>
+<h3 id="性能损耗"><a class="header" href="#性能损耗">性能损耗</a></h3>
+<p>相信这两者组合在一起使用时，很多人会好奇到底性能如何，下面我们来简单分析下。</p>
+<p>首先给出一个大概的结论，这两者结合在一起使用的性能其实非常高，大致相当于没有线程安全版本的
+C++ std::shared_ptr 指针，事实上，C++
+这个指针的主要开销也在于原子性这个并发原语上，毕竟线程安全在哪个语言中开销都不小。</p>
+<h3 id="内存损耗"><a class="header" href="#内存损耗">内存损耗</a></h3>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">struct Wrapper&lt;T&gt; {
+    // Rc
+    strong_count: usize,
+    weak_count: usize,
+
+    // Refcell
+    borrow_count: isize,
+
+    // 包裹的数据
+    item: T,
+}
+</code></pre>
+</details>
+<h3 id="cpu损耗"><a class="header" href="#cpu损耗">CPU损耗</a></h3>
+<p>从 CPU 来看，损耗如下：</p>
+<p>对 Rc<code>&lt;T&gt;</code> 解引用是免费的（编译期），但是 *
+带来的间接取值并不免费</p>
+<p>克隆 Rc<code>&lt;T&gt;</code> 需要将当前的引用计数跟 0 和 usize::Max
+进行一次比较，然后将计数值加 1</p>
+<p>释放（drop） Rc<code>&lt;T&gt;</code> 需要将计数值减 1， 然后跟 0 进行一次比较</p>
+<p>对 RefCell 进行不可变借用，需要将 isize 类型的借用计数加 1，然后跟 0
+进行比较</p>
+<p>对 RefCell 的不可变借用进行释放，需要将 isize 减 1</p>
+<p>对 RefCell 的可变借用大致流程跟上面差不多，但是需要先跟 0 比较，然后再减
+1</p>
+<p>对 RefCell 的可变借用进行释放，需要将 isize 加 1</p>
+<h2 id="通过cellfrom_mut解决借用冲突"><a class="header" href="#通过cellfrom_mut解决借用冲突">通过Cell::from_mut解决借用冲突</a></h2>
+<p>在 Rust 1.37 版本中新增了两个非常实用的方法：</p>
+<p>Cell::from_mut，该方法将 &amp;mut T 转为 &amp;Cell<code>&lt;T&gt;</code></p>
+<p>Cell::as_slice_of_cells，该方法将 &amp;Cell&lt;[T]&gt; 转为
+&amp;[Cell<code>&lt;T&gt;</code>]</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../Rust/Rust所有权.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../Rust/Rust生命周期.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../Rust/Rust所有权.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../Rust/Rust生命周期.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

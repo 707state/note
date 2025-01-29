@@ -1,0 +1,472 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>基本操作符 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86">基础知识</a>
+<ul>
+<li><a href="#observable%E5%92%8Csubscriber">Observable和Subscriber</a></li>
+<li><a href="#single%E5%8D%95%E4%B8%AA%E6%95%B0%E6%8D%AE%E7%9A%84%E7%94%9F%E4%BA%A7%E8%80%85">Single单个数据的生产者</a></li>
+<li><a href="#completable%E5%8D%95%E4%B8%AA%E4%BA%8B%E4%BB%B6%E7%9A%84%E7%94%9F%E4%BA%A7%E8%80%85">Completable单个事件的生产者</a></li>
+</ul>
+</li>
+<li><a href="#%E6%93%8D%E4%BD%9C%E7%AC%A6">操作符</a>
+<ul>
+<li><a href="#%E5%88%9B%E5%BB%BAobservable%E6%93%8D%E4%BD%9C%E7%AC%A6">创建Observable操作符</a>
+<ul>
+<li><a href="#range">range</a></li>
+<li><a href="#defer--just">defer &amp; just</a></li>
+<li><a href="#from">from</a></li>
+<li><a href="#interval">interval</a></li>
+<li><a href="#repeat%E5%92%8Ctimer">repeat和timer</a></li>
+</ul>
+</li>
+<li><a href="#%E8%BD%AC%E5%8C%96observable%E7%9A%84%E6%93%8D%E4%BD%9C%E7%AC%A6">转化Observable的操作符</a>
+<ul>
+<li><a href="#buffer">buffer</a></li>
+<li><a href="#flatmap">flatMap</a></li>
+<li><a href="#groupby">groupBy</a></li>
+<li><a href="#map">map</a></li>
+<li><a href="#cast">cast</a></li>
+<li><a href="#scan">scan</a></li>
+<li><a href="#window">window</a></li>
+</ul>
+</li>
+<li><a href="#%E8%BF%87%E6%BB%A4%E6%93%8D%E4%BD%9C%E7%AC%A6">过滤操作符</a>
+<ul>
+<li><a href="#debounce">debounce</a></li>
+<li><a href="#distinct">distinct</a></li>
+<li><a href="#elementat">elementAt</a></li>
+<li><a href="#filter">filter</a></li>
+<li><a href="#first%E5%92%8Clast">first和last</a></li>
+<li><a href="#skip-take-skiplast-takelast">skip, take, skipLast,
+takeLast</a></li>
+<li><a href="#sample%E5%92%8Cthrottlefirst">sample和throttleFirst</a></li>
+</ul>
+</li>
+<li><a href="#%E7%BB%84%E5%90%88%E6%93%8D%E4%BD%9C%E7%AC%A6">组合操作符</a>
+<ul>
+<li><a href="#combinelatest">combineLatest</a></li>
+<li><a href="#join%E5%92%8Cgroupjoin">join和groupJoin</a></li>
+<li><a href="#merge%E5%92%8Cmergedelayerror">merge和mergeDelayError</a></li>
+<li><a href="#startwith">startWith</a></li>
+<li><a href="#switch">switch</a></li>
+<li><a href="#zip%E5%92%8Czipwith">zip和zipWith</a></li>
+</ul>
+</li>
+<li><a href="#%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E6%93%8D%E4%BD%9C%E7%AC%A6">错误处理操作符</a>
+<ul>
+<li><a href="#onerrorreturn">onErrorReturn</a></li>
+<li><a href="#onerrorresumenext">OnErrorResumeNext</a></li>
+</ul>
+</li>
+<li><a href="#%E8%BE%85%E5%8A%A9%E6%93%8D%E4%BD%9C%E7%AC%A6">辅助操作符</a>
+<ul>
+<li><a href="#delay">delay</a></li>
+<li><a href="#do">do</a></li>
+<li><a href="#materialize%E5%92%8Cdematerialize">materialize和dematerialize</a></li>
+<li><a href="#using">using</a></li>
+</ul>
+</li>
+<li><a href="#%E6%9D%A1%E4%BB%B6%E6%93%8D%E4%BD%9C">条件操作</a>
+<ul>
+<li><a href="#all">all</a></li>
+<li><a href="#amb">amb</a></li>
+<li><a href="#contains">contains</a></li>
+<li><a href="#isempty">isEmpty</a></li>
+<li><a href="#sequenceequal">sequenceEqual</a></li>
+<li><a href="#skipuntil%E5%92%8Cskipwhile">skipUntil和skipWhile</a></li>
+<li><a href="#takeuntil%E5%92%8Ctakewhile">takeUntil和takeWhile</a></li>
+</ul>
+</li>
+<li><a href="#%E8%81%9A%E5%90%88%E6%93%8D%E4%BD%9C%E7%AC%A6">聚合操作符</a>
+<ul>
+<li><a href="#concat">concat</a></li>
+<li><a href="#count">count</a></li>
+<li><a href="#reduce">reduce</a></li>
+<li><a href="#collect">collect</a></li>
+</ul>
+</li>
+<li><a href="#connectable-observable%E7%9B%B8%E5%85%B3%E7%9A%84%E6%93%8D%E4%BD%9C%E7%AC%A6">Connectable
+Observable相关的操作符</a>
+<ul>
+<li><a href="#publish%E5%92%8Cconnect">publish和connect</a></li>
+<li><a href="#refcount">refCount</a></li>
+<li><a href="#replay">replay</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="基础知识"><a class="header" href="#基础知识">基础知识</a></h1>
+<h2 id="observable和subscriber"><a class="header" href="#observable和subscriber">Observable和Subscriber</a></h2>
+<p>Observable提供了subscribe方法，当有Subscriber通过subscribe方法订阅到Observable时，Observable就可以向Subscriber发送数据流。</p>
+<p>响应式编程中的事件分为三类：普通，错误，结束。</p>
+<p>onNext: 普通事件</p>
+<p>onError: 异常/错误处理</p>
+<p>onComplete:
+在Observable发送完所有数据并且没有错误，就需要调用这个方法来向Subscriber发送结束事件</p>
+<h2 id="single单个数据的生产者"><a class="header" href="#single单个数据的生产者">Single单个数据的生产者</a></h2>
+<p>Single一次只产生一个数据（或者错误事件）。</p>
+<h2 id="completable单个事件的生产者"><a class="header" href="#completable单个事件的生产者">Completable单个事件的生产者</a></h2>
+<p>Completable只会发送错误和结束的事件，而不发送数据。</p>
+<p>Completable通过CompletableSubscriber的onComplete（处理顺利完成的工作，发送结束事件），onError（异常），onSubscribe(
+Subscription
+d)调用此接口返回一个Subscription对象，取消对Completable的订阅。</p>
+<h1 id="操作符"><a class="header" href="#操作符">操作符</a></h1>
+<h2 id="创建observable操作符"><a class="header" href="#创建observable操作符">创建Observable操作符</a></h2>
+<p>一般不推荐直接用create操作符，优先使用其他的。</p>
+<h3 id="range"><a class="header" href="#range">range</a></h3>
+<p>range操作符创建的Observable会发送一个范围(n,m)内的数据。</p>
+<p>注意是从n到n+m-1</p>
+<h3 id="defer--just"><a class="header" href="#defer--just">defer &amp; just</a></h3>
+<p>defer的作用是，只有当Subscriber来订阅的时候才会创建一个新的Observable对象，也就是每一次订阅都会得到一个刚创建的最新的Observable对象。</p>
+<p>just操作符接收某个对象作为输入，然后会创建一个发送该对象的Observable。</p>
+<p>defer每次订阅都会得到Observable发送的一个全新的当前时间，just创建的即使订阅多次也都会发送出和首次订阅一样的数据。</p>
+<h3 id="from"><a class="header" href="#from">from</a></h3>
+<p>from接受一个对象作为参数发送数据，会迭代得将数据发送。</p>
+<h3 id="interval"><a class="header" href="#interval">interval</a></h3>
+<p>interval创建的Observable对象会从0开始，每隔一段时间发送一个数字，这个对象运行在computation
+scheduler中。</p>
+<h3 id="repeat和timer"><a class="header" href="#repeat和timer">repeat和timer</a></h3>
+<p>repeat可以让Observable对象重复发送N次。</p>
+<p>timer会在指定时间后发送一个数字0。</p>
+<h2 id="转化observable的操作符"><a class="header" href="#转化observable的操作符">转化Observable的操作符</a></h2>
+<h3 id="buffer"><a class="header" href="#buffer">buffer</a></h3>
+<p>将数据按照规定的大小做缓存，当缓存的数据量达到设置的上线后就将数据作为一个集合发送出去。</p>
+<p>还允许设置跳过的数目，可以加入一个skip参数。还可以通过时间等规则来缓存。</p>
+<h3 id="flatmap"><a class="header" href="#flatmap">flatMap</a></h3>
+<p>可以将数据根据自定义的规则进行转化再发送出去，就是将这个Observable转化为多个以源Observable发送的数据为源数据的Observable，然后将这些Observable发送的数据整合并发送。</p>
+<h3 id="groupby"><a class="header" href="#groupby">groupBy</a></h3>
+<p>可以将源Observable发送的数据按照key来拆分成晓得Observable，
+然后这些小的Observable分别发送，作用类似于SQL的groupBy。</p>
+<h3 id="map"><a class="header" href="#map">map</a></h3>
+<p>map将源Observable发送的数据按照给定的函数进行转化，并将转化后的数据发送出来。不同于flatMap，map会对数据直接进行函数转化，输入和输出是一对一的关系；而flatmap会将每个数据作为输入来创建一个新的Observable，并将所有的Observable组合起来发送数据，输入和输出是一对多的关系。</p>
+<h3 id="cast"><a class="header" href="#cast">cast</a></h3>
+<p>cast操作符将Observable发送的数据强制转化为另一种类型。</p>
+<p>类似于Java中的cast方法。</p>
+<h3 id="scan"><a class="header" href="#scan">scan</a></h3>
+<p>对一个序列的数据应用同一个函数进行计算，并把函数的结果发送出去，作为下一个数据应用这个函数时的第一个参数使用。</p>
+<h3 id="window"><a class="header" href="#window">window</a></h3>
+<p>类似于buffer，区别在于buffer将收集到的数据打包作为一个整体发送，如发送一个List；而window发送的是一些小的Observable对象，每个Observable对象包含window操作符规定的窗口中收集到的数据，然后由这些小的Observable对象将其内部包含的数据一个个发送出来。</p>
+<h2 id="过滤操作符"><a class="header" href="#过滤操作符">过滤操作符</a></h2>
+<h3 id="debounce"><a class="header" href="#debounce">debounce</a></h3>
+<p>debounce用来做限流，throttleWithTime通过时间限流，每一次接收到Observable就会进行计时，如果在设定的时间内又收到了数据就抛弃上一个数据，并重新计时。</p>
+<p>debounce既可以根据时间进行过滤（如上），也可以传入一个函数进行限流。</p>
+<h3 id="distinct"><a class="header" href="#distinct">distinct</a></h3>
+<p>去重，用来过滤数据。</p>
+<p>distinctUntilChanged用来过滤连续的重复数据。</p>
+<h3 id="elementat"><a class="header" href="#elementat">elementAt</a></h3>
+<p>智慧过滤出来源Observable发送出来的顺序为N的数据，同数组的下标一样，N从0开始。</p>
+<h3 id="filter"><a class="header" href="#filter">filter</a></h3>
+<p>根据一个函数进行过滤操作。</p>
+<h3 id="first和last"><a class="header" href="#first和last">first和last</a></h3>
+<p>first返回第一条或者满足条件的第一条数据，last返回最后一条或者满足条件的最后一条数据。</p>
+<h3 id="skip-take-skiplast-takelast"><a class="header" href="#skip-take-skiplast-takelast">skip, take, skipLast, takeLast</a></h3>
+<p>skip用来将源Observable发送的数据过滤掉前n项，take则是只取前n项。</p>
+<h3 id="sample和throttlefirst"><a class="header" href="#sample和throttlefirst">sample和throttleFirst</a></h3>
+<p>sample会指定一段时间，在每段时长结束的时候发送源Observable发送的最新数据，其余的都会被过滤掉。</p>
+<p>也就是说不管源Observable发送了多少数据，只有最后一个数据才能通过sample的过滤。</p>
+<p>throttleFirst则是取规定时间段内的第一个数据。</p>
+<h2 id="组合操作符"><a class="header" href="#组合操作符">组合操作符</a></h2>
+<h3 id="combinelatest"><a class="header" href="#combinelatest">combineLatest</a></h3>
+<p>两个前提：</p>
+<ol>
+<li>
+<p>所有要组合的Observable都发送过数据，所以只要有任何Observable还未发送数据，combineLatest就不会开始发送组合的数据。</p>
+</li>
+<li>
+<p>满足1的前提下，任何一个Observable发送一个数据，combineLatest就将所有的Observable最新发送的数据按照提供的函数组装起来发送出去。</p>
+</li>
+</ol>
+<h3 id="join和groupjoin"><a class="header" href="#join和groupjoin">join和groupJoin</a></h3>
+<p>join根据时间窗口来组合两个Observable发送的数据，groupJoin与join基本相同，只是通过groupJoin的操作符组合后，发送出来的是一个个小的Observable，每个Observable里面包含了一轮组合数据。</p>
+<h3 id="merge和mergedelayerror"><a class="header" href="#merge和mergedelayerror">merge和mergeDelayError</a></h3>
+<p>merge操作将多个Observable发送的数据整合起来，对外就是一个Observable发送的数据一样。</p>
+<p>但是发送的数据可能是由交错的，用concat可以没有交错。</p>
+<h3 id="startwith"><a class="header" href="#startwith">startWith</a></h3>
+<p>在源Observable前面插入一些数据，还可以把Iterable和Observable插入进去，如果插入的是Observable，则这个Observable发送的数据会插入到源Observable要发送的数据的前面。</p>
+<h3 id="switch"><a class="header" href="#switch">switch</a></h3>
+<p>源Observable发送出来的数据可能是一个个小的Observable，如果订阅者只对小的Observable所发出的数据感兴趣，就需要使用switch操作符。</p>
+<h3 id="zip和zipwith"><a class="header" href="#zip和zipwith">zip和zipWith</a></h3>
+<p>zip操作将多个Observable发送的数据按照顺序组合，不同于join,
+join可以把每个数据组合多次，而zip每个数据只能组合一次，而且都是有序的。</p>
+<h2 id="错误处理操作符"><a class="header" href="#错误处理操作符">错误处理操作符</a></h2>
+<h3 id="onerrorreturn"><a class="header" href="#onerrorreturn">onErrorReturn</a></h3>
+<p>发生错误时，让Observable发送一个预先定义好的数据并停止继续发送数据，正常结束整个过程。</p>
+<h3 id="onerrorresumenext"><a class="header" href="#onerrorresumenext">OnErrorResumeNext</a></h3>
+<p>错误发生时，创建另一个Observable来代替当前的Observable并继续发送数据。</p>
+<h2 id="辅助操作符"><a class="header" href="#辅助操作符">辅助操作符</a></h2>
+<h3 id="delay"><a class="header" href="#delay">delay</a></h3>
+<p>发送数据的时机延后一段时间。</p>
+<h3 id="do"><a class="header" href="#do">do</a></h3>
+<p>给Observable的生命周期加上一系列的回调监听。</p>
+<h3 id="materialize和dematerialize"><a class="header" href="#materialize和dematerialize">materialize和dematerialize</a></h3>
+<p>将OnNext,
+OnError和onComplete转化为一个Notification对象并按照原来顺序发送出来。</p>
+<h3 id="using"><a class="header" href="#using">using</a></h3>
+<p>创建一个在Observable生命周期存活的资源。</p>
+<h2 id="条件操作"><a class="header" href="#条件操作">条件操作</a></h2>
+<h3 id="all"><a class="header" href="#all">all</a></h3>
+<p>对所有数据进行判断。</p>
+<h3 id="amb"><a class="header" href="#amb">amb</a></h3>
+<p>将至多9各Observable结合起来，进行竞争。哪个Observable先发送了数据，就继续发送这个Observable的数据，其他的数据都会被丢弃。</p>
+<h3 id="contains"><a class="header" href="#contains">contains</a></h3>
+<p>判断Observable是否包含某一个数据。</p>
+<h3 id="isempty"><a class="header" href="#isempty">isEmpty</a></h3>
+<p>判断Observable是否已经发送过数据，发送过就返回false。</p>
+<h3 id="sequenceequal"><a class="header" href="#sequenceequal">sequenceEqual</a></h3>
+<p>用来判断两个Observable发送的数据序列是否相同。</p>
+<h3 id="skipuntil和skipwhile"><a class="header" href="#skipuntil和skipwhile">skipUntil和skipWhile</a></h3>
+<p>根据条件跳过一些数据，skipUntil是根据一个标志Observable来判断的，当这个标志Observable没有发送数据时，所有源Observable就跳过；当标志Observable发送了一个数据之后，则开始正常发送数据。</p>
+<p>skipWhile则是根据一个函数来判断是否跳过数据。</p>
+<h3 id="takeuntil和takewhile"><a class="header" href="#takeuntil和takewhile">takeUntil和takeWhile</a></h3>
+<p>与skipWhile和skipUntil功能完全相反。</p>
+<h2 id="聚合操作符"><a class="header" href="#聚合操作符">聚合操作符</a></h2>
+<h3 id="concat"><a class="header" href="#concat">concat</a></h3>
+<p>将多个Observable结合成一个并发送数据，严格按照先后顺序。</p>
+<h3 id="count"><a class="header" href="#count">count</a></h3>
+<p>统计源Observable究竟发送了多少个数据，最后将数目发送出来。</p>
+<h3 id="reduce"><a class="header" href="#reduce">reduce</a></h3>
+<p>应用一个函数接受Observable发送的数据和函数的结算结果，作为下一次计算的参数，并输出最后的结果。</p>
+<h3 id="collect"><a class="header" href="#collect">collect</a></h3>
+<p>类似于reduce但是目的不同，collect用来将源Observable发送的数据存在一个数据结构中，最后将这个数据结构发送出来。</p>
+<p>需要使用两个函数作为参数（第一个函数产生收集数据结构的函数，第二个用来将上面函数产生的数据结构和Observable发送的数据作为参数，且会将源Observable发送的数据存入到这个数据结构中）</p>
+<h2 id="connectable-observable相关的操作符"><a class="header" href="#connectable-observable相关的操作符">Connectable Observable相关的操作符</a></h2>
+<p>并不是在订阅者订阅时才发送数据，而是只要对其应用connect操作符就开始发送数据，所以如果在对其应用connect操作符之前进行订阅的花，并不会让他发送数据。</p>
+<h3 id="publish和connect"><a class="header" href="#publish和connect">publish和connect</a></h3>
+<p>publish可以将一个普通的Observable转化为一个Connectable
+Observable，如果发送数据已经开始了在进行订阅的话，就只能接受以后发送的数据。</p>
+<p>connect是用来出发Connectable
+Observable发送数据的，应用connect操作符后会返回一个Subscription对象，通过这个Subscription对象，我们可以调用其unsubscribe方法中止数据发送。</p>
+<h3 id="refcount"><a class="header" href="#refcount">refCount</a></h3>
+<p>将一个Connectable
+Observable转化为一个普通的Observable，这个时候如果有订阅者就会触发数据的发送。</p>
+<h3 id="replay"><a class="header" href="#replay">replay</a></h3>
+<p>返回一个Connectable Observable并且可以缓存其发送过的数据。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../RxJava/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../RxJava/Scheduler.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../RxJava/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../RxJava/Scheduler.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

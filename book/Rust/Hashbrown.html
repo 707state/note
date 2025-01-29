@@ -1,0 +1,483 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Hashbrown 哈希 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#hashbrown">Hashbrown</a>
+<ul>
+<li><a href="#swisstable%E7%AE%97%E6%B3%95">SwissTable算法</a>
+<ul>
+<li><a href="#open-addressing-with-quadratic-probing">Open Addressing with Quadratic
+Probing</a></li>
+<li><a href="#control-byte-arrays">Control Byte
+Arrays</a></li>
+<li><a href="#robin-hood-hashing">Robin Hood
+Hashing</a></li>
+<li><a href="#dynamic-resizing">Dynamic Resizing</a></li>
+<li><a href="#simd">SIMD</a></li>
+</ul>
+</li>
+<li><a href="#%E6%8F%92%E5%85%A5">插入</a></li>
+<li><a href="#%E5%88%A0%E9%99%A4">删除</a>
+<ul>
+<li><a href="#%E6%A1%B6">桶</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E6%81%B6%E8%A1%A5%E6%95%B0%E5%AD%A6%E5%9F%BA%E7%A1%80">恶补数学基础</a>
+<ul>
+<li><a href="#%E5%A6%82%E4%BD%95%E8%A1%A1%E9%87%8F%E5%93%88%E5%B8%8C%E5%87%BD%E6%95%B0%E7%9A%84">如何衡量哈希函数的？</a></li>
+<li><a href="#ahash">AHash</a></li>
+<li><a href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86">前置知识</a>
+<ul>
+<li><a href="#%E4%B8%89%E8%A7%92%E6%95%B0mod-2n">三角数mod 2^n</a></li>
+<li><a href="#%E4%BD%8D%E6%93%8D%E4%BD%9C">位操作</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="hashbrown"><a class="header" href="#hashbrown">Hashbrown</a></h1>
+<p>Hashbrown 是一个高效的哈希表实现库。它提供了 HashMap 和 HashSet
+的数据结构，并且被设计为性能优先。</p>
+<p>Hashbrown 使用了一种叫做 SwissTable 的哈希表算法（由 Google 发明，并在
+C++ 的 Abseil 库中实现）。</p>
+<h2 id="swisstable算法"><a class="header" href="#swisstable算法">SwissTable算法</a></h2>
+<p>SwissTable在C++的Abseil库中有一个实现，在Hashbrown中的实现细节如下：</p>
+<h3 id="open-addressing-with-quadratic-probing"><a class="header" href="#open-addressing-with-quadratic-probing">Open Addressing with Quadratic Probing</a></h3>
+<p>开放寻址，所有元素放在一个大的数组中，使用二次探测法解决冲突。</p>
+<h3 id="control-byte-arrays"><a class="header" href="#control-byte-arrays">Control Byte Arrays</a></h3>
+<p>Hashbrown
+引入了一个"控制字节数组"来管理桶的状态。每个桶的控制字节可以表示以下几种状态：</p>
+<pre><code>EMPTY：桶为空。
+DELETED：桶已被删除元素占用。
+FULL：桶中有一个元素。
+</code></pre>
+<p>这种控制字节数组与哈希桶结构分离，允许通过控制字节的状态快速查找、插入和删除元素，而不必直接遍历每个桶。这种方式加速了哈希查找操作，也减少了缓存未命中。</p>
+<h3 id="robin-hood-hashing"><a class="header" href="#robin-hood-hashing">Robin Hood Hashing</a></h3>
+<p>Hashbrown 还使用 Robin Hood Hashing 技术来保持哈希表的负载平衡。Robin
+Hood Hashing
+是一种在插入时考虑"偏移"的哈希方法，插入时尽可能减少偏移量较大的元素。这种方法可以减少查找时的最大偏移量，从而加速查找操作。</p>
+<p>当发生冲突时，新元素会比较当前插槽中的元素和自身的"偏移量"（即距离理想位置的距离），优先插入偏移量较小的元素，以减少长距离查找的情况。</p>
+<h3 id="dynamic-resizing"><a class="header" href="#dynamic-resizing">Dynamic Resizing</a></h3>
+<p>为了确保哈希表在高负载时仍能保持高性能，Hashbrown
+在装载因子超过一定阈值时会进行动态扩展。扩展时会将哈希表的容量翻倍，重新分配内存并重新插入所有元素。通过这种方式，可以减少因过多冲突引起的性能下降。</p>
+<h3 id="simd"><a class="header" href="#simd">SIMD</a></h3>
+<p>SwissTable 通过 SIMD
+指令进行组查找，将查找操作并行化处理。例如，若目标插槽与当前位置不符，则使用
+SIMD
+一次性检查多个桶是否匹配目标的哈希值。这可以显著减少查找和插入的时间开销。</p>
+<p>具体来说，每个哈希桶中只存储一部分哈希值，称为哈希指纹（hash
+fingerprints），这是哈希值的高几位。利用这个简化的哈希值可以在一组桶中快速定位元素，大大提升了哈希表的查找性能。</p>
+<h2 id="插入"><a class="header" href="#插入">插入</a></h2>
+<p>两个步骤：</p>
+<ol>
+<li>搜索，如果返回一个结果就是已经有的键，那就把这个值覆盖。</li>
+<li>实际上的插入（寻找EMPTY或者DELETED的键）</li>
+</ol>
+<h2 id="删除"><a class="header" href="#删除">删除</a></h2>
+<p>其实就是寻找key然后删除，重点是cleanup（清除）。</p>
+<p>实际流程：</p>
+<ol>
+<li>
+<p>从要删除的桶开始；</p>
+</li>
+<li>
+<p>加载从该桶位置开始的一个组的字节，检查该组中是否有 EMPTY 条目；</p>
+</li>
+<li>
+<p>记录第一个找到的 EMPTY 位置（称为 "end"）；</p>
+</li>
+<li>
+<p>再加载删除位置之前的一个字节组，搜索该组中是否有 EMPTY 条目；</p>
+</li>
+<li>
+<p>记录最后一个找到的 EMPTY 位置（称为 "start"）；</p>
+</li>
+<li>
+<p>如果 start 和 end 之间的距离大于或等于组的宽度 WIDTH，则将桶设为
+DELETED；</p>
+</li>
+<li>
+<p>否则，将桶设为 EMPTY。</p>
+</li>
+</ol>
+<h3 id="桶"><a class="header" href="#桶">桶</a></h3>
+<p>桶（bucket）
+是用来存储哈希表中每个元素的位置。每个桶可以包含一个元素或为空，它是哈希表用来组织和管理数据的基础单元。在实现上，桶是一个连续的内存位置，用于存储键值对或者表示桶的状态。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// A reference to a hash table bucket containing a `T`.
+///
+/// This is usually just a pointer to the element itself. However if the element
+/// is a ZST, then we instead track the index of the element in the table so
+/// that `erase` works properly.
+pub struct Bucket&lt;T&gt; {
+    // Actually it is pointer to next element than element itself
+    // this is needed to maintain pointer arithmetic invariants
+    // keeping direct pointer to element introduces difficulty.
+    // Using `NonNull` for variance and niche layout
+    ptr: NonNull&lt;T&gt;,
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<h4 id="桶的结构"><a class="header" href="#桶的结构">桶的结构</a></h4>
+<p>每个桶包含两个主要部分：</p>
+<ol>
+<li>控制字节</li>
+</ol>
+<p>用来标记该桶的状态，Hashbrown 使用控制字节来表明桶是
+FULL（已占用）、DELETED（被删除，但保留墓碑）、还是 EMPTY（空的）。</p>
+<p>控制字节是一个简化的哈希值或状态标记，用来辅助哈希冲突的解决。</p>
+<ol start="2">
+<li>实际的数据存储</li>
+</ol>
+<p>当桶状态为 FULL
+时，桶中会包含一个键值对（key-value）数据，实际的数据直接存放在桶内。
+如果桶被标记为 DELETED 或 EMPTY，则表示该位置可以重新使用。</p>
+<h4 id="作用"><a class="header" href="#作用">作用</a></h4>
+<p>桶的作用在于优化查找、插入和删除的效率。Hashbrown 使用了 开放寻址（open
+addressing）
+的方式来解决哈希冲突，而不是链式存储。因此，所有数据存储在同一个桶数组（bucket
+array）中，避免了指针的复杂操作。同时，桶通过控制字节数组与实际数据分离，极大提升了数据的内存局部性，使得查找和插入操作在
+CPU 缓存中更有效。</p>
+<h4 id="工作原理"><a class="header" href="#工作原理">工作原理</a></h4>
+<p>插入：将元素放入其对应的哈希桶中，如果目标桶已占用，使用探测算法找到下一个可用的桶。
+查找：通过桶的控制字节快速定位元素，如果有哈希冲突则沿着连续的桶组（contiguous
+group）查找，直到找到匹配元素或遇到空桶为止。
+删除：在删除时，通过在桶上放置墓碑标记（DELETED）来保持搜索路径的连续性，必要时调整其他桶的状态。</p>
+<h1 id="恶补数学基础"><a class="header" href="#恶补数学基础">恶补数学基础</a></h1>
+<h2 id="如何衡量哈希函数的"><a class="header" href="#如何衡量哈希函数的">如何衡量哈希函数的？</a></h2>
+<ol>
+<li>
+<p>性能： 哈希小对象的速度：uint64 哈希大对象的速度：string 占用内存</p>
+</li>
+<li>
+<p>质量： 能否预防DDOS攻击 是否存在Bad Seeds 是否存在未定义行为</p>
+</li>
+</ol>
+<h2 id="ahash"><a class="header" href="#ahash">AHash</a></h2>
+<p>AHash是hashbrown默认的hash函数，被设计在内存使用。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>///This constant comes from Kunth's prng (Empirically it works better than those from splitmix32).
+
+pub(crate) const MULTIPLE: u64 = 6364136223846793005;
+
+
+pub(crate) const fn folded_multiply(s: u64, by: u64) -&gt; u64 {
+
+    let result = (s as u128).wrapping_mul(by as u128);
+
+    ((result &amp; 0xffff_ffff_ffff_ffff) as u64) ^ ((result &gt;&gt; 64) as u64)
+
+}
+
+
+impl AHasher {
+
+    // ...
+
+    #[inline(always)]
+
+    fn update(&amp;mut self, new_data: u64) {
+
+        self.buffer = folded_multiply(new_data ^ self.buffer, MULTIPLE);
+
+    }
+
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>这是实现，看不懂...</p>
+<h2 id="前置知识"><a class="header" href="#前置知识">前置知识</a></h2>
+<h3 id="三角数mod-2n"><a class="header" href="#三角数mod-2n">三角数mod 2^n</a></h3>
+<p>hashbrown 内部用的不是 拉链法，而是 基于 三角数
+（杨辉三角每一行的中间数）的探测法。</p>
+<p>假设 i = hash(x)，那么 hashbrown 会依次访问大小为 N 的数组的第 i % N,
+(i + 1) % N, (i + 1 + 2) % N, (i + 1 + 2 + 3) % N, ...
+位。可以证明，访问 N 次时，恰好访问且仅访问了数组中的每一位一次。</p>
+<h3 id="位操作"><a class="header" href="#位操作">位操作</a></h3>
+<h4 id="删掉最后一位1"><a class="header" href="#删掉最后一位1">删掉最后一位1</a></h4>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>x&amp;(x-1)
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>很好理解，将 x 表述为 ...10000...000，x - 1 为
+...01111...111，相与最后 1 位变为 0。</p>
+<h4 id="最后一位1的位置"><a class="header" href="#最后一位1的位置">最后一位1的位置</a></h4>
+<p>本质上是个二分算法，但直接用 trailing_zeros 计算（C++ 用
+__builtin_ctz），编译器可能会翻译为 CPU 指令，性能会高出很多。</p>
+<h4 id="hashbrown-中的一些位运算"><a class="header" href="#hashbrown-中的一些位运算">hashbrown 中的一些位运算</a></h4>
+<p>现在有一个 u8 的数组，其中的值只可能是 0x80, 0x8f 或 0x00 至 0x7f
+中的任何数。我们可能从数组的任意位置视为 u32 将数据读出来做运算。</p>
+<p>将 0x80, 0xff 转为 0x80，剩下的转为 0x00。</p>
+<p>直接和 0x80808080 相与。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>x&amp; u32::from_ne_bytes(0x80)
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>将 0xff 转为 0x80，剩下的转为 0x00</p>
+<p>实际上是判断最高位和次高位为 1。让自己与自己左移一位相与，再与
+0x80，结果为 0x80 说明最高位和次高位都为 1。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>x&amp;(x&lt;&lt;1)&amp;u32::from_ne_bytes(0x80)
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>将指定的 y 转为 0x80，剩下的转为 0x00。</p>
+<p>操作 (t - 1) &amp; ~t 能得到取最低位 1 再减 1 的结果，当 t = 0 时结果为
+0xff，是唯一能让最高位为 1 的值。所以先异或
+x，再应用这个操作，最后直接与 0x80。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let z=x^u32::from_ne_bytes(y);
+z.wrapping_sub(repeat(0x01))&amp;!z&amp;reoeat(0x80)
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>将 0x80 转为 0xff，0xff 保持 0xff，其他转为 0x80。</p>
+<p>首先将自己取反后与 0x80 相与，这样 0x80 与 0xff 会转为 0x00，其他会转为
+0x80。再取最高位后加上取反的结果，那么 0x00 会变为 0x7f，0x80 会变为
+0x80。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let y=!x &amp; repeat(0x80);
+!y+(y&gt;&gt;7)
+<span class="boring">}</span></code></pre></pre>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../Rust/FPRust.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../Rust/Rustacean指南.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../Rust/FPRust.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../Rust/Rustacean指南.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

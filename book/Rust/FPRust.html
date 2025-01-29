@@ -1,0 +1,846 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>函数式 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#functional-rust">Functional Rust</a>
+<ul>
+<li><a href="#functor">Functor</a></li>
+<li><a href="#monad">Monad</a>
+<ul>
+<li><a href="#do%E4%BD%9C%E7%94%A8">do作用</a></li>
+</ul>
+</li>
+<li><a href="#monoid">Monoid</a></li>
+<li><a href="#apply">Apply</a></li>
+<li><a href="#applicative">Applicative</a></li>
+<li><a href="#semigroup">SemiGroup</a></li>
+<li><a href="#semigroupoid">Semigroupoid</a></li>
+<li><a href="#state">State</a></li>
+<li><a href="#fold">Fold</a></li>
+<li><a href="#free">Free</a></li>
+<li><a href="#traverse">Traverse</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="functional-rust"><a class="header" href="#functional-rust">Functional Rust</a></h1>
+<h2 id="functor"><a class="header" href="#functor">Functor</a></h2>
+<p>实现如下：</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait Functor&lt;'a&gt; {
+    /// The inner type which will be mapped over
+    type Unwrapped;
+
+    /// Target of the fmap operation. Like `Self`, but has a different wrapped up value underneath.
+    type Wrapped&lt;B: 'a&gt;: Functor&lt;'a, Unwrapped = B&gt;;
+
+    /// fmap is used to apply a function of type (a -&gt; b) to a value of type f a, where f is a functor, to produce a value of type f b.
+    fn fmap&lt;F, B: 'a&gt;(self, f: F) -&gt; Self::Wrapped&lt;B&gt;
+    where
+        F: Fn(Self::Unwrapped) -&gt; B + 'a;
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>fmap是Functor的核心方法，用于将一个函数应用到Functor包含的值上，生成一个新的Functor实例。
+fmap方法接受一个函数f和一个泛型类型参数B，并将f应用于当前Functor实例的Unwrapped值。
+f的类型是Fn(Self::Unwrapped) -&gt; B，即一个从Unwrapped到B的函数。
+fmap的返回类型是Self::Wrapped&lt;B&gt;，即内部值被映射后的新Functor类型。</p>
+<p>Option就是一种Functor</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;'a, A&gt; Functor&lt;'a&gt; for Option&lt;A&gt; {
+    type Unwrapped = A;
+    type Wrapped&lt;B: 'a&gt; = Option&lt;B&gt;;
+
+    fn fmap&lt;F, B: 'a&gt;(self, f: F) -&gt; Self::Wrapped&lt;B&gt;
+    where
+        F: Fn(Self::Unwrapped) -&gt; B,
+    {
+        #[allow(clippy::manual_map)]
+        match self {
+            Some(a) =&gt; Some(f(a)),
+            None =&gt; None,
+        }
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>同样的Result也是。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;'a, A, E&gt; Functor&lt;'a&gt; for Result&lt;A, E&gt; {
+    type Unwrapped = A;
+    type Wrapped&lt;B: 'a&gt; = Result&lt;B, E&gt;;
+
+    fn fmap&lt;F, B: 'a&gt;(self, f: F) -&gt; Self::Wrapped&lt;B&gt;
+    where
+        F: Fn(Self::Unwrapped) -&gt; B,
+    {
+        match self {
+            Result::Ok(a) =&gt; Result::Ok(f(a)),
+            Result::Err(e) =&gt; Result::Err(e),
+        }
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<h2 id="monad"><a class="header" href="#monad">Monad</a></h2>
+<p>Rust缺少Higher-Kind
+Type，不能直接在trait之间构建严格的继承关系，因此Monad没有直接从Applicative派生，而是作为一个独立的trait，实现了"单子"所需的bind和of操作。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait Monad&lt;'a&gt; {
+    type Unwrapped;
+    type Wrapped&lt;T: 'a&gt;;
+
+    /// Sequentially compose actions, piping values through successive function chains.
+    ///
+    /// The applied linking function must be unary and return data in the same
+    /// type of container as the input. The chain function essentially "unwraps"
+    /// a contained value, applies a linking function that returns
+    /// the initial (wrapped) type, and collects them into a flat(ter) structure.
+    fn bind&lt;F, B: 'a&gt;(self, f: F) -&gt; Self::Wrapped&lt;B&gt;
+    where
+
+        F: FnOnce(Self::Unwrapped) -&gt; Self::Wrapped&lt;B&gt; + 'a;
+
+    /// Lift a value into a context
+    fn of&lt;T: 'a&gt;(value: T) -&gt; Self::Wrapped&lt;T&gt;;
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>核心：</p>
+<blockquote>
+<p>fn bind
+bind是单子的核心操作，它允许对Unwrapped类型的值进行链式操作。bind方法接收一个单参数函数f，该函数接收一个Unwrapped类型的值，并返回一个Self::Wrapped<code>&lt;B&gt;</code>{=html}类型的结果。该函数的作用是"解包"当前容器中的值，将其传递给f，再将f的结果重新包装回到容器中，从而实现链式操作。</p>
+</blockquote>
+<hr />
+<blockquote>
+<p>fn of
+of方法用于将一个普通值提升为单子类型的上下文中。例如，对于Option类型的Monad实例，可以将5提升为Some(5)，即创建一个包装5的Option。
+Monad可以对Option实现。</p>
+</blockquote>
+<hr />
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;'a, A&gt; Monad&lt;'a&gt; for Option&lt;A&gt; {
+    type Unwrapped = A;
+    type Wrapped&lt;B: 'a&gt; = Option&lt;B&gt;;
+
+    fn bind&lt;F, B: 'a&gt;(self, f: F) -&gt; Self::Wrapped&lt;B&gt;
+    where
+        F: FnOnce(Self::Unwrapped) -&gt; Self::Wrapped&lt;B&gt; + 'a,
+    {
+        match self {
+            Some(x) =&gt; f(x),
+            None =&gt; None,
+        }
+
+        // self.and_then(f)
+    }
+
+    fn of&lt;T: 'a&gt;(value: T) -&gt; Self::Wrapped&lt;T&gt; {
+        Some(value)
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Provides the Haskell monadic syntactic sugar `do`.
+#[macro_export]
+macro_rules! m {
+// let-binding
+(let $p:pat = $e:expr ; $($r:tt)*) =&gt; {{
+  let $p = $e;
+  m!($($r)*)
+}};
+// const-bind
+(_ &lt;- $x:expr ; $($r:tt)*) =&gt; {
+  $x.bind(move |_| { m!($($r)*) })
+};
+// bind
+($binding:ident &lt;- $x:expr ; $($r:tt)*) =&gt; {
+  $x.bind(move |$binding| { m!($($r)*) })
+};
+// const-bind
+($e:expr ; $($a:tt)*) =&gt; {
+    $e.bind(move |_| m!($($a)*))
+};
+// pure
+($a:expr) =&gt; {
+  $a
+}
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>m!宏提供了一种类似于Haskell中do语法的语法糖，用于简化对单子（Monad）的操作，使链式调用更加直观。这种宏可以帮助我们以接近命令式的风格编写代码，而实际上是通过链式绑定操作来完成单子的组合。</p>
+<h3 id="do作用"><a class="header" href="#do作用">do作用</a></h3>
+<p>在Haskell的do语法中，可以使用一种类似"赋值"的语法，将单子操作逐步组合起来。这个宏m!模仿了do语法，将Rust中单子的bind操作包装成多种模式来实现类似的效果，具体功能如下：</p>
+<pre><code>支持let绑定：可以在do块中执行let绑定语句，以便存储临时结果。
+支持常量绑定（忽略结果）：可以在单子操作中忽略返回值，仅保留执行的副作用。
+支持单子绑定：从单子中提取值，并将其传递到后续操作中。
+支持返回纯值：在操作链的最后可以返回一个纯值，而不是一个绑定的单子。
+</code></pre>
+<h2 id="monoid"><a class="header" href="#monoid">Monoid</a></h2>
+<p>单位元，类似于数学概念中的具有一个结合律的二元操作和一个单位元。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// In abstract algebra, a `Monoid` is a set equipped with an associative binary operation and an identity element.
+/// In category theory, a `Monoid` is a "single object category" equipped with two morphisms:
+/// - μ: M ⊗ M → M called multiplication (a.k.a the associative operation of the `Semigroup`)
+/// - η: I → M called unit (a.k.a the `mempty` defined in this trait)
+pub trait Monoid: Semigroup {
+    /// The identity element/morphism of the monoid
+    fn mempty() -&gt; Self;
+}
+
+impl Monoid for String {
+    fn mempty() -&gt; Self {
+        String::from("")
+    }
+}
+
+impl Monoid for i32 {
+    fn mempty() -&gt; Self {
+        0
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<h2 id="apply"><a class="header" href="#apply">Apply</a></h2>
+<p>Functor的扩展，提供了一种"在上下文中"应用函数的方式。该trait允许在容器类型（如Option、Result等）中将一个函数应用到另一个值上，从而提供了更丰富的操作语义。这种结构通常被称为"Applicative"，在函数式编程中用于将多个上下文包装的值组合起来。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// An extension of `Functor`, `Apply` provides a way to _apply_ arguments
+/// to functions when both are wrapped in the same kind of container. This can be
+/// seen as running function application "in a context".
+///
+/// For a nice, illustrated introduction,
+/// see [Functors, Applicatives, And Monads In Pictures](http://adit.io/posts/2013-04-17-functors,_applicatives,_and_monads_in_pictures.html).
+///
+pub trait Apply&lt;'a&gt;: Functor&lt;'a&gt; {
+    /// Apply a function wrapped in a context to to a value wrapped in the same type of context
+    fn ap&lt;F, B: 'a&gt;(self, f: Self::Wrapped&lt;F&gt;) -&gt; Self::Wrapped&lt;B&gt;
+    where
+        F: FnOnce(Self::Unwrapped) -&gt; B + 'a;
+
+    /// Lift an (unwrapped) binary function and apply to two wrapped values
+    fn lift_a2&lt;F, B: 'a, C: 'a&gt;(self, b: Self::Wrapped&lt;B&gt;, f: F) -&gt; Self::Wrapped&lt;C&gt;
+    where
+        F: FnOnce(Self::Unwrapped, B) -&gt; C + 'a;
+
+    // Since Rust doesnt'have (auto)currying, we are forced to manually implement
+    // lift_a3, lift_a4, etc.
+
+    // But in Rust we don't neet it, since lift is baked into the language via '?'
+    // let a = self?;
+    // let b = b?;
+    // Some(f(a, b))
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>对Option的实现：</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;'a, A&gt; Apply&lt;'a&gt; for Option&lt;A&gt; {
+    fn ap&lt;F, B: 'a&gt;(self, f: Self::Wrapped&lt;F&gt;) -&gt; Self::Wrapped&lt;B&gt;
+    where
+        F: FnOnce(Self::Unwrapped) -&gt; B + 'a,
+    {
+        match self {
+            Some(x) =&gt; match f {
+                Some(z) =&gt; Some(z(x)),
+                None =&gt; None,
+            },
+            None =&gt; None,
+        }
+
+        // self.and_then(|x| f.fmap(|z| z(x)))
+    }
+
+    fn lift_a2&lt;F, B: 'a, C: 'a&gt;(self, b: Self::Wrapped&lt;B&gt;, f: F) -&gt; Self::Wrapped&lt;C&gt;
+    where
+        F: FnOnce(Self::Unwrapped, B) -&gt; C,
+    {
+        match self {
+            Some(x) =&gt; match b {
+                Some(y) =&gt; Some(f(x, y)),
+                None =&gt; None,
+            },
+            None =&gt; None,
+        }
+
+        // self.and_then(|a_u| b.map(|b_u| f(a_u, b_u)))
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>ap方法接受一个包含函数的容器f，并将它应用到self这个包含值的容器中。</p>
+<p>ap会"解包"函数和参数，然后在它们的上下文中应用函数。例如，对于两个Option类型的值Some(2)和Some(|x|
+x + 1)，调用ap会返回Some(3)。</p>
+<h2 id="applicative"><a class="header" href="#applicative">Applicative</a></h2>
+<p>对Apply的扩展。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait Applicative&lt;'a&gt;: Apply&lt;'a&gt; {
+    /// Lift a value into a context
+    fn of(value: Self::Unwrapped) -&gt; Self::Wrapped&lt;Self::Unwrapped&gt;;
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>从value解析为当前类型。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;'a, A: 'a + Clone&gt; Applicative&lt;'a&gt; for Option&lt;A&gt; {
+    fn of(value: Self::Unwrapped) -&gt; Self::Wrapped&lt;Self::Unwrapped&gt; {
+        Some(value)
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<h2 id="semigroup"><a class="header" href="#semigroup">SemiGroup</a></h2>
+<p>Semigroup是一个具有结合性操作的代数结构。这个trait要求实现一个结合性操作mappend，它接受两个值并将它们组合在一起。
+结合律：mappend必须满足结合律，即对于任意a、b和c，都有a.mappend(b).mappend(c)
+== a.mappend(b.mappend(c))。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait Semigroup {
+    /// The associative operation of the `Semigroup` which takes two values and them together
+    fn mappend(self, other: Self) -&gt; Self;
+}
+
+impl Semigroup for String {
+    fn mappend(self, other: Self) -&gt; Self {
+        self + &amp;other
+    }
+}
+impl&lt;A: Monoid&gt; Semigroup for Option&lt;A&gt; {
+    fn mappend(self, other: Self) -&gt; Self {
+        self.and_then(|v| other.map(|v2| v.mappend(v2)))
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>这样就为Option提供了结合性操作。</p>
+<h2 id="semigroupoid"><a class="header" href="#semigroupoid">Semigroupoid</a></h2>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait Semigroupoid {
+    /// Take two morphisms and return their composition "the math way".
+    /// That is, `(b -&gt; c) -&gt; (a -&gt; b) -&gt; (a -&gt; c)`.
+    fn compose(self, other: Self) -&gt; Self;
+}
+
+/// Morphisms in Rust type system are normal functions: `Fn/FnMut/FnOnce`,
+/// but due to limitations of type system there is no way to implement the `Semigroupoid` trait.
+/// Let's stick with this generic `compose` function
+#[allow(dead_code)]
+pub fn compose&lt;A, B, C, G, F&gt;(f: F, g: G) -&gt; impl Fn(A) -&gt; C
+where
+    F: Fn(A) -&gt; B,
+    G: Fn(B) -&gt; C,
+{
+    move |x| g(f(x))
+}
+
+impl&lt;A&gt; Semigroupoid for Option&lt;A&gt;
+where
+    A: Semigroup + Clone,
+{
+    fn compose(self, other: Self) -&gt; Self {
+        self.lift_a2(other, |a, b| a.mappend(b))
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>Semigroupoid是一个代数结构，要求类型具备组合两个映射（函数）或"态射"（morphisms）的能力。</p>
+<p>compose方法：该方法接受两个映射（或函数），并返回它们的组合。具体来说，它会返回一个新的映射，表示(b
+-&gt; c) -&gt; (a -&gt; b) -&gt; (a -&gt;
+c)，即将第一个函数和第二个函数组合起来，使得它可以直接作用于a并返回c。</p>
+<p>在数学中，组合两个映射就是通过将一个函数的输出传递给另一个函数。例如，给定两个函数f:
+A -&gt; B和g: B -&gt; C，组合后会得到g(f(x))，一个从A到C的映射。</p>
+<p>Option<code>&lt;A&gt;</code>{=html}的Semigroupoid实现：Option<code>&lt;A&gt;</code>{=html}被实现了Semigroupoid，即它支持将两个Option类型的值进行组合操作。
+要求：A类型必须实现Semigroup，这意味着A有一个mappend操作可以将两个值结合。
+实现：</p>
+<p>lift_a2方法用来将两个Option包装的值和一个二元函数进行组合。在此实现中，|a,
+b| a.mappend(b)是二元函数，它会将两个A类型的值进行mappend操作。</p>
+<p>如果self或other为None，则组合结果为None，因为Option是一个容器类型，组合的结果也应该是一个容器。</p>
+<h2 id="state"><a class="header" href="#state">State</a></h2>
+<p>State类型及其实现，模拟了具有隐式状态的纯函数式编程中的State
+monad（状态单子）。它展示了如何在Rust中实现和使用State
+monad，同时为它实现了Functor、Apply、Applicative和Monad四个类型的trait。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct State&lt;'a, S, A&gt; {
+    /// The (apparently) "stateful" function
+    pub runner: Box&lt;dyn 'a + FnOnce(S) -&gt; (A, S)&gt;,
+}
+impl&lt;'a, S: 'a, A: 'a&gt; State&lt;'a, S, A&gt; {
+    /// Constructs a new `State` by passing in the function which uses and updates the state
+    pub fn new&lt;F&gt;(runner: F) -&gt; Self
+    where
+        F: FnOnce(S) -&gt; (A, S) + 'a,
+    {
+        Self {
+            runner: Box::new(runner),
+        }
+    }
+
+    /// Run a `State` by passing in some initial state to actualy run the enclosed
+    /// state runner.
+    pub fn execute(self, state: S) -&gt; (A, S) {
+        (self.runner)(state)
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p><strong>execute</strong>方法接受一个初始状态，并通过runner函数执行状态变换，返回值(A,
+S)，其中A是计算结果，S是更新后的状态。</p>
+<p>以Functor为例：</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;'a, S: 'a, A: 'a&gt; Functor&lt;'a&gt; for State&lt;'a, S, A&gt; {
+    type Unwrapped = A;
+
+    type Wrapped&lt;B: 'a&gt; = State&lt;'a, S, B&gt;;
+
+    fn fmap&lt;F, B: 'a&gt;(self, f: F) -&gt; Self::Wrapped&lt;B&gt;
+    where
+        F: FnOnce(Self::Unwrapped) -&gt; B + 'a,
+    {
+        State {
+            runner: Box::new(move |s| {
+                let (a1, s1) = (self.runner)(s);
+                (f(a1), s1)
+            }),
+        }
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>State类型实现了Functor，允许通过fmap方法对状态的计算结果进行变换。</p>
+<p>fmap接受一个函数f，它将状态计算结果A变换为B，并返回一个新的State实例，保持原有的状态。</p>
+<h2 id="fold"><a class="header" href="#fold">Fold</a></h2>
+<p>没什么好说的。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait Foldable {
+    // The internal type of the `Foldable` which will be wrapped over
+    type Unwrapped: Monoid;
+
+    /// Right-associative fold over a structure to alter and/or reduce
+    /// it to a single summary value. The right-association makes it possible to
+    /// cease computation on infinite streams of data.
+    ///
+    /// The folder must be a binary function, with the second argument being the
+    /// accumulated value thus far.
+    fn foldr&lt;B: Monoid, F&gt;(self, init: B, folder: F) -&gt; B
+    where
+        F: Fn(B, &amp;Self::Unwrapped) -&gt; B;
+}
+
+impl&lt;A: Monoid&gt; Foldable for Vec&lt;A&gt; {
+    type Unwrapped = A;
+
+    fn foldr&lt;B, F&gt;(self, init: B, folder: F) -&gt; B
+    where
+        F: Fn(B, &amp;Self::Unwrapped) -&gt; B,
+    {
+        self.iter().rfold(init, folder)
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<h2 id="free"><a class="header" href="#free">Free</a></h2>
+<p>实现了一个Free
+monad的定义，结合了FunctorOnce和Monad的特性，允许构建一个自由变换（free
+transformation）的计算结构。这种结构广泛应用于处理"效果"或"命令"的语言，尤其是在函数式编程中，可以用来表示延迟执行、计算的组合或解释。</p>
+<p>Free是一个枚举类型，表示一个自由单子。它有两种变体：</p>
+<pre><code>Pure(A)：表示一个纯值（A），它是自由单子的基础。
+Free(Box&lt;F::Wrapped&lt;Free&lt;'a, F, A&gt;&gt;&gt;)：表示一个嵌套的自由单子，它包装了一个F::Wrapped&lt;Free&lt;'a, F, A&gt;&gt;，即F的包裹类型的自由单子。这允许构造更复杂的计算和表达式。
+</code></pre>
+<p>F是一个泛型，要求它实现FunctorOnce&lt;'a&gt;，这表示F是一个可应用的容器，并且能够将函数映射到其内部的值上。FunctorOnce的fmap操作允许将一个函数作用于其内的值，并将结果返回。</p>
+<p>A是自由单子的返回类型。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub enum Free&lt;'a, F, A: 'a&gt;
+where
+    F: FunctorOnce&lt;'a&gt; + 'a,
+{
+    Pure(A),
+    Free(Box&lt;F::Wrapped&lt;Free&lt;'a, F, A&gt;&gt;&gt;),
+}
+
+impl&lt;'a, F, A&gt; FunctorOnce&lt;'a&gt; for Free&lt;'a, F, A&gt;
+where
+    F: FunctorOnce&lt;'a&gt; + 'a,
+{
+    type Unwrapped = A;
+    type Wrapped&lt;B: 'a&gt; = Free&lt;'a, F::Wrapped&lt;Free&lt;'a, F, A&gt;&gt;, B&gt;;
+
+    fn fmap&lt;G, B: 'a&gt;(self, f: G) -&gt; Self::Wrapped&lt;B&gt;
+    where
+        G: FnOnce(Self::Unwrapped) -&gt; B + 'a,
+    {
+        match self {
+            Free::Pure(a) =&gt; Free::Pure(f(a)),
+            Free::Free(b) =&gt; {
+                // Free (fmap g &lt;$&gt; fx)
+                Free::Free(Box::new((*b).fmap(move |a| a.fmap(f))))
+            }
+        }
+    }
+}
+
+impl&lt;'a, F, A&gt; Monad&lt;'a&gt; for Free&lt;'a, F, A&gt;
+where
+    F: FunctorOnce&lt;'a&gt; + 'a,
+{
+    type Unwrapped = A;
+    type Wrapped&lt;T: 'a&gt; = Free&lt;'a, F::Wrapped&lt;Free&lt;'a, F, A&gt;&gt;, T&gt;;
+
+    fn bind&lt;E, B: 'a&gt;(self, f: E) -&gt; Self::Wrapped&lt;B&gt;
+    where
+        E: FnOnce(Self::Unwrapped) -&gt; Self::Wrapped&lt;B&gt; + 'a,
+    {
+        // Pure a &gt;&gt;= f = f a
+        // Free m &gt;&gt;= f = Free ((&gt;&gt;= f) &lt;$&gt; m)
+        match self {
+            Free::Pure(a) =&gt; f(a),
+            Free::Free(m) =&gt; Free::Free(Box::new((*m).fmap(|a| a.bind(f)))),
+        }
+    }
+
+    fn of&lt;T: 'a&gt;(value: T) -&gt; Self::Wrapped&lt;T&gt; {
+        Free::Pure(value)
+    }
+}
+
+#[allow(unused)]
+pub fn lift_f&lt;'a, F, A&gt;(command: F) -&gt; Free&lt;'a, F, A&gt;
+where
+    F: FunctorOnce&lt;'a, Unwrapped = A&gt;,
+{
+    // Free (fmap Pure command)
+    Free::Free(Box::new(command.fmap(|a| Free::Pure(a))))
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>Free
+monad：通过自由单子的结构，可以延迟执行计算，并通过fmap和bind操作构建复杂的计算链。自由单子广泛应用于实现DSL（领域特定语言），它能够在纯函数式编程中模拟对状态、IO等副作用的处理。
+FunctorOnce 和 Monad
+实现：Free类型实现了这两个trait，使得它可以像常规的Functor和Monad一样进行操作，支持映射、绑定和提升等操作。
+lift_f：提供了一种将普通的FunctorOnce命令提升为自由单子的机制，使得代码可以灵活地在自由单子和普通命令之间转换。</p>
+<h2 id="traverse"><a class="header" href="#traverse">Traverse</a></h2>
+<p>对结构中所有的元素执行操作。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait Traversable&lt;'a&gt;: Functor&lt;'a&gt; {
+    /// Convert elements to actions, then evaluate the actions from left-to-right
+    /// and collect the results.
+    ///
+    /// Haskell signature
+    /// traverse  :: Applicative f =&gt; (a -&gt; f b) -&gt; t a -&gt; f (t b)
+    fn traverse&lt;F, B: 'a, W&gt;(self, f: F) -&gt; W::Wrapped&lt;Self::Wrapped&lt;B&gt;&gt;
+    where
+        F: Fn(&amp;Self::Unwrapped) -&gt; W::Wrapped&lt;B&gt;,
+        W: Applicative&lt;'a, Unwrapped = Self::Wrapped&lt;B&gt;, Wrapped&lt;Self::Wrapped&lt;B&gt;&gt; = W&gt;
+            + 'a
+            + Monoid,
+        &lt;W as Functor&lt;'a&gt;&gt;::Wrapped&lt;Self::Wrapped&lt;B&gt;&gt;: Applicative&lt;'a&gt;,
+        &lt;Self as Functor&lt;'a&gt;&gt;::Wrapped&lt;B&gt;: 'a;
+
+    /// Evaluate each action in the structure from left to right, and collect the results
+    ///
+    /// Haskell signature
+    /// sequenceA :: Applicative f =&gt; t (f a) -&gt; f (t a)
+    fn sequence_a&lt;B: 'a, W&gt;(self) -&gt; W::Wrapped&lt;Self::Wrapped&lt;B&gt;&gt;
+    where
+        W: Applicative&lt;'a, Unwrapped = Self::Wrapped&lt;B&gt;, Wrapped&lt;Self::Wrapped&lt;B&gt;&gt; = W&gt;
+            + 'a
+            + Monoid,
+        W: Applicative&lt;'a, Wrapped&lt;B&gt; = Self::Unwrapped&gt;,
+        &lt;Self as Functor&lt;'a&gt;&gt;::Wrapped&lt;B&gt;: 'a,
+        Self::Unwrapped: Applicative&lt;'a&gt; + 'a + Copy;
+}
+
+impl&lt;'a, A: Monoid&gt; Traversable&lt;'a&gt; for Vec&lt;A&gt; {
+    fn traverse&lt;F, B: 'a, W&gt;(self, f: F) -&gt; W::Wrapped&lt;Self::Wrapped&lt;B&gt;&gt;
+    where
+        F: Fn(&amp;Self::Unwrapped) -&gt; W::Wrapped&lt;B&gt;,
+        W: Applicative&lt;'a, Unwrapped = Self::Wrapped&lt;B&gt;, Wrapped&lt;Self::Wrapped&lt;B&gt;&gt; = W&gt;
+            + 'a
+            + Monoid,
+        &lt;W as Functor&lt;'a&gt;&gt;::Wrapped&lt;Self::Wrapped&lt;B&gt;&gt;: Applicative&lt;'a&gt; + Monoid,
+        &lt;Self as Functor&lt;'a&gt;&gt;::Wrapped&lt;B&gt;: 'a,
+    {
+        self.foldr(W::of(vec![]), |k, v| {
+            let c = f(v);
+
+            k.lift_a2(c, |mut acc, v: B| {
+                acc.insert(0, v);
+                acc
+            })
+        })
+    }
+
+    fn sequence_a&lt;B: 'a, W&gt;(self) -&gt; W::Wrapped&lt;Self::Wrapped&lt;B&gt;&gt;
+    where
+        W: Applicative&lt;'a, Unwrapped = Self::Wrapped&lt;B&gt;, Wrapped&lt;Self::Wrapped&lt;B&gt;&gt; = W&gt;
+            + 'a
+            + Monoid,
+        &lt;Self as Functor&lt;'a&gt;&gt;::Wrapped&lt;B&gt;: 'a,
+        W: Applicative&lt;'a, Wrapped&lt;B&gt; = Self::Unwrapped&gt;,
+        Self::Unwrapped: Applicative&lt;'a&gt; + 'a + Copy,
+    {
+        self.traverse::&lt;_, _, W&gt;(|a| *a)
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../Rust/Rust的线程安全.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../Rust/Hashbrown.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../Rust/Rust的线程安全.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../Rust/Hashbrown.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

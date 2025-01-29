@@ -1,0 +1,474 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>红黑树 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#%E7%BA%A2%E9%BB%91%E6%A0%91">红黑树</a>
+<ul>
+<li><a href="#%E7%BB%93%E6%9E%84">结构</a></li>
+<li><a href="#%E7%89%B9%E7%82%B9">特点</a></li>
+</ul>
+</li>
+<li><a href="#%E6%93%8D%E4%BD%9C">操作</a>
+<ul>
+<li><a href="#%E6%8F%92%E5%85%A5">插入</a></li>
+<li><a href="#%E5%88%A0%E9%99%A4">删除</a></li>
+</ul>
+</li>
+<li><a href="#%E5%AE%9E%E7%8E%B0">实现</a>
+<ul>
+<li><a href="#%E5%B7%A6%E6%97%8B">左旋</a></li>
+<li><a href="#%E6%8F%92%E5%85%A5%E4%BF%AE%E5%A4%8D">插入修复</a></li>
+<li><a href="#%E8%8A%82%E7%82%B9%E7%A7%BB%E6%A4%8D">节点移植</a></li>
+<li><a href="#%E5%88%A0%E9%99%A4-1">删除</a></li>
+<li><a href="#%E6%8F%92%E5%85%A5-1">插入</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="红黑树"><a class="header" href="#红黑树">红黑树</a></h1>
+<p>红黑树的结构复杂，但它的操作有着良好的最坏情况运行时间，并且在实践中高效：它可以在
+O ( log n ) 时间内完成查找、插入和删除，这里的 n 是树中元素的数目。</p>
+<h2 id="结构"><a class="header" href="#结构">结构</a></h2>
+<p>红黑树是每个节点都带有颜色属性的二叉查找树，颜色为红色或黑色。在二叉查找树强制一般要求以外，对于任何有效的红黑树我们增加了如下的额外要求：</p>
+<ol>
+<li>
+<p>节点是红色或黑色。</p>
+</li>
+<li>
+<p>根是黑色。</p>
+</li>
+<li>
+<p>所有叶子都是黑色（叶子是NIL节点）。</p>
+</li>
+<li>
+<p>每个红色节点必须有两个黑色的子节点。（或者说从每个叶子到根的所有路径上不能有两个连续的红色节点。）（或者说不存在两个相邻的红色节点，相邻指两个节点是父子关系。）（或者说红色节点的父节点和子节点均是黑色的。）</p>
+</li>
+<li>
+<p>从任一节点到其每个叶子的所有简单路径都包含相同数目的黑色节点。</p>
+</li>
+</ol>
+<h2 id="特点"><a class="header" href="#特点">特点</a></h2>
+<p>这些约束确保了红黑树的关键特性：从根到叶子的最长的可能路径不多于最短的可能路径的两倍长。结果是这个树大致上是平衡的。因为操作比如插入、删除和查找某个值的最坏情况时间都要求与树的高度成比例，这个在高度上的理论上限允许红黑树在最坏情况下都是高效的，而不同于普通的二叉查找树。</p>
+<h1 id="操作"><a class="header" href="#操作">操作</a></h1>
+<p>因为每一个红黑树也是一个特化的二叉查找树，因此红黑树上的只读操作与普通二叉查找树上的只读操作相同。然而，在红黑树上进行插入操作和删除操作会导致不再符合红黑树的性质。恢复红黑树的性质需要少量O
+( log n )
+的颜色变更（实际是非常快速的）和不超过三次树旋转（对于插入操作是两次）。虽然插入和删除很复杂，但操作时间仍可以保持为
+O ( log n ) 次。</p>
+<h2 id="插入"><a class="header" href="#插入">插入</a></h2>
+<p>我们首先以二叉查找树的方法增加节点并标记它为红色。（如果设为黑色，就会导致根到叶子的路径上有一条路上，多一个额外的黑节点，这个是很难调整的。但是设为红色节点后，可能会导致出现两个连续红色节点的冲突，那么可以通过颜色调换（color
+flips）和树旋转来调整。）下面要进行什么操作取决于其他临近节点的颜色。同人类的家族树中一样，我们将使用术语叔父节点来指一个节点的父节点的兄弟节点。注意：</p>
+<p>性质1和性质3总是保持着。</p>
+<p>性质4只在增加红色节点、重绘黑色节点为红色，或做旋转时受到威胁。</p>
+<p>性质5只在增加黑色节点、重绘红色节点为黑色，或做旋转时受到威胁。</p>
+<h2 id="删除"><a class="header" href="#删除">删除</a></h2>
+<p>如果需要删除的节点有两个儿子，那么问题可以被转化成删除另一个只有一个儿子的节点的问题（为了表述方便，这里所指的儿子，为非叶子节点的儿子）。对于二叉查找树，在删除带有两个非叶子儿子的节点的时候，我们要么找到它左子树中的最大元素、要么找到它右子树中的最小元素，并把它的值转移到要删除的节点中（如在这里所展示的那样）。我们接着删除我们从中复制出值的那个节点，它必定有少于两个非叶子的儿子。因为只是复制了一个值（没有复制颜色），不违反任何性质，这就把问题简化为如何删除最多有一个儿子的节点的问题。它不关心这个节点是最初要删除的节点还是我们从中复制出值的那个节点。</p>
+<p>如果我们删除一个红色节点（此时该节点的儿子将都为叶子节点），它的父亲和儿子一定是黑色的。所以我们可以简单的用它的黑色儿子替换它，并不会破坏性质3和性质4。通过被删除节点的所有路径只是少了一个红色节点，这样可以继续保证性质5。另一种简单情况是在被删除节点是黑色而它的儿子是红色的时候。如果只是去除这个黑色节点，用它的红色儿子顶替上来的话，会破坏性质5，但是如果我们重绘它的儿子为黑色，则曾经通过它的所有路径将通过它的黑色儿子，这样可以继续保持性质5。</p>
+<p>需要进一步讨论的是在要删除的节点和它的儿子二者都是黑色的时候，这是一种复杂的情况（这种情况下该节点的两个儿子都是叶子节点，否则若其中一个儿子是黑色非叶子节点，另一个儿子是叶子节点，那么从该节点通过非叶子节点儿子的路径上的黑色节点数最小为2，而从该节点到另一个叶子节点儿子的路径上的黑色节点数为1，违反了性质5）。我们首先把要删除的节点替换为它的儿子。出于方便，称呼这个儿子为N（在新的位置上），称呼它的兄弟（它父亲的另一个儿子）为S。在下面的示意图中，我们还是使用P称呼N的父亲，SL称呼S的左儿子，SR称呼S的右儿子。</p>
+<h1 id="实现"><a class="header" href="#实现">实现</a></h1>
+<h2 id="左旋"><a class="header" href="#左旋">左旋</a></h2>
+<p>左旋的目的是将一个节点 x 向下移动，使得它的右子节点 y
+取代它成为新的父节点。具体来说，x 的右子树被提升，而 x
+变为右子树的新左子节点。</p>
+<p>假设节点 x 和它的右子节点 y 在左旋之前的关系如下：</p>
+<pre><code>x
+  \
+   y      
+  / \
+ A   B 
+</code></pre>
+<p>经过旋转：</p>
+<pre><code>   y
+  / \
+ x   B
+/
+</code></pre>
+<p>A</p>
+<p>代码：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">void RedBlackTree::leftRotate(Node *x) {
+  if (x == nullptr || x-&gt;right == nullptr)
+    return;
+
+  Node *y = x-&gt;right;//获取右子节点
+  x-&gt;right = y-&gt;left;//重新链接x的右子节点
+  if (y-&gt;left != nullptr)//如果y的左子节点存在，就更新他的父节点
+    y-&gt;left-&gt;parent = x;
+  //更新y,x的父节点
+  y-&gt;parent = x-&gt;parent;
+  if (x-&gt;parent == nullptr)//如果x是根节点，就更新根节点为y
+    root = y;
+  else if (x == x-&gt;parent-&gt;left)
+    x-&gt;parent-&gt;left = y;
+  else
+    x-&gt;parent-&gt;right = y;
+  y-&gt;left = x;//将x设置为Y的左子节点
+  x-&gt;parent = y;
+}
+</code></pre>
+</details>
+<p>右旋逻辑相同</p>
+<h2 id="插入修复"><a class="header" href="#插入修复">插入修复</a></h2>
+<p>当在红黑树中插入一个新节点时，如果红黑树的性质被破坏，需要通过调整颜色和旋转来恢复平衡。</p>
+<p>代码：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">void RedBlackTree::fixInsert(Node *z) {
+  while (z != root &amp;&amp; z-&gt;parent-&gt;color == RED) {//终止条件：z已经是根节点或者z的父节点是黑色
+    if (z-&gt;parent == z-&gt;parent-&gt;parent-&gt;left) {//父节点是左子节点的情况
+      Node *y = z-&gt;parent-&gt;parent-&gt;right;//如果x的叔叔节点存在且为红色，这时叔叔，父亲，祖父构成'red-red-red'的结构
+      if (y != nullptr &amp;&amp; y-&gt;color == RED) {//处理方法
+        z-&gt;parent-&gt;color = BLACK;//父节点和叔叔节点改为黑色
+        y-&gt;color = BLACK;
+        z-&gt;parent-&gt;parent-&gt;color = RED;//祖父节点改为红色
+        z = z-&gt;parent-&gt;parent;//将z上移到祖父节点继续检查
+      } else {//叔叔节点不存在或者是黑色
+        if (z == z-&gt;parent-&gt;right) {//如果z是父节点的右子节点
+          z = z-&gt;parent;
+          leftRotate(z);//左旋，使z转换为父节点的左子节点
+        }
+        z-&gt;parent-&gt;color = BLACK;//将z的父节点染为黑色
+        z-&gt;parent-&gt;parent-&gt;color = RED;//将祖父节点染色为红色
+        rightRotate(z-&gt;parent-&gt;parent);//对祖父节点右旋，调整平衡
+      }
+    } else {//父节点是右节点的情况
+      Node *y = z-&gt;parent-&gt;parent-&gt;left;//对称处理
+      if (y != nullptr &amp;&amp; y-&gt;color == RED) {
+        z-&gt;parent-&gt;color = BLACK;
+        y-&gt;color = BLACK;
+        z-&gt;parent-&gt;parent-&gt;color = RED;
+        z = z-&gt;parent-&gt;parent;
+      } else {
+        if (z == z-&gt;parent-&gt;left) {
+          z = z-&gt;parent;
+          rightRotate(z);
+        }
+        z-&gt;parent-&gt;color = BLACK;
+        z-&gt;parent-&gt;parent-&gt;color = RED;
+        leftRotate(z-&gt;parent-&gt;parent);
+      }
+    }
+  }
+  root-&gt;color = BLACK;
+}
+</code></pre>
+</details>
+<h2 id="节点移植"><a class="header" href="#节点移植">节点移植</a></h2>
+<p>该函数主要用于删除操作中的辅助步骤，它将树中的一个节点 u
+替换为另一个节点 v，并维护父节点与子节点之间的关系。具体作用是将 u
+的位置让给 v，使得树的结构能够继续保持。</p>
+<p>代码：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">void RedBlackTree::transplant(Node *u, Node *v) {
+  if (u-&gt;parent == nullptr) {//u若为根节点，直接替换根节点为b 
+    root = v;
+  } else if (u == u-&gt;parent-&gt;left) {//判断u是左子节点还是右子节点
+    u-&gt;parent-&gt;left = v;//如果u是父节点的左子，设置v为该位置
+  } else {
+    u-&gt;parent-&gt;right = v;
+  }
+  if (v != nullptr)
+    v-&gt;parent = u-&gt;parent;//如果 v 不为空（即 v 不是 nullptr），需要更新 v 的父节点指向 u 的父节点，确保 v 正确接替了 u 的位置。
+}
+</code></pre>
+</details>
+<h2 id="删除-1"><a class="header" href="#删除-1">删除</a></h2>
+<p>代码：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">void RedBlackTree::deleteNode(Node *z) {
+  if (z == nullptr)
+    return;
+
+  Node *y = z;//记录要删除的节点
+  Node *x = nullptr;
+  Color y_original_color = y-&gt;color;
+  if (z-&gt;left == nullptr) {//如果没有左子节点
+    x = z-&gt;right;//用右节点替换他
+    transplant(z, z-&gt;right);
+  } else if (z-&gt;right == nullptr) {//对称
+    x = z-&gt;left;
+    transplant(z, z-&gt;left);
+  } else {//有两个子节点的情况
+    y = minimum(z-&gt;right);//找到z右子树最小节点作为替换节点
+    y_original_color = y-&gt;color;
+    x = y-&gt;right;//x是y的右字节点，用来替代y的位置
+    if (y-&gt;parent == z) {//y是z的直接子节点，就直接设置x为y的子节点
+      if (x != nullptr)
+        x-&gt;parent = y; // Check if x is not nullptr before assigning parent
+    } else {//y不是z的子节点
+      if (x != nullptr)//先用y的右子节点替换y自己，在用y替换z
+        x-&gt;parent = y-&gt;parent; // Check if x and y-&gt;parent are not nullptr
+                               // before assigning parent
+      transplant(y, y-&gt;right);
+      if (y-&gt;right != nullptr)
+        y-&gt;right-&gt;parent =
+            y; // Check if y-&gt;right is not nullptr before assigning parent
+      y-&gt;right = z-&gt;right;
+      if (y-&gt;right != nullptr)
+        y-&gt;right-&gt;parent =
+            y; // Check if y-&gt;right is not nullptr before assigning parent
+    }
+    transplant(z, y);
+    y-&gt;left = z-&gt;left;
+    if (y-&gt;left != nullptr)
+      y-&gt;left-&gt;parent =
+          y; // Check if y-&gt;left is not nullptr before assigning parent
+    y-&gt;color = z-&gt;color;
+  }
+
+  if (y_original_color == BLACK &amp;&amp; x != nullptr) // Check if x is not nullptr
+    fixDelete(x);//平衡修复
+
+  delete z; // Free memory allocated for the deleted node
+}
+</code></pre>
+</details>
+<h2 id="插入-1"><a class="header" href="#插入-1">插入</a></h2>
+<p>代码：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">void RedBlackTree::insert(int val) {
+  Node *newNode = new Node(val);//创建一个新节点
+  Node *y = nullptr;//记录父节点，寻找用来插入位置的父节点
+  auto x = root;//遍历树
+  while (x != nullptr) {
+    y = x;
+    if (newNode-&gt;data &lt; x-&gt;data)
+      x = x-&gt;left;
+    else
+      x = x-&gt;right;
+  }
+  newNode-&gt;parent = y;//插入新节点
+  if (y == nullptr)//空的则为根节点
+    root = newNode;
+  else if (newNode-&gt;data &lt; y-&gt;data)
+    y-&gt;left = newNode;
+  else
+    y-&gt;right = newNode;
+  fixInsert(newNode);//修复插入
+}
+</code></pre>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../数据结构与算法/回溯法.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../数据结构与算法/链表.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../数据结构与算法/回溯法.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../数据结构与算法/链表.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

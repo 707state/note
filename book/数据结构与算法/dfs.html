@@ -1,0 +1,679 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>深搜 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#3235-%E5%88%A4%E6%96%AD%E7%9F%A9%E5%BD%A2%E7%9A%84%E4%B8%A4%E4%B8%AA%E8%A7%92%E8%90%BD%E6%98%AF%E5%90%A6%E5%8F%AF%E8%BE%BE">3235判断矩形的两个角落是否可达</a></li>
+<li><a href="#386-%E5%AD%97%E5%85%B8%E5%BA%8F%E6%8E%92%E6%95%B0">386 字典序排数</a></li>
+<li><a href="#486-%E9%A2%84%E6%B5%8B%E8%B5%A2%E5%AE%B6">486 预测赢家</a></li>
+<li><a href="#365-%E6%B0%B4%E5%A3%B6%E9%97%AE%E9%A2%98">365 水壶问题</a></li>
+<li><a href="#130-%E8%A2%AB%E5%9B%B4%E7%BB%95%E7%9A%84%E5%8C%BA%E5%9F%9F">130 被围绕的区域</a></li>
+<li><a href="#529-%E6%89%AB%E5%9C%B0%E9%9B%B7">529 扫地雷</a></li>
+<li><a href="#2056-%E6%A3%8B%E7%9B%98%E4%B8%8A%E6%9C%89%E6%95%88%E7%A7%BB%E5%8A%A8%E7%BB%84%E5%90%88%E7%9A%84%E6%95%B0%E7%9B%AE">2056 棋盘上有效移动组合的数目</a></li>
+<li><a href="#688-%E9%AA%91%E5%A3%AB%E8%90%BD%E5%9C%A8%E6%A3%8B%E7%9B%98%E4%B8%8A%E7%9A%84%E6%A6%82%E7%8E%87">688 骑士落在棋盘上的概率</a></li>
+</ul>
+<h1 id="3235-判断矩形的两个角落是否可达"><a class="header" href="#3235-判断矩形的两个角落是否可达">3235 判断矩形的两个角落是否可达</a></h1>
+<p>给你两个正整数 xCorner 和 yCorner 和一个二维整数数组 circles ，其中
+circles[i] = [xi, yi, ri] 表示一个圆心在 (xi, yi) 半径为 ri 的圆。</p>
+<p>坐标平面内有一个左下角在原点，右上角在 (xCorner, yCorner)
+的矩形。你需要判断是否存在一条从左下角到右上角的路径满足：路径 完全
+在矩形内部，不会 触碰或者经过 任何 圆的内部和边界，同时 只
+在起点和终点接触到矩形。</p>
+<p>如果存在这样的路径，请你返回 true ，否则返回 false 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    bool in_circle(long long ox,long long oy,long long r,long long x,long long y){
+        return (ox-x)*(ox-x)+(oy-y)*(oy-y)&lt;=r*r;
+    }
+    bool canReachCorner(int xCorner, int yCorner, vector&lt;vector&lt;int&gt;&gt;&amp; circles) {
+        int n=circles.size();
+        vector&lt;int&gt; vis(n);
+        auto dfs=[&amp;](auto&amp;&amp; dfs,int i)-&gt;bool{
+            long long x1=circles[i][0],y1=circles[i][1],r1=circles[i][2];
+            //圆i是否与矩形右边界/下边界相交相切
+            if(y1&lt;=yCorner&amp;&amp;abs(x1-xCorner)&lt;=r1||x1&lt;=xCorner&amp;&amp;y1&lt;=r1||x1&gt;xCorner&amp;&amp;in_circle(x1, y1, r1, xCorner, 0)){
+                return true;
+            }
+            vis[i]=true;
+            for(int j=0;j&lt;n;j++){
+                long long x2=circles[j][0],y2=circles[j][1],r2=circles[j][2];
+                if(!vis[j]&amp;&amp;(x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)&lt;=(r1+r2)*(r1+r2)
+                &amp;&amp; x1*r2+x2*r1&lt;(r1+r2)*xCorner
+                &amp;&amp; y1*r2+y2*r1&lt;(r1+r2)*yCorner
+                &amp;&amp;dfs(dfs,j)){
+                    return true;
+                }
+            }
+            return false;
+        };
+        for(int i=0;i&lt;n;i++){
+            long long x=circles[i][0],y=circles[i][1],r=circles[i][2];
+            if(in_circle(x,y,r,0,0)||in_circle(x,y,r,xCorner,yCorner)||
+            !vis[i] &amp;&amp; (x&lt;=xCorner &amp;&amp; abs(y-yCorner)&lt;=r ||
+                y&lt;=yCorner &amp;&amp; x&lt;=r || y&gt;yCorner &amp;&amp; in_circle(x,y,r,0,yCorner))&amp;&amp;dfs(dfs,i)){
+                    return false;
+                }
+        }
+        return true;
+    }
+};
+</code></pre>
+</details>
+<h1 id="386-字典序排数"><a class="header" href="#386-字典序排数">386 字典序排数</a></h1>
+<p>给你一个整数 n ，按字典序返回范围 [1, n] 内所有整数。</p>
+<p>你必须设计一个时间复杂度为 O(n) 且使用 O(1) 额外空间的算法。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    vector&lt;int&gt; lexicalOrder(int n) {
+        int number=1;
+        vector&lt;int&gt; ans(n);
+        for(int i=0;i&lt;n;i++){
+            ans[i]=number;
+            if(number*10&lt;=n){
+                number*=10;
+            }else{
+                while(number%10==9||number+1&gt;n){
+                    number/=10;
+                }
+                number++;
+            }
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="486-预测赢家"><a class="header" href="#486-预测赢家">486 预测赢家</a></h1>
+<p>给你一个整数数组 nums 。玩家 1 和玩家 2 基于这个数组设计了一个游戏。</p>
+<p>玩家 1 和玩家 2 轮流进行自己的回合，玩家 1
+先手。开始时，两个玩家的初始分值都是 0
+。每一回合，玩家从数组的任意一端取一个数字（即，nums[0] 或
+nums[nums.length - 1]），取到的数字将会从数组中移除（数组长度减 1
+）。玩家选中的数字将会加到他的得分上。当数组中没有剩余数字可取时，游戏结束。</p>
+<p>如果玩家 1 能成为赢家，返回 true 。如果两个玩家得分相等，同样认为玩家 1
+是游戏的赢家，也返回 true
+。你可以假设每个玩家的玩法都会使他的分数最大化。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    bool predictTheWinner(vector&lt;int&gt;&amp; nums) {
+        function&lt;int(int,int,int)&gt; dfs=[&amp;](int start,int end,int turn){
+            if(start==end){
+                return nums[start]*turn;
+            }
+            int scoreStat=nums[start]*turn+dfs(start+1,end,-turn);
+            int scoreEnd=nums[end]*turn+dfs(start,end-1,-turn);
+            return max(scoreStat*turn,scoreEnd*turn)*turn;
+        };
+        return dfs(0,nums.size()-1,1)&gt;=0;
+    }
+};
+</code></pre>
+</details>
+<h1 id="365-水壶问题"><a class="header" href="#365-水壶问题">365 水壶问题</a></h1>
+<p>有两个水壶，容量分别为 x 和 y
+升。水的供应是无限的。确定是否有可能使用这两个壶准确得到 target 升。</p>
+<p>你可以：</p>
+<pre><code>装满任意一个水壶
+清空任意一个水壶
+将水从一个水壶倒入另一个水壶，直到接水壶已满，或倒水壶已空。
+</code></pre>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    bool canMeasureWater(int x, int y, int target) {
+        stack&lt;pair&lt;int,int&gt;&gt; stk;
+        stk.emplace(0,0);
+        auto hasher=[](const pair&lt;int,int&gt; &amp;o){
+            return hash&lt;int&gt;()(o.first)^hash&lt;int&gt;()(o.second);
+        };
+        unordered_set&lt;pair&lt;int,int&gt;,decltype(hasher)&gt; seen(0,hasher);
+        while(stk.size()){
+            if(seen.count(stk.top())){
+                stk.pop();
+                continue;
+            }
+            seen.emplace(stk.top());
+            auto [remain_x,remain_y]=stk.top();
+            stk.pop();
+            if(remain_x==target||remain_y==target||remain_x+remain_y==target){
+                return true;
+            }
+            stk.emplace(x,remain_y);
+            stk.emplace(remain_x,y);
+            stk.emplace(0,remain_y);
+            stk.emplace(remain_x,0);
+            stk.emplace(remain_x-min(remain_x,y-remain_y),remain_y+min(remain_x,y-remain_y));
+            stk.emplace(remain_x+min(remain_y,x-remain_x),remain_y-min(remain_y,x-remain_x));
+        }
+        return false;
+    }
+};
+</code></pre>
+</details>
+<h1 id="130-被围绕的区域"><a class="header" href="#130-被围绕的区域">130 被围绕的区域</a></h1>
+<p>给你一个 m x n 的矩阵 board ，由若干字符 'X' 和 'O' 组成，捕获 所有
+被围绕的区域：</p>
+<pre><code>连接：一个单元格与水平或垂直方向上相邻的单元格连接。
+区域：连接所有 'O' 的单元格来形成一个区域。
+围绕：如果您可以用 'X' 单元格 连接这个区域，并且区域中没有任何单元格位于 board 边缘，则该区域被 'X' 单元格围绕。
+</code></pre>
+<p>通过将输入矩阵 board 中的所有 'O' 替换为 'X' 来 捕获被围绕的区域。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    void solve(vector&lt;vector&lt;char&gt;&gt;&amp; board) {
+       int n=board.size();
+       int m=board[0].size();
+       if(n==0) return;
+       auto dfs=[&amp;](auto&amp;&amp; dfs,int x,int y){
+        if(x&lt;0||x&gt;=n||y&lt;0||y&gt;=m||board[x][y]!='O'){
+            return;
+        }
+        board[x][y]='A';
+        dfs(dfs,x+1,y);
+        dfs(dfs,x-1,y);
+        dfs(dfs,x,y-1);
+        dfs(dfs,x,y+1);
+       }; 
+       for(int i=0;i&lt;n;i++){
+        dfs(dfs,i,0);
+        dfs(dfs,i,m-1);
+       }
+        for(int j=0;j&lt;m;j++){
+            dfs(dfs,0,j);
+            dfs(dfs,n-1,j);
+        }
+        for(int i=0;i&lt;n;i++){
+            for(int j=0;j&lt;m;j++){
+                if(board[i][j]=='A'){
+                    board[i][j]='O';
+                }else if(board[i][j]=='O'){
+                    board[i][j]='X';
+                }
+            }
+        }
+    }
+};
+</code></pre>
+</details>
+<h1 id="529-扫地雷"><a class="header" href="#529-扫地雷">529 UNSOLVED 扫地雷</a></h1>
+<p>给你一个大小为 m x n 二维字符矩阵 board ，表示扫雷游戏的盘面，其中：</p>
+<pre><code>'M' 代表一个 未挖出的 地雷，
+'E' 代表一个 未挖出的 空方块，
+'B' 代表没有相邻（上，下，左，右，和所有4个对角线）地雷的 已挖出的 空白方块，
+数字（'1' 到 '8'）表示有多少地雷与这块 已挖出的 方块相邻，
+'X' 则表示一个 已挖出的 地雷。
+</code></pre>
+<p>给你一个整数数组 click ，其中 click = [clickr, clickc] 表示在所有
+未挖出的 方块（'M' 或者 'E'）中的下一个点击位置（clickr
+是行下标，clickc 是列下标）。</p>
+<p>根据以下规则，返回相应位置被点击后对应的盘面：</p>
+<pre><code>如果一个地雷（'M'）被挖出，游戏就结束了- 把它改为 'X' 。
+如果一个 没有相邻地雷 的空方块（'E'）被挖出，修改它为（'B'），并且所有和其相邻的 未挖出 方块都应该被递归地揭露。
+如果一个 至少与一个地雷相邻 的空方块（'E'）被挖出，修改它为数字（'1' 到 '8' ），表示相邻地雷的数量。
+如果在此次点击中，若无更多方块可被揭露，则返回盘面。
+</code></pre>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+    constexpr static array&lt;int,8&gt; dx={1,0,-1,0,1,1,-1,-1},dy={0,1,0,-1,-1,1,-1,1};
+public:
+    void dfs(vector&lt;vector&lt;char&gt;&gt;&amp; board,int x,int y){
+        int cnt=0;
+        for(int i=0;i&lt;8;i++){
+            int tx=x+dx[i];
+            int ty=y+dy[i];
+            if(tx&lt;0||tx&gt;=board.size()||ty&lt;0||ty&gt;=board[0].size()){
+                continue;
+            }
+            cnt+=board[tx][ty]=='M';
+        }
+        if(cnt&gt;0){
+            board[x][y]=cnt+'0';
+        }else{
+            board[x][y]='B';
+            for(int i=0;i&lt;8;i++){
+                int tx=x+dx[i];
+                int ty=y+dy[i];
+                if(tx&lt;0||tx&gt;=board.size()||ty&lt;0||ty&gt;=board[0].size()||board[tx][ty]!='E'){
+                    continue;
+                }
+                dfs(board,tx,ty);
+            }
+        }
+    }
+    vector&lt;vector&lt;char&gt;&gt; updateBoard(vector&lt;vector&lt;char&gt;&gt;&amp; board, vector&lt;int&gt;&amp; click) {
+        int x=click[0];
+        int y=click[1];
+        if(board[x][y]=='M'){
+            board[x][y]='X';
+        }else{
+            dfs(board,x,y);
+        }
+        return board;
+    }
+};
+</code></pre>
+</details>
+<h1 id="2056-棋盘上有效移动组合的数目"><a class="header" href="#2056-棋盘上有效移动组合的数目">2056 棋盘上有效移动组合的数目</a></h1>
+<p>有一个 8 x 8 的棋盘，它包含 n 个棋子（棋子包括车，后和象三种）。给你一个长度为 n 的字符串数组 pieces ，其中 pieces[i] 表示第 i 个棋子的类型（车，后或象）。除此以外，还给你一个长度为 n 的二维整数数组 positions ，其中 positions[i] = [ri, ci] 表示第 i 个棋子现在在棋盘上的位置为 (ri, ci) ，棋盘下标从 1 开始。</p>
+<p>棋盘上每个棋子都可以移动 至多一次 。每个棋子的移动中，首先选择移动的 方向 ，然后选择 移动的步数 ，同时你要确保移动过程中棋子不能移到棋盘以外的地方。棋子需按照以下规则移动：</p>
+<pre><code>车可以 水平或者竖直 从 (r, c) 沿着方向 (r+1, c)，(r-1, c)，(r, c+1) 或者 (r, c-1) 移动。
+后可以 水平竖直或者斜对角 从 (r, c) 沿着方向 (r+1, c)，(r-1, c)，(r, c+1)，(r, c-1)，(r+1, c+1)，(r+1, c-1)，(r-1, c+1)，(r-1, c-1) 移动。
+象可以 斜对角 从 (r, c) 沿着方向 (r+1, c+1)，(r+1, c-1)，(r-1, c+1)，(r-1, c-1) 移动。
+</code></pre>
+<p>移动组合 包含所有棋子的 移动 。每一秒，每个棋子都沿着它们选择的方向往前移动 一步 ，直到它们到达目标位置。所有棋子从时刻 0 开始移动。如果在某个时刻，两个或者更多棋子占据了同一个格子，那么这个移动组合 不有效 。</p>
+<p>请你返回 有效 移动组合的数目。</p>
+<p>注意：</p>
+<pre><code>初始时，不会有两个棋子 在 同一个位置 。
+有可能在一个移动组合中，有棋子不移动。
+如果两个棋子 直接相邻 且两个棋子下一秒要互相占据对方的位置，可以将它们在同一秒内 交换位置 。
+</code></pre>
+<details>
+<pre><code class="language-cpp">class Solution {
+    struct Move{
+        int x0,y0;
+        int dx,dy;
+        int step;
+    };
+    constexpr static auto DIRS= array&lt;pair&lt;int,int&gt;,8&gt;{{
+        {-1,0},{1,0},{0,-1},{0,1},{1,1},{-1,1},{-1,-1},{1,-1}
+    }};
+    unordered_map&lt;char,vector&lt;pair&lt;int,int&gt;&gt;&gt; PIECE_DIRS={
+        {'r',{DIRS.begin(),DIRS.begin()+4}},
+        {'b',{DIRS.begin()+4,DIRS.end()}},
+        {'q',{DIRS.begin(),DIRS.end()}}
+    };
+public:
+    vector&lt;Move&gt; generate_moves(int x0,int y0,vector&lt;pair&lt;int,int&gt;&gt;&amp; dirs){
+        const int SIZE=8;
+        vector&lt;Move&gt; moves={{x0,y0,0,0,0}};
+        for(auto [dx,dy]:dirs){
+            int x=x0+dx,y=y0+dy;
+            for(int step=1;x&gt;0&amp;&amp;x&lt;=SIZE&amp;&amp;y&gt;0&amp;&amp;y&lt;=SIZE;step++){
+                moves.emplace_back(x0,y0,dx,dy,step);
+                x+=dx;
+                y+=dy;
+            }
+        }
+        return moves;
+    }
+    bool is_valid(Move&amp; m1,Move&amp; m2){
+        int x1=m1.x0,y1=m1.y0;
+        int x2=m2.x0,y2=m2.y0;
+        for(int i=0;i&lt;max(m1.step,m2.step);++i){
+            if(i&lt;m1.step){
+                x1+=m1.dx;
+                y1+=m1.dy;
+            }
+            if(i&lt;m2.step){
+                x2+=m2.dx;
+                y2+=m2.dy;
+            }
+            if(x1==x2 &amp;&amp; y1==y2){
+                return false;
+            }
+        }
+        return true;
+    }
+    int countCombinations(vector&lt;string&gt;&amp; pieces, vector&lt;vector&lt;int&gt;&gt;&amp; positions) {
+        int n=pieces.size();
+        vector&lt;vector&lt;Move&gt;&gt; all_moves(n);
+        for(int i=0;i&lt;n;i++){
+            all_moves[i]=generate_moves(positions[i][0], positions[i][1],PIECE_DIRS[pieces[i][0]]);
+        }
+        vector&lt;Move&gt; path(n);
+        int ans=0;
+        auto dfs=[&amp;](auto&amp;&amp; dfs,int i)-&gt;void{
+            if(i==n){
+                ans++;
+                return;
+            }
+            for(auto&amp; move1: all_moves[i]){
+                bool ok=true;
+                for(int j=0;j&lt;i;j++){
+                    if(!is_valid(move1,path[j])){
+                        ok=false;
+                        break;
+                    }
+                }
+                if(ok){
+                    path[i]=move1;
+                    dfs(dfs,i+1);
+                }
+            }
+        };
+        dfs(dfs,0);
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="688-骑士落在棋盘上的概率-688-骑士落在棋盘上的概率"><a class="header" href="#688-骑士落在棋盘上的概率-688-骑士落在棋盘上的概率">688 骑士落在棋盘上的概率 (#688-骑士落在棋盘上的概率)</a></h1>
+<p>在一个 n x n 的国际象棋棋盘上，一个骑士从单元格 (row, column) 开始，并尝试进行 k 次移动。行和列是 从 0 开始 的，所以左上单元格是 (0,0) ，右下单元格是 (n - 1, n - 1) 。</p>
+<p>象棋骑士有8种可能的走法，如下图所示。每次移动在基本方向上是两个单元格，然后在正交方向上是一个单元格。</p>
+<p>每次骑士要移动时，它都会随机从8种可能的移动中选择一种(即使棋子会离开棋盘)，然后移动到那里。</p>
+<p>骑士继续移动，直到它走了 k 步或离开了棋盘。</p>
+<p>返回 骑士在棋盘停止移动后仍留在棋盘上的概率 。</p>
+<details>
+<pre><code class="language-cpp">class Solution {
+    static constexpr array&lt;pair&lt;int, int&gt;, 8&gt; DIRS = {{{2, 1},
+                                                       {1, 2},
+                                                       {-1, 2},
+                                                       {-2, 1},
+                                                       {-2, -1},
+                                                       {-1, -2},
+                                                       {1, -2},
+                                                       {2, -1}}};
+
+public:
+    double knightProbability(int n, int k, int row, int column) {
+        vector&lt;vector&lt;vector&lt;double&gt;&gt;&gt; memo(
+            k + 1, vector&lt;vector&lt;double&gt;&gt;(n, vector&lt;double&gt;(n)));
+        auto dfs = [&amp;](auto&amp;&amp; dfs, int k, int i, int j) -&gt; double {
+            if (i &lt; 0 || i &gt;= n || j &lt; 0 || j &gt;= n) {
+                return 0;
+            }
+            if (k == 0)
+                return 1;
+            double&amp; res = memo[k][i][j];
+            if (res) { // 之前已经算过
+                return res;
+            }
+            for (auto&amp; [dx, dy] : DIRS) {
+                res += dfs(dfs, k - 1, i + dx, j + dy);
+            }
+            res /= 8;
+            return res;
+        };
+        return dfs(dfs, k, row, column);
+    }
+};
+</code></pre>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::cell::RefCell;
+use std::rc::Rc;
+impl Solution {
+    pub fn knight_probability(n: i32, k: i32, row: i32, column: i32) -&gt; f64 {
+        let dirs = [
+            (2, 1),
+            (1, 2),
+            (-1, 2),
+            (-2, 1),
+            (-2, -1),
+            (-1, -2),
+            (1, -2),
+            (2, -1),
+        ];
+
+        // 创建一个 3D 动态数组用于记忆化存储
+        let mut memo = vec![vec![vec![None; n as usize]; n as usize]; (k + 1) as usize];
+
+        // 定义递归函数
+        fn dfs(
+            n: i32,
+            k: i32,
+            i: i32,
+            j: i32,
+            dirs: &amp;[(i32, i32)],
+            memo: &amp;mut Vec&lt;Vec&lt;Vec&lt;Option&lt;f64&gt;&gt;&gt;&gt;,
+        ) -&gt; f64 {
+            // 边界检查
+            if i &lt; 0 || i &gt;= n || j &lt; 0 || j &gt;= n {
+                return 0.0;
+            }
+            if k == 0 {
+                return 1.0;
+            }
+            // 检查是否已经计算过
+            if let Some(res) = memo[k as usize][i as usize][j as usize] {
+                return res;
+            }
+
+            // 计算当前状态的概率
+            let mut res = 0.0;
+            for &amp;(dx, dy) in dirs {
+                res += dfs(n, k - 1, i + dx, j + dy, dirs, memo);
+            }
+            res /= 8.0;
+
+            // 存入记忆化数组
+            memo[k as usize][i as usize][j as usize] = Some(res);
+            res
+        }
+
+        // 调用递归函数
+        dfs(n, k, row, column, &amp;dirs, &amp;mut memo)
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../数据结构与算法/并查集.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../数据结构与算法/bfs.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../数据结构与算法/并查集.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../数据结构与算法/bfs.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

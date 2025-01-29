@@ -1,0 +1,820 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>二分法 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#153-%E5%AF%BB%E6%89%BE%E6%97%8B%E8%BD%AC%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9C%80%E5%B0%8F%E5%80%BC">153寻找旋转排序数组中的最小值</a></li>
+<li><a href="#2187-%E5%AE%8C%E6%88%90%E6%97%85%E9%80%94%E7%9A%84%E6%9C%80%E5%B0%91%E6%97%B6%E9%97%B4">2187完成旅途的最少时间</a></li>
+<li><a href="#2529-%E6%AD%A3%E6%95%B4%E6%95%B0%E5%92%8C%E8%B4%9F%E6%95%B4%E6%95%B0%E7%9A%84%E6%9C%80%E5%A4%A7%E8%AE%A1%E6%95%B0">2529正整数和负整数的最大计数</a></li>
+<li><a href="#2563-%E7%BB%9F%E8%AE%A1%E5%85%AC%E5%B9%B3%E6%95%B0%E5%AF%B9%E7%9A%84%E6%95%B0%E7%9B%AE">2563统计公平数对的数目</a></li>
+<li><a href="#2576-%E6%B1%82%E5%87%BA%E6%9C%80%E5%A4%9A%E6%A0%87%E8%AE%B0%E4%B8%8B%E6%A0%87">2576求出最多标记下标</a></li>
+<li><a href="#%E6%AD%A3%E6%96%B9%E5%BD%A2%E7%9A%84%E6%9C%80%E5%A4%9A%E7%82%B9%E6%95%B0">正方形的最多点数</a></li>
+<li><a href="#33-%E6%90%9C%E7%B4%A2%E6%97%8B%E8%BD%AC%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84">33搜索旋转排序数组</a></li>
+<li><a href="#852-%E5%B1%B1%E8%84%89%E6%95%B0%E7%BB%84%E7%9A%84%E5%B3%B0%E9%A1%B6%E7%B4%A2%E5%BC%95">852山脉数组的峰顶索引</a></li>
+<li><a href="#lcr-170-%E4%BA%A4%E6%98%93%E9%80%86%E5%BA%8F%E5%AF%B9%E7%9A%84%E6%80%BB%E6%95%B0">LCR 170交易逆序对的总数</a></li>
+<li><a href="#4-unsolved-%E5%AF%BB%E6%89%BE%E4%B8%A4%E4%B8%AA%E6%AD%A3%E5%BA%8F%E6%95%B0%E7%BB%84%E7%9A%84%E4%B8%AD%E4%BD%8D%E6%95%B0">4 UNSOLVED寻找两个正序数组的中位数</a></li>
+<li><a href="#162-%E5%AF%BB%E6%89%BE%E5%B3%B0%E5%80%BC">162 寻找峰值</a></li>
+<li><a href="#403-%E9%9D%92%E8%9B%99%E8%BF%87%E6%B2%B3">403 青蛙过河</a></li>
+<li><a href="#378-%E6%9C%89%E5%BA%8F%E7%9F%A9%E9%98%B5%E4%B8%AD%E7%AC%ACK%E5%B0%8F%E7%9A%84%E5%85%83%E7%B4%A0">378-有序矩阵中第K小的元素</a></li>
+</ul>
+<h1 id="153-寻找旋转排序数组中的最小值"><a class="header" href="#153-寻找旋转排序数组中的最小值">153 寻找旋转排序数组中的最小值</a></h1>
+<p>已知一个长度为 n 的数组，预先按照升序排列，经由 1 到 n 次 旋转
+后，得到输入数组。例如，原数组 nums = [0,1,2,4,5,6,7]
+在变化后可能得到：</p>
+<pre><code>若旋转 4 次，则可以得到 [4,5,6,7,0,1,2]
+若旋转 7 次，则可以得到 [0,1,2,4,5,6,7]
+</code></pre>
+<p>注意，数组 [a[0], a[1], a[2], ..., a[n-1]] 旋转一次
+的结果为数组 [a[n-1], a[0], a[1], a[2], ..., a[n-2]] 。</p>
+<p>给你一个元素值 互不相同 的数组 nums
+，它原来是一个升序排列的数组，并按上述情形进行了多次旋转。请你找出并返回数组中的
+最小元素 。</p>
+<p>你必须设计一个时间复杂度为 O(log n) 的算法解决此问题。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int findMin(vector&lt;int&gt;&amp; nums) {
+        int left = 0, right = nums.size() - 1;
+        if(right==0) return nums.front();
+        while(left&lt;right){
+            int mid=(left+right)/2;
+            if(nums[mid]&lt;nums[right]){
+                right=mid;
+            }else{
+                left=mid+1;
+            }
+        }
+        return nums[left];
+    }
+};
+</code></pre>
+</details>
+<h1 id="2187-完成旅途的最少时间"><a class="header" href="#2187-完成旅途的最少时间">2187 完成旅途的最少时间</a></h1>
+<p>给你一个数组 time ，其中 time[i] 表示第 i 辆公交车完成 一趟旅途
+所需要花费的时间。</p>
+<p>每辆公交车可以 连续
+完成多趟旅途，也就是说，一辆公交车当前旅途完成后，可以 立马开始
+下一趟旅途。每辆公交车 独立
+运行，也就是说可以同时有多辆公交车在运行且互不影响。</p>
+<p>给你一个整数 totalTrips ，表示所有公交车 总共
+需要完成的旅途数目。请你返回完成 至少 totalTrips 趟旅途需要花费的 最少
+时间。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    long long minimumTime(vector&lt;int&gt;&amp; time, int totalTrips) {
+        auto check=[&amp;](long long x)-&gt;bool{
+            long long sum=0;
+            for(auto&amp; t: time){
+                sum+=x/t;
+                if(sum&gt;=totalTrips){
+                    return true;
+                }
+            }
+            return false;
+        };
+        long long min_t=ranges::min(time);
+        long long left=min_t-1;//循环不变量
+        long long right=totalTrips*min_t;
+        while(left+1&lt;right){
+            auto mid=(right+left)/2;
+            (check(mid)?right:left)=mid;
+        }
+        return right;
+    }
+};
+</code></pre>
+</details>
+<h1 id="2529-正整数和负整数的最大计数"><a class="header" href="#2529-正整数和负整数的最大计数">2529 正整数和负整数的最大计数</a></h1>
+<p>给你一个按 非递减顺序 排列的数组 nums
+，返回正整数数目和负整数数目中的最大值。</p>
+<p>换句话讲，如果 nums 中正整数的数目是 pos ，而负整数的数目是 neg ，返回
+pos 和 neg二者中的最大值。</p>
+<p>注意：0 既不是正整数也不是负整数。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int maximumCount(vector&lt;int&gt;&amp; nums) {
+     int neg=0,pos=0;
+     int left=0,right=nums.size()-1;
+     auto lowerBound=[&amp;](vector&lt;int&gt;&amp; num,int val)-&gt;int{
+        int l=0,r=num.size();
+        while(l&lt;r){
+            int m=(r+l)/2;
+            if(nums[m]&gt;=val){
+                r=m;
+            }else if(nums[m]&lt;val){
+                l=m+1;
+            }
+        }
+        return l;
+     };
+     left=lowerBound(nums,0);
+     right=lowerBound(nums,1);
+     return max(left,(int)nums.size()-right);
+    }
+};
+</code></pre>
+</details>
+<h1 id="2563-统计公平数对的数目"><a class="header" href="#2563-统计公平数对的数目">2563 统计公平数对的数目</a></h1>
+<p>给你一个下标从 0 开始、长度为 n 的整数数组 nums ，和两个整数 lower 和
+upper ，返回 公平数对的数目 。</p>
+<p>如果 (i, j) 数对满足以下情况，则认为它是一个 公平数对 ：</p>
+<p>0 &lt;= i &lt; j &lt; n，且</p>
+<p>lower &lt;= nums[i] + nums[j] &lt;= upper</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    long long countFairPairs(vector&lt;int&gt;&amp; nums, int lower, int upper) {
+        long long ans=0;
+        ranges::sort(nums);
+        for(int i=0;i&lt;nums.size();++i){
+            auto l=lower_bound(nums.begin(),nums.begin()+i,lower-nums[i]);
+            auto r=upper_bound(nums.begin(),nums.begin()+i,upper-nums[i]);
+            ans+=r-l;
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="2576-求出最多标记下标"><a class="header" href="#2576-求出最多标记下标">2576 求出最多标记下标</a></h1>
+<p>给你一个下标从 0 开始的整数数组 nums 。</p>
+<p>一开始，所有下标都没有被标记。你可以执行以下操作任意次：</p>
+<pre><code>选择两个 互不相同且未标记 的下标 i 和 j ，满足 2 * nums[i] &lt;= nums[j] ，标记下标 i 和 j 。
+</code></pre>
+<p>请你执行上述操作任意次，返回 nums 中最多可以标记的下标数目。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int maxNumOfMarkedIndices(vector&lt;int&gt;&amp; nums) {
+      ranges::sort(nums);
+      int n=nums.size();
+      int l=0,r=n/2;
+      auto check=[&amp;](int m){
+        for(int i=0;i&lt;m;i++){
+            if(nums[i]*2&gt;nums[n-m+i]){
+                return false;
+            }
+        }
+        return true;
+      };
+      while(l&lt;r){
+        int m=r+l+1&gt;&gt;1;
+        if(check(m)){
+            l=m;
+        }else{
+            r=m-1;
+        }
+      }
+      return l*2;
+    }
+};
+</code></pre>
+</details>
+<h1 id="正方形的最多点数"><a class="header" href="#正方形的最多点数">正方形的最多点数</a></h1>
+<p>给你一个二维数组 points 和一个字符串 s ，其中 points[i] 表示第 i
+个点的坐标，s[i] 表示第 i 个点的 标签 。</p>
+<p>如果一个正方形的中心在 (0, 0) ，所有边都平行于坐标轴，且正方形内 不
+存在标签相同的两个点，那么我们称这个正方形是 合法 的。</p>
+<p>请你返回 合法 正方形中可以包含的 最多 点数。</p>
+<p>注意：</p>
+<p>如果一个点位于正方形的边上或者在边以内，则认为该点位于正方形内。</p>
+<p>正方形的边长可以为零。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int maxPointsInsideSquare(vector&lt;vector&lt;int&gt;&gt;&amp; points, string s) {
+        int ans=0;
+        auto check=[&amp;](int size)-&gt;bool{
+            int vis=0;
+            for(int i=0;i&lt;points.size();i++){
+                if(abs(points[i][0])&lt;=size &amp;&amp; abs(points[i][1])&lt;=size){
+                    auto c=s[i]-'a';
+                    if(vis&gt;&gt;c&amp;1){//c在集合中
+                        return false;
+                    }
+                    vis|=1&lt;&lt;c;
+                }
+            }
+            ans=__builtin_popcount(vis);
+            return true;
+        };
+        int left=-1,right=1'000'000'001;
+        while(left+1&lt;right){
+            int mid=(left+right)/2;
+            (check(mid)?left:right)=mid;
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<p>这个解法使用了位运算</p>
+<h1 id="33-搜索旋转排序数组"><a class="header" href="#33-搜索旋转排序数组">33 搜索旋转排序数组</a></h1>
+<p>整数数组 nums 按升序排列，数组中的值 互不相同 。</p>
+<p>在传递给函数之前，nums 在预先未知的某个下标 k（0 &lt;= k &lt;
+nums.length）上进行了 旋转，使数组变为 [nums[k], nums[k+1], ...,
+nums[n-1], nums[0], nums[1], ..., nums[k-1]]（下标 从 0 开始
+计数）。例如， [0,1,2,4,5,6,7] 在下标 3 处经旋转后可能变为
+[4,5,6,7,0,1,2] 。</p>
+<p>给你 旋转后 的数组 nums 和一个整数 target ，如果 nums 中存在这个目标值
+target ，则返回它的下标，否则返回 -1 。</p>
+<p>你必须设计一个时间复杂度为 O(log n) 的算法解决此问题。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int search(vector&lt;int&gt;&amp; nums, int target) {
+        int left=0,right=nums.size()-1;
+        while(left&lt;=right){
+            int mid=(right-left)/2+left;
+            if(nums[mid]==target) return mid;
+            if(nums[0]&lt;=nums[mid]){
+                if(nums[0]&lt;=target&amp;&amp;target&lt;nums[mid]) right=mid-1;
+                else left=mid+1;
+            }else{
+                if(nums[mid]&lt;target&amp;&amp;target&lt;=nums.back()) left=mid+1;
+                else right=mid-1;
+            }
+        }
+        return -1;
+    }
+};
+</code></pre>
+</details>
+<h1 id="852-山脉数组的峰顶索引"><a class="header" href="#852-山脉数组的峰顶索引">852 山脉数组的峰顶索引</a></h1>
+<p>给定一个长度为 n 的整数 山脉 数组 arr ，其中的值递增到一个 峰值元素
+然后递减。</p>
+<p>返回峰值元素的下标。</p>
+<p>你必须设计并实现时间复杂度为 O(log(n)) 的解决方案。</p>
+<p>记满足题目要求的下标 i 为 ians。我们可以发现：</p>
+<pre><code>当 i&lt;ians 时，arri&lt;arri+1 恒成立；
+
+当 i≥ians 时，arri&gt;arri+1 恒成立。
+</code></pre>
+<p>因此 ians 即为「最小的满足 arri&gt;arri+1 的下标
+i，我们可以用二分查找的方法来找出 ians。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int peakIndexInMountainArray(vector&lt;int&gt;&amp; arr) {
+        int left = 1, right = arr.size() - 2, ans = 0;
+        while (left &lt;= right) {
+            int mid = (right - left) / 2 + left;
+            if (arr[mid] &gt; arr[mid + 1]) {
+                ans = mid;
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="lcr-170-交易逆序对的总数"><a class="header" href="#lcr-170-交易逆序对的总数">LCR 170 交易逆序对的总数</a></h1>
+<p>在股票交易中，如果前一天的股价高于后一天的股价，则可以认为存在一个「交易逆序对」。请设计一个程序，输入一段时间内的股票交易记录
+record，返回其中存在的「交易逆序对」总数。</p>
+<p>思路： 归并排序</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int mergeSort(vector&lt;int&gt;&amp; record, vector&lt;int&gt;&amp; tmp, int l, int r) {
+        if (l &gt;= r) {
+            return 0;
+        }
+
+        int mid = (l + r) / 2;
+        int inv_count = mergeSort(record, tmp, l, mid) + mergeSort(record, tmp, mid + 1, r);
+        int i = l, j = mid + 1, pos = l;
+        while (i &lt;= mid &amp;&amp; j &lt;= r) {
+            if (record[i] &lt;= record[j]) {
+                tmp[pos] = record[i];
+                ++i;
+                inv_count += (j - (mid + 1));
+            }
+            else {
+                tmp[pos] = record[j];
+                ++j;
+            }
+            ++pos;
+        }
+        for (int k = i; k &lt;= mid; ++k) {
+            tmp[pos++] = record[k];
+            inv_count += (j - (mid + 1));
+        }
+        for (int k = j; k &lt;= r; ++k) {
+            tmp[pos++] = record[k];
+        }
+        copy(tmp.begin() + l, tmp.begin() + r + 1, record.begin() + l);
+        return inv_count;
+    }
+
+    int reversePairs(vector&lt;int&gt;&amp; record) {
+        int n = record.size();
+        vector&lt;int&gt; tmp(n);
+        return mergeSort(record, tmp, 0, n - 1);
+    }
+};
+</code></pre>
+</details>
+<h1 id="4-unsolved-寻找两个正序数组的中位数"><a class="header" href="#4-unsolved-寻找两个正序数组的中位数">4 UNSOLVED 寻找两个正序数组的中位数</a></h1>
+<p>给定两个大小分别为 m 和 n 的正序（从小到大）数组 nums1 和
+nums2。请你找出并返回这两个正序数组的 中位数 。</p>
+<p>算法的时间复杂度应该为 O(log (m+n)) 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+ public:
+  int getKthElement(const vector&lt;int&gt;&amp; nums1, const vector&lt;int&gt;&amp; nums2, int k) {
+    int m = nums1.size(), n = nums2.size();
+    int index1 = 0, index2 = 0;
+    while (true) {
+      if (index1 == m) return nums2[index2 + k - 1];
+      if (index2 == n) return nums1[index1 + k - 1];
+      if (k == 1) return std::min(nums1[index1], nums2[index2]);
+      int newindex1 = std::min(index1 + k / 2 - 1, m - 1);
+      int newindex2 = std::min(index2 + k / 2 - 1, n - 1);
+      int pivot1 = nums1.at(newindex1);
+      int pivot2 = nums2.at(newindex2);
+      if (pivot2 &gt;= pivot1) {
+        k -= newindex1 - index1 + 1;
+        index1 = newindex1 + 1;
+      } else {
+        k -= newindex2 - index2 + 1;
+        index2 = newindex2 + 1;
+      }
+    }
+  }
+  double findMedianSortedArrays(vector&lt;int&gt;&amp; nums1, vector&lt;int&gt;&amp; nums2) {
+    int totallen = nums1.size() + nums2.size();
+    if (totallen % 2 == 1)
+      return getKthElement(nums1, nums2, (totallen + 1) / 2);
+    else
+      return getKthElement(nums1, nums2, totallen / 2) / 2.0 +
+             getKthElement(nums1, nums2, totallen / 2 + 1) / 2.0;
+  }
+};
+</code></pre>
+</details>
+# 268 丢失的数字
+<p>给定一个包含 [0, n] 中 n 个数的数组 nums ，找出 [0, n]
+这个范围内没有出现在数组中的那个数。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int missingNumber(vector&lt;int&gt;&amp; nums) {
+        ranges::sort(nums);
+        int left=0,right=nums.size()-1;
+        while(left&lt;=right){
+            int mid=(left+right)/2;
+            if(mid&lt;nums[mid]){
+                right=mid-1;
+            }else{
+                left=mid+1;
+            }
+        }
+        return left;
+    }
+};
+</code></pre>
+</details>
+<h1 id="162-寻找峰值"><a class="header" href="#162-寻找峰值">162 寻找峰值</a></h1>
+<p>峰值元素是指其值严格大于左右相邻值的元素。</p>
+<p>给你一个整数数组
+nums，找到峰值元素并返回其索引。数组可能包含多个峰值，在这种情况下，返回
+任何一个峰值 所在位置即可。</p>
+<p>你可以假设 nums[-1] = nums[n] = -∞ 。</p>
+<p>你必须实现时间复杂度为 O(log n) 的算法来解决此问题。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int findPeakElement(vector&lt;int&gt;&amp; nums) {
+        int left=0,right=nums.size()-1;
+        while(left+1&lt;right){
+            int mid=(left+right)/2;
+            if(nums[mid-1]&lt;nums[mid]){
+                left=mid;
+            }else{
+                right=mid;
+            }
+        }
+        return nums[left]&gt;nums[right]?left:right;
+    }
+};
+</code></pre>
+</details>
+# 436 寻找右区间
+<p>给你一个区间数组 intervals ，其中 intervals[i] = [starti, endi]
+，且每个 starti 都 不同 。</p>
+<p>区间 i 的 右侧区间 可以记作区间 j ，并满足 startj &gt;= endi ，且 startj
+最小化 。注意 i 可能等于 j 。</p>
+<p>返回一个由每个区间 i 的 右侧区间 在 intervals
+中对应下标组成的数组。如果某个区间 i 不存在对应的 右侧区间 ，则下标 i
+处的值设为 -1 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+ public:
+  vector&lt;int&gt; findRightInterval(vector&lt;vector&lt;int&gt;&gt;&amp; intervals) {
+    vector&lt;pair&lt;int, int&gt;&gt; startIntervals;
+    int n = intervals.size();
+    for (int i = 0; i &lt; n; i++) {
+      startIntervals.push_back({intervals[i][0], i});
+    }
+    std::sort(startIntervals.begin(), startIntervals.end());
+    vector&lt;int&gt; ans(n, -1);
+    for (int i = 0; i &lt; n; i++) {
+      auto it = std::lower_bound(startIntervals.begin(), startIntervals.end(),
+                                 std::make_pair(intervals[i][1], 0));
+      if (it != startIntervals.end()) {
+        ans[i] = it-&gt;second;
+      }
+    }
+    return ans;
+  }
+};
+</code></pre>
+</details>
+<h1 id="403-青蛙过河"><a class="header" href="#403-青蛙过河">403 青蛙过河</a></h1>
+<p>一只青蛙想要过河。
+假定河流被等分为若干个单元格，并且在每一个单元格内都有可能放有一块石子（也有可能没有）。
+青蛙可以跳上石子，但是不可以跳入水中。</p>
+<p>给你石子的位置列表 stones（用单元格序号 升序 表示），
+请判定青蛙能否成功过河（即能否在最后一步跳至最后一块石子上）。开始时，
+青蛙默认已站在第一块石子上，并可以假定它第一步只能跳跃 1
+个单位（即只能从单元格 1 跳至单元格 2 ）。</p>
+<p>如果青蛙上一步跳跃了 k 个单位，那么它接下来的跳跃距离只能选择为 k - 1、k
+或 k + 1 个单位。 另请注意，青蛙只能向前方（终点的方向）跳跃。</p>
+<details>
+<p>思路及算法</p>
+<p>最直接的想法是使用深度优先搜索的方式尝试所有跳跃方案，直到我们找到一组可行解为止。但是不加优化的该算法的时间复杂度在最坏情况下是指数级的，因此考虑优化。</p>
+<p>注意到当青蛙每次能够跳跃的距离仅取决于青蛙的「上一次跳跃距离」。而青蛙此后能否到达终点，只和它「现在所处的石子编号」以及「上一次跳跃距离」有关。因此我们可以将这两个维度综合记录为一个状态。使用记忆化搜索的方式优化时间复杂度。</p>
+<p>具体地，当青蛙位于第 i 个石子，上次跳跃距离为 lastDis
+时，它当前能够跳跃的距离范围为
+[lastDis−1,lastDis+1]。我们需要分别判断这三个距离对应的三个位置是否存在石子。注意到给定的石子列表为升序，所以我们可以利用二分查找来优化查找石子的时间复杂度。每次我们找到了符合要求的位置，我们就尝试进行一次递归搜索即可。</p>
+<p>为了优化编码，我们可以认为青蛙的初始状态为：「现在所处的石子编号」为
+0（石子从 0 开始编号），「上一次跳跃距离」为
+0（这样可以保证青蛙的第一次跳跃距离为 1）。</p>
+<pre><code class="language-cpp">class Solution {
+public:
+    vector&lt;unordered_map&lt;int,int&gt;&gt; rec;
+    bool dfs(vector&lt;int&gt;&amp; stones,int i,int lastDis){
+        if(i==stones.size()-1){
+            return true;
+        }
+        if(rec[i].count(lastDis)){
+            return rec[i][lastDis];
+        }
+        for(int curDis=lastDis-1;curDis&lt;=lastDis+1;curDis++){
+            if(curDis&gt;0){
+                int j=lower_bound(stones.begin(),stones.end(),curDis+stones[i])-stones.begin();
+                if(j!=stones.size()&amp;&amp;stones[j]==curDis+stones[i]&amp;&amp;dfs(stones,j,curDis)){
+                    return rec[i][lastDis]=true;
+                }
+            }
+        }
+        return rec[i][lastDis]=false;
+    }
+    bool canCross(vector&lt;int&gt;&amp; stones) {
+        int n=stones.size();
+        rec.resize(n);
+        return dfs(stones,0,0);
+    }
+};
+</code></pre>
+</details>
+<h1 id="378-有序矩阵中第K小的元素"><a class="header" href="#378-有序矩阵中第K小的元素">378 有序矩阵中第K小的元素</a></h1>
+<p>给你一个 n x n 矩阵 matrix ，其中每行和每列元素均按升序排序，找到矩阵中第 k 小的元素。
+请注意，它是 排序后 的第 k 小元素，而不是第 k 个 不同 的元素。</p>
+<p>你必须找到一个内存复杂度优于 O(n2) 的解决方案。</p>
+<details>
+<pre><code class="language-cpp">class Solution {
+public:
+    int kthSmallest(vector&lt;vector&lt;int&gt;&gt;&amp; matrix, int k) {
+        int left=matrix[0][0];
+        int right=matrix.back().back();
+        int row=matrix.size();
+        int col=matrix[0].size();
+        while(left&lt;right){
+            int mid=left+(right-left)/2;
+            int count=noBiggerThanMid(matrix, mid, row,col);
+            if(count&lt;k){
+                left=mid+1;
+            }else{
+                right=mid;
+            }
+        }
+        return right;
+    }
+    int noBiggerThanMid(vector&lt;vector&lt;int&gt;&gt; &amp;mat,int mid,int row,int col){
+        int i=row-1;
+        int j=0;
+        int count=0;
+        while(i&gt;=0&amp;&amp;j&lt;col){
+            if(mat[i][j]&lt;=mid){
+                count+=i+1;
+                j++;
+            }else{
+                i--;
+            }
+        }
+        return count;
+    }
+};
+</code></pre>
+</details>
+<h1 id="74-搜索二维矩阵"><a class="header" href="#74-搜索二维矩阵">74 搜索二维矩阵</a></h1>
+<p>给你一个满足下述两条属性的 m x n 整数矩阵：</p>
+<pre><code>每行中的整数从左到右按非严格递增顺序排列。
+每行的第一个整数大于前一行的最后一个整数。
+</code></pre>
+<p>给你一个整数 target ，如果 target 在矩阵中，返回 true ；否则，返回 false 。</p>
+<details>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl Solution {
+    pub fn search_matrix(matrix: Vec&lt;Vec&lt;i32&gt;&gt;, target: i32) -&gt; bool {
+        let mut n=matrix.len();
+        let mut m=matrix[0].len();
+        let mut low=0;
+        let mut high=n*m;
+        while low&lt;high{
+            let mid:usize=(high-low)/2+low;
+            let x=matrix[mid/m][mid%m];
+            if x==target{
+                return true;
+            }
+            if x&gt;target{
+                high=mid;
+            }else{
+                low=mid+1;
+            }
+        }
+        return false;
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<h1 id="4--寻找两个正序数组的中位数"><a class="header" href="#4--寻找两个正序数组的中位数">4  寻找两个正序数组的中位数</a></h1>
+<p>给定两个大小分别为 m 和 n 的正序（从小到大）数组 nums1 和 nums2。请你找出并返回这两个正序数组的 中位数 。</p>
+<p>算法的时间复杂度应该为 O(log (m+n)) 。</p>
+<details id="admonition-code" class="admonition admonish-note" role="note" aria-labelledby="admonition-code-title">
+<summary class="admonition-title">
+<div id="admonition-code-title">
+<p>Code</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-code"></a>
+</summary>
+<div>
+<pre><code class="language-cpp">class Solution {
+public:
+    double findMedianSortedArrays(vector&lt;int&gt;&amp; nums1, vector&lt;int&gt;&amp; nums2) {
+        if(nums1.size()&gt;nums2.size()){
+            swap(nums1,nums2);
+        }
+        int m=nums1.size();
+        int n=nums2.size();
+        nums1.insert(nums1.begin(),INT_MIN);
+        nums2.insert(nums2.begin(), INT_MIN);
+        nums1.push_back(INT_MAX);
+        nums2.push_back(INT_MAX);
+        int i=0,j=(m+n+1)/2;
+        while(true){
+            if(nums1[i]&lt;=nums2[j+1]&amp;&amp;nums1[i+1]&gt;nums2[j]){
+                int max1=max(nums1[i],nums2[j]);
+                int min2=min(nums1[i+1],nums2[j+1]);
+                return (m+n)%2?max1:(max1+min2)/2.0;
+            }
+            i++;
+            j--;
+        }
+    }
+};
+</code></pre>
+</div>
+</details>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../数据结构与算法/二叉树.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../数据结构与算法/位运算技巧.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../数据结构与算法/二叉树.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../数据结构与算法/位运算技巧.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

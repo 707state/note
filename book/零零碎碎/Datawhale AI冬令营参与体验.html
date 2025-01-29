@@ -1,0 +1,335 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Datawhale AI 冬令营参与体验 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="ai初体验"><a class="header" href="#ai初体验">AI初体验</a></h1>
+<p>第一次接触LLM相关的东西，就当玩玩，没接触过这么一站式服务的平台。</p>
+<h1 id="一些体验"><a class="header" href="#一些体验">一些体验</a></h1>
+<p>了解了一点alpaca数据集的知识。</p>
+<h2 id="alpaca"><a class="header" href="#alpaca">alpaca</a></h2>
+<p>指令、输入、输出所构成的格式。</p>
+<p>Alpaca 数据集的主要目标是模拟类似 OpenAI ChatGPT 的指令跟随能力。由于直接训练一个高质量的指令遵循模型（如 ChatGPT）需要大量资源，Alpaca 数据集提供了一种通过少量样本扩展数据的方法，从而降低训练成本。</p>
+<p>特点与优势
+1.	低成本构造：
+•	通过使用 OpenAI 的模型生成扩展数据，大幅减少了手动标注成本。
+2.	高质量：
+•	数据生成过程中，基于高质量模型的输出，提供了良好的语言流畅性和指令跟随能力。
+3.	开源性：
+•	数据集完全开源，供研究者在非商业环境中自由使用。
+4.	易于微调：
+•	可用于对基础语言模型（如 LLaMA、GPT-3 等）进行微调，从而快速提升模型的指令跟随能力。</p>
+<h2 id="定制大模型"><a class="header" href="#定制大模型">定制大模型？</a></h2>
+<ol>
+<li>
+<p>定制模型的流程</p>
+<ol>
+<li>明确需求：
+•	确定目标任务（如问答、摘要、对话生成等）。
+•	收集领域特定的知识或数据（如医学、法律、金融领域）。</li>
+<li>选择基础模型：
+•	通常选择已有的预训练模型（如 GPT、LLaMA、BERT、Bloom）。
+•	基础模型需要具有强大的通用性，并支持微调。</li>
+<li>准备数据：
+•	收集高质量数据集，确保多样性和覆盖性。
+•	数据清洗与标注，根据任务需求对数据进行格式化。</li>
+<li>微调模型：
+•	根据定制需求，通过技术手段对模型参数进行优化。</li>
+<li>评估与部署：
+•	使用领域测试集对模型效果进行评估。
+•	部署到生产环境，同时监控并优化性能。</li>
+</ol>
+</li>
+<li>
+<p>定制模型的主要技术</p>
+</li>
+</ol>
+<p>以下是用于定制大模型的关键技术：</p>
+<p>(1) 微调（Fine-Tuning）
+•	原理：
+•	在预训练模型的基础上，用特定任务的数据进行再训练。
+•	调整全部或部分参数，使模型在特定领域表现更优。
+•	适用场景：
+•	定制化任务（如客服问答、文档摘要）。
+•	大量标注数据可用时。
+•	工具与框架：
+•	Hugging Face Transformers、DeepSpeed、TensorFlow、PyTorch。</p>
+<p>(2) 参数高效微调（Parameter-Efficient Fine-Tuning）
+•	原理：
+•	对大模型进行高效微调，仅修改部分参数或添加少量新参数。
+•	避免对整个模型重新训练，从而节省资源。
+•	常见方法：
+•	LoRA（Low-Rank Adaptation）：
+•	仅调整模型中的低秩矩阵，减少计算需求。
+•	Adapters：
+•	在模型的特定层中插入小型网络模块，执行特定任务。
+•	Prefix-Tuning：
+•	在模型输入中添加可训练的前缀向量，而非调整模型本身。
+•	适用场景：
+•	资源受限（如 GPU 内存有限）。
+•	需要快速迁移到多个任务。</p>
+<p>(3) 指令微调（Instruction Fine-Tuning）
+•	原理：
+•	提供大规模指令数据集（如 Alpaca、FLAN），微调模型的指令跟随能力。
+•	增强模型理解和执行自然语言指令的能力。
+•	特点：
+•	适合多任务、多领域场景。
+•	提高模型与用户交互的效果。
+•	工具：
+•	Stanford Alpaca 数据集、FLAN 数据集。</p>
+<p>(4) 增量学习（Incremental Learning）
+•	原理：
+•	将模型暴露在新数据上，学习新的知识，同时避免遗忘旧知识。
+•	方法：
+•	使用数据重放、正则化技术或知识蒸馏。
+•	适用场景：
+•	持续更新领域知识（如实时新闻、法律法规）。</p>
+<p>(5) 检索增强生成（Retrieval-Augmented Generation, RAG）
+•	原理：
+•	将检索模块与生成模型结合，利用外部知识库提升模型生成能力。
+•	通过查询获取相关知识，再交给生成模型生成答案。
+•	实现步骤：
+1.	构建或使用知识库（如 Elasticsearch 或向量数据库）。
+2.	使用检索模型查找相关上下文。
+3.	将上下文作为提示词输入生成模型。
+•	适用场景：
+•	知识密集型任务（如法律、医学）。
+•	框架：
+•	Haystack、FAISS、Milvus。</p>
+<p>(6) 提示工程（Prompt Engineering）
+•	原理：
+•	通过设计高质量的提示词，引导模型按照需求完成任务。
+•	使用少量示例（Few-shot）或零示例（Zero-shot）方式。
+•	技术扩展：
+•	提示优化（Prompt Optimization）：
+•	自动生成或调整提示词以提高模型性能。
+•	链式提示（Chain-of-Thought, CoT）：
+•	将复杂任务分解为多个步骤，通过提示链实现推理。
+•	适用场景：
+•	无法直接微调或数据不足时。</p>
+<p>(8) 多模态增强
+•	原理：
+•	将语言与其他模态（如图像、视频、音频）结合，扩展模型能力。
+•	应用：
+•	图文生成、语音问答等。
+•	常见模型：
+•	OpenAI CLIP、DeepMind Flamingo。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../零零碎碎/BTreeVSBPlusTree.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../零零碎碎/BTreeVSBPlusTree.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

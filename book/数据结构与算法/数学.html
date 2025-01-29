@@ -1,0 +1,376 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>数学 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#204-%E8%AE%A1%E6%95%B0%E8%B4%A8%E6%95%B0">204 计数质数</a></li>
+<li><a href="#2183-%E7%BB%9F%E8%AE%A1%E5%8F%AF%E4%BB%A5%E8%A2%ABK%E6%95%B4%E9%99%A4%E7%9A%84%E4%B8%8B%E6%A0%87%E5%AF%B9%E7%9A%84%E6%95%B0%E9%87%8F">2183 统计可以被K整除的下标对的数量</a></li>
+<li><a href="#3001-%E6%8D%95%E8%8E%B7%E9%BB%91%E7%9A%87%E5%90%8E%E6%89%80%E9%9C%80%E8%A6%81%E7%9A%84%E6%9C%80%E5%B0%91%E7%A7%BB%E5%8A%A8%E6%AC%A1%E6%95%B0">3001 捕获黑皇后所需要的最少移动次数</a></li>
+</ul>
+<h1 id="204-计数质数"><a class="header" href="#204-计数质数">204 计数质数</a></h1>
+<p>给定整数 n ，返回 所有小于非负整数 n 的质数的数量 。</p>
+<details>
+<pre><code class="language-cpp">class Solution {
+public:
+    int countPrimes(int n) {
+        vector&lt;int&gt; isPrime(n,1);
+        int ans=0;
+        for(int i=2;i&lt;n;i++){
+            if(isPrime[i]){
+                ans+=1;
+                if((long long)i*i&lt;n){
+                    for(int j=i*i;j&lt;n;j+=i){
+                        isPrime[j]=0;
+                    }
+                }
+            }
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="2183-统计可以被K整除的下标对的数量"><a class="header" href="#2183-统计可以被K整除的下标对的数量">2183 统计可以被K整除的下标对的数量</a></h1>
+<p>给你一个下标从 0 开始、长度为 n 的整数数组 nums 和一个整数 k ，返回满足下述条件的下标对 (i, j) 的数目：</p>
+<pre><code>0 &lt;= i &lt; j &lt;= n - 1 且
+nums[i] * nums[j] 能被 k 整除。
+</code></pre>
+<details>
+<pre><code class="language-cpp">class Solution {
+public:
+    long long countPairs(vector&lt;int&gt;&amp; nums, int k) {
+        vector&lt;int&gt; divisors;
+        for(int d=1;d*d&lt;=k;++d){//预处理所有k的因子
+            if(k%d==0){
+                divisors.emplace_back(d);
+                if(d*d&lt;k) divisors.emplace_back(k/d);
+            }
+        }
+        long long ans=0;
+        unordered_map&lt;int,int&gt; cnt;
+        for(int v:nums){
+            ans+=cnt[k/gcd(v,k)];
+            for(int d:divisors){
+                if(v%d==0) ++cnt[d];
+            }
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<p>或者</p>
+<details>
+<summary>
+数学
+</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    long long coutPairs(vector&lt;int&gt;&amp; nums, int k) {
+        unordered_map&lt;int, int&gt; freq;
+        for (int num: nums) {
+            ++freq[gcd(num, k)];
+        }
+
+        long long ans = 0;
+        for (auto&amp;&amp; [x, occx]: freq) {
+            for (auto&amp;&amp; [y, occy]: freq) {
+                if (static_cast&lt;long long&gt;(x) * y % k == 0) {
+                    ans += static_cast&lt;long long&gt;(occx) * occy;
+                }
+            }
+        }
+
+        for (int num: nums) {
+            if (static_cast&lt;long long&gt;(num) * num % k == 0) {
+                --ans;
+            }
+        }
+
+        return ans / 2;
+    }
+};
+</code></pre>
+</details>
+<h1 id="3001-捕获黑皇后所需要的最少移动次数"><a class="header" href="#3001-捕获黑皇后所需要的最少移动次数">3001 捕获黑皇后所需要的最少移动次数</a></h1>
+<p>现有一个下标从 1 开始的 8 x 8 棋盘，上面有 3 枚棋子。</p>
+<p>给你 6 个整数 a 、b 、c 、d 、e 和 f ，其中：</p>
+<pre><code>(a, b) 表示白色车的位置。
+(c, d) 表示白色象的位置。
+(e, f) 表示黑皇后的位置。
+</code></pre>
+<p>假定你只能移动白色棋子，返回捕获黑皇后所需的最少移动次数。</p>
+<p>请注意：</p>
+<pre><code>车可以向垂直或水平方向移动任意数量的格子，但不能跳过其他棋子。
+象可以沿对角线方向移动任意数量的格子，但不能跳过其他棋子。
+如果车或象能移向皇后所在的格子，则认为它们可以捕获皇后。
+皇后不能移动。
+</code></pre>
+<details>
+<pre><code class="language-cpp">class Solution {
+public:
+    bool in_between(int l,int m,int r){
+        return min(l,r)&lt; m &amp;&amp; m&lt;max(l,r);
+    }
+    int minMovesToCaptureTheQueen(int a, int b, int c, int d, int e, int f) {
+        if(a==e&amp;&amp;(c!=e||!in_between(b, d, f))
+        ||b==f&amp;&amp;(d!=f||!in_between(a,c,e))
+        || c+d==e+f&amp;&amp;(a+b!=e+f||!in_between(c,a,e))
+        ||c-d==e-f&amp;&amp;(a-b!=e-f||!in_between(c,a,e))){
+            return 1;
+        }
+        return 2;
+    }
+};
+</code></pre>
+</details>
+<h1 id="507-完美数"><a class="header" href="#507-完美数">507 完美数</a></h1>
+<p>对于一个 正整数，如果它和除了它自身以外的所有 正因子 之和相等，我们称它为 「完美数」。</p>
+<p>给定一个 整数 n， 如果是完美数，返回 true；否则返回 false。</p>
+<details>
+<pre><code class="language-cpp">class Solution {
+public:
+    bool checkPerfectNumber(int num) {
+        if(num==1){
+            return false;
+        }
+        int sum=1;
+        for(int d=2;d*d&lt;=num;++d){
+            if(num%d==0){
+                sum+=d;
+                if(d*d&lt;num){
+                    sum+=num/d;
+                }
+            }
+        }
+        return sum==num;
+    }
+};
+</code></pre>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../数据结构与算法/单调队列.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../数据结构与算法/AC自动机.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../数据结构与算法/单调队列.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../数据结构与算法/AC自动机.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

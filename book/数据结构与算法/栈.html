@@ -1,0 +1,619 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>栈 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#394-%E5%AD%97%E7%AC%A6%E4%B8%B2%E8%A7%A3%E7%A0%81">394 字符串解码</a></li>
+<li><a href="#71-%E7%AE%80%E5%8C%96%E8%B7%AF%E5%BE%84">71 简化路径</a></li>
+<li><a href="#1006-%E7%AC%A8%E9%98%B6%E4%B9%98">1006 笨阶乘</a></li>
+<li><a href="#155-%E6%9C%80%E5%B0%8F%E6%A0%88">155 最小栈</a></li>
+<li><a href="#739-%E6%AF%8F%E6%97%A5%E6%B8%A9%E5%BA%A6">739 每日温度</a>
+<ul>
+<li><a href="#%E6%80%9D%E8%B7%AF">思路</a></li>
+</ul>
+</li>
+<li><a href="#84-%E6%9C%80%E5%A4%A7%E7%9F%A9%E5%BD%A2">84 最大矩形</a></li>
+<li><a href="#402-%E7%A7%BB%E6%8E%89k%E4%BD%8D%E6%95%B0%E5%AD%97">402 移掉K位数字</a></li>
+<li><a href="#unsolved-321-%E6%8B%BC%E6%8E%A5%E6%9C%80%E5%A4%A7%E6%95%B0">UNSOLVED 321
+拼接最大数</a></li>
+</ul>
+<h1 id="394-字符串解码"><a class="header" href="#394-字符串解码">394 字符串解码</a></h1>
+<p>给定一个经过编码的字符串，返回它解码后的字符串。</p>
+<p>编码规则为: k[encoded_string]，表示其中方括号内部的 encoded_string
+正好重复 k 次。注意 k 保证为正整数。</p>
+<p>你可以认为输入字符串总是有效的；输入字符串中没有额外的空格，且输入的方括号总是符合格式要求的。</p>
+<p>此外，你可以认为原始数据不包含数字，所有的数字只表示重复的次数 k
+，例如不会出现像 3a 或 2[4] 的输入。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    string getDigits(string&amp; s, size_t&amp; ptr) {
+        string ret = "";
+        while (isdigit(s[ptr])) {
+            ret.push_back(s[ptr++]);
+        }
+        return ret;
+    }
+    string getString(vector&lt;string&gt;&amp; v) {
+        string ret;
+        for (const auto&amp; s : v) {
+            ret += s;
+        }
+        return ret;
+    }
+    string decodeString(string s) {
+        vector&lt;string&gt; stk;
+        size_t ptr = 0;
+        while (ptr &lt; s.size()) {
+            char cur = s[ptr];
+            if (isdigit(cur)) {
+                string digits = getDigits(s, ptr);
+                stk.push_back(digits);
+            } else if (isalnum(cur) || cur == '[') {
+                stk.push_back(string(1, s[ptr++]));
+            } else {
+                ++ptr;
+                vector&lt;string&gt; sub;
+                while (stk.back() != "[") {
+                    sub.push_back(stk.back());
+                    stk.pop_back();
+                }
+                reverse(sub.begin(), sub.end());
+                stk.pop_back();
+                int repTime = stoi(stk.back());
+                stk.pop_back();
+                string t, o = getString(sub);
+                while (repTime--)
+                    t += o;
+                stk.push_back(t);
+            }
+        }
+        return getString(stk);
+    }
+};
+</code></pre>
+</details>
+<h1 id="71-简化路径"><a class="header" href="#71-简化路径">71 简化路径</a></h1>
+<p>给你一个字符串 path ，表示指向某一文件或目录的 Unix 风格 绝对路径 （以
+'/' 开头），请你将其转化为 更加简洁的规范路径。</p>
+<p>在 Unix 风格的文件系统中规则如下：</p>
+<pre><code>一个点 '.' 表示当前目录本身。
+此外，两个点 '..' 表示将目录切换到上一级（指向父目录）。
+任意多个连续的斜杠（即，'//' 或 '///'）都被视为单个斜杠 '/'。
+任何其他格式的点（例如，'...' 或 '....'）均被视为有效的文件/目录名称。
+</code></pre>
+<p>返回的 简化路径 必须遵循下述格式：</p>
+<pre><code>始终以斜杠 '/' 开头。
+两个目录名之间必须只有一个斜杠 '/' 。
+最后一个目录名（如果存在）不能 以 '/' 结尾。
+此外，路径仅包含从根目录到目标文件或目录的路径上的目录（即，不含 '.' 或 '..'）。
+</code></pre>
+<p>返回简化后得到的 规范路径 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    string simplifyPath(string path) {
+        vector&lt;string&gt; str_st;
+        auto split=[](const string&amp; s,char delim)-&gt;vector&lt;string&gt;{
+            vector&lt;string&gt; res;
+            string cur;
+            for(auto ch: s){
+                if(ch==delim){
+                    res.emplace_back(move(cur));
+                }else{
+                    cur+=ch;
+                }
+            }
+            res.emplace_back(move(cur));
+            return res;
+        };
+        vector&lt;string&gt; names=split(path,'/');
+        for(auto&amp; name: names){
+            if(name==".."){
+                if(str_st.size()) str_st.pop_back();
+            }
+            else if(!name.empty()&amp;&amp;name!="."){
+                str_st.push_back(name);
+            }
+        }
+        string ans;
+        if(str_st.empty()){
+            ans="/";
+        }else{
+            for(auto&amp; name: str_st){
+                ans+="/"+move(name);
+            }
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="1006-笨阶乘"><a class="header" href="#1006-笨阶乘">1006 笨阶乘</a></h1>
+<p>通常，正整数 n 的阶乘是所有小于或等于 n
+的正整数的乘积。例如，factorial(10) = 10 * 9 * 8 * 7 * 6 * 5 * 4
+* 3 * 2 * 1。</p>
+<p>相反，我们设计了一个笨阶乘
+clumsy：在整数的递减序列中，我们以一个固定顺序的操作符序列来依次替换原有的乘法操作符：乘法(*)，除法(/)，加法(+)和减法(-)。</p>
+<p>例如，clumsy(10) = 10 * 9 / 8 + 7 - 6 * 5 / 4 + 3 - 2 *
+1。然而，这些运算仍然使用通常的算术运算顺序：我们在任何加、减步骤之前执行所有的乘法和除法步骤，并且按从左到右处理乘法和除法步骤。</p>
+<p>另外，我们使用的除法是地板除法（floor division），所以 10 * 9 / 8 等于
+11。这保证结果是一个整数。</p>
+<p>实现上面定义的笨函数：给定一个整数 N，它返回 N 的笨阶乘。</p>
+<p>还有数学解法。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int clumsy(int n) {
+        stack&lt;int&gt; st;
+        st.push(n);
+        n--;
+        int index=0;
+        while(n&gt;0){
+            if(index%4==0){
+                st.top()*=n;
+            }else if(index%4==1){
+                st.top()/=n;
+            }else if(index%4==2){
+                st.push(n);
+            }else{
+                st.push(-n);
+            }
+            index++;
+            n--;
+        }
+        int sum=0;
+        while(!st.empty()){
+            sum+=st.top();
+            st.pop();
+        }
+        return sum;
+    }
+};
+</code></pre>
+</details>
+<h1 id="155-最小栈"><a class="header" href="#155-最小栈">155 最小栈</a></h1>
+<p>设计一个支持 push ，pop ，top 操作，并能在常数时间内检索到最小元素的栈。</p>
+<p>实现 MinStack 类:</p>
+<pre><code>MinStack() 初始化堆栈对象。
+void push(int val) 将元素val推入堆栈。
+void pop() 删除堆栈顶部的元素。
+int top() 获取堆栈顶部的元素。
+int getMin() 获取堆栈中的最小元素。
+</code></pre>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class MinStack {
+    stack&lt;int&gt; x_stack;
+    stack&lt;int&gt; min_stack;
+public:
+    MinStack() {
+        min_stack.emplace(INT_MAX);
+    }
+    void push(int val) {
+        x_stack.emplace(val);
+        min_stack.emplace(min(min_stack.top(),val));
+    }
+    void pop() {
+        x_stack.pop();
+        min_stack.pop();   
+    }
+    int top() {
+        return x_stack.top();   
+    }
+    int getMin() {
+        return min_stack.top();
+    }
+};
+</code></pre>
+</details>
+<h1 id="739-每日温度"><a class="header" href="#739-每日温度">739 每日温度</a></h1>
+<p>给定一个整数数组 temperatures ，表示每天的温度，返回一个数组 answer
+，其中 answer[i] 是指对于第 i
+天，下一个更高温度出现在几天后。如果气温在这之后都不会升高，请在该位置用
+0 来代替。</p>
+<h2 id="思路"><a class="header" href="#思路">思路</a></h2>
+<p>可以维护一个存储下标的单调栈，从栈底到栈顶的下标对应的温度列表中的温度依次递减。如果一个下标在单调栈里，则表示尚未找到下一次温度更高的下标。</p>
+<p>正向遍历温度列表。对于温度列表中的每个元素
+temperatures[i]，如果栈为空，则直接将 i
+进栈，如果栈不为空，则比较栈顶元素 prevIndex 对应的温度
+temperatures[prevIndex] 和当前温度 temperatures[i]，如果
+temperatures[i] &gt; temperatures[prevIndex]，则将 prevIndex
+移除，并将 prevIndex 对应的等待天数赋为 i -
+prevIndex，重复上述操作直到栈为空或者栈顶元素对应的温度小于等于当前温度，然后将
+i 进栈。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    vector&lt;int&gt; dailyTemperatures(vector&lt;int&gt;&amp; temperatures) {
+        int n=temperatures.size();
+        vector&lt;int&gt; ans(n);
+        stack&lt;int&gt; s;
+        for(int i=0;i&lt;n;i++){
+            while(!s.empty()&amp;&amp;temperatures[i]&gt;temperatures[s.top()]){
+                int previousIndex=s.top();
+                ans[previousIndex]=i-previousIndex;
+                s.pop();
+            }
+            s.push(i);
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="84-最大矩形"><a class="header" href="#84-最大矩形">84 最大矩形</a></h1>
+<p>给定 n
+个非负整数，用来表示柱状图中各个柱子的高度。每个柱子彼此相邻，且宽度为 1
+。</p>
+<p>求在该柱状图中，能够勾勒出来的矩形的最大面积。</p>
+<p>思路：假设 h=heights[i]
+是矩形的高度，那么矩形的宽度最大是多少？我们需要知道：</p>
+<p>在 i 左侧的小于 h 的最近元素的下标 left，如果不存在则为 −1。求出了
+left，那么 left+1 就是在 i 左侧的大于等于 h 的最近元素的下标。 在 i
+右侧的小于 h 的最近元素的下标 right，如果不存在则为 n。求出了
+right，那么 right−1 就是在 i 右侧的大于等于 h 的最近元素的下标。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int largestRectangleArea(vector&lt;int&gt;&amp; heights) {
+        int n=heights.size();
+        vector&lt;int&gt; left(n,-1);
+        stack&lt;int&gt; st;
+        for(int i=0;i&lt;n;i++){
+            while(!st.empty()&amp;&amp;heights[i]&lt;=heights[st.top()]){
+                st.pop();
+            }
+            if(!st.empty()){
+                left[i]=st.top();
+            }
+            st.push(i);
+        }
+        vector&lt;int&gt; right(n,n);
+        st=stack&lt;int&gt;();
+        for(int i=n-1;i&gt;=0;i--){
+            while(!st.empty()&amp;&amp;heights[i]&lt;=heights[st.top()]){
+                st.pop();
+            }
+            if(!st.empty()){
+                right[i]=st.top();
+            }
+            st.push(i);
+        }
+        int ans=0;
+        for(int i=0;i&lt;n;i++){
+            ans=max(ans,heights[i]*(right[i]-left[i]-1));
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="402-移掉k位数字"><a class="header" href="#402-移掉k位数字">402 移掉K位数字</a></h1>
+<p>给你一个以字符串表示的非负整数 num 和一个整数 k ，移除这个数中的 k
+位数字，使得剩下的数字最小。请你以字符串形式返回这个最小的数字。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    string removeKdigits(string num, int k) {
+        vector&lt;char&gt; s;
+        int remain=num.length()-k;
+        for(auto ch: num){
+            while(k&amp;&amp;s.size()&amp;&amp;s.back()&gt;ch){
+                s.pop_back();
+                k-=1;
+            }
+            s.push_back(ch);
+        }
+        for(;k&gt;0;--k){
+            s.pop_back();
+        }
+        string ans="";
+        bool isLeadingZero=true;
+        for(auto ch: s){
+            if(isLeadingZero&amp;&amp;ch=='0') continue;
+            isLeadingZero=false;
+            ans+=ch;
+        }
+        return ans==""?"0":ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="unsolved-321-拼接最大数"><a class="header" href="#unsolved-321-拼接最大数">UNSOLVED 321 拼接最大数</a></h1>
+<p>给你两个整数数组 nums1 和 nums2，它们的长度分别为 m 和 n。数组 nums1 和
+nums2 分别代表两个数各位上的数字。同时你也会得到一个整数 k。</p>
+<p>请你利用这两个数组中的数字中创建一个长度为 k &lt;= m + n
+的最大数，在这个必须保留来自同一数组的数字的相对顺序。</p>
+<p>返回代表答案的长度为 k 的数组。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+    vector&lt;int&gt; nums1;
+    vector&lt;int&gt; nums2;
+    int findMaxIndex(vector&lt;int&gt; &amp;nums,int idx,int len){
+        int maxIdx=idx;
+        for(int i=idx;i&lt;nums.size()-len;i++){
+            if(nums[i]&gt;nums[maxIdx]){
+                maxIdx=i;
+            }
+        }
+        return maxIdx;
+    }
+public:
+    void bfs(vector&lt;int&gt;&amp; rst,int k){
+        set&lt;pair&lt;int,int&gt;&gt; s1;
+        s1.insert(make_pair(0,0));
+        while(k){
+            int maxNum=-1;
+            set&lt;pair&lt;int,int&gt;&gt; s2;
+            for(auto&amp; p:s1){
+                auto [idx1,idx2]=p;
+                int len1=max(0,k-((int)nums2.size()-idx2)-1);
+                int maxIdx1=findMaxIndex(nums1, idx1,len1);
+                int maxNum1=maxIdx1&gt;=nums1.size()?-1:nums1[maxIdx1];
+                if(maxNum1&gt;maxNum){
+                    s2.clear();
+                    s2.insert(make_pair(maxIdx1+1,idx2));
+                    maxNum=maxNum1;
+                }else if(maxNum1==maxNum){
+                    s2.insert(make_pair(maxIdx1+1,idx2));
+                }
+                int len2=max(0,k-((int)nums1.size()-idx1)-1);
+                int maxIdx2=findMaxIndex(nums2,idx2,len2);
+                int maxNum2=maxIdx2&gt;=nums2.size()?-1:nums2[maxIdx2];
+                  if (maxNum2 &gt; maxNum){
+
+                    s2.clear();
+
+                    s2.insert(make_pair(idx1, maxIdx2 + 1));
+
+                    maxNum = maxNum2;
+
+                }
+
+                else if (maxNum2 == maxNum){
+
+                    s2.insert(make_pair(idx1, maxIdx2 + 1));
+
+                }
+            }
+            s1.swap(s2);
+            rst.push_back(maxNum);
+            --k;
+        }
+    }
+    vector&lt;int&gt; maxNumber(vector&lt;int&gt;&amp; n1, vector&lt;int&gt;&amp; n2, int k) {
+        nums1.swap(n1);
+        nums2.swap(n2);
+        vector&lt;int&gt; rst;
+        bfs(rst,k);
+        return rst;
+    }
+};
+</code></pre>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../数据结构与算法/图算法.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../数据结构与算法/线段树.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../数据结构与算法/图算法.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../数据结构与算法/线段树.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

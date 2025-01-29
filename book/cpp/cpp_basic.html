@@ -1,0 +1,547 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>基本知识 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#%E9%87%8D%E8%AF%BBc%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1%E8%AF%AD%E8%A8%80">重读&lt;&lt;C++程序设计语言&gt;&gt;</a>
+<ul>
+<li><a href="#41%E7%AB%A0%E5%B9%B6%E5%8F%91">41章并发</a>
+<ul>
+<li><a href="#p280">P280</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E8%AF%AD%E8%A8%80%E6%A0%87%E5%87%86">语言标准</a>
+<ul>
+<li><a href="#concept">concept</a></li>
+<li><a href="#stdref">std::ref</a></li>
+<li><a href="#stdcref">std::cref</a></li>
+<li><a href="#stdignore">std::ignore</a></li>
+<li><a href="#stdmove_only_functionmove_only_function">std::move_only_function::move_only_function</a></li>
+<li><a href="#stdatomic">std::atomic</a>
+<ul>
+<li><a href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C">基本操作</a></li>
+<li><a href="#%E5%86%85%E5%AD%98%E9%A1%BA%E5%BA%8F">内存顺序</a></li>
+</ul>
+</li>
+<li><a href="#stdchrono">std::chrono</a></li>
+<li><a href="#stdrecursive_mutex">std::recursive_mutex</a></li>
+<li><a href="#stdchronohigh_resolution_clock">std::chrono::high_resolution_clock</a></li>
+<li><a href="#cxxabi-abi__cxa_demangle">cxxabi
+abi::__cxa_demangle()</a></li>
+<li><a href="#stdbitset">std::bitset</a></li>
+<li><a href="#std::common_type">std::common_type</a></li>
+</ul>
+</li>
+<li><a href="#%E4%B8%80%E4%BA%9B%E5%BA%93">一些库</a>
+<ul>
+<li><a href="#%E6%B5%8B%E8%AF%95">测试</a>
+<ul>
+<li><a href="#doctest">doctest</a></li>
+<li><a href="#gtest">gtest</a></li>
+</ul>
+</li>
+<li><a href="#rpc">rpc</a>
+<ul>
+<li><a href="#json-rpc-cxx">json-rpc-cxx</a></li>
+</ul>
+</li>
+<li><a href="#neither">neither</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%A4%9A%E6%80%81">什么是多态？</a>
+<ul>
+<li><a href="#ad-hoc-polymorphism-%E7%89%B9%E8%AE%BE%E5%A4%9A%E6%80%81">Ad-hoc Polymorphism
+特设多态</a></li>
+<li><a href="#parametric-polymorphism-%E5%8F%82%E6%95%B0%E5%A4%9A%E6%80%81">Parametric Polymorphism
+参数多态</a></li>
+<li><a href="#subtype-polymorphism-%E5%AD%90%E7%B1%BB%E5%9E%8B%E5%A4%9A%E6%80%81">Subtype Polymorphism
+子类型多态</a></li>
+<li><a href="#row-polymorphism%E8%A1%8C%E5%A4%9A%E6%80%81">Row
+Polymorphism（行多态）</a></li>
+</ul>
+</li>
+<li><a href="#%E8%AF%AD%E8%A8%80%E6%A0%87%E5%87%86-1">语言标准</a>
+<ul>
+<li><a href="#for-co_await">for co_await</a></li>
+<li><a href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%AD%97%E9%9D%A2%E9%87%8F">字符串字面量</a></li>
+<li><a href="#%E6%8C%87%E9%92%88%E4%B8%8Econst">指针与const</a></li>
+<li><a href="#%E5%8F%B3%E5%80%BC%E5%BC%95%E7%94%A8">右值引用</a></li>
+<li><a href="#static">static</a></li>
+<li><a href="#%E7%B1%BB%E5%9E%8B%E5%8F%8C%E5%85%B3">类型双关</a></li>
+</ul>
+</li>
+<li><a href="#%E6%9D%82%E9%A1%B9">杂项</a>
+<ul>
+<li><a href="#forward-declaration">forward
+declaration</a></li>
+<li><a href="#stdswap-vs-xor">std::swap VS xor</a></li>
+<li><a href="#cbrt">cbrt</a></li>
+<li><a href="#sendto">sendto</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="重读c程序设计语言"><a class="header" href="#重读c程序设计语言">重读&lt;&lt;C++程序设计语言&gt;&gt;</a></h1>
+<p>注：由于是重读，这里大多是一些拾遗。</p>
+<p>采用格式：章节+页码+内容</p>
+<h2 id="41章并发"><a class="header" href="#41章并发">41章并发</a></h2>
+<h3 id="p280"><a class="header" href="#p280">P280</a></h3>
+<p>"还请注意，只要你不向其他线程传递局部数据的指针，你的局部数据就不存在这里讨论的诸多问题。"</p>
+<h1 id="语言标准"><a class="header" href="#语言标准">语言标准</a></h1>
+<h2 id="concept"><a class="header" href="#concept">concept</a></h2>
+<p>例子：</p>
+<pre><code class="language-cpp">template &lt;typename Lock&gt;
+concept is_lockable=requires(Lock &amp;&amp;lock){
+  lock.lock();
+  lock.unlock();
+  {lock.try_lock()}-&gt;std::convertible_to&lt;bool&gt;;
+};
+</code></pre>
+<p>is_lockable 概念可以用来限制模板，使得只有那些具备 lock()、unlock() 和
+try_lock() 成员函数，并且 try_lock() 返回类型可以转换为 bool
+的类型才可以作为模板参数传递。这个概念通常用于多线程编程中，以确保模板只接受那些具有锁定功能的类型，比如
+std::mutex 或 std::recursive_mutex。</p>
+<p>限定类型。</p>
+<h2 id="stdref"><a class="header" href="#stdref">std::ref</a></h2>
+<p>std::ref相当于告诉编译器这里要使用引用而不是按值传递，比如boost::asio::context就需要按引用。</p>
+<p>std::ref 的作用是显式地告诉编译器传递引用，而不是尝试通过值传递。</p>
+<p>asio::io_context
+的拷贝构造函数被删除，不能被拷贝，只能通过引用或指针传递。</p>
+<p>通过 std::ref，你成功避免了编译器试图调用已删除的拷贝构造函数。</p>
+<h2 id="stdcref"><a class="header" href="#stdcref">std::cref</a></h2>
+<p>用于生成一个 std::reference_wrapper<code>&lt;const T&gt;</code>{=html} 对象，类似于
+std::ref，但它为常量对象创建引用。</p>
+<p>std::cref 允许你创建对 const 类型对象的引用包装器。</p>
+<p>这个包装器可以用于那些期望传递对象而实际上需要传递常量引用的场景。</p>
+<h2 id="stdignore"><a class="header" href="#stdignore">std::ignore</a></h2>
+<p>可用来忽略返回值，cppref解释：</p>
+<ol>
+<li>An object such that any value can be assigned to it with no effect.</li>
+<li>The type of std::ignore.</li>
+</ol>
+<pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;set&gt;
+#include &lt;string&gt;
+#include &lt;tuple&gt;
+ 
+[[nodiscard]] int dontIgnoreMe()
+{
+    return 42;
+}
+ 
+int main()
+{
+    std::ignore = dontIgnoreMe();
+ 
+    std::set&lt;std::string&gt; set_of_str;
+    if (bool inserted{false};
+        std::tie(std::ignore, inserted) = set_of_str.insert("Test"),
+        inserted)
+        std::cout &lt;&lt; "Value was inserted successfully.\n";
+}
+</code></pre>
+<h2 id="stdmove_only_functionmove_only_function"><a class="header" href="#stdmove_only_functionmove_only_function">std::move_only_function::move_only_function</a></h2>
+<h2 id="stdatomic"><a class="header" href="#stdatomic">std::atomic</a></h2>
+<p>C++
+标准库中提供的原子类型模板，允许你对某些基本数据类型进行原子操作，确保在多线程环境中对这些变量的操作不会产生竞争条件（race
+condition）。std::atomic 提供了一系列原子操作，避免了对锁（如
+std::mutex）的依赖，从而提高了并发性能。</p>
+<h3 id="基本操作"><a class="header" href="#基本操作">基本操作</a></h3>
+<p>load()：读取变量的值。<br />
+store()：存储一个新值。<br />
+exchange()：交换变量值并返回旧值。<br />
+fetch_add() 和 fetch_sub()：原子加减操作。<br />
+compare_exchange_strong() 和 compare_exchange_weak()：比较并交换值。</p>
+<blockquote>
+<p>compare_exchange_strong 和 compare_exchange_weak
+用于原子的比较并交换操作。它们的用途是当且仅当原子的当前值与给定的预期值相等时，才更新为新值。否则，不做更新。</p>
+</blockquote>
+<h3 id="内存顺序"><a class="header" href="#内存顺序">内存顺序</a></h3>
+<p>std::atomic
+操作可以指定内存顺序，以控制操作的内存可见性。这些顺序包括：<br />
+std::memory_order_relaxed：无同步或顺序保证。<br />
+std::memory_order_acquire：确保此操作之前的所有读操作都不会被重排序。<br />
+std::memory_order_release：确保此操作之后的所有写操作都不会被重排序。<br />
+std::memory_order_acq_rel：结合了 acquire 和 release 的保证。<br />
+std::memory_order_seq_cst：最强的内存顺序，提供全局顺序保证。</p>
+<h2 id="stdchrono"><a class="header" href="#stdchrono">std::chrono</a></h2>
+<p>获取当前时间点：system_clock::now() 返回当前的时间点，类型为
+std::chrono::system_clock::time_point。</p>
+<p>计算时间差：time_since_epoch()
+返回自系统纪元以来到当前时间点的持续时间，类型为
+system_clock::duration，表示的时长单位可能是秒、毫秒、微秒等。</p>
+<p>时间单位转换：duration_cast<code>&lt;microseconds&gt;</code>{=html}(d) 将时间差 d
+转换为以微秒为单位的持续时间。duration_cast
+是一个模板函数，用于将时间持续时间转换为另一种时间单位。</p>
+<p>获取微秒数：.count() 返回以 microseconds 表示的数值。</p>
+<h2 id="stdrecursive_mutex"><a class="header" href="#stdrecursive_mutex">std::recursive_mutex</a></h2>
+<p>允许同一线程多次对互斥量加锁而不会导致死锁。它的主要用途是在递归函数或涉及到多次调用同一资源锁定的场景中。</p>
+<p>典型用途：</p>
+<p>递归函数中需要加锁的场景：
+如果一个递归函数需要对某个共享资源进行加锁，而递归调用过程中又需要再次加锁，这时使用普通的
+std::mutex 会导致死锁，而使用 std::recursive_mutex 则可以避免这种情况。</p>
+<p>对象方法互相调用的场景：
+如果类的多个方法之间相互调用，并且这些方法都需要对某些共享资源进行加锁，使用
+std::recursive_mutex
+可以避免同一线程在调用链中多次锁定同一互斥量时出现死锁。</p>
+<h2 id="stdchronohigh_resolution_clock"><a class="header" href="#stdchronohigh_resolution_clock">std::chrono::high_resolution_clock</a></h2>
+<p>std::chrono::high_resolution_clock 是 C++ 标准库中的一个时钟类型，定义在
+<code>&lt;chrono&gt;</code>{=html}
+头文件中。它用于测量时间点，并提供高分辨率的时间精度，通常用于精确的时间测量，比如计算代码执行时间、性能分析等。</p>
+<p>特点：</p>
+<p>高分辨率：它通常提供比 system_clock
+更高的精度，可以用于测量短时间间隔，如纳秒或微秒级的时间。</p>
+<p>非系统时钟：high_resolution_clock
+不是一个与系统时间同步的时钟，因此它通常不用于显示当前日期和时间，而是用于测量时间间隔。</p>
+<p>实现细节：在不同的系统上，high_resolution_clock
+可能映射到不同的实现。例如：</p>
+<p>在某些实现中，它可能是
+steady_clock，这意味着它不会受到系统时间调整的影响（如系统时间更新或闰秒）。</p>
+<p>在其他实现中，它可能是 system_clock 的高精度版本。</p>
+<p>用途：high_resolution_clock
+常用于需要高精度的性能分析和时间测量。例如，测量一段代码执行的时间、计算函数的延迟等。</p>
+<h2 id="cxxabi-abi__cxa_demangle"><a class="header" href="#cxxabi-abi__cxa_demangle">cxxabi abi::__cxa_demangle()</a></h2>
+<p>abi::__cxa_demangle() 是一个 GCC 和 Clang 提供的函数，用于将 C++
+编译器修饰过的名称（mangled name）还原为可读的、未修饰的函数名。</p>
+<p>如果 abi::__cxa_demangle() 成功，还原后的名称会存储在返回的指针 v 中。</p>
+<p>如果解析成功，函数将这个可读的函数名返回；否则返回原始字符串。</p>
+<h2 id="stdbitset"><a class="header" href="#stdbitset">std::bitset</a></h2>
+<p>bitset存储二进制数位。</p>
+<p>bitset就像一个bool类型的数组一样，但是有空间优化------bitset中的一个元素一般只占1
+bit，相当于一个char元素所占空间的八分之一。</p>
+<p>bitset中的每个元素都能单独被访问，例如对于一个叫做foo的bitset，表达式foo[3]访问了它的第4个元素，就像数组一样。</p>
+<p>bitset有一个特性：整数类型和布尔数组都能转化成bitset。</p>
+<p>bitset的大小在编译时就需要确定。如果你想要不确定长度的bitset，请使用（奇葩的）vector<code>&lt;bool&gt;</code>{=html}。</p>
+<h2 id="stdcommon_type"><a class="header" href="#stdcommon_type">std::common_type</a></h2>
+<p>确定多个类型之间的公共类型。也就是给定类型之间转换结果最合适的类型。</p>
+<p>规则：</p>
+<ol>
+<li>
+<p>如果所有类型 T1, T2, ..., Tn 是同一种类型，那么公共类型就是该类型。</p>
+</li>
+<li>
+<p>如果可以找到一个类型 T，使得所有 T1, T2, ..., Tn 都可以隐式转换为 T，那么公共类型是 T。</p>
+</li>
+<li>
+<p>如果前两条规则都失败，并且用户没有为类型定义隐式转换或者重载操作符，std::common_type 将导致编译错误。</p>
+</li>
+</ol>
+<h1 id="一些库"><a class="header" href="#一些库">一些库</a></h1>
+<h2 id="测试"><a class="header" href="#测试">测试</a></h2>
+<h3 id="doctest"><a class="header" href="#doctest">doctest</a></h3>
+<p>single-header, 开箱即用</p>
+<h3 id="gtest"><a class="header" href="#gtest">gtest</a></h3>
+<p>功能丰富</p>
+<h2 id="rpc"><a class="header" href="#rpc">rpc</a></h2>
+<h3 id="json-rpc-cxx"><a class="header" href="#json-rpc-cxx">json-rpc-cxx</a></h3>
+<p>学习ing, 功能相对简单，依赖简单。</p>
+<h2 id="neither"><a class="header" href="#neither">neither</a></h2>
+<p>一个基于Either Type的函数式库，设计思路有点意思。</p>
+<h1 id="什么是多态"><a class="header" href="#什么是多态">什么是多态？</a></h1>
+<p>不针对C++，而是一种类型论的概念。</p>
+<h2 id="ad-hoc-polymorphism-特设多态"><a class="header" href="#ad-hoc-polymorphism-特设多态">Ad-hoc Polymorphism 特设多态</a></h2>
+<p>特设多态通过函数重载和运算符重载来实现，同一函数或运算符在不同的类型上有不同的行为。</p>
+<p>C++中的运算符重载/函数重载，Haskell，都有这个机制。</p>
+<h2 id="parametric-polymorphism-参数多态"><a class="header" href="#parametric-polymorphism-参数多态">Parametric Polymorphism 参数多态</a></h2>
+<p>参数多态允许函数或数据类型对任何类型的参数进行操作，而不依赖于具体的类型。在参数多态中，类型是参数化的，常用于泛型编程。</p>
+<p>经典：C++的模板特殊化这样的类型多态（type
+polymorphism）表面上类似于参数多态并同时引入了特设多态。</p>
+<h2 id="subtype-polymorphism-子类型多态"><a class="header" href="#subtype-polymorphism-子类型多态">Subtype Polymorphism 子类型多态</a></h2>
+<p>子类型多态，也称为包含多态，是指对象的某种子类型可以替代父类型使用。这通常涉及继承和接口，允许基于父类的接口调用子类的实现。</p>
+<p>有点像里氏替换原则。</p>
+<h2 id="row-polymorphism行多态"><a class="header" href="#row-polymorphism行多态">Row Polymorphism（行多态）</a></h2>
+<p>Row Polymorphism 是一种较为特殊的多态形式，通常用于记录类型（record
+types）或类似结构中。它允许在具有不完全相同字段的记录类型之间进行操作。不同于参数多态，Row
+Polymorphism
+能够处理部分类型，即它允许记录类型的子集作为参数，而不要求记录类型完全匹配。</p>
+<p>Row Polymorphism
+允许函数作用于多个具有相同字段的记录类型，即使它们有额外的字段。</p>
+<h1 id="语言标准-1"><a class="header" href="#语言标准-1">语言标准</a></h1>
+<h2 id="for-co_await"><a class="header" href="#for-co_await">for co_await</a></h2>
+<p>已经被移除标准：</p>
+<p>The wording for co_await statement makes assumptions of what future
+asynchronous generator interface will be. Remove it for now as not to
+constraint the design space for asynchronous generators.</p>
+<h2 id="字符串字面量"><a class="header" href="#字符串字面量">字符串字面量</a></h2>
+<p>对于一个字符串字面量，其类型为char[]，长度编译期可知。</p>
+<p>字符串字面量是静态分配的，因此函数返回字符串字面量是很安全的行为。</p>
+<p>C++提供了原始字符串，也就是R'str'。</p>
+<h2 id="指针与const"><a class="header" href="#指针与const">指针与const</a></h2>
+<p>constexpr 提供的是（尽可能）编译期求值，指示或确保在编译期求值。</p>
+<p>const 提供的是当前作用域内值不发生改变，主要任务是规定接口的不可修改性。</p>
+<p>使用 const
+会改变一种类型，所谓的改变并不是改变了常量的分配方式，而是限制了他的使用方式。</p>
+<p>c++允许通过显示类型转换的方式显式地除掉对于指针指向常量的限制。</p>
+<p>注意，const变量的存储是一个implementation detail.</p>
+<p>GCC Compiler会把 read-only 变量，常数和跳转表放置在.text段中。</p>
+<p>在局部const变量的情况下，存储在 stack segment （栈区）的写保护区。</p>
+<p>对于全局初始化const变量，存储在 data segment 部分。</p>
+<p>对于全局未初始化const变量，存放在 BSS
+segment（存放未初始化的全局/静态变量）。</p>
+<h2 id="右值引用"><a class="header" href="#右值引用">右值引用</a></h2>
+<p>C++之所以设计了几种不同形式的引用，是为了支持对象的不同用法：</p>
+<p>1.非const左值引用所引用的对象可以由用户写入内容。</p>
+<p>2.const左值引用所引用的对象从用户的角度来看是不可修改的。</p>
+<p>3.右值引用对应一个临时对象，用户可以修改这个对象，并且认定这个对象以后不会被用到了。</p>
+<h2 id="static"><a class="header" href="#static">static</a></h2>
+<p>静态局部变量只在第一次调用时初始化，后续的函数调用会保留其值，而不会再次初始化。因此，这里涉及到函数的执行顺序和静态变量的特性。</p>
+<h2 id="类型双关"><a class="header" href="#类型双关">类型双关</a></h2>
+<p>在 C++ 中，通过 union 实现类型双关（type punning）来将一种枚举类型转换为另一种，是一种不安全的做法，因为在 C++ 中，这种写法可能导致未定义行为。为实现安全的类型转换，推荐使用 static_cast 或其他显式转换方式。</p>
+<h1 id="杂项"><a class="header" href="#杂项">杂项</a></h1>
+<h2 id="forward-declaration"><a class="header" href="#forward-declaration">forward declaration</a></h2>
+<p>为什么c/c++需要我们在调用前声明呢？</p>
+<p>比如说:</p>
+<pre><code class="language-c++">void foo();
+void test(){
+foo();
+}
+void foo(){
+xxx
+}
+</code></pre>
+<p>这是历史问题，c/c++编译器被设计为single-pass,
+当编译器需要链接符号时必须知道这个符号链接的对象是谁。</p>
+<p>对于C#, java这样的two pass
+compiler来说，就不需要前向声明（但是仍然有两个包互相依赖的问题）</p>
+<h2 id="stdswap-vs-xor"><a class="header" href="#stdswap-vs-xor">std::swap VS xor</a></h2>
+<p>由于现代处理器上的Tomasulo's
+algorithm算法的实现，std::swap的性能往往更佳。</p>
+<p>该算法与之前同样用于实现指令流水线动态调度的计分板不同在于它使用了寄存器重命名机制。指令之间具有数据相关性（例如后条指令的源寄存器恰好是前条指令要写入的目标寄存器），进行动态调度时必须避免三类冒险：写后读（Read-after-Write,
+RAW）、写后写（Write-after-Write, WAW）、读后写（Write-after-Read,
+WAR）。[1]:90[2]:319-321第一种冒险也被称为真数据相关（true data
+dependence），而后两种冒险则并没有那么致命，它们可以由寄存器重命名来予以解决。[2]:321-322托马苏洛算法使用了一个共享数据总线（common
+data bus,
+CDB）将已计算出的值广播给所有需要这个值作为指令源操作数的保留站。该算法尽可能降低了使用计分板技术导致的流水线停顿，从而改善了并行计算的效率。</p>
+<p>在指令的发射（issue）阶段，如果操作数和保留站都准备就绪，那么指令就可以直接发射并执行。如果操作数未就绪，则进入保留站的指令会跟踪即将产生这个所需操作数的那个功能单元。如果连可用的保留站功能单元都已经不够用，那么该指令必须被停顿。为了化解读后写（WAR）和写后写（WAW）冲突，需要在该阶段进行指令的寄存器重命名。从指令队列中取出下一条指令，如果其所用到的操作数目前位于寄存器中，那么如果与指令匹配的功能单元（这类处理器通常具有多个功能单元以发挥指令级并行的优势）当前可用，则发射该指令；否则，由于没有可用的功能单元，指令被停顿，直到保留站或缓存可用。尽管执行时可能并未按照指令代码的先后顺序，但是它们在发射过程还是按照原先的顺序。这是为了确保指令顺序执行时的一些现象，例如处理器异常，能够以顺序执行时的同样顺序出现。[1]:90-91下一个阶段为执行阶段。在该阶段，指令对应的操作被执行。执行前需要保证所有操作数可用，同时写后读（RAW）冲突已经被化解。系统通过计算有效地址来避免存储区的冲突，从而保证程序的正确性。最后的阶段为写结果阶段，算术逻辑单元（ALU）的计算结果被写回到寄存器，以及任何正在等待该结果的保留站中，如果是存储（store）指令，则写回到存储器中。</p>
+<p>但是注意，这并不是绝对优势的。这里还要考虑指令重排带来的优化与影响（函数先后位置）。所以，编写简单的代码更重要</p>
+<h2 id="cbrt"><a class="header" href="#cbrt">cbrt</a></h2>
+<p>cube root,开立方根。</p>
+<h2 id="sendot"><a class="header" href="#sendot">sendot</a></h2>
+<p>sys/socket.h中的函数，用来将消息发送到dest_addr。被用于实现ping。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../cpp/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../cpp/深度探索C++对象模型（总结篇）.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../cpp/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../cpp/深度探索C++对象模型（总结篇）.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

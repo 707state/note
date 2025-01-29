@@ -1,0 +1,960 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>二叉树 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#102-%E4%BA%8C%E5%8F%89%E6%A0%91%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86">102 二叉树层序遍历</a></li>
+<li><a href="#199-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%8F%B3%E8%A7%86%E5%9B%BE">199 二叉树的右视图</a></li>
+<li><a href="#637-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%B1%82%E5%B9%B3%E5%9D%87%E5%80%BC">637 二叉树的层平均值</a></li>
+<li><a href="#429-n%E5%8F%89%E6%A0%91%E7%9A%84%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86">429 N叉树的层序遍历</a></li>
+<li><a href="#116-%E5%A1%AB%E5%85%85%E6%AF%8F%E4%B8%80%E4%B8%AA%E8%8A%82%E7%82%B9%E7%9A%84%E4%B8%8B%E4%B8%80%E4%B8%AA%E5%8F%B3%E4%BE%A7%E8%8A%82%E7%82%B9%E6%8C%87%E9%92%88">116 填充每一个节点的下一个右侧节点指针</a></li>
+<li><a href="#117-%E5%A1%AB%E5%85%85%E4%B8%8B%E4%B8%80%E4%B8%AA%E5%8F%B3%E4%BE%A7%E8%8A%82%E7%82%B9-2">117 填充下一个右侧节点2</a></li>
+<li><a href="#%E5%AF%B9%E7%A7%B0%E4%BA%8C%E5%8F%89%E6%A0%91">对称二叉树</a></li>
+<li><a href="#1597-%E6%A0%B9%E6%8D%AE%E4%B8%AD%E7%BC%80%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%9E%84%E9%80%A0%E4%BA%8C%E5%8F%89%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%A0%91">1597 根据中缀表达式构造二叉表达式树</a></li>
+<li><a href="#103-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E9%94%AF%E9%BD%BF%E5%BD%A2%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86">103 二叉树的锯齿形层序遍历</a></li>
+<li><a href="#426-%E5%B0%86%E4%BA%8C%E5%8F%89%E6%A0%91%E8%BD%AC%E5%8C%96%E4%B8%BA%E6%8E%92%E5%BA%8F%E7%9A%84%E5%8F%8C%E5%90%91%E9%93%BE%E8%A1%A8">426 将二叉树转化为排序的双向链表</a></li>
+<li><a href="#297-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96%E5%92%8C%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96">297 二叉树的序列化和反序列化</a></li>
+<li><a href="#863-%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%AD%E6%89%80%E6%9C%89%E8%B7%9D%E7%A6%BB%E4%B8%BAk%E7%9A%84%E8%8A%82%E7%82%B9">863 二叉树中所有距离为K的节点</a></li>
+<li><a href="#543-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E7%9B%B4%E5%BE%84">543 二叉树的直径</a></li>
+<li><a href="#124-%E4%BA%8C%E5%8F%89%E6%A0%91%E4%B8%AD%E7%9A%84%E6%9C%80%E5%A4%A7%E8%B7%AF%E5%BE%84%E5%92%8C">124 二叉树中的最大路径和</a></li>
+<li><a href="#2246-%E7%9B%B8%E9%82%BB%E5%AD%97%E7%AC%A6%E4%B8%8D%E5%90%8C%E7%9A%84%E6%9C%80%E9%95%BF%E8%B7%AF%E5%BE%84">2246 相邻字符不同的最长路径</a></li>
+<li><a href="#114-%E4%BA%8C%E5%8F%89%E6%A0%91%E5%B1%95%E5%BC%80%E4%B8%BA%E9%93%BE%E8%A1%A8">114 二叉树展开为链表</a></li>
+<li><a href="#437-%E8%B7%AF%E5%BE%84%E6%80%BB%E5%92%8C-3">437 路径总和 3</a></li>
+<li><a href="#208-%E5%AE%9E%E7%8E%B0-trie-%E5%89%8D%E7%BC%80%E6%A0%91">208 实现 Trie(前缀树)</a>
+<ul>
+<li><a href="#%E6%80%9D%E8%B7%AF">思路</a></li>
+</ul>
+</li>
+<li><a href="#236-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88">236二叉树的最近公共祖先</a></li>
+<li><a href="#3249-%E7%BB%9F%E8%AE%A1%E5%A5%BD%E8%8A%82%E7%82%B9%E7%9A%84%E6%95%B0%E7%9B%AE">3249 统计好节点的数目</a></li>
+</ul>
+<h1 id="102-二叉树层序遍历"><a class="header" href="#102-二叉树层序遍历">102 二叉树层序遍历</a></h1>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Solution {
+    vector&lt;vector&lt;int&gt;&gt; level_order;
+public:
+    vector&lt;vector&lt;int&gt;&gt; levelOrder(TreeNode* root) {
+        std::list&lt;TreeNode*&gt; list;
+        if(root!=nullptr)
+        list.push_back(root);
+        while(list.size()){
+            int size=list.size();
+            vector&lt;int&gt; vec;
+            for(int i=0;i&lt;size;i++){
+                auto node=list.front();
+                list.pop_front();
+                vec.push_back(node-&gt;val);
+                if(node-&gt;left) list.push_back(node-&gt;left);
+                if(node-&gt;right) list.push_back(node-&gt;right);
+            }
+            level_order.emplace_back(vec);
+        }
+        return level_order;
+    }
+};
+</code></pre>
+</details>
+<h1 id="199-二叉树的右视图"><a class="header" href="#199-二叉树的右视图">199 二叉树的右视图</a></h1>
+<p>给定一个二叉树的 根节点
+root，想象自己站在它的右侧，按照从顶部到底部的顺序，返回从右侧所能看到的节点值</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Solution {
+ public:
+  vector&lt;int&gt; rightSideView(TreeNode *root) {
+      if(root==nullptr) return {};
+    vector&lt;vector&lt;int&gt;&gt; levelOrder;
+    queue&lt;TreeNode *&gt; que;
+    que.push(root);
+    while (!que.empty()) {
+      int n = que.size();
+      levelOrder.push_back(vector&lt;int&gt;());
+      for (int i = 0; i &lt; n; i++) {
+        auto node = que.front();
+        que.pop();
+        levelOrder.back().push_back(node-&gt;val);
+        if (node-&gt;left) que.push(node-&gt;left);
+        if (node-&gt;right) que.push(node-&gt;right);
+      }
+    }
+    vector&lt;int&gt; ans;
+    for (auto i : levelOrder) {
+      ans.push_back(i.back());
+    }
+    return ans;
+  }
+};
+</code></pre>
+</details>
+<h1 id="637-二叉树的层平均值"><a class="header" href="#637-二叉树的层平均值">637 二叉树的层平均值</a></h1>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Solution {
+public:
+    vector&lt;double&gt; averageOfLevels(TreeNode* root) {
+        vector&lt;double&gt; ans;
+        std::queue&lt;TreeNode*&gt; que;
+        if(root!=nullptr) que.push(root);
+        while(que.size()){
+            int size=que.size();
+            double level_sum=0;
+            for(int i=0;i&lt;size;i++){
+                auto node=que.front();
+                que.pop();
+                level_sum+=node-&gt;val;
+                if(node-&gt;left) que.push(node-&gt;left);
+                if(node-&gt;right) que.push(node-&gt;right);
+            }
+            ans.push_back((double)(level_sum/size));
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="429-n叉树的层序遍历"><a class="header" href="#429-n叉树的层序遍历">429 N叉树的层序遍历</a></h1>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Solution {
+public:
+    vector&lt;vector&lt;int&gt;&gt; levelOrder(Node* root) {
+        vector&lt;vector&lt;int&gt;&gt; level_order;
+        std::queue&lt;Node*&gt; que;
+        if(root) que.push(root);
+        while(que.size()){
+            int n=que.size();
+            vector&lt;int&gt; level;
+            for(int i=0;i&lt;n;i++){
+                auto node=que.front();
+                que.pop();
+                level.push_back(node-&gt;val);
+                for(auto each: node-&gt;children){
+                    que.push(each);
+                }
+            }
+            level_order.emplace_back(std::move(level));
+        }
+        return level_order;
+    }
+};
+</code></pre>
+</details>
+<h1 id="116-填充每一个节点的下一个右侧节点指针"><a class="header" href="#116-填充每一个节点的下一个右侧节点指针">116 填充每一个节点的下一个右侧节点指针</a></h1>
+<p>给定一个 完美二叉树
+，其所有叶子节点都在同一层，每个父节点都有两个子节点。二叉树定义如下：</p>
+<p>struct Node { int val; Node *left; Node *right; Node *next; }</p>
+<p>填充它的每个 next
+指针，让这个指针指向其下一个右侧节点。如果找不到下一个右侧节点，则将
+next 指针设置为 NULL。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Solution {
+ public:
+  Node* connect(Node* root) {
+    if (root == nullptr) return root;
+    queue&lt;Node*&gt; Q;
+    Q.push(root);
+    while (!Q.empty()) {
+      int size = Q.size();
+      for (int i = 0; i &lt; size; i++) {
+        auto node = Q.front();
+        Q.pop();
+        if (i &lt; size - 1) {  // 连接
+          node-&gt;next = Q.front();
+        }
+        if (node-&gt;left) Q.push(node-&gt;left);
+        if (node-&gt;right) Q.push(node-&gt;right);
+      }
+    }
+    return root;
+  }
+};
+</code></pre>
+</details>
+<h1 id="117-填充下一个右侧节点-2"><a class="header" href="#117-填充下一个右侧节点-2">117 填充下一个右侧节点 2</a></h1>
+<p>给定一个二叉树：</p>
+<p>struct Node { int val; Node *left; Node *right; Node *next; }</p>
+<p>填充它的每个 next
+指针，让这个指针指向其下一个右侧节点。如果找不到下一个右侧节点，则将
+next 指针设置为 NULL 。</p>
+<p>初始状态下，所有 next 指针都被设置为 NULL 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">
+class Solution {
+ public:
+  Node* connect(Node* root) {
+    if (root == nullptr) return root;
+    queue&lt;Node*&gt; q;
+    q.push(root);
+    while (!q.empty()) {
+      int n = q.size();
+      Node* last = nullptr;
+      for (int i = 1; i &lt;= n; i++) {
+        auto f = q.front();
+        q.pop();
+        if (f-&gt;left) q.push(f-&gt;left);
+        if (f-&gt;right) q.push(f-&gt;right);
+        if (i != 1) last-&gt;next = f;
+        last = f;
+      }
+    }
+    return root;
+  }
+};
+</code></pre>
+</details>
+<h1 id="对称二叉树"><a class="header" href="#对称二叉树">对称二叉树</a></h1>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Solution {
+    bool checker(TreeNode* left,TreeNode *right){
+        if(!left&amp;&amp;!right) return true;
+        if(left&amp;&amp;right)
+        return left-&gt;val==right-&gt;val&amp;&amp;checker(left-&gt;left,right-&gt;right)&amp;&amp;checker(left-&gt;right, right-&gt;left);
+        return false;
+    }
+public:
+    bool isSymmetric(TreeNode* root) {
+        return checker(root,root);
+    }
+};
+</code></pre>
+</details>
+<h1 id="1597-根据中缀表达式构造二叉表达式树"><a class="header" href="#1597-根据中缀表达式构造二叉表达式树">1597 根据中缀表达式构造二叉表达式树</a></h1>
+<p>二叉表达式树
+是一种表达算术表达式的二叉树。二叉表达式树中的每一个节点都有零个或两个子节点。
+叶节点（有 0 个子节点的节点）表示操作数，非叶节点（有 2
+个子节点的节点）表示运算符： '+' （加）、 '-' （减）、 '*'
+（乘）和 '/' （除）。</p>
+<p>对于每一个运算符为 o 的非叶节点，对应的 中缀表达式 为 (A o B)，其中 A
+是左子树所表达的表达式， B 是右子树所表达的表达式。</p>
+<p>给定一个 中缀表达式 字符串 s，其中包含操作数、上面提到的运算符，以及括号
+'(' 与 ')' 。</p>
+<p>返回一个有效的 二叉表达式树，其 中序遍历 序列对应表达式 s
+消除括号后的序列（详情参见下面的示例）。</p>
+<p>注意，表达式的一般解析顺序适用于
+s，即优先解析括号内的表达式，然后解析乘除法，最后解析加减法。</p>
+<p>同时，操作数在 s 和树的中序遍历中 出现顺序相同 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Solution {
+    stack&lt;Node*&gt; nums;
+    stack&lt;char&gt; ops;
+    std::map&lt;char,int&gt; priority{
+        {'(',4},
+        {'*',3},
+        {'/',3},
+        {'+',2},
+        {'-',2},
+        {')',1}
+    };
+    void pop_up(){
+        auto right=nums.top();
+        nums.pop();
+        auto left=nums.top();
+        nums.pop();
+        nums.push(new Node(ops.top(),left,right));
+        ops.pop();
+    }
+public:
+    Node* expTree(string s) {
+        for(auto&amp; c:s){
+            if(isdigit(c)){
+                nums.push(new Node(c));
+            }else{
+                if(ops.empty()||priority[ops.top()]&lt;priority[c]){
+                    ops.push(c);
+                }else{
+                    while(!ops.empty()&amp;&amp;ops.top()!='('&amp;&amp;priority[ops.top()]&gt;=priority[c]){
+                        pop_up();
+                    }
+                    if(c!=')') ops.push(c);
+                    else ops.pop();
+                }
+            }
+        }  
+        while(!ops.empty()) pop_up();
+        return nums.top();
+    }
+};
+</code></pre>
+</details>
+<h1 id="103-二叉树的锯齿形层序遍历"><a class="header" href="#103-二叉树的锯齿形层序遍历">103 二叉树的锯齿形层序遍历</a></h1>
+<p>给你二叉树的根节点 root ，返回其节点值的 锯齿形层序遍历
+。（即先从左往右，再从右往左进行下一层遍历，以此类推，层与层之间交替进行）。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Solution {
+    vector&lt;vector&lt;int&gt;&gt; ans;
+public:
+    vector&lt;vector&lt;int&gt;&gt; zigzagLevelOrder(TreeNode* root) {
+        bool level_order=true;
+        queue&lt;TreeNode*&gt; que;
+        if(root) que.push(root);
+        while(que.size()){
+            int size=que.size();
+            deque&lt;int&gt; vec;
+            for(int i=0;i&lt;size;i++){
+                auto node=que.front();
+                que.pop();
+                if(level_order)
+                vec.push_back(node-&gt;val);
+                else vec.push_front(node-&gt;val);
+                    if(node-&gt;left) que.push(node-&gt;left);
+                    if(node-&gt;right) que.push(node-&gt;right);
+            }
+            level_order=!level_order;
+            ans.emplace_back(vector&lt;int&gt;{vec.begin(),vec.end()});
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="426-将二叉树转化为排序的双向链表"><a class="header" href="#426-将二叉树转化为排序的双向链表">426 将二叉树转化为排序的双向链表</a></h1>
+<p>将一个 二叉搜索树 就地转化为一个 已排序的双向循环链表 。</p>
+<p>对于双向循环列表，你可以将左右孩子指针作为双向循环链表的前驱和后继指针，第一个节点的前驱是最后一个节点，最后一个节点的后继是第一个节点。</p>
+<p>特别地，我们希望可以 原地
+完成转换操作。当转化完成以后，树中节点的左指针需要指向前驱，树中节点的右指针需要指向后继。还需要返回链表中最小元素的指针。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Solution {
+    Node *first,*last;
+    void helper(Node* node){
+        if(node){
+            helper(node-&gt;left);
+            if(last){
+                last-&gt;right=node;
+                node-&gt;left=last;
+            }else{
+                first=node;
+            }
+            last=node;
+            helper(node-&gt;right);
+        }
+    }
+public:
+    Node* treeToDoublyList(Node* root) {
+        if(root==nullptr){
+            return root;
+        }
+        helper(root);
+        last-&gt;right=first;
+        first-&gt;left=last;
+        return first;
+    }
+};
+</code></pre>
+</details>
+<h1 id="297-二叉树的序列化和反序列化"><a class="header" href="#297-二叉树的序列化和反序列化">297 二叉树的序列化和反序列化</a></h1>
+<p>序列化是将一个数据结构或者对象转换为连续的比特位的操作，进而可以将转换后的数据存储在一个文件或者内存中，同时也可以通过网络传输到另一个计算机环境，采取相反方式重构得到原数据。</p>
+<p>请设计一个算法来实现二叉树的序列化与反序列化。这里不限定你的序列 /
+反序列化算法执行逻辑，你只需要保证一个二叉树可以被序列化为一个字符串并且将这个字符串反序列化为原始的树结构。</p>
+<p>提示: 输入输出格式与 LeetCode 目前使用的方式一致，详情请参阅 LeetCode
+序列化二叉树的格式。你并非必须采取这种方式，你也可以采用其他的方法解决这个问题。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Codec {
+public:
+    void reserialize(TreeNode* root,string &amp;str){
+        if(root==nullptr){
+            str+="Null,";
+        }else{
+            str+=to_string(root-&gt;val)+",";
+            reserialize(root-&gt;left, str);
+            reserialize(root-&gt;right,str);
+        }
+    }
+    // Encodes a tree to a single string.
+    string serialize(TreeNode* root) {
+        string ret;
+        reserialize(root, ret);
+        return ret;
+    }
+    TreeNode *rdeserialize(list&lt;string&gt;&amp; data){
+        if(data.front()=="Null"){
+            data.erase(data.begin());
+            return nullptr;
+        }
+        auto root=new TreeNode(stoi(data.front()));
+        data.erase(data.begin());
+        root-&gt;left=rdeserialize(data);
+        root-&gt;right=rdeserialize(data);
+        return root;
+    }
+    // Decodes your encoded data to tree.
+    TreeNode* deserialize(string data) {
+        list&lt;string&gt; data_list;
+        string str;
+        for(auto&amp;&amp; ch: data){
+            if(ch==','){
+                data_list.emplace_back(std::move(str));
+            }else{
+                str.push_back(move(ch));
+            }
+        }
+        if(!str.empty()){
+            data_list.emplace_back(std::move(str));
+        }
+        return rdeserialize(data_list);
+    }
+};
+</code></pre>
+</details>
+<h1 id="863-二叉树中所有距离为k的节点"><a class="header" href="#863-二叉树中所有距离为k的节点">863 二叉树中所有距离为K的节点</a></h1>
+<p>给定一个二叉树（具有根结点 root）， 一个目标结点 target ，和一个整数值 k
+，返回到目标结点 target 距离为 k 的所有结点的值的数组。</p>
+<p>答案可以以 任何顺序 返回。</p>
+<p>思路：</p>
+<p>保存一个节点的父节点，左右和父节点三次调用。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+ * };
+ */
+class Solution {
+    vector&lt;int&gt; ans;
+    unordered_map&lt;int,TreeNode *&gt; parent_node;
+    int deps=0;
+    void parent(TreeNode *node){
+        if(node==nullptr) return;
+        if(node-&gt;left){
+            parent_node[node-&gt;left-&gt;val]=node;
+            parent(node-&gt;left);
+        }
+        if(node-&gt;right){
+            parent_node[node-&gt;right-&gt;val]=node;
+            parent(node-&gt;right);
+        }
+    }
+    void find_ans(TreeNode *root,TreeNode* target,int cur){
+        if(root==nullptr){
+            return;
+        }
+        if(cur==deps){
+            ans.emplace_back(root-&gt;val);
+            return;
+        }
+        if(root-&gt;left!=target){
+            find_ans(root-&gt;left,root,cur+1);
+        }
+        if(root-&gt;right!=target){
+            find_ans(root-&gt;right,root,cur+1);
+        }
+        if(parent_node[root-&gt;val]!=target){
+            find_ans(parent_node[root-&gt;val],root,cur+1);
+        }
+    }
+public:
+    vector&lt;int&gt; distanceK(TreeNode* root, TreeNode* target, int k) {
+        deps=k;
+        parent(root);
+        find_ans(target,nullptr,0);
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="543-二叉树的直径"><a class="header" href="#543-二叉树的直径">543 二叉树的直径</a></h1>
+<p>给你一棵二叉树的根节点，返回该树的 直径 。</p>
+<p>二叉树的 直径 是指树中任意两个节点之间最长路径的 长度
+。这条路径可能经过也可能不经过根节点 root 。</p>
+<p>两节点之间路径的 长度 由它们之间边数表示。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Solution {
+public:
+    int diameterOfBinaryTree(TreeNode* root) {
+        int ans=0;
+        auto dfs=[&amp;](auto&amp;&amp; dfs,TreeNode* node)-&gt;int{
+            if(!node) return -1;
+            int l_len=dfs(dfs,node-&gt;left)+1;
+            auto r_len=dfs(dfs,node-&gt;right)+1;
+            ans=max(ans,l_len+r_len);
+            return max(l_len,r_len);
+        };
+        dfs(dfs,root);
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="124-二叉树中的最大路径和"><a class="header" href="#124-二叉树中的最大路径和">124 二叉树中的最大路径和</a></h1>
+<p>二叉树中的 路径
+被定义为一条节点序列，序列中每对相邻节点之间都存在一条边。同一个节点在一条路径序列中
+至多出现一次 。该路径 至少包含一个 节点，且不一定经过根节点。</p>
+<p>路径和 是路径中各节点值的总和。</p>
+<p>给你一个二叉树的根节点 root ，返回其 最大路径和 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Solution {
+public:
+    int maxPathSum(TreeNode* root) {
+        int ans=INT_MIN;
+        auto dfs=[&amp;](auto&amp;&amp; dfs,TreeNode* node)-&gt;int{
+            if(!node) return 0;//没有节点
+            int l_val=dfs(dfs,node-&gt;left);//左子树最大链和
+            int r_val=dfs(dfs,node-&gt;right);//右子树最大链和
+            ans=max(ans,l_val+r_val+node-&gt;val);//两条链拼成路径
+            return max(max(l_val,r_val)+node-&gt;val,0);//当前子树最大链和
+        };
+        dfs(dfs,root);
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="2246-相邻字符不同的最长路径"><a class="header" href="#2246-相邻字符不同的最长路径">2246 相邻字符不同的最长路径</a></h1>
+<p>给你一棵 树（即一个连通、无向、无环图），根节点是节点 0 ，这棵树由编号从
+0 到 n - 1 的 n 个节点组成。用下标从 0 开始、长度为 n 的数组 parent
+来表示这棵树，其中 parent[i] 是节点 i 的父节点，由于节点 0
+是根节点，所以 parent[0] == -1 。</p>
+<p>另给你一个字符串 s ，长度也是 n ，其中 s[i] 表示分配给节点 i 的字符。</p>
+<p>请你找出路径上任意一对相邻节点都没有分配到相同字符的 最长路径
+，并返回该路径的长度。</p>
+<p>如果没有相邻节点的限制，那么本题求的就是树的直径上的点的个数，见 1245.
+树的直径。</p>
+<p>考虑用树形 DP 求直径。枚举子树 x 的所有子树 y，维护从 x 出发的最长路径
+maxLen，那么可以更新答案为从 y 出发的最长路径加上 maxLen，再加上 1（边
+x−y），即合并从 x 出发的两条路径。递归结束时返回 maxLen。</p>
+<p>对于本题的限制，我们可以在从子树 y 转移过来时，仅考虑从满足
+s[y]=s[x] 的子树 y 转移过来，所以对上述做法加个 if 判断就行了。</p>
+<p>由于本题求的是点的个数，所以答案为最长路径的长度加一。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Solution {
+public:
+    int longestPath(vector&lt;int&gt;&amp; parent, string s) {
+        int n=parent.size();
+        vector&lt;vector&lt;int&gt;&gt; g(n);
+        for(int i=1;i&lt;n;i++){
+            g[parent[i]].emplace_back(i);
+        }
+        int ans=0;
+        auto dfs=[&amp;](auto&amp;&amp; dfs,int x)-&gt;int{
+            int maxLen=0;
+            for(int y:g[x]){
+                int len=dfs(dfs,y)+1;
+                if(s[y]!=s[x]){
+                    ans=max(ans,maxLen+len);
+                    maxLen=max(maxLen,len);
+                }
+            }
+            return maxLen;
+        };
+        dfs(dfs,0);
+        return ans+1;
+    }
+};
+</code></pre>
+</details>
+<h1 id="114-二叉树展开为链表"><a class="header" href="#114-二叉树展开为链表">114 二叉树展开为链表</a></h1>
+<p>给你二叉树的根结点 root ，请你将它展开为一个单链表：</p>
+<p>展开后的单链表应该同样使用 TreeNode ，其中 right
+子指针指向链表中下一个结点，而左子指针始终为 null 。</p>
+<p>展开后的单链表应该与二叉树 先序遍历 顺序相同。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Solution {
+public:
+    void flatten(TreeNode* root) {
+        if(root==nullptr) return;
+        auto subFlatten=[](auto&amp;&amp; subFlatten,TreeNode* node)-&gt;TreeNode*{
+            TreeNode* left=node-&gt;left;
+            TreeNode* right=node-&gt;right;
+            auto last=node;
+            node-&gt;left=nullptr;
+            if(left){
+                node-&gt;right=left;
+                last=subFlatten(subFlatten,left);
+            }
+            if(right){
+                last-&gt;right=right;
+                last=subFlatten(subFlatten,right);
+            }
+            return last;
+        };
+        subFlatten(subFlatten, root);
+    }
+};
+</code></pre>
+</details>
+<h1 id="437-路径总和-3"><a class="header" href="#437-路径总和-3">437 路径总和 3</a></h1>
+<p>给定一个二叉树的根节点 root ，和一个整数 targetSum
+，求该二叉树里节点值之和等于 targetSum 的 路径 的数目。</p>
+<p>路径
+不需要从根节点开始，也不需要在叶子节点结束，但是路径方向必须是向下的（只能从父节点到子节点）。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Solution {
+public:
+    int pathSum(TreeNode* root, int targetSum) {
+        int ans=0;
+        unordered_map&lt;long long,int&gt; cnt{{0,1}};
+        auto dfs=[&amp;](auto&amp;&amp; dfs,TreeNode* node,long long s){
+            if(!node) return;
+            s+=node-&gt;val;
+            ans+=cnt.contains(s-targetSum)?cnt[s-targetSum]:0;
+            cnt[s]++;
+            dfs(dfs,node-&gt;left,s);
+            dfs(dfs,node-&gt;right,s);
+            cnt[s]--;
+        };
+        dfs(dfs,root,0);
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="208-实现-trie-前缀树"><a class="header" href="#208-实现-trie-前缀树">208 实现 Trie (前缀树)</a></h1>
+<p>Trie（发音类似 "try"）或者说 前缀树
+是一种树形数据结构，用于高效地存储和检索字符串数据集中的键。这一数据结构有相当多的应用情景，例如自动补全和拼写检查。</p>
+<p>请你实现 Trie 类：</p>
+<pre><code>Trie() 初始化前缀树对象。
+void insert(String word) 向前缀树中插入字符串 word 。
+boolean search(String word) 如果字符串 word 在前缀树中，返回 true（即，在检索之前已经插入）；否则，返回 false 。
+boolean startsWith(String prefix) 如果之前已经插入的字符串 word 的前缀之一为 prefix ，返回 true ；否则，返回 false 。
+</code></pre>
+<h2 id="思路"><a class="header" href="#思路">思路</a></h2>
+<p>Trie，又称前缀树或字典树，是一棵有根树，其每个节点包含以下字段：</p>
+<pre><code>指向子节点的指针数组 children。对于本题而言，数组长度为 26，即小写英文字母的数量。此时 children[0] 对应小写字母 a，children[1] 对应小写字母 b，…，children[25] 对应小写字母 z。
+布尔字段 isEnd，表示该节点是否为字符串的结尾。
+</code></pre>
+<p>插入字符串</p>
+<p>我们从字典树的根开始，插入字符串。对于当前字符对应的子节点，有两种情况：</p>
+<pre><code>子节点存在。沿着指针移动到子节点，继续处理下一个字符。
+子节点不存在。创建一个新的子节点，记录在 children 数组的对应位置上，然后沿着指针移动到子节点，继续搜索下一个字符。
+</code></pre>
+<p>重复以上步骤，直到处理字符串的最后一个字符，然后将当前节点标记为字符串的结尾。</p>
+<p>查找前缀</p>
+<p>我们从字典树的根开始，查找前缀。对于当前字符对应的子节点，有两种情况：</p>
+<pre><code>子节点存在。沿着指针移动到子节点，继续搜索下一个字符。
+子节点不存在。说明字典树中不包含该前缀，返回空指针。
+</code></pre>
+<p>重复以上步骤，直到返回空指针或搜索完前缀的最后一个字符。</p>
+<p>若搜索到了前缀的末尾，就说明字典树中存在该前缀。此外，若前缀末尾对应节点的
+isEnd 为真，则说明字典树中存在该字符串。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-c++">class Trie {
+    vector&lt;Trie *&gt; children;
+    bool isEnd;
+    Trie *searchPrefix(string prefix){
+        Trie *node=this;
+        for(char ch: prefix){
+            ch-='a';
+            if(node-&gt;children[ch]==nullptr){
+                return nullptr;
+            }
+            node=node-&gt;children[ch];
+        }
+        return node;
+    }
+public:
+    Trie(): children(26),isEnd(false) {
+    }
+    void insert(string word) {
+        Trie *node=this;
+        for(char ch: word){
+            ch-='a';
+            if(node-&gt;children[ch]==nullptr){
+                node-&gt;children[ch]=new Trie();
+            }
+            node=node-&gt;children[ch];
+        }   
+        node-&gt;isEnd=true;
+    }
+    bool search(string word) {
+        Trie *node=this-&gt;searchPrefix(word);
+        return node!=nullptr &amp;&amp; node-&gt;isEnd;
+    }
+    bool startsWith(string prefix) {
+        return this-&gt;searchPrefix(prefix)!=nullptr;
+    }
+};
+</code></pre>
+</details>
+<h1 id="236-二叉树的最近公共祖先"><a class="header" href="#236-二叉树的最近公共祖先">236 二叉树的最近公共祖先</a></h1>
+<p>给定一个二叉树, 找到该树中两个指定节点的最近公共祖先。</p>
+<p>百度百科中最近公共祖先的定义为："对于有根树 T 的两个节点
+p、q，最近公共祖先表示为一个节点 x，满足 x 是 p、q 的祖先且 x
+的深度尽可能大（一个节点也可以是它自己的祖先）。"</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+        if(!root){
+            return nullptr;
+        }
+        if(root==q||root==p){
+            return root;
+        }
+        auto left=lowestCommonAncestor(root-&gt;left,p,q);
+        auto right=lowestCommonAncestor(root-&gt;right,p,q);
+        if(left&amp;&amp;right){
+            return root;
+        }
+        return left?left:(right?right:nullptr);
+    }
+};
+</code></pre>
+</details>
+<h1 id="3249-统计好节点的数目"><a class="header" href="#3249-统计好节点的数目">3249 统计好节点的数目</a></h1>
+<p>现有一棵 无向 树，树中包含 n 个节点，按从 0 到 n - 1
+标记。树的根节点是节点 0 。给你一个长度为 n - 1 的二维整数数组
+edges，其中 edges[i] = [ai, bi] 表示树中节点 ai 与节点 bi
+之间存在一条边。</p>
+<p>如果一个节点的所有子节点为根的 子树 包含的节点数相同，则认为该节点是一个
+好节点。</p>
+<p>返回给定树中 好节点 的数量。</p>
+<p>子树 指的是一个节点以及它所有后代节点构成的一棵树。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int countGoodNodes(vector&lt;vector&lt;int&gt;&gt;&amp; edges) {
+        int n=edges.size()+1;
+        vector&lt;vector&lt;int&gt;&gt; g(n);
+        for(auto&amp; e:edges){
+            int x=e[0],y=e[1];
+            g[x].emplace_back(y);
+            g[y].emplace_back(x);
+        }
+        int ans=0;
+        auto dfs=[&amp;](auto &amp;&amp;dfs,int x,int fa)-&gt;int{
+            int size=1,sz0=0;
+            bool ok=true;
+            for(int y: g[x]){
+                if(y==fa) continue;
+                int sz=dfs(dfs,y,x);
+                if(sz0==0){
+                    sz0=sz;
+                }else if(sz!=sz0){
+                    ok=false;
+                }
+                size+=sz;
+            }
+            ans+=ok;
+            return size;
+        };
+        dfs(dfs,0,-1);
+        return ans;
+    }
+};
+</code></pre>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../数据结构与算法/dp.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../数据结构与算法/二分.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../数据结构与算法/dp.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../数据结构与算法/二分.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,466 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>堆 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#347-%E5%89%8Dk%E4%B8%AA%E9%AB%98%E9%A2%91%E5%85%83%E7%B4%A0">347 前K个高频元素</a></li>
+<li><a href="#373-%E6%9F%A5%E6%89%BE%E5%92%8C%E6%9C%80%E5%B0%8F%E7%9A%84k%E5%AF%B9%E6%95%B0%E5%AD%97">373 查找和最小的K对数字</a></li>
+<li><a href="#264-%E4%B8%91%E6%95%B0-2">264 丑数 2</a></li>
+<li><a href="#3266-k%E6%AC%A1%E4%B9%98%E8%BF%90%E7%AE%97%E5%90%8E%E7%9A%84%E6%9C%80%E7%BB%88%E6%95%B0%E7%BB%84-2">3266 K次乘运算后的最终数组 2</a></li>
+<li><a href="#1705-%E5%90%83%E8%8B%B9%E6%9E%9C%E7%9A%84%E6%9C%80%E5%A4%A7%E6%95%B0%E7%9B%AE">1705 吃苹果的最大数量</a></li>
+</ul>
+<h1 id="347-前k个高频元素"><a class="header" href="#347-前k个高频元素">347 前K个高频元素</a></h1>
+<p>给你一个整数数组 nums 和一个整数 k ，请你返回其中出现频率前 k
+高的元素。你可以按 任意顺序 返回答案。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    vector&lt;int&gt; topKFrequent(vector&lt;int&gt;&amp; nums, int k) {
+        unordered_map&lt;int,int&gt; mp;
+        priority_queue&lt;pair&lt;int,int&gt;&gt; pq;
+        vector&lt;int&gt; ans;
+        for(int i=0;i&lt;nums.size();i++){
+            if(mp.find(nums[i])==mp.end()){
+                mp.insert({nums[i],1});
+            }else{
+                mp[nums[i]]++;
+            }
+        }
+        for(auto it=mp.begin();it!=mp.end();it++){
+            pq.emplace(it-&gt;second,it-&gt;first);
+        }
+        while(k--){
+            ans.push_back(pq.top().second);
+            pq.pop();
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+# 295 数据流的中位数
+<p>中位数是有序整数列表中的中间值。如果列表的大小是偶数，则没有中间值，中位数是两个中间值的平均值。</p>
+<pre><code>例如 arr = [2,3,4] 的中位数是 3 。
+例如 arr = [2,3] 的中位数是 (2 + 3) / 2 = 2.5 。
+</code></pre>
+<p>实现 MedianFinder 类:</p>
+<pre><code>MedianFinder() 初始化 MedianFinder 对象。
+
+void addNum(int num) 将数据流中的整数 num 添加到数据结构中。
+
+double findMedian() 返回到目前为止所有元素的中位数。与实际答案相差 10-5 以内的答案将被接受。
+</code></pre>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class MedianFinder {
+    priority_queue&lt;int,vector&lt;int&gt;,greater&lt;&gt;&gt;  queMax;
+    priority_queue&lt;int,vector&lt;int&gt;,less&lt;&gt;&gt; queMin;
+public:
+    MedianFinder() {
+    }
+    void addNum(int num) {
+        if(queMin.empty()||num&lt;=queMin.top()){
+            queMin.push(num);
+            if(queMin.size()&gt;queMax.size()+1){
+                queMax.push(queMin.top());
+                queMin.pop();
+            }
+        }else{
+            queMax.push(num);
+            if(queMax.size()&gt;queMin.size()){
+                queMin.push(queMax.top());
+                queMax.pop();
+            }
+        }
+    } 
+    double findMedian() {
+        if(queMin.size()&gt;queMax.size()){
+            return queMin.top();
+        }
+        return (queMin.top()+queMax.top())/2.0;
+    }
+};
+</code></pre>
+</details>
+<h1 id="373-查找和最小的k对数字"><a class="header" href="#373-查找和最小的k对数字">373 查找和最小的K对数字</a></h1>
+<p>给定两个以 非递减顺序排列 的整数数组 nums1 和 nums2 , 以及一个整数 k 。</p>
+<p>定义一对值 (u,v)，其中第一个元素来自 nums1，第二个元素来自 nums2 。</p>
+<p>请找到和最小的 k 个数对 (u1,v1), (u2,v2) ... (uk,vk) 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    vector&lt;vector&lt;int&gt;&gt; kSmallestPairs(vector&lt;int&gt;&amp; nums1, vector&lt;int&gt;&amp; nums2, int k) {
+        auto cmp=[&amp;](const pair&lt;int,int&gt;&amp; a,const pair&lt;int,int&gt;&amp; b){
+            return nums1[a.first]+nums2[a.second]&gt;nums1[b.first]+nums2[b.second];
+        };
+        int m=nums1.size();
+        int n=nums2.size();
+        vector&lt;vector&lt;int&gt;&gt; ans;
+        priority_queue&lt;pair&lt;int,int&gt;,vector&lt;pair&lt;int,int&gt;&gt; ,decltype(cmp)&gt; pq(cmp);
+        for(int i=0;i&lt;min(k,m);i++){
+            pq.emplace(i,0);
+        }
+        while(k--&gt;0&amp;&amp;pq.size()){
+            auto [x,y]=pq.top();
+            pq.pop();
+            ans.emplace_back(initializer_list&lt;int&gt;{nums1[x],nums2[y]});
+            if(y+1&lt;n){
+                pq.emplace(x,y+1);
+            }
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="264-丑数-2"><a class="header" href="#264-丑数-2">264 丑数 2</a></h1>
+<p>给你一个整数 n ，请你找出并返回第 n 个 丑数 。</p>
+<p>丑数 就是质因子只包含 2、3 和 5 的正整数。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int nthUglyNumber(int n) {
+        array&lt;int, 3&gt; factors = {2, 3, 5};
+        unordered_set&lt;long&gt; seen;
+        priority_queue&lt;long, vector&lt;long&gt;, greater&lt;&gt;&gt; heap;
+        seen.insert(1L);
+        heap.push(1L);
+        int ugly = 0;
+        for (int i = 0; i &lt; n; i++) {
+            long curr = heap.top();
+            heap.pop();
+            ugly = (int)curr;
+            for (auto fac : factors) {
+                long next = curr * fac;
+                if (!seen.contains(next)) {
+                    seen.insert(next);
+                    heap.push(next);
+                }
+            }
+        }
+        return ugly;
+    }
+};
+</code></pre>
+</details>
+<h1 id="3266-k次乘运算后的最终数组-2"><a class="header" href="#3266-k次乘运算后的最终数组-2">3266 K次乘运算后的最终数组 2</a></h1>
+<p>给你一个整数数组 nums ，一个整数 k  和一个整数 multiplier 。</p>
+<p>你需要对 nums 执行 k 次操作，每次操作中：</p>
+<pre><code>找到 nums 中的 最小 值 x ，如果存在多个最小值，选择最 前面 的一个。
+将 x 替换为 x * multiplier 。
+</code></pre>
+<p>k 次操作以后，你需要将 nums 中每一个数值对 109 + 7 取余。</p>
+<p>请你返回执行完 k 次乘运算以及取余运算之后，最终的 nums 数组。</p>
+<details>
+<p>核心观察：对于两个数 x 和 y，如果 x 在 y 左边，且 x≤y 以及 x⋅multiplier&gt;y，那么我们会先操作 x，然后操作 y。由于 x⋅multiplier≤y⋅multiplier，这意味着下一次一定会操作 x。继续推导下去，后面的操作顺序一定是 y,x,y,x,⋯</p>
+<p>这意味着当两个数接近时，我们会交替操作这两个数，而不会连续操作同一个数。</p>
+<p>对于更多的数的情况也同理，当这些数接近时，我们会按照从小到大的顺序依次操作这些数。</p>
+<p>那么，首先用最小堆手动模拟操作，直到原数组的最大值 mx 成为这 n 个数的最小值。根据上面的结论，后面的操作就不需要手动模拟了。</p>
+<p>设此时还剩下 k 次操作，那么：</p>
+<pre><code>对于前 kmodn 小的数，还可以再操作 ⌊nk​⌋+1 次。
+其余元素，还可以再操作 ⌊nk​⌋ 次。
+</code></pre>
+<pre><code class="language-cpp">class Solution {
+    constexpr static int MOD=1e9+7;
+    long long pow(long long x,int n){
+        long long res=1;
+        for(;n;n/=2){
+            if(n%2){
+                res=res*x%MOD;
+            }
+            x=x*x%MOD;
+        }
+        return res;
+    }
+public:
+    vector&lt;int&gt; getFinalState(vector&lt;int&gt;&amp; nums, int k, int multiplier) {
+        if(multiplier==1){
+            return move(nums);
+        }
+        int n=nums.size();
+        int mx=ranges::max(nums);
+        vector&lt;pair&lt;long long,int&gt;&gt; h(n);
+        for(int i=0;i&lt;n;i++){
+            h[i]={nums[i],i};
+        }
+        ranges::make_heap(h,greater&lt;&gt;());
+        for(;k&amp;&amp;h[0].first&lt;mx;k--){
+            ranges::pop_heap(h,greater&lt;&gt;());
+            h.back().first*=multiplier;
+            ranges::push_heap(h,greater&lt;&gt;());
+        }
+        ranges::sort(h);
+        for(int i=0;i&lt;n;i++){
+            auto &amp;[x,j]=h[i];
+            nums[j]=x%MOD*pow(multiplier,k/n+(i&lt;k%n))%MOD;
+        }
+        return move(nums);
+    }
+};
+</code></pre>
+</details>
+<h1 id="1705-吃苹果的最大数目"><a class="header" href="#1705-吃苹果的最大数目">1705 吃苹果的最大数目</a></h1>
+<p>有一棵特殊的苹果树，一连 n 天，每天都可以长出若干个苹果。在第 i 天，树上会长出 apples[i] 个苹果，这些苹果将会在 days[i] 天后（也就是说，第 i + days[i] 天时）腐烂，变得无法食用。也可能有那么几天，树上不会长出新的苹果，此时用 apples[i] == 0 且 days[i] == 0 表示。</p>
+<p>你打算每天 最多 吃一个苹果来保证营养均衡。注意，你可以在这 n 天之后继续吃苹果。</p>
+<p>给你两个长度为 n 的整数数组 days 和 apples ，返回你可以吃掉的苹果的最大数目。</p>
+<details id="admonition-code" class="admonition admonish-note" role="note" aria-labelledby="admonition-code-title">
+<summary class="admonition-title">
+<div id="admonition-code-title">
+<p>code</p>
+</div>
+<a class="admonition-anchor-link" href="#admonition-code"></a>
+</summary>
+<div>
+<p>基于这样的假设：如果A天和B天都有苹果且A天保质期较段就优先吃A天的。</p>
+<pre><code class="language-cpp">&lt;class Solution {
+public:
+    int eatenApples(vector&lt;int&gt;&amp; apples, vector&lt;int&gt;&amp; days) {
+        int ans=0;
+        priority_queue&lt;pair&lt;int,int&gt;,vector&lt;pair&lt;int,int&gt;&gt;,std::greater&lt;&gt;&gt; pq;
+        for(int i=0;i&lt;apples.size()||!pq.empty();i++){
+            while(!pq.empty()&amp;&amp;pq.top().first==i){
+                pq.pop();
+            }
+            if(i&lt;apples.size()&amp;&amp;apples[i]){
+                pq.emplace(i+days[i],apples[i]);
+            }
+            if(!pq.empty()){
+                ans++;
+                auto [rotten_day,num]=pq.top();
+                pq.pop();
+                if(num&gt;1){
+                    pq.emplace(rotten_day,num-1);
+                }
+            }
+        }
+        return ans;
+    }
+};
+</code></pre>
+</div>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../数据结构与算法/链表.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../数据结构与算法/SkipList.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../数据结构与算法/链表.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../数据结构与算法/SkipList.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

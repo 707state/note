@@ -1,0 +1,260 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>并行 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#%E5%B9%B6%E5%8F%91">并发</a>
+<ul>
+<li><a href="#locking-patterns">locking patterns</a></li>
+<li><a href="#lock-like-patterns">lock-like
+patterns</a></li>
+<li><a href="#no-lock">no lock</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="并发"><a class="header" href="#并发">并发</a></h1>
+<h2 id="locking-patterns"><a class="header" href="#locking-patterns">locking patterns</a></h2>
+<p>缓存项通常是锁的一个挑战。例如，文件系统的块缓存(kernel/bio.c:26)存储了NBUF个磁盘块的副本。一个给定的磁盘块在缓存中最多只有一个副本，这一点非常重要；否则，不同的进程对同一磁盘块的不同副本进行修改时可能会发生冲突。每一个缓存的磁盘块都被存储在一个buf结构中(kernel/buf.h:1)。buf结构有一个锁字段，它确保每次只有一个进程使用一个给定的磁盘块。然而，这个锁是不够的：如果一个块根本不存在于缓存中，而两个进程想同时使用它怎么办？没有
+buf
+(因为该块还没有被缓存)，因此没有能加锁的东西。Xv6对所有块的标识符关联一个额外的锁来处理这种情况。判断块是否被缓存的代码（e.g.
+bget(kernel/bio.c:59)），或改变缓存块集合的代码，必须持有bcache.lock。当代码找到它所需要的块和buf结构后，它就可以释放**bcache.lock，**然后锁定特定的块，这是一种通用模式：一组一把锁，外加每个项一把锁。</p>
+<p>通常情况下，获取锁的函数会释放那把锁。但更准确的说法是，当一个序列需要保证原子性时，会在该序列开始时获取锁，而在序列结束时释放锁。如果序列的开始和结束在不同的函数中，或者不同的线程中，或者在不同的CPU上，那么锁的获取和释放也必须是一样的。锁的功能是强制其他的使用者等待，而不是将一段数据绑定给特定的代理。一个例子是yield中的acquire(kernel/proc.c:515)，它是在调度线程中释放的，而不是在获取锁的进程中释放的。另一个例子是ilock(kernel/fs.c:289)中的acquiresleep；这段代码经常在读取磁盘时睡眠；它可能在不同的CPU上被唤醒，这意味着锁可能在不同的CPU上获取和释放。</p>
+<p>释放一个被锁保护的且锁内嵌在其中的对象是一件很棘手的事情，因为拥有锁并不足以保证释放对象的正确性。当有其他线程在acquire中等待时，问题就会出现；释放这个对象就意味着释放内嵌的锁，而释放这个锁会导致等待线程出错。一种方式是追踪该对象有多少个引用，只有在最后一个引用消失时才会释放对象。pipeclose
+(kernel/pipe.c:59)就是这样的例子。pi-&gt;readopen和pi-&gt;writeopen跟踪是否有文件描述符引用该管道。</p>
+<h2 id="lock-like-patterns"><a class="header" href="#lock-like-patterns">lock-like patterns</a></h2>
+<p>在许多地方，xv6使用引用计数或标志位作为一种软锁（soft
+lock），以表明一个对象已被分配，不应该被释放或重用。进程的p-&gt;state依此工作，file、inode和buf结构中的引用计数也是如此。虽然在每种情况下，锁都会保护标志位或引用计数，但正是标志位或引用计数防止了对象被过早释放。</p>
+<p>文件系统使用结构体inode的引用计数作为一种共享锁，可以由多个进程持有，以避免代码使用普通锁时出现的死锁。例如，namex(kernel/fs.c:626)中的循环依次锁定路径上的每个目录。然而，namex必须在循环末尾释放每一个锁，因为如果它持有多个锁，那么如果路径名中包含.(即当前目录，例如，a/./b)，它可能会与自己发生死锁。它也可能因为涉及目录和..的并发查找而死锁。正如第8章所解释的那样，解决方案是让循环将目录的inode带入下一次迭代，并增加其引用计数，但不锁定。</p>
+<p>有些数据项在不同的时候会受到不同机制的保护。它有时可能会被xv6代码的结构隐式保护，而不是通过显式的锁来防止并发访问。例如，当一个物理页是空闲的时候，它被kmem.lock（kernel/kalloc.c:24）保护。如果页面被分配作为管道(kernel/pipe.c:23)，它将被一个不同的锁(内嵌的pi-&gt;lock)保护。如果该页被重新分配给一个新进程的用户内存，它就不会受到锁的保护。相反，分配器不会将该页交给任何其他进程（直到它被释放）的事实保护了它不被并发访问。一个新进程的内存的所有权是很复杂的：首先父进程在fork中分配和操作它，然后子进程使用它，（在子进程退出后）父进程再次拥有内存，并将其传递给kfree。这里有两个需要注意的地方：第一，一个数据对象在其生命周期中的不同时刻可以用不同的方式来保护它不被并发访问；第二，保护的形式可能是隐式结构而不是显式锁。</p>
+<p>最后一个类似于锁的例子是在调用mycpu()(kernel/proc.c:68)时需要禁用中断。禁用中断会导致调用代码对定时器中断是原子性的，而定时器中断可能会强制上下文切换，从而将进程移到不同的CPU上。</p>
+<h2 id="no-lock"><a class="header" href="#no-lock">no lock</a></h2>
+<p>xv6有几个地方是在完全没有锁的情况下共享可变数据的。一个是在spinlocks的实现中，尽管你可以把RISC-V原子指令看作是依靠硬件实现的锁。另一个是main.c
+(kernel/main.c:7)中的started变量，用来防止其他CPU运行，直到CPU
+0完成xv6的初始化；volatile确保编译器真正生成加载和存储指令。第三个例子是proc.c(kernel.proc.c:398)(kernel/proc.c:306)中的p-&gt;parent。它的一些用法会导致死锁，但是明显不会有其他进程能够同时修改p-&gt;parent。第四个例子是p-&gt;killed。它在持有p-&gt;lock时被设置，但在检查时却并不需要锁。</p>
+<p>Xv6包含这样的情况：一个CPU或线程写一些数据，另一个CPU或线程读数据，但没有专门的锁来保护这些数据。例如，在fork中，父进程写入子进程的用户内存页，子进程(可能在不同的CPU上)读取这些页。这些页没有锁来显式地保护。严格来说，这不是锁的问题，因为子进程在父进程写完后才开始执行。这是一个潜在的内存操作的顺序问题（见第6章），因为没有内存屏障，没有理由期望一个CPU看到另一个CPU的写入。然而，由于父进程CPU释放锁，而子进程CPU在启动时获取锁，所以在acquire和release中的内存屏障保证了子进程CPU能看到父进程CPU的写入。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../xv6/xv6学习8.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../rCore/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../xv6/xv6学习8.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../rCore/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Rustacean 指南 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#repr-attribute">repr attribute</a></li>
+<li><a href="#rusty-%E9%98%B6%E4%B9%98">Rusty 阶乘</a></li>
+<li><a href="#%E6%B5%81%E6%95%8F%E6%84%9F%E5%88%86%E6%9E%90">流敏感分析</a></li>
+<li><a href="#take">take</a></li>
+<li><a href="#zero-cost-futures">zero-cost futures</a></li>
+<li><a href="#any-trait">Any Trait</a></li>
+<li><a href="#unsafecell">UnsafeCell</a></li>
+<li><a href="#stdmemmaybeuninit">std::mem::MaybeUninit</a></li>
+<li><a href="#%E5%88%86%E5%89%B2%E6%89%80%E6%9C%89%E6%9D%83">分割所有权</a></li>
+<li><a href="#%E7%89%B9%E6%AE%8A%E7%AC%A6%E5%8F%B7">特殊符号</a>
+<ul>
+<li>@</li>
+</ul>
+</li>
+</ul>
+<h1 id="repr-attribute"><a class="header" href="#repr-attribute">repr attribute</a></h1>
+<p>在c/c++中，常常使用__attribute__((align))的方式来确保内存对齐，repr在rust的功能久石让每一个数据能够按照k的整数倍分配，k通常是基本类型。</p>
+<h1 id="rusty-阶乘"><a class="header" href="#rusty-阶乘">Rusty 阶乘</a></h1>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub fn factorial(num: u64) -&gt; u64 {
+    (1..=num).fold(1, |acc, x| acc * x)
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>范围 (1..=num)：</p>
+<pre><code>这个表达式创建了一个从 1 到 num 的范围，包括 num 本身。..= 是一个闭区间语法，表示这个范围是包含起始值和结束值的。
+</code></pre>
+<p>fold 方法：</p>
+<pre><code>fold 是一个高阶函数，它用于将一个迭代器中的所有元素合并成一个单一的值。
+它的第一个参数是初始值，在这里是 1。这个值会作为累加器的初始状态。
+第二个参数是一个闭包（匿名函数），它接受两个参数：acc（累加器的当前值）和 x（迭代器中的当前值）。
+在每一次迭代中，闭包会将 acc 和 x 相乘，并返回新的累加器值。
+</code></pre>
+<h1 id="流敏感分析"><a class="header" href="#流敏感分析">流敏感分析</a></h1>
+<p>依靠 Borrow Checker 确保内存安全，原理如下：</p>
+<p>执行路径分析：Rust
+编译器在编译过程中会为每个变量跟踪其借用状态或所有权。在程序的不同控制流（如条件判断、循环、函数调用等）中，编译器会检查在这些不同路径下变量的状态变化，并在所有路径中保持一致性。</p>
+<p>数据流分析：Rust
+编译器通过数据流分析来确定变量的生存期、是否被借用、以及是否存在竞争条件。这个分析是流敏感的，意味着它会根据程序的控制流更新变量状态。</p>
+<p>作用域检查：编译器在分析时会检查变量是否在作用域内、是否已经被销毁或者转移所有权。通过流敏感分析，编译器能够精确确定哪些变量在某条执行路径中被有效引用或借用。</p>
+<h1 id="take"><a class="header" href="#take">take</a></h1>
+<p>在 Rust 中，take() 方法通常用于在某些容器类型（如 Option、Result
+等）中"取走"值，将原来的值替换为一个默认值（通常是 None 或
+Err），同时返回原来的值。</p>
+<p>take() 经常用于以下场景：</p>
+<p>转移所有权：从一个可选值中取出所有权，并清空该值，避免复制或克隆。</p>
+<p>链表或树结构：当你遍历或修改链表或树结构时，可以用 take()
+来"取走"节点的引用并避免借用冲突。</p>
+<h1 id="zero-cost-futures"><a class="header" href="#zero-cost-futures">zero-cost futures</a></h1>
+<p>async/await实现的future类型不会引入任何额外的运行时开销。</p>
+<p>无运行时依赖：与其他编程语言（如 JavaScript 或 Python）不同，Rust 的
+async/await 本身不依赖特定的运行时机制。Future
+是惰性的，它本质上是一个状态机，只有在被轮询时才会前进。虽然需要某种形式的运行时（如
+Tokio 或 async-std）来调度异步任务，但这些运行时并没有与 async/await
+特性本身紧耦合。</p>
+<h1 id="any-trait"><a class="header" href="#any-trait">Any Trait</a></h1>
+<p>Rust中的Any
+trait允许在运行时进行类型检查和类型转换。这个类型在处理动态类型时较为有用。</p>
+<p>功能：</p>
+<ol>
+<li>
+<p>类型检查：通过is::<code>&lt;T&gt;</code>()方法，可以检查一个值是否是某种特定类型。</p>
+</li>
+<li>
+<p>类型转换：使用downcast_ref::<code>&lt;T&gt;</code>()和downcast::<code>&lt;T&gt;</code>()方法，可以将一个&amp;dyn
+Any或者Box<code>&lt;dyn Any&gt;</code>类型的值转换回具体类型T。</p>
+</li>
+</ol>
+<p>注意：Any trait只能用于'static
+生命周期的类型，这意味着他不能用于包含非静态引用的类型。</p>
+<p>并且，Any会引入运行时开销，因为它依赖动态分派。</p>
+<h1 id="unsafecell"><a class="header" href="#unsafecell">UnsafeCell</a></h1>
+<p>Rust 中内部可变性的核心原语。</p>
+<p>如果您使用的是 &amp;T，则通常在 Rust 中，编译器基于 &amp;T
+指向不可变数据的知识来执行优化。例如通过别名或通过将 &amp;T 转换为 &amp;mut T
+来可变的该数据，被认为是未定义的行为。 UnsafeCell<code>&lt;T&gt;</code> 选择退出
+&amp;T 的不可变性保证：共享的引用 &amp;UnsafeCell<code>&lt;T&gt;</code>
+可能指向正在发生可变的数据。这称为内部可变性。</p>
+<p>所有其他允许内部可变性的类型，例如 Cell<code>&lt;T&gt;</code> 和
+RefCell<code>&lt;T&gt;</code>，在内部使用 UnsafeCell 来包装它们的数据。</p>
+<p>所有其他允许内部可变性的类型，例如 Cell<code>&lt;T&gt;</code> 和
+RefCell<code>&lt;T&gt;</code>，在内部使用 UnsafeCell 来包装它们的数据。</p>
+<p>UnsafeCell API 本身在技术上非常简单: .get() 为其内容提供了裸指针 *mut
+T。正确使用该裸指针取决于您。</p>
+<p>如果您使用生命周期 'a (&amp;T 或 &amp;mut T 引用)
+创建安全引用，那么您不得以任何与 'a
+其余部分的引用相矛盾的方式访问数据。 例如，这意味着如果您从
+UnsafeCell<code>&lt;T&gt;</code> 中取出 *mut T 并将其转换为 &amp;T，则 T
+中的数据必须保持不可变 (当然，对 T 中找到的任何 UnsafeCell
+数据取模)，直到引用的生命周期到期为止。 同样，如果您创建的 &amp;mut T
+引用已发布为安全代码，则在引用终止之前，您不得访问 UnsafeCell 中的数据。</p>
+<p>对于没有 UnsafeCell&lt;<em>&gt; 的 &amp;T 和 &amp;mut
+T，在引用过期之前，您也不得释放数据。作为一个特殊的例外，给定一个
+&amp;T，它在 UnsafeCell&lt;</em>&gt;
+内的任何部分都可能在引用的生命周期期间被释放，在最后一次使用引用之后
+(解引用或重新借用)。
+因为您不能释放引用指向的部分，这意味着只有当它的每一部分 (包括填充) 都在
+UnsafeCell 中时，&amp;T 指向的内存才能被释放。</p>
+<p>但是，无论何时构造或解引用
+&amp;UnsafeCell<code>&lt;T&gt;</code>，它仍必须指向活动内存，并且如果编译器可以证明该内存尚未被释放，则允许编译器插入虚假读取。</p>
+<p>在任何时候，您都必须避免数据竞争。如果多个线程可以访问同一个
+UnsafeCell，那么任何写操作都必须在与所有其他访问 (或使用原子)
+相关之前发生正确的事件。</p>
+<p>为了帮助进行正确的设计，以下情况明确声明为单线程代码合法：</p>
+<p>&amp;T 引用可以释放为安全代码，并且可以与其他 &amp;T 引用共存，但不能与 &amp;mut T
+共存</p>
+<p>&amp;mut T 引用可以发布为安全代码，前提是其他 &amp;mut T 和 &amp;T 都不共存。&amp;mut T
+必须始终是唯一的。</p>
+<p>请注意，虽然可以更改 &amp;UnsafeCell<code>&lt;T&gt;</code> 的内容 (即使其他
+&amp;UnsafeCell<code>&lt;T&gt;</code> 引用了该 cell 的别名) 也可以
+(只要以其他方式实现上述不变量即可)，但是具有多个 &amp;mut
+UnsafeCell<code>&lt;T&gt;</code> 别名仍然是未定义的行为。 也就是说，UnsafeCell
+是一个包装器，旨在通过 &amp;UnsafeCell&lt;<em>&gt; 与 shared accesses (i.e.
+进行特殊交互 (引用) ； 通过 &amp;mut UnsafeCell&lt;</em>&gt; 处理 exclusive accesses
+(e.g. 时没有任何魔术) : 在该 &amp;mut 借用期间， cell 和包装值都不能被别名。</p>
+<p>.get_mut() 访问器展示了这一点，该访问器是产生 &amp;mut T 的 safe getter。</p>
+<p>UnsafeCell<code>&lt;T&gt;</code> 与其内部类型 T
+具有相同的内存表示。此保证的结果是可以在 T 和 UnsafeCell<code>&lt;T&gt;</code>
+之间进行转换。 将 Outer<code>&lt;T&gt;</code> 类型内的嵌套 T 转换为
+Outer&lt;UnsafeCell<code>&lt;T&gt;</code>&gt; 类型时必须特别小心: 当 Outer<code>&lt;T&gt;</code>
+类型启用 niche 优化时，这不是正确的。</p>
+<h1 id="stdmemmaybeuninit"><a class="header" href="#stdmemmaybeuninit">std::mem::MaybeUninit</a></h1>
+<p>Rust 编译器要求变量要根据其类型正确初始化。</p>
+<p>比如引用类型的变量必须对齐且非空。这是一个必须始终坚持的不变量，即使在
+Unsafe
+代码中也是如此。因此，零初始化引用类型的变量会导致立即未定义行为，无论该引用是否访问过内存。</p>
+<p>编译器利用这一点，进行各种优化，并且可以省略运行时检查。</p>
+<p>由调用者来保证MaybeUninit<code>&lt;T&gt;</code>确实处于初始化状态。当内存尚未完全初始化时调用
+assume_init() 会导致立即未定义的行为。</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust">
+#![allow(unused)]
+
+fn main() {
+use std::mem::{self, MaybeUninit};
+// 不符合：零初始化引用
+let x: &amp;i32 = unsafe { mem::zeroed() }; // undefined behavior! ⚠️
+// 等价于 `MaybeUninit&lt;&amp;i32&gt;`:
+let x: &amp;i32 = unsafe { MaybeUninit::zeroed().assume_init() }; // undefined behavior! 
+// 不符合：布尔值必须初始化
+let b: bool = unsafe { mem::uninitialized() }; // undefined behavior! ⚠️
+// 等价于 `MaybeUninit&lt;bool&gt;`:
+let b: bool = unsafe { MaybeUninit::uninit().assume_init() }; // undefined behavior! 
+// 不符合：整数类型也必须初始化
+let x: i32 = unsafe { mem::uninitialized() }; // undefined behavior! ⚠️
+// 等价于 `MaybeUninit&lt;i32&gt;`:
+let x: i32 = unsafe { MaybeUninit::uninit().assume_init() }; 
+
+// 不符合：Vec未初始化内存使用 set_len 是未定义行为
+let mut vec: Vec&lt;u8&gt; = Vec::with_capacity(1000);
+unsafe { vec.set_len(1000); }
+reader.read(&amp;mut vec); // undefined behavior!
+}</code></pre></pre>
+</details>
+<h1 id="分割所有权"><a class="header" href="#分割所有权">分割所有权</a></h1>
+<p>Rust里，Vec, String这样的对象都是有所有权的，如果我们想要把一个对象的完整所有权拆分成两部分而不Clone, 就需要一些技巧。</p>
+<ol>
+<li>采用split_off:</li>
+</ol>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+    let mut v = vec![1, 2, 3, 4, 5, 6];
+
+    // 分割点
+    let split_index = 3;
+
+    // 分割所有权
+    let v2 = v.split_off(split_index);
+
+    println!("First part: {:?}", v);  // [1, 2, 3]
+    println!("Second part: {:?}", v2); // [4, 5, 6]
+}</code></pre></pre>
+<ol start="2">
+<li>drain</li>
+</ol>
+<p>drain 方法允许你从 Vec 中提取一部分的所有权，同时移除这些元素。</p>
+<pre><pre class="playground"><code class="language-rust">fn main() {
+    let mut v = vec![1, 2, 3, 4, 5, 6];
+
+    // 使用 drain 提取前半部分
+    let part1: Vec&lt;_&gt; = v.drain(..3).collect();
+
+    println!("First part: {:?}", part1); // [1, 2, 3]
+    println!("Remaining: {:?}", v);      // [4, 5, 6]
+}</code></pre></pre>
+<h1 id="特殊符号"><a class="header" href="#特殊符号">特殊符号</a></h1>
+<h2 id=""><a class="header" href="#">@</a></h2>
+<p>并没有特殊语义，对于模式匹配而言，@可以在把一个值绑定到一个变量上的时候，对其进行一些检查。</p>
+<p>例如：</p>
+<details><summary>Click to expand</summary>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let x = Some(5);
+match x {
+    Some(y @ 3..=7) =&gt; println!("x is between 3 and 7, inclusive: {}", y),
+    _ =&gt; (),
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>这个例子中，如果 x 是 Some 类型且其内部值在 3 到 7
+范围内，那么该值将被绑定到变量 y 上。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../Rust/Hashbrown.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../Rust/Tokio.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../Rust/Hashbrown.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../Rust/Tokio.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

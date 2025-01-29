@@ -1,0 +1,2087 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>图算法 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#200-%E5%B2%9B%E5%B1%BF%E6%95%B0%E9%87%8F">200 岛屿数量</a></li>
+<li><a href="#310-%E6%9C%80%E5%B0%8F%E9%AB%98%E5%BA%A6%E6%A0%91">310 最小高度树</a></li>
+<li><a href="#1436-%E6%97%85%E8%A1%8C%E7%BB%88%E7%82%B9%E7%AB%99">1436 旅行终点站</a></li>
+<li><a href="#1293-%E7%BD%91%E6%A0%BC%E4%B8%AD%E7%9A%84%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84">1293
+网格中的最短路径</a></li>
+<li><a href="#801-%E6%89%BE%E5%88%B0%E6%9C%80%E7%BB%88%E7%9A%84%E5%AE%89%E5%85%A8%E7%8A%B6%E6%80%81">801
+找到最终的安全状态</a></li>
+<li><a href="#841-%E9%92%A5%E5%8C%99%E4%B8%8E%E6%88%BF%E9%97%B4">841 钥匙与房间</a></li>
+<li><a href="#797-%E6%89%80%E6%9C%89%E5%8F%AF%E8%83%BD%E8%B7%AF%E5%BE%84">797 所有可能路径</a></li>
+<li><a href="#2093-%E5%89%8D%E5%BE%80%E7%9B%AE%E6%A0%87%E5%9F%8E%E5%B8%82%E7%9A%84%E6%9C%80%E5%B0%8F%E8%B4%B9%E7%94%A8">2093
+前往目标城市的最小费用</a></li>
+<li><a href="#1192-%E6%9F%A5%E6%89%BE%E9%9B%86%E7%BE%A4%E5%86%85%E7%9A%84%E5%85%B3%E9%94%AE%E8%BF%9E%E6%8E%A5">1192
+查找集群内的关键连接</a></li>
+<li><a href="#127-%E5%8D%95%E8%AF%8D%E6%8E%A5%E9%BE%99">127 单词接龙</a></li>
+<li><a href="#218-%E6%89%AB%E6%8F%8F%E7%BA%BF%E9%97%AE%E9%A2%98">218 扫描线问题</a></li>
+<li><a href="#505-%E8%BF%B7%E5%AE%AB2">505 迷宫2</a></li>
+<li><a href="#1557-%E5%8F%AF%E4%BB%A5%E5%88%B0%E8%BE%BE%E6%89%80%E6%9C%89%E7%82%B9%E7%9A%84%E6%9C%80%E5%B0%91%E7%82%B9%E6%95%B0%E7%9B%AE">1557
+可以到达所有点的最少点数目</a></li>
+<li><a href="#864-%E8%8E%B7%E5%8F%96%E6%89%80%E6%9C%89%E9%92%A5%E5%8C%99%E7%9A%84%E6%9C%80%E7%9F%AD%E8%B7%AF%E5%BE%84">864
+获取所有钥匙的最短路径</a></li>
+<li><a href="#721-%E8%B4%A6%E6%88%B7%E5%90%88%E5%B9%B6">721 账户合并</a></li>
+<li><a href="#839-%E7%9B%B8%E4%BC%BC%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%BB%84">839 相似字符串组</a></li>
+<li><a href="#210-%E8%AF%BE%E7%A8%8B%E8%A1%A82">210 课程表2</a></li>
+<li><a href="#269-%E7%81%AB%E6%98%9F%E8%AF%8D%E5%85%B8">269 火星词典</a></li>
+<li><a href="#1203-%E9%A1%B9%E7%9B%AE%E7%AE%A1%E7%90%86">1203 项目管理</a></li>
+<li><a href="#1857-%E6%9C%89%E5%90%91%E5%9B%BE%E4%B8%AD%E6%9C%80%E5%A4%A7%E9%A2%9C%E8%89%B2%E5%80%BC">1857
+有向图中最大颜色值</a></li>
+<li><a href="#994-%E8%85%90%E7%83%82%E7%9A%84%E6%A9%98%E5%AD%90">994. 腐烂的橘子</a></li>
+<li><a href="#684-%E5%86%97%E4%BD%99%E8%BF%9E%E6%8E%A5">684. 冗余连接</a></li>
+<li><a href="#685-%E5%86%97%E4%BD%99%E8%BF%9E%E6%8E%A52">685 冗余连接2</a></li>
+<li><a href="#499-%E8%BF%B7%E5%AE%AB3">499 迷宫3</a></li>
+<li><a href="#1168-%E6%B0%B4%E8%B5%84%E6%BA%90%E5%88%86%E9%85%8D%E4%BC%98%E5%8C%96">1168
+水资源分配优化</a></li>
+<li><a href="#1489-%E6%89%BE%E5%88%B0%E6%9C%80%E5%B0%8F%E7%94%9F%E6%88%90%E6%A0%91%E9%87%8C%E7%9A%84%E5%85%B3%E9%94%AE%E8%BE%B9%E5%92%8C%E4%BC%AA%E5%85%B3%E9%94%AE%E8%BE%B9">1489.
+找到最小生成树里的关键边和伪关键边</a></li>
+<li><a href="#unsolved-936-%E6%88%B3%E5%8D%B0%E5%BA%8F%E5%88%97">UNSOLVED 936
+戳印序列</a>
+<ul>
+<li><a href="#%E6%80%9D%E8%B7%AF">思路</a></li>
+</ul>
+</li>
+<li><a href="#133-%E5%85%8B%E9%9A%86%E5%9B%BE">133 克隆图</a></li>
+<li><a href="#785-%E5%88%A4%E6%96%AD%E4%BA%8C%E5%88%86%E5%9B%BE">785 判断二分图</a></li>
+<li><a href="#unsolved-787-k-%E7%AB%99%E4%B8%AD%E8%BD%AC%E5%86%85%E6%9C%80%E4%BE%BF%E5%AE%9C%E7%9A%84%E8%88%AA%E7%8F%AD">UNSOLVED 787 K
+站中转内最便宜的航班</a></li>
+<li><a href="#741-%E7%BD%91%E7%BB%9C%E5%BB%B6%E8%BF%9F%E6%97%B6%E9%97%B4">741 网络延迟时间</a></li>
+<li><a href="#85-%E6%9C%80%E5%A4%A7%E7%9F%A9%E5%BD%A2">85 最大矩形</a></li>
+</ul>
+<h1 id="200-岛屿数量"><a class="header" href="#200-岛屿数量">200 岛屿数量</a></h1>
+<p>给你一个由 '1'（陆地）和
+'0'（水）组成的的二维网格，请你计算网格中岛屿的数量。</p>
+<p>岛屿总是被水包围，并且每座岛屿只能由水平方向和/或竖直方向上相邻的陆地连接形成。</p>
+<p>此外，你可以假设该网格的四条边均被水包围。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+    constexpr static array&lt;int, 4&gt; dx{1, 0, -1, 0};
+    constexpr static array&lt;int, 4&gt; dy{0, 1, 0, -1};
+
+public:
+    int numIslands(vector&lt;vector&lt;char&gt;&gt;&amp; grid) {
+        int n = grid.size(), m = grid[0].size();
+        int ans = 0;
+        std::function&lt;void(int, int)&gt; dfs = [&amp;](int x, int y) {
+            grid[x][y] = '0';
+            for (int i = 0; i &lt; 4; i++) {
+                int nx = x + dx[i];
+                int ny = y + dy[i];
+                if (nx &gt;= 0 &amp;&amp; nx &lt; n &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; m &amp;&amp;
+                    grid[nx][ny] == '1') {
+                    dfs(nx, ny);
+                }
+            }
+        };
+        for (int x = 0; x &lt; n; x++) {
+            for (int y = 0; y &lt; m; y++) {
+                if (grid[x][y] == '1') {
+                    ans++;
+                    dfs(x, y);
+                }
+            }
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="310-最小高度树"><a class="header" href="#310-最小高度树">310 最小高度树</a></h1>
+<p>树是一个无向图，其中任何两个顶点只通过一条路径连接。
+换句话说，任何一个没有简单环路的连通图都是一棵树。</p>
+<p>给你一棵包含 n 个节点的树，标记为 0 到 n - 1 。给定数字 n 和一个有 n - 1
+条无向边的 edges 列表（每一个边都是一对标签），其中 edges[i] = [ai,
+bi] 表示树中节点 ai 和 bi 之间存在一条无向边。</p>
+<p>可选择树中任何一个节点作为根。当选择节点 x
+作为根节点时，设结果树的高度为 h
+。在所有可能的树中，具有最小高度的树（即，min(h)）被称为 最小高度树 。</p>
+<p>请你找到所有的 最小高度树 并按 任意顺序 返回它们的根节点标签列表。 树的
+高度 是指根节点和叶子节点之间最长向下路径上边的数量。</p>
+<p>广度优先搜索法：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int findLongestNode(int u, vector&lt;int&gt;&amp; parent,
+                        vector&lt;vector&lt;int&gt;&gt;&amp; graph) {
+        int n = graph.size();
+        queue&lt;int&gt; qu;
+        vector&lt;bool&gt; visited(n);
+        qu.emplace(u);
+        visited[u] = true;
+        int node = -1;
+        while (!qu.empty()) {
+            int curr = qu.front();
+            qu.pop();
+            node = curr;
+            for (auto&amp; v : graph[curr]) {
+                if (!visited[v]) {
+                    visited[v] = true;
+                    parent[v] = curr;
+                    qu.emplace(v);
+                }
+            }
+        }
+        return node;
+    }
+    vector&lt;int&gt; findMinHeightTrees(int n, vector&lt;vector&lt;int&gt;&gt;&amp; edges) {
+        if (n == 1)
+            return {0};
+        vector&lt;vector&lt;int&gt;&gt; graph(n);
+        for (auto&amp; each : edges) {
+            graph[each[0]].emplace_back(each[1]);
+            graph[each[1]].emplace_back(each[0]);
+        }
+        vector&lt;int&gt; parent(n, -1);
+        int x = findLongestNode(0, parent, graph);
+        int y = findLongestNode(x, parent, graph);
+        vector&lt;int&gt; path;
+        parent[x] = -1;
+        while (y != -1) {
+            path.emplace_back(y);
+            y = parent[y];
+        }
+        int m = path.size();
+        if (m &amp; 1) {
+            return {path[m / 2]};
+        } else {
+            return {path[m / 2 - 1], path[m / 2]};
+        }
+    }
+};
+</code></pre>
+</details>
+<p>拓扑排序解法：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+    vector&lt;vector&lt;int&gt;&gt; graph;
+    vector&lt;int&gt; degree;
+
+public:
+    vector&lt;int&gt; findMinHeightTrees(int n, vector&lt;vector&lt;int&gt;&gt;&amp; edges) {
+        degree.resize(n);
+        graph.resize(n);
+        for (auto&amp; each : edges) {
+            graph[each[0]].emplace_back(each[1]);
+            graph[each[1]].emplace_back(each[0]);
+            degree[each[0]]++;
+            degree[each[1]]++;
+        }
+        queue&lt;int&gt; qu;
+        vector&lt;int&gt; ans;
+        for (int i = 0; i &lt; n; i++) {
+            if (degree[i] == 1)
+                qu.push(i);
+        }
+        int remainNodes = n;
+        while (remainNodes &gt; 2) {
+            int size = qu.size();
+            remainNodes -= size;
+            for (int i = 0; i &lt; size; i++) {
+                int curr = qu.front();
+                qu.pop();
+                for (auto&amp; v : graph[curr]) {
+                    if (--degree[v] == 1) {
+                        qu.emplace(v);
+                    }
+                }
+            }
+        }
+        while (!qu.empty()) {
+            ans.emplace_back(qu.front());
+            qu.pop();
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="1436-旅行终点站"><a class="header" href="#1436-旅行终点站">1436 旅行终点站</a></h1>
+<p>给你一份旅游线路图，该线路图中的旅行线路用数组 paths 表示，其中
+paths[i] = [cityAi, cityBi] 表示该线路将会从 cityAi 直接前往 cityBi
+。请你找出这次旅行的终点站，即没有任何可以通往其他城市的线路的城市。</p>
+<p>题目数据保证线路图会形成一条不存在循环的线路，因此恰有一个旅行终点站。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    string destCity(vector&lt;vector&lt;string&gt;&gt;&amp; paths) {
+        unordered_map&lt;string, int&gt; degree;
+        unordered_map&lt;string, vector&lt;string&gt;&gt; graph;
+        for (auto&amp; edge : paths) {
+            graph[edge[0]].emplace_back(edge[1]);
+            if (degree.find(edge[0]) == degree.end()) {
+                degree[edge[0]] = 0;
+            }
+            degree[edge[1]]++;
+        }
+        queue&lt;string&gt; que;
+        for (auto&amp; each : degree) {
+            if (each.second == 0) {
+                que.emplace(each.first);
+            }
+        }
+        string ans;
+        while (que.size()) {
+            int size = que.size();
+            for (int i = 0; i &lt; size; i++) {
+                auto cur = que.front();
+                ans = cur;
+                que.pop();
+                for (auto&amp; each : graph[cur]) {
+                    if (--degree[each] == 0) {
+                        que.emplace(each);
+                    }
+                }
+            }
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="1293-网格中的最短路径"><a class="header" href="#1293-网格中的最短路径">1293 网格中的最短路径</a></h1>
+<p>给你一个 m * n 的网格，其中每个单元格不是 0（空）就是
+1（障碍物）。每一步，您都可以在空白单元格中上、下、左、右移动。</p>
+<p>如果您 最多 可以消除 k 个障碍物，请找出从左上角 (0, 0) 到右下角 (m-1,
+n-1)
+的最短路径，并返回通过该路径所需的步数。如果找不到这样的路径，则返回 -1
+。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+    using triple = std::array&lt;int, 3&gt;;
+    static constexpr std::array&lt;int, 4&gt; dx = {1, 0, -1, 0}, dy = {0, 1, 0, -1};
+
+public:
+    int shortestPath(vector&lt;vector&lt;int&gt;&gt;&amp; grid, int k) {
+        int n = grid.size();
+        int m = grid[0].size();
+        if (m == 1 &amp;&amp; n == 1)
+            return 0;
+        k = min(k, m + n - 3);
+        vector&lt;vector&lt;vector&lt;bool&gt;&gt;&gt; visited(
+            n, vector&lt;vector&lt;bool&gt;&gt;(m, vector&lt;bool&gt;(k + 1, false)));
+        queue&lt;triple&gt; q;
+        q.emplace(array{0, 0, k});
+        visited[0][0][k] = true;
+        for (int step = 1; q.size() &gt; 0; step++) {
+            int cnt_size = q.size();
+            for (int i = 0; i &lt; cnt_size; i++) {
+                auto [x, y, rest] = q.front();
+                q.pop();
+                for (int j = 0; j &lt; 4; j++) {
+                    int nx = x + dx[j];
+                    int ny = y + dy[j];
+                    if (nx &gt;= 0 &amp;&amp; nx &lt; n &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; m) {
+                        if (grid[nx][ny] == 0 &amp;&amp; !visited[nx][ny][rest]) {
+                            if (nx == n - 1 &amp;&amp; ny == m - 1) {
+                                return step;
+                            }
+                            q.emplace(array{nx, ny, rest});
+                            visited[nx][ny][rest] = true;
+                        } else if (grid[nx][ny] == 1 &amp;&amp; rest &gt; 0 &amp;&amp;
+                                   !visited[nx][ny][rest - 1]) {
+                            q.emplace(array{nx, ny, rest - 1});
+                            visited[nx][ny][rest - 1] = true;
+                        }
+                    }
+                }
+            }
+        }
+        return -1;
+    }
+};
+</code></pre>
+</details>
+<h1 id="801-找到最终的安全状态"><a class="header" href="#801-找到最终的安全状态">801 找到最终的安全状态</a></h1>
+<p>有一个有 n 个节点的有向图，节点按 0 到 n - 1 编号。图由一个 索引从 0
+开始 的 2D 整数数组 graph表示， graph[i]是与节点 i
+相邻的节点的整数数组，这意味着从节点 i 到
+graph[i]中的每个节点都有一条边。</p>
+<p>如果一个节点没有连出的有向边，则该节点是 终端节点
+。如果从该节点开始的所有可能路径都通向 终端节点 ，则该节点为 安全节点 。</p>
+<p>返回一个由图中所有 安全节点 组成的数组作为答案。答案数组中的元素应当按
+升序 排列。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    vector&lt;int&gt; eventualSafeNodes(vector&lt;vector&lt;int&gt;&gt;&amp; graph) {
+        int n=graph.size();
+        vector&lt;int&gt; color(n,0);
+        function&lt;bool(int)&gt; safe=[&amp;](int x)-&gt;bool{
+            if(color[x]&gt;0){
+                return color[x]==2;
+            }
+            color[x]=1;
+            for(auto&amp; y:graph[x]){
+                if(!safe(y)) return false;
+            }
+            color[x]=2;
+            return true;
+        };
+        vector&lt;int&gt; ans;
+        for(int i=0;i&lt;n;i++){
+            if(safe(i)) ans.emplace_back(i);
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="841-钥匙与房间"><a class="header" href="#841-钥匙与房间">841 钥匙与房间</a></h1>
+<p>有 n 个房间，房间按从 0 到 n - 1 编号。最初，除 0
+号房间外的其余所有房间都被锁住。你的目标是进入所有的房间。然而，你不能在没有获得钥匙的时候进入锁住的房间。</p>
+<p>当你进入一个房间，你可能会在里面找到一套
+不同的钥匙，每把钥匙上都有对应的房间号，即表示钥匙可以打开的房间。你可以拿上所有钥匙去解锁其他房间。</p>
+<p>给你一个数组 rooms 其中 rooms[i] 是你进入 i
+号房间可以获得的钥匙集合。如果能进入 所有 房间返回 true，否则返回
+false。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    bool canVisitAllRooms(vector&lt;vector&lt;int&gt;&gt;&amp; rooms) {
+        int n=rooms.size();
+        vector&lt;int&gt; room_id(n,0);
+        function&lt;void(int)&gt; next_foor=[&amp;](int n){
+            room_id[n]=1;
+            for(auto&amp; y:rooms[n]){
+                if(!room_id[y]) next_foor(y);
+            }
+        };
+        next_foor(0);
+        for(int i=0;i&lt;n;i++){
+            if(room_id[i]==0) return false;
+        }
+        return true;
+    }
+};
+</code></pre>
+</details>
+<h1 id="797-所有可能路径"><a class="header" href="#797-所有可能路径">797 所有可能路径</a></h1>
+<p>给你一个有 n 个节点的 有向无环图（DAG），请你找出所有从节点 0 到节点 n-1
+的路径并输出（不要求按特定顺序）</p>
+<p>graph[i] 是一个从节点 i 可以访问的所有节点的列表（即从节点 i 到节点
+graph[i][j]存在一条有向边）。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    vector&lt;vector&lt;int&gt;&gt; allPathsSourceTarget(vector&lt;vector&lt;int&gt;&gt;&amp; graph) {
+        int n=graph.size();
+        vector&lt;vector&lt;int&gt;&gt; result;
+        vector&lt;int&gt; path;
+        function&lt;void(int)&gt; find_path=[&amp;](int x){
+            if(x==n-1){
+                result.emplace_back(path);
+                return;
+            }
+            for(auto &amp; n: graph[x]){
+                path.emplace_back(n);
+                find_path(n);
+                path.pop_back();
+            }
+        };
+        path.push_back(0);
+        find_path(0);
+        
+        return result;
+    }
+};
+</code></pre>
+</details>
+<h1 id="2093-前往目标城市的最小费用"><a class="header" href="#2093-前往目标城市的最小费用">2093 前往目标城市的最小费用</a></h1>
+<p>一组公路连接 n 个城市，城市编号为从 0 到 n - 1 。 输入包含一个二维数组
+highways ，其中 highways[i] = [city1i, city2i, tolli]
+表示有一条连接城市 city1i 和 city2i 的双向公路，允许汽车缴纳值为 tolli
+的费用从 city1i 前往 city2i 或 从 city2i 前往 city1i 。</p>
+<p>另给你一个整数 discounts
+表示你最多可以使用折扣的次数。你可以使用一次折扣使通过第 ith
+条公路的费用降低至 tolli / 2（向下取整）。 最多只可使用 discounts
+次折扣， 且 每条公路最多只可使用一次折扣 。</p>
+<p>返回从城市0 前往城市 n - 1 的 最小费用 。如果不存在从城市0 前往城市 n -
+1 的路径，返回 -1 。</p>
+<p>分层图最短路问题。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int minimumCost(int n, vector&lt;vector&lt;int&gt;&gt;&amp; highways, int discounts) {
+        vector&lt;vector&lt;vector&lt;int&gt;&gt;&gt; graph(n);
+        for(auto&amp; v: highways){
+            graph[v[0]].emplace_back(vector{v[1],v[2]});
+            graph[v[1]].emplace_back(vector{v[0],v[2]});
+        }
+        priority_queue&lt;vector&lt;int&gt;,vector&lt;vector&lt;int&gt;&gt; ,greater&lt;vector&lt;int&gt;&gt;&gt; pq;
+        vector&lt;vector&lt;int&gt;&gt; dist(n,vector(discounts+1,INT_MAX));
+        dist[0][0]=0;
+        pq.push({0,0,0});
+        while(!pq.empty()){
+            auto t=pq.top();
+            pq.pop();
+            int w=t[0],u=t[1],cnt=t[2];
+            if(w&gt;dist[u][cnt]) continue;
+            if(cnt&lt;discounts&amp;&amp;dist[u][cnt+1]&gt;w){//同一个节点，不同的折扣层次
+                dist[u][cnt+1]=w;
+                pq.push({w,u,cnt+1});
+            }
+            for(auto&amp; e: graph[u]){//遍历相邻的点
+                int v=e[0],d=e[1];
+                if(dist[v][cnt]&gt;w+d){//同层不打折
+                    dist[v][cnt]=w+d;
+                    pq.push({w+d,v,cnt});
+                }
+                if(cnt&lt;discounts&amp;&amp;dist[v][cnt+1]&gt;w+d/2){//下一层且打折
+                    dist[v][cnt+1]=w+d/2;
+                    pq.push({w+d/2,v,cnt+1});
+                }
+            }
+        }
+        return dist[n-1][discounts]==INT_MAX? -1: dist[n-1][discounts];
+    }
+};
+</code></pre>
+</details>
+<h1 id="1192-查找集群内的关键连接"><a class="header" href="#1192-查找集群内的关键连接">1192 查找集群内的关键连接</a></h1>
+<p>力扣数据中心有 n 台服务器，分别按从 0 到 n-1
+的方式进行了编号。它们之间以 服务器到服务器
+的形式相互连接组成了一个内部集群，连接是无向的。用 connections
+表示集群网络，connections[i] = [a, b] 表示服务器 a 和 b
+之间形成连接。任何服务器都可以直接或者间接地通过网络到达任何其他服务器。</p>
+<p>关键连接
+是在该集群中的重要连接，假如我们将它移除，便会导致某些服务器无法访问其他服务器。</p>
+<p>请你以任意顺序返回该集群内的所有 关键连接 。</p>
+<p>思路：</p>
+<p><a href="https://www.youtube.com/watch?v=_1TDxihjtoE">Tarjan算法</a></p>
+<p><a href="https://oi-wiki.org/graph/cut/">割边割点</a></p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    vector&lt;vector&lt;int&gt;&gt; criticalConnections(int n,
+                                            vector&lt;vector&lt;int&gt;&gt;&amp; connections) {
+        vector&lt;vector&lt;int&gt;&gt; graph(n);
+        for (auto&amp; con : connections) {
+            int u = con.at(0);
+            int v = con.at(1);
+            graph[u].push_back(v);
+            graph[v].push_back(u);
+        }
+        vector&lt;vector&lt;int&gt;&gt; ans;
+        vector&lt;int&gt; time(n);//dfs过程中，初次访问某个节点时的时间戳
+        vector&lt;int&gt; low(n);//每个节点的最小追溯值
+        int num{0};//自增数字，用来赋值给节点的时间戳
+        dfs(0, 0, graph, time, low, ans, num);//从顶点0开始，并认为其前去节点是0
+        return ans;
+    }
+    void dfs(int u, int pa, vector&lt;vector&lt;int&gt;&gt;&amp; graph, vector&lt;int&gt;&amp; time,
+             vector&lt;int&gt;&amp; low, vector&lt;vector&lt;int&gt;&gt;&amp; ans, int&amp; num) {
+        low[u] = time[u] = ++num;
+        for (auto v : graph[u]) {
+            if (time[v] == 0) { // 发现新节点v
+                dfs(v, u, graph, time, low, ans, num);
+                low[u] = min(low[u], low[v]);
+                if (low[v] &gt; time[u]) { // 发现桥边，添加到结果集
+                    ans.emplace_back(vector{u, v});
+                }
+            } else if (
+                time[v] &lt; time[u] &amp;&amp;
+                v !=
+                    pa) { // v在u之前已经被访问过了，因为是无向图，u可以反向访问到其dfs搜索树上的父节点，此时需要跳过
+                low[u] = min(low[u], time[v]);
+            }
+        }
+    }
+};
+</code></pre>
+</details>
+<h1 id="127-单词接龙"><a class="header" href="#127-单词接龙">127 单词接龙</a></h1>
+<p>字典 wordList 中从单词 beginWord 到 endWord 的 转换序列
+是一个按下述规格形成的序列 beginWord -&gt; s1 -&gt; s2 -&gt; ... -&gt; sk：</p>
+<p>每一对相邻的单词只差一个字母。 对于 1 &lt;= i &lt;= k 时，每个 si 都在
+wordList 中。注意， beginWord 不需要在 wordList 中。</p>
+<p>给你两个单词 beginWord 和 endWord 和一个字典 wordList ，返回 从
+beginWord 到 endWord 的 最短转换序列 中的 单词数目
+。如果不存在这样的转换序列，返回 0。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+    unordered_map&lt;string,int&gt; wordId;
+    vector&lt;vector&lt;int&gt;&gt; graph;
+    int nodeNum=0;
+    void addWord(string&amp; str){
+        if(!wordId.count(str)){
+            wordId[str]=nodeNum++;
+            graph.emplace_back();
+        }
+    }
+    void addEdge(string&amp; word){
+        addWord(word);
+        int id1=wordId[word];
+        for(char&amp; it: word){
+            char tmp=it;
+            it='*';
+            addWord(word);
+            int id2=wordId[word];
+            graph[id1].push_back(id2);
+            graph[id2].push_back(id1);
+            it=tmp;
+        }
+    }
+public:
+    int ladderLength(string beginWord, string endWord, vector&lt;string&gt;&amp; wordList) {
+        for(auto&amp; word: wordList){
+            addEdge(word);
+        }
+        addEdge(beginWord);
+        if(!wordId.count(endWord)){
+            return 0;
+        }
+        vector&lt;int&gt; dis(nodeNum,INT_MAX);
+        int beginId=wordId[beginWord];
+        int endId=wordId[endWord];
+        dis[beginId]=0;
+        queue&lt;int&gt; que;
+        que.push(beginId);
+        while(!que.empty()){
+            int x=que.front();
+            que.pop();
+            if(x==endId){
+                return dis[endId]/2+1;
+            }
+            for(auto&amp; it: graph[x]){
+                if(dis[it]==INT_MAX){
+                    dis[it]=dis[x]+1;
+                    que.push(it);
+                }
+            }
+        }
+        return 0;
+    }
+};
+</code></pre>
+</details>
+<h1 id="218-扫描线问题"><a class="header" href="#218-扫描线问题">218 扫描线问题</a></h1>
+<p>城市的 天际线
+是从远处观看该城市中所有建筑物形成的轮廓的外部轮廓。给你所有建筑物的位置和高度，请返回
+由这些建筑物形成的 天际线 。</p>
+<p>每个建筑物的几何信息由数组 buildings 表示，其中三元组 buildings[i] =
+[lefti, righti, heighti] 表示：</p>
+<pre><code>lefti 是第 i 座建筑物左边缘的 x 坐标。
+righti 是第 i 座建筑物右边缘的 x 坐标。
+heighti 是第 i 座建筑物的高度。
+</code></pre>
+<p>你可以假设所有的建筑都是完美的长方形，在高度为 0 的绝对平坦的表面上。</p>
+<p>天际线 应该表示为由 "关键点" 组成的列表，格式
+[[x1,y1],[x2,y2],...] ，并按 x 坐标 进行 排序
+。关键点是水平线段的左端点。列表中最后一个点是最右侧建筑物的终点，y
+坐标始终为 0
+，仅用于标记天际线的终点。此外，任何两个相邻建筑物之间的地面都应被视为天际线轮廓的一部分。</p>
+<p>注意：输出天际线中不得有连续的相同高度的水平线。例如 [...[2 3], [4
+5], [7 5], [11 5], [12 7]...] 是不正确的答案；三条高度为 5
+的线应该在最终输出中合并为一个：[...[2 3], [4 5], [12 7], ...]</p>
+<p>思路：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    vector&lt;vector&lt;int&gt;&gt; getSkyline(vector&lt;vector&lt;int&gt;&gt;&amp; buildings) {
+        auto cmp = [](const pair&lt;int, int&gt;&amp; a,
+                      const pair&lt;int, int&gt;&amp; b) -&gt; bool {
+            return a.second &lt; b.second;
+        };
+        priority_queue&lt;pair&lt;int,int&gt;,vector&lt;pair&lt;int,int&gt;&gt; ,decltype(cmp)&gt; que(cmp);
+        vector&lt;int&gt; boundaries;
+        for(auto&amp; building: buildings){
+            boundaries.emplace_back(building[0]);
+            boundaries.emplace_back(building[1]);
+        }
+        ranges::sort(boundaries);
+        vector&lt;vector&lt;int&gt;&gt; ans;
+        int n=buildings.size();
+        int idx=0;
+        for(auto&amp; boundary: boundaries){
+            while(idx&lt;n &amp;&amp; buildings[idx][0]&lt;=boundary){
+                que.emplace(buildings[idx][1],buildings[idx][2]);
+                idx++;
+            }
+            while(!que.empty()&amp;&amp;que.top().first&lt;=boundary){
+                que.pop();
+            }
+            int maxn=que.empty()?0:que.top().second;
+            if(ans.size()==0||maxn!=ans.back()[1]){
+                ans.push_back({boundary,maxn});
+            }
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="505-迷宫2"><a class="header" href="#505-迷宫2">505 迷宫2</a></h1>
+<p>迷宫中有一个球，它有空地 (表示为 0) 和墙 (表示为
+1)。球可以向上、向下、向左或向右滚过空地，但直到撞上墙之前它都不会停止滚动。当球停止时，它才可以选择下一个滚动方向。</p>
+<p>给定 m × n 的迷宫(maze)，球的起始位置 (start = [startrow, startcol])
+和目的地 (destination = [destinationrow,
+destinationcol])，返回球在目的地 (destination)
+停止的最短距离。如果球不能在目的地 (destination) 停止，返回 -1。</p>
+<p>距离是指球从起始位置 ( 不包括 ) 到终点 ( 包括 ) 所经过的空地数。</p>
+<p>你可以假设迷宫的边界都是墙 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int shortestDistance(vector&lt;vector&lt;int&gt;&gt;&amp; maze, vector&lt;int&gt;&amp; start, vector&lt;int&gt;&amp; destination) {
+        int ans=INT_MAX;
+        int n=maze.size();
+        int m=maze.front().size();
+        vector&lt;vector&lt;int&gt;&gt; graph(n,vector&lt;int&gt;(m,INT_MAX));
+        graph[start[0]][start[1]]=0;
+        queue&lt;pair&lt;int,int&gt;&gt; que;
+        que.emplace(start[0],start[1]);
+        while(!que.empty()){
+            auto [x,y]=que.front();
+            que.pop();
+            for(auto [dx,dy]: vector&lt;pair&lt;int,int&gt;&gt;{{1,0},{-1,0},{0,1},{0,-1}}){
+                auto nx=x+dx;
+                auto ny=y+dy;
+                int step=1;
+                while(nx&gt;=0&amp;&amp;nx&lt;n&amp;&amp;ny&gt;=0&amp;&amp;ny&lt;m&amp;&amp;maze[nx][ny]==0){
+                    nx+=dx;
+                    ny+=dy;
+                    step++;
+                }
+                nx-=dx;
+                ny-=dy;
+                step--;
+                if(graph[x][y]+step&lt;graph[nx][ny]){
+                    graph[nx][ny]=graph[x][y]+step;
+                    que.emplace(nx,ny);
+                }
+            }
+        }
+        if(graph[destination[0]][destination[1]]==INT_MAX) return -1;
+        return graph[destination[0]][destination[1]];
+    }
+};
+</code></pre>
+</details>
+<h1 id="1557-可以到达所有点的最少点数目"><a class="header" href="#1557-可以到达所有点的最少点数目">1557 可以到达所有点的最少点数目</a></h1>
+<p>给你一个 有向无环图 ， n 个节点编号为 0 到 n-1 ，以及一个边数组 edges
+，其中 edges[i] = [fromi, toi] 表示一条从点 fromi 到点 toi
+的有向边。</p>
+<p>找到最小的点集使得从这些点出发能到达图中所有点。题目保证解存在且唯一。</p>
+<p>你可以以任意顺序返回这些节点编号。</p>
+<p>思路：</p>
+<p>寻找入度为零的节点就完事。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+ public:
+  vector&lt;int&gt; findSmallestSetOfVertices(int n, vector&lt;vector&lt;int&gt;&gt;&amp; edges) {
+    vector&lt;int&gt; inDegree(n + 1, 0);
+    vector&lt;int&gt; outDegree(n + 1, 0);
+    for (auto&amp;&amp; k : edges) {
+      inDegree[k[1]]++;
+      outDegree[k[0]]++;
+    }
+    vector&lt;int&gt; ans;
+    for (int i = 0; i &lt; n; i++) {
+      if (inDegree[i] == 0 &amp;&amp; outDegree[i] != 0) ans.push_back(i);
+    }
+    return ans;
+  }
+};
+</code></pre>
+</details>
+<h1 id="864-获取所有钥匙的最短路径"><a class="header" href="#864-获取所有钥匙的最短路径">864 获取所有钥匙的最短路径</a></h1>
+<p>给定一个二维网格 grid ，其中：</p>
+<pre><code>'.' 代表一个空房间
+'#' 代表一堵墙
+'@' 是起点
+小写字母代表钥匙
+大写字母代表锁
+</code></pre>
+<p>我们从起点开始出发，一次移动是指向四个基本方向之一行走一个单位空间。我们不能在网格外面行走，也无法穿过一堵墙。如果途经一个钥匙，我们就把它捡起来。除非我们手里有对应的钥匙，否则无法通过锁。</p>
+<p>假设 k 为 钥匙/锁 的个数，且满足 1 &lt;= k &lt;= 6，字母表中的前 k
+个字母在网格中都有自己对应的一个小写和一个大写字母。换言之，每个锁有唯一对应的钥匙，每个钥匙也有唯一对应的锁。另外，代表钥匙和锁的字母互为大小写并按字母顺序排列。</p>
+<p>返回获取所有钥匙所需要的移动的最少次数。如果无法获取所有钥匙，返回 -1 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+    static constexpr array&lt;int,4&gt; dx={0,1,0,-1};
+    static constexpr array&lt;int,4&gt; dy={1,0,-1,0};
+public:
+    int shortestPathAllKeys(vector&lt;string&gt;&amp; grid) {
+        int n=grid.size(),m=grid[0].size();
+        int sx=0,sy=0;
+        unordered_map&lt;char,int&gt; key_to_idx;
+        for(int i=0;i&lt;n;i++){
+            for(int j=0;j&lt;m;j++){
+                if(grid[i][j]=='@'){
+                    sx=i;sy=j;
+                }else if(islower(grid[i][j])){
+                    if(!key_to_idx.count(grid[i][j])){
+                        int idx=key_to_idx.size();
+                        key_to_idx[grid[i][j]]=idx;
+                    }
+                }
+            }
+        }
+        queue&lt;tuple&lt;int,int,int&gt;&gt; q;
+        vector&lt;vector&lt;vector&lt;int&gt;&gt;&gt; dist(n,vector&lt;vector&lt;int&gt;&gt;(m,vector&lt;int&gt;(1&lt;&lt;key_to_idx.size(),-1)));
+        q.emplace(sx,sy,0);
+        dist[sx][sy][0]=0;
+        while(!q.empty()){
+            auto [x,y,mask]=q.front();
+            q.pop();
+            for(int i=0;i&lt;4;i++){
+                int nx=x+dx[i];
+                int ny=y+dy[i];
+                if(nx&gt;=0&amp;&amp;nx&lt;n&amp;&amp;ny&gt;=0&amp;&amp;ny&lt;m&amp;&amp;grid[nx][ny]!='#'){
+                    if(grid[nx][ny]=='.'||grid[nx][ny]=='@'){
+                        if(dist[nx][ny][mask]==-1){
+                            dist[nx][ny][mask]=dist[x][y][mask]+1;
+                            q.emplace(nx,ny,mask);
+                        }
+                    }else if(islower(grid[nx][ny])){
+                        int idx=key_to_idx[grid[nx][ny]];
+                        if(dist[nx][ny][mask|1&lt;&lt;idx]==-1){
+                            dist[nx][ny][mask|(1&lt;&lt;idx)]=dist[x][y][mask]+1;
+                            if((mask|(1&lt;&lt;idx))==(1&lt;&lt;key_to_idx.size())-1){
+                                return dist[nx][ny][mask|(1&lt;&lt;idx)];
+                            }
+                            q.emplace(nx,ny,mask|(1&lt;&lt;idx));
+                        }
+                    }else{
+                        int idx=key_to_idx[tolower(grid[nx][ny])];
+                        if((mask&amp;(1&lt;&lt;idx))&amp;&amp;dist[nx][ny][mask]==-1){
+                            dist[nx][ny][mask]=dist[x][y][mask]+1;
+                            q.emplace(nx,ny,mask);
+                        }
+                    }
+                }
+            }
+        }
+        return -1;
+    }
+};
+</code></pre>
+</details>
+<h1 id="721-账户合并"><a class="header" href="#721-账户合并">721 账户合并</a></h1>
+<p>给定一个列表 accounts，每个元素 accounts[i]
+是一个字符串列表，其中第一个元素 accounts[i][0] 是 名称
+(name)，其余元素是 emails 表示该账户的邮箱地址。</p>
+<p>现在，我们想合并这些账户。如果两个账户都有一些共同的邮箱地址，则两个账户必定属于同一个人。请注意，即使两个账户具有相同的名称，它们也可能属于不同的人，因为人们可能具有相同的名称。一个人最初可以拥有任意数量的账户，但其所有账户都具有相同的名称。</p>
+<p>合并账户后，按以下格式返回账户：每个账户的第一个元素是名称，其余元素是
+按字符 ASCII 顺序排列 的邮箱地址。账户本身可以以 任意顺序 返回。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class UnionFind{
+    vector&lt;int&gt; parent;
+    public:
+    UnionFind(int n){
+        parent.resize(n);
+        iota(parent.begin(),parent.end(),0);
+    }
+    void unionSet(int i1,int i2){
+        parent[find(i2)]=find(i1);
+    }
+    int find(int index){
+        if(parent[index]!=index){
+            parent[index]=find(parent[index]);
+        }
+        return parent[index];
+    }
+};
+class Solution {
+public:
+    vector&lt;vector&lt;string&gt;&gt; accountsMerge(vector&lt;vector&lt;string&gt;&gt;&amp; accounts) {
+        map&lt;string,string&gt; emailToName;
+        map&lt;string,int&gt; emailToIndex;
+        int emailsCount=0;
+        for(auto&amp; a: accounts){
+            auto name=a[0];
+            int size=a.size();
+            for(int i=1;i&lt;size;i++){
+                string&amp; email=a[i];
+                if(!emailToIndex.count(email)){
+                    emailToIndex[email]=emailsCount++;
+                    emailToName[email]=name;
+                }
+            }
+        }
+        UnionFind uf(emailsCount);
+        for(auto &amp;account: accounts){
+            string&amp; firstEmail=account[1];
+            int firstIndex=emailToIndex[firstEmail];
+            int size=account.size();
+            for(int i=2;i&lt;size;i++){
+                string&amp; nextEmail=account[i];
+                int nextIndex=emailToIndex[nextEmail];
+                uf.unionSet(firstIndex, nextIndex);
+            }
+        }
+        map&lt;int,vector&lt;string&gt;&gt; indexToEmails;
+        for(auto &amp;[email,_]: emailToIndex){
+            int index=uf.find(emailToIndex[email]);
+            vector&lt;string&gt;&amp; account=indexToEmails[index];
+            account.emplace_back(email);
+            indexToEmails[index]=account;
+        }
+        vector&lt;vector&lt;string&gt;&gt; merged;
+        for(auto&amp; [_,emails]: indexToEmails){
+            ranges::sort(emails);
+            string&amp; name=emailToName[emails[0]];
+            vector&lt;string&gt; account;
+            account.emplace_back(name);
+            for(auto&amp; email: emails){
+                account.emplace_back(email);
+            }
+            merged.emplace_back(account);
+        }
+        return merged;
+    }
+};
+</code></pre>
+</details>
+<h1 id="839-相似字符串组"><a class="header" href="#839-相似字符串组">839 相似字符串组</a></h1>
+<p>如果交换字符串 X 中的两个不同位置的字母，使得它和字符串 Y 相等，那么称 X
+和 Y 两个字符串相似。如果这两个字符串本身是相等的，那它们也是相似的。</p>
+<p>例如，"tars" 和 "rats" 是相似的 (交换 0 与 2 的位置)； "rats" 和
+"arts" 也是相似的，但是 "star" 不与 "tars"，"rats"，或 "arts"
+相似。</p>
+<p>总之，它们通过相似性形成了两个关联组：{"tars", "rats", "arts"} 和
+{"star"}。注意，"tars" 和 "arts"
+是在同一组中，即使它们并不相似。形式上，对每个组而言，要确定一个单词在组中，只需要这个词和该组中至少一个单词相似。</p>
+<p>给你一个字符串列表 strs。列表中的每个字符串都是 strs
+中其它所有字符串的一个字母异位词。请问 strs 中有多少个相似字符串组？</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+    vector&lt;int&gt; parent;
+    int find(int index) {
+        if (parent[index] != index) {
+            parent[index] = find(parent[index]);
+        }
+        return parent[index];
+    }
+    bool check(string&amp; a, string&amp; b) {
+        int num = 0;
+        for (int i = 0; i &lt; a.size(); i++) {
+            if (a[i] != b[i]) {
+                num++;
+            }
+            if (num &gt; 2)
+                return false;
+        }
+        return true;
+    }
+
+public:
+    int numSimilarGroups(vector&lt;string&gt;&amp; strs) {
+        int n = strs.size();
+        int m = strs[0].length();
+        parent.resize(n);
+        iota(parent.begin(), parent.end(), 0);
+        for (int i = 0; i &lt; n; i++) {
+            for (int j = i + 1; j &lt; n; j++) {
+                int find_i = find(i), find_j = find(j);
+                if (find_i == find_j)
+                    continue;
+                if (check(strs[i], strs[j])) {
+                    parent[find_i] = find_j;
+                }
+            }
+        }
+        int ret = 0;
+        for (int i = 0; i &lt; n; i++) {
+            if (parent[i] == i)
+                ret++;
+        }
+        return ret;
+    }
+};
+</code></pre>
+</details>
+<h1 id="210-课程表2"><a class="header" href="#210-课程表2">210 课程表2</a></h1>
+<p>现在你总共有 numCourses 门课需要选，记为 0 到 numCourses -
+1。给你一个数组 prerequisites ，其中 prerequisites[i] = [ai, bi]
+，表示在选修课程 ai 前 必须 先选修 bi 。</p>
+<pre><code>例如，想要学习课程 0 ，你需要先完成课程 1 ，我们用一个匹配来表示：[0,1] 。
+</code></pre>
+<p>返回你为了学完所有课程所安排的学习顺序。可能会有多个正确的顺序，你只要返回
+任意一种 就可以了。如果不可能完成所有课程，返回 一个空数组 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    vector&lt;int&gt; findOrder(int numCourses, vector&lt;vector&lt;int&gt;&gt;&amp; prerequisites) {
+        vector&lt;int&gt; count(numCourses);
+        vector&lt;vector&lt;int&gt;&gt; graph(numCourses);
+        for(auto&amp; each: prerequisites){
+            count[each[0]]++;
+            graph[each[1]].emplace_back(each[0]);
+        }
+        queue&lt;int&gt; que;
+                vector&lt;int&gt; ans;
+        for(int i=0;i&lt;numCourses;i++){
+            if(count[i]==0) {que.emplace(i);ans.push_back(i);}
+        }
+        if(que.empty()){
+            return {};
+        }
+        int visited=0;
+        while(!que.empty()){
+            auto top=que.front();
+            que.pop();
+            visited++;
+            for(auto&amp; each: graph[top]){
+                if(--count[each]==0){
+                    que.emplace(each);
+                                ans.push_back(each);
+                }
+            }
+        }
+        return numCourses==visited?ans:vector&lt;int&gt;{};
+    }
+};
+</code></pre>
+</details>
+<h1 id="269-火星词典"><a class="header" href="#269-火星词典">269 火星词典</a></h1>
+<p>现有一种使用英语字母的火星语言，这门语言的字母顺序对你来说是未知的。</p>
+<p>给你一个来自这种外星语言字典的字符串列表 words ，words 中的字符串已经
+按这门新语言的 字典序 进行了排序 。</p>
+<p>如果这种说法是错误的，并且给出的 words 不能对应任何字母的顺序，则返回
+"" 。</p>
+<p>否则，返回一个按新语言规则的 字典递增顺序
+排序的独特字符串。如果有多个解决方案，则返回其中 任意一个 。</p>
+<p>思路：</p>
+<p>words中的字符串按照字典序排序，就说明对于相邻的字符串a,b,
+其中第一个不相同的字符a[i],
+b[i]就表示他们在图中的位置，前者在后者之上。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+    unordered_map&lt;char,vector&lt;char&gt;&gt; edges;
+    unordered_map&lt;char,int&gt; indegree;
+    bool valid=true;
+public:
+    void add_edge(string&amp; a,string&amp; b){
+        int len1=a.length(),len2=b.length();
+        int len=min(len1,len2);
+        int index=0;
+        while(index&lt;len){
+            auto c1=a[index],c2=b[index];
+            if(c1!=c2){
+                edges[c1].emplace_back(c2);
+                indegree[c2]++;
+                break;
+            }
+            index++;
+        }
+        if(index==len&amp;&amp;len1&gt;len2) valid=false;//不满足任何字母顺序
+    }
+    string alienOrder(vector&lt;string&gt;&amp; words) {
+        int len=words.size();
+        for(auto&amp; word:words){
+            for(auto&amp; c: word){
+                if(edges.count(c)==0){
+                    edges[c]=vector&lt;char&gt;();
+                }
+            }
+        }
+        for(int i=1;i&lt;len;i++){
+            add_edge(words[i-1],words[i]);
+        }
+        if(!valid) return "";
+        queue&lt;char&gt; que;
+        for(auto&amp; [u,_]: edges){//如果u这个点的入度为0
+            if(!indegree.count(u)) que.emplace(u);
+        }
+        string order;
+        while(!que.empty()){
+            auto u=que.front();
+            que.pop();
+            order.push_back(u);
+            for(auto&amp; v: edges[u]){
+                if(--indegree[v]==0){
+                    que.emplace(v);
+                }
+            }
+        }
+        return order.size()==edges.size()? order: "";
+    }
+};
+</code></pre>
+</details>
+<h1 id="1203-项目管理"><a class="header" href="#1203-项目管理">1203 项目管理</a></h1>
+<p>有 n 个项目，每个项目或者不属于任何小组，或者属于 m
+个小组之一。group[i] 表示第 i 个项目所属的小组，如果第 i
+个项目不属于任何小组，则 group[i] 等于
+-1。项目和小组都是从零开始编号的。可能存在小组不负责任何项目，即没有任何项目属于这个小组。</p>
+<p>请你帮忙按要求安排这些项目的进度，并返回排序后的项目列表：</p>
+<p>同一小组的项目，排序后在列表中彼此相邻。</p>
+<p>项目之间存在一定的依赖关系，我们用一个列表 beforeItems 来表示，其中
+beforeItems[i] 表示在进行第 i 个项目前（位于第 i
+个项目左侧）应该完成的所有项目。</p>
+<p>如果存在多个解决方案，只需要返回其中任意一个即可。如果没有合适的解决方案，就请返回一个
+空列表 。</p>
+<p>思路：</p>
+<p>这道题实际上有两个拓扑关系：</p>
+<ol>
+<li>
+<p>组内的每一个item之间存在拓扑关系</p>
+</li>
+<li>
+<p>每一个组之间因为item的关系也会存在依赖关系</p>
+</li>
+</ol>
+<p>将每一个group[i]为-1的item设置为一个独立的groupId,
+然后先将每一个组之间进行排序，再对每一个组进行排序。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+    vector&lt;int&gt; topSort(vector&lt;int&gt;&amp; indegree, vector&lt;vector&lt;int&gt;&gt;&amp; graph,
+                        vector&lt;int&gt;&amp; items) {
+        queue&lt;int&gt; que;
+        vector&lt;int&gt; sorted;
+        for (auto&amp; item : items) {
+            if (indegree[item] == 0) {
+                que.push(item);
+            }
+        }
+        while (!que.empty()) {
+            auto top = que.front();
+            que.pop();
+            sorted.emplace_back(top);
+            for (auto&amp; each : graph[top]) {
+                if (--indegree[each] == 0) {
+                    que.emplace(each);
+                }
+            }
+        }
+        return sorted.size() == items.size() ? sorted : vector&lt;int&gt;{};
+    }
+
+public:
+    vector&lt;int&gt; sortItems(int n, int m, vector&lt;int&gt;&amp; group,
+                          vector&lt;vector&lt;int&gt;&gt;&amp; beforeItems) {
+        vector&lt;vector&lt;int&gt;&gt; groupItem(n + m);
+        vector&lt;vector&lt;int&gt;&gt; groupGraph(m + n);
+        vector&lt;vector&lt;int&gt;&gt; itemGraph(n);
+        vector&lt;int&gt; groupDegree(n + m);
+        vector&lt;int&gt; itemIndegree(n);
+        vector&lt;int&gt; id(n + m);
+        iota(id.begin(), id.end(), 0);
+        int leftId = m;
+        // 给没有分配组的item分配一个groupId(视为每个一组)
+        for (int i = 0; i &lt; n; i++) {
+            if (group[i] == -1) {
+                group[i] = (leftId++);
+            }
+            groupItem[group[i]].emplace_back(i);
+        }
+        // 依赖关系建图
+        for (int i = 0; i &lt; n; i++) {
+            auto&amp; curGroup = group[i];
+            for (auto&amp; item : beforeItems[i]) {
+                int beforeGroupItemId = group[item];
+                if (beforeGroupItemId == curGroup) {
+                    itemIndegree[i] += 1;
+                    itemGraph[item].emplace_back(i);
+                } else {
+                    groupDegree[curGroup] += 1;
+                    groupGraph[beforeGroupItemId].emplace_back(curGroup);
+                }
+            }
+        }
+        // 组间拓扑关系排序
+        vector&lt;int&gt; groupTopSorted = topSort(groupDegree, groupGraph, id);
+        if (groupTopSorted.size() == 0) {
+            return vector&lt;int&gt;();
+        }
+        vector&lt;int&gt; ans;
+        // 组内拓扑关系排序
+        for (auto&amp; curGroupId : groupTopSorted) {
+            int size = groupItem[curGroupId].size();
+            if (size == 0)
+                continue;
+            vector&lt;int&gt; res =
+                topSort(itemIndegree, itemGraph, groupItem[curGroupId]);
+            if (res.size() == 0) {
+                return {};
+            }
+            for (auto&amp; item : res) {
+                ans.emplace_back(item);
+            }
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="1857-有向图中最大颜色值"><a class="header" href="#1857-有向图中最大颜色值">1857 有向图中最大颜色值</a></h1>
+<p>给你一个 有向图 ，它含有 n 个节点和 m 条边。节点编号从 0 到 n - 1 。</p>
+<p>给你一个字符串 colors ，其中 colors[i] 是小写英文字母，表示图中第 i
+个节点的 颜色 （下标从 0 开始）。同时给你一个二维数组 edges ，其中
+edges[j] = [aj, bj] 表示从节点 aj 到节点 bj 有一条 有向边 。</p>
+<p>图中一条有效 路径 是一个点序列 x1 -&gt; x2 -&gt; x3 -&gt; ... -&gt; xk
+，对于所有 1 &lt;= i &lt; k ，从 xi 到 xi+1 在图中有一条有向边。路径的
+颜色值 是路径中 出现次数最多 颜色的节点数目。</p>
+<p>请你返回给定图中有效路径里面的 最大颜色值 。如果图中含有环，请返回 -1 。</p>
+<p>思路：</p>
+<p>拓扑排序上进行动态规划。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int largestPathValue(string colors, vector&lt;vector&lt;int&gt;&gt;&amp; edges) {
+        int n=colors.length();
+        vector&lt;vector&lt;int&gt;&gt; graph(n);
+        //邻接表
+        //入度
+        vector&lt;int&gt; indegree(n);
+        for(auto&amp;&amp; edge: edges){
+            ++indegree[edge[1]];
+            graph[edge[0]].emplace_back(edge[1]);
+        }
+        //记录拓扑排序过程中遇到的节点个数
+        //如果found的值不是n, 说明途中存在环
+        int found=0;
+        vector&lt;array&lt;int,26&gt;&gt; f(n);
+        queue&lt;int&gt; que;
+        for(int i=0;i&lt;n;i++){
+            if(!indegree[i]) que.push(i);
+        }
+        while(!que.empty()){
+            ++found;
+            int u=que.front();
+            que.pop();
+            ++f[u][colors[u]-'a'];
+            for(auto&amp; v: graph[u]){
+                --indegree[v];
+                for(int c=0;c&lt;26;cpp){
+                    f[v][c]=max(f[v][c],f[u][c]);
+                }
+                if(!indegree[v]) que.push(v);
+            }
+        }
+        if(found!=n) return -1;
+        int ans=0;
+        for(int i=0;i&lt;n;i++) ans=max(ans,ranges::max(f[i]));
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="994-腐烂的橘子"><a class="header" href="#994-腐烂的橘子">994. 腐烂的橘子</a></h1>
+<p>在给定的 m x n 网格 grid 中，每个单元格可以有以下三个值之一：</p>
+<pre><code>值 0 代表空单元格；
+值 1 代表新鲜橘子；
+值 2 代表腐烂的橘子。
+</code></pre>
+<p>每分钟，腐烂的橘子 周围 4 个方向上相邻 的新鲜橘子都会腐烂。</p>
+<p>返回
+直到单元格中没有新鲜橘子为止所必须经过的最小分钟数。如果不可能，返回 -1
+。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+    constexpr static array&lt;int,4&gt; dx={0,1,0,-1};
+    constexpr static array&lt;int,4&gt; dy={1,0,-1,0};
+public:
+    int orangesRotting(vector&lt;vector&lt;int&gt;&gt;&amp; grid) {
+        int cnt=0;
+        int m=grid.size();
+        int n=grid[0].size();
+        vector&lt;vector&lt;int&gt;&gt; dis(m,vector&lt;int&gt;(n,-1));
+        queue&lt;pair&lt;int,int&gt;&gt; que;
+        for(int i=0;i&lt;m;i++){
+            for(int j=0;j&lt;n;j++){
+                if(grid[i][j]==2){
+                    que.emplace(i,j);
+                    dis[i][j]=0;
+                }else if(grid[i][j]==1){
+                    cnt+=1;
+                }
+            }
+        }
+        int ans=0;
+        while(que.size()){
+            auto [r,c]=que.front();
+            que.pop();
+            for(int i=0;i&lt;4;++i){
+                int nr=r+dx[i];
+                int nc=c+dy[i];
+                if(nr&lt;0||nr&gt;=m||nc&lt;0||nc&gt;=n||~dis[nr][nc]||!grid[nr][nc]){
+                    continue;
+                }
+                dis[nr][nc]=dis[r][c]+1;
+                que.emplace(nr,nc);
+                if(grid[nr][nc]==1){
+                    cnt-=1;
+                    ans=dis[nr][nc];
+                    if(!cnt) break;
+                }
+            }
+        }
+        return cnt?-1:ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="684-冗余连接"><a class="header" href="#684-冗余连接">684. 冗余连接</a></h1>
+<p>树可以看成是一个连通且 无环 的 无向 图。</p>
+<p>给定往一棵 n 个节点 (节点值 1～n)
+的树中添加一条边后的图。添加的边的两个顶点包含在 1 到 n
+中间，且这条附加的边不属于树中已存在的边。图的信息记录于长度为 n
+的二维数组 edges ，edges[i] = [ai, bi] 表示图中在 ai 和 bi
+之间存在一条边。</p>
+<p>请找出一条可以删去的边，删除后可使得剩余部分是一个有着 n
+个节点的树。如果有多个答案，则返回数组 edges 中最后出现的那个。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class UnionSet{
+    public:
+    vector&lt;int&gt; parent;
+    UnionSet(int n){
+        parent.resize(n);
+        iota(parent.begin(),parent.end(),0);
+    }
+    void us_union(int index1,int index2){
+        parent[find(index1)]=find(index2);
+    }
+    int find(int index){
+        return parent[index]!=index?(parent[index]=find(parent[index])):parent[index];
+    }
+};
+class Solution {
+public:
+    vector&lt;int&gt; findRedundantConnection(vector&lt;vector&lt;int&gt;&gt;&amp; edges) {
+        int nodeCount=edges.size();
+        UnionSet us(nodeCount);
+        for(auto&amp; edge: edges){
+            int n1=edge[0]-1,n2=edge[1]-1;
+            if(us.find(n1)!=us.find(n2)) us.us_union(n1, n2);
+            else return edge;
+        }
+        return {};
+    }
+};
+</code></pre>
+</details>
+<h1 id="685-冗余连接2"><a class="header" href="#685-冗余连接2">685 冗余连接2</a></h1>
+<p>在本问题中，有根树指满足以下条件的 有向
+图。该树只有一个根节点，所有其他节点都是该根节点的后继。该树除了根节点之外的每一个节点都有且只有一个父节点，而根节点没有父节点。</p>
+<p>输入一个有向图，该图由一个有着 n 个节点（节点值不重复，从 1 到
+n）的树及一条附加的有向边构成。附加的边包含在 1 到 n
+中的两个不同顶点间，这条附加的边不属于树中已存在的边。</p>
+<p>结果图是一个以边组成的二维数组 edges 。 每个元素是一对 [ui,
+vi]，用以表示 有向 图中连接顶点 ui 和顶点 vi 的边，其中 ui 是 vi
+的一个父节点。</p>
+<p>返回一条能删除的边，使得剩下的图是有 n
+个节点的有根树。若有多个答案，返回最后出现在给定二维数组的答案。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+    class UF{
+        vector&lt;int&gt; parents;
+        public:
+        UF(int n){
+            parents.resize(n);
+            iota(parents.begin(),parents.end(),0);
+        }
+        int find(int index){
+            return index==parents[index]?index: parents[index]=find(parents[index]);
+        }
+        void merge(int u,int v){
+            parents[find(u)]=find(v);
+        }
+    };
+public:
+    vector&lt;int&gt; findRedundantDirectedConnection(vector&lt;vector&lt;int&gt;&gt;&amp; edges) {
+        int n=edges.size();
+        UF uf(n+1);
+        auto parent=vector&lt;int&gt;(n+1);
+        iota(parent.begin(),parent.end(),0);
+        int conflict=-1;
+        int cycle=-1;
+        for(int i=0;i&lt;n;i++){
+            auto edge=edges[i];
+            int node1=edge[0],node2=edge[1];
+            //说明node2有两个父节点，当前边node1-&gt;node2为冲突边
+            if(parent[node2]!=node2){
+                conflict=i;
+            }else{
+                parent[node2]=node1;
+                //在并查集中查找node1, node2的祖先，如果祖先相同，说明这条边导致环路出现；否则将node1, node2合并
+                if(uf.find(node2)==uf.find(node1)){
+                    cycle=i;
+                }else{
+                    uf.merge(node1, node2);
+                }
+            }
+        }
+        if(conflict&lt;0){
+            return edges[cycle];
+        }else{
+            auto conflictEdge=edges[conflict];
+            if(cycle&gt;=0){
+                return vector&lt;int&gt;{parent[conflictEdge[1]],conflictEdge[1]};
+            }else{
+                return conflictEdge;
+            }
+        }
+    }
+};
+</code></pre>
+</details>
+<h1 id="499-迷宫3"><a class="header" href="#499-迷宫3">499 迷宫3</a></h1>
+<p>由空地和墙组成的迷宫中有一个球。球可以向上（u）下（d）左（l）右（r）四个方向滚动，但在遇到墙壁前不会停止滚动。当球停下时，可以选择下一个方向。迷宫中还有一个洞，当球运动经过洞时，就会掉进洞里。</p>
+<p>给定球的起始位置，目的地和迷宫，找出让球以最短距离掉进洞里的路径。
+距离的定义是球从起始位置（不包括）到目的地（包括）经过的空地个数。通过'u',
+'d', 'l' 和 'r'输出球的移动方向。 由于可能有多条最短路径，
+请输出字典序最小的路径。如果球无法进入洞，输出"impossible"。</p>
+<p>迷宫由一个0和1的二维数组表示。
+1表示墙壁，0表示空地。你可以假定迷宫的边缘都是墙壁。起始位置和目的地的坐标通过行号和列号给出。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">
+class Solution {
+public:
+    class node {
+        public:
+        node(int row,int col,int dist,string path):row(row),col(col),dist(dist),path(path){}
+        bool operator&lt; (const node&amp; other) const{
+            return dist &gt; other.dist;
+        }
+        int row,col,dist;
+        string path;
+    };
+private:
+//下左右上
+    int dir[4][2] = {{1,0},{0,-1},{0,1},{-1,0}};
+    char dict[4] = {'d','l','r','u'};
+public:
+    string findShortestWay(vector&lt;vector&lt;int&gt;&gt;&amp; maze, vector&lt;int&gt;&amp; ball, vector&lt;int&gt;&amp; hole) {
+        int mazeRow = maze.size();
+        int mazeCol = maze[0].size();
+        int INF = mazeRow * mazeCol;
+        priority_queue&lt;node&gt; pq;
+        vector&lt;vector&lt;int&gt;&gt; dist(mazeRow,vector&lt;int&gt;(mazeCol,INF));
+        vector&lt;vector&lt;string&gt;&gt; paths(mazeRow,vector&lt;string&gt;(mazeCol));
+        pq.push(node(ball[0],ball[1],0,""));
+        dist[ball[0]][ball[1]] = 0;
+        while(pq.size()){
+            auto [row,col,curDist,path] = pq.top();
+            pq.pop();
+            if(row == hole[0] &amp;&amp; col == hole[1] ){
+                return paths[row][col];
+            }
+            if(curDist &gt; dist[row][col] || (curDist == dist[row][col] &amp;&amp; path != paths[row][col])) continue;
+            for(int i = 0;i &lt; 4;i++){
+                int nextRow = row + dir[i][0];
+                int nextCol = col + dir[i][1];
+                int nextDist = curDist;
+                while(nextRow &gt;=0 &amp;&amp; nextRow &lt; mazeRow &amp;&amp; nextCol &gt;= 0 &amp;&amp; nextCol &lt; mazeCol &amp;&amp; maze[nextRow][nextCol] == 0){
+                    nextDist++;
+                    if(nextRow == hole[0] &amp;&amp; nextCol == hole[1]) {
+                        nextRow += dir[i][0];
+                        nextCol += dir[i][1];
+                        break;
+                    }
+                    nextRow += dir[i][0];
+                    nextCol += dir[i][1];
+                }
+                nextRow -= dir[i][0];
+                nextCol -= dir[i][1];
+                if((nextDist &lt; dist[nextRow][nextCol])||(nextDist == dist[nextRow][nextCol]&amp;&amp;paths[nextRow][nextCol] &gt; path+dict[i] )) {
+                    dist[nextRow][nextCol] = nextDist;
+                    paths[nextRow][nextCol] = path + dict[i];
+                    pq.push(node(nextRow,nextCol,nextDist,path+dict[i]));
+                }
+            }
+        }
+        return "impossible";
+    }
+};
+</code></pre>
+</details>
+<h1 id="1168-水资源分配优化"><a class="header" href="#1168-水资源分配优化">1168 水资源分配优化</a></h1>
+<p>村里面一共有 n 栋房子。我们希望通过建造水井和铺设管道来为所有房子供水。</p>
+<p>对于每个房子
+i，我们有两种可选的供水方案：一种是直接在房子内建造水井，成本为
+wells[i - 1] （注意 -1 ，因为 索引从0开始
+）；另一种是从另一口井铺设管道引水，数组 pipes
+给出了在房子间铺设管道的成本，其中每个 pipes[j] = [house1j, house2j,
+costj] 代表用管道将 house1j 和 house2j连接在一起的成本。连接是双向的。</p>
+<p>请返回 为所有房子都供水的最低总成本 。</p>
+<blockquote>
+<p>概述
+由于问题描述涉及到连接房子（顶点）使用管道（边），我们可以确定这个问题与图论问题有关。本题要求为所有房子都供水的最低总成本，我们把房子看成是图的节点，管道看成是图的边，那么这题很显然就是最小生成树的问题。唯一的区别是可以直接在房子内造水井。
+关于 MST 问题，存在几种经典的算法。 特别地，我们将展示其中的两种，即
+Prim 的算法和 Kruskal
+的算法，这两种算法可以说是最受欢迎的，并且在面试中可行。 简单介绍
+首先，让我们介绍最小生成树的问题。 给定一个 连通、 边加权 的 无向
+图，最小生成树是一组 子集
+的边，它连接所有的顶点，同时这些边的总权重在所有可能的子集中是最小的。我们可以从上述定义和我们这里的问题中找到一些相似性。
+具体来说，我们可以将每个房子视为图中的一个顶点，而房子之间的管道视为图中的边。然而，它们之间有一个主要的
+差异。 在我们的问题中，每个顶点和每个边都有一个成本。 而在 MST
+的设置中，只有边与成本相关联。为了弥合这个
+差距，就如提示所建议的，技巧是在现有图中添加
+一个虚拟顶点。随着顶点的增加，我们还在虚拟顶点和其余顶点之间添加了边。
+最后，我们将每个顶点的成本重新分配给对应的新增边。</p>
+</blockquote>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+    constexpr static int MAX_N = 10005;
+    int f[10005];
+    void init() {
+        for (int i = 0; i &lt; MAX_N; ++i)
+            f[i] = i;
+    }
+    int find(int x) { return x == f[x] ? x : f[x] = find(f[x]); }
+    void merge(int u, int v) { f[find(u)] = find(v); }
+public:
+    int minCostToSupplyWater(int n, vector&lt;int&gt;&amp; wells,
+                             vector&lt;vector&lt;int&gt;&gt;&amp; pipes) {
+        init();
+        for (int i = 1; i &lt;= n; ++i)
+            pipes.push_back(vector&lt;int&gt;({0, i, wells[i - 1]}));
+        sort(pipes.begin(), pipes.end(),
+             [](const vector&lt;int&gt;&amp; u, const vector&lt;int&gt;&amp; v) {
+                 return u[2] &lt; v[2];
+             });
+        int ret = 0;
+        for (auto u : pipes) {
+            if (find(u[0]) != find(u[1])) {
+                merge(u[0], u[1]);
+                ret += u[2];
+            }
+        }
+        return ret;
+    }
+};
+</code></pre>
+</details>
+<h1 id="1489-找到最小生成树里的关键边和伪关键边"><a class="header" href="#1489-找到最小生成树里的关键边和伪关键边">1489. 找到最小生成树里的关键边和伪关键边</a></h1>
+<p>给你一个 n 个点的带权无向连通图，节点编号为 0 到 n-1 ，同时还有一个数组
+edges ，其中 edges[i] = [fromi, toi, weighti] 表示在 fromi 和 toi
+节点之间有一条带权无向边。最小生成树 (MST)
+是给定图中边的一个子集，它连接了所有节点且没有环，而且这些边的权值和最小。</p>
+<p>请你找到给定图中最小生成树的所有关键边和伪关键边。如果从图中删去某条边，会导致最小生成树的权值和增加，那么我们就说它是一条关键边。伪关键边则是可能会出现在某些最小生成树中但不会出现在所有最小生成树中的边。</p>
+<p>请注意，你可以分别以任意顺序返回关键边的下标和伪关键边的下标。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">// 并查集模板
+class UnionFind {
+public:
+    vector&lt;int&gt; parent;
+    vector&lt;int&gt; size;
+    int n;
+    // 当前连通分量数目
+    int setCount;
+    
+public:
+    UnionFind(int _n): n(_n), setCount(_n), parent(_n), size(_n, 1) {
+        iota(parent.begin(), parent.end(), 0);
+    }
+    
+    int findset(int x) {
+        return parent[x] == x ? x : parent[x] = findset(parent[x]);
+    }
+    
+    bool unite(int x, int y) {
+        x = findset(x);
+        y = findset(y);
+        if (x == y) {
+            return false;
+        }
+        if (size[x] &lt; size[y]) {
+            swap(x, y);
+        }
+        parent[y] = x;
+        size[x] += size[y];
+        --setCount;
+        return true;
+    }
+    
+    bool connected(int x, int y) {
+        x = findset(x);
+        y = findset(y);
+        return x == y;
+    }
+};
+
+class Solution {
+public:
+    vector&lt;vector&lt;int&gt;&gt; findCriticalAndPseudoCriticalEdges(int n, vector&lt;vector&lt;int&gt;&gt;&amp; edges) {
+        int m = edges.size();
+        for (int i = 0; i &lt; m; ++i) {
+            edges[i].push_back(i);
+        }
+        sort(edges.begin(), edges.end(), [](const auto&amp; u, const auto&amp; v) {
+            return u[2] &lt; v[2];
+        });
+        // 计算 value
+        UnionFind uf_std(n);
+        int value = 0;
+        for (int i = 0; i &lt; m; ++i) {
+            if (uf_std.unite(edges[i][0], edges[i][1])) {
+                value += edges[i][2];
+            }
+        }
+
+        vector&lt;vector&lt;int&gt;&gt; ans(2);
+        
+        for (int i = 0; i &lt; m; ++i) {
+            // 判断是否是关键边
+            UnionFind uf(n);
+            int v = 0;
+            for (int j = 0; j &lt; m; ++j) {
+                if (i != j &amp;&amp; uf.unite(edges[j][0], edges[j][1])) {
+                    v += edges[j][2];
+                }
+            }
+            if (uf.setCount != 1 || (uf.setCount == 1 &amp;&amp; v &gt; value)) {
+                ans[0].push_back(edges[i][3]);
+                continue;
+            }
+
+            // 判断是否是伪关键边
+            uf = UnionFind(n);
+            uf.unite(edges[i][0], edges[i][1]);
+            v = edges[i][2];
+            for (int j = 0; j &lt; m; ++j) {
+                if (i != j &amp;&amp; uf.unite(edges[j][0], edges[j][1])) {
+                    v += edges[j][2];
+                }
+            }
+            if (v == value) {
+                ans[1].push_back(edges[i][3]);
+            }
+        }
+      
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="unsolved-936-戳印序列"><a class="header" href="#unsolved-936-戳印序列">UNSOLVED 936 戳印序列</a></h1>
+<p>你想要用小写字母组成一个目标字符串 target。</p>
+<p>开始的时候，序列由 target.length 个 '?'
+记号组成。而你有一个小写字母印章 stamp。</p>
+<p>在每个回合，你可以将印章放在序列上，并将序列中的每个字母替换为印章上的相应字母。你最多可以进行
+10 * target.length 个回合。</p>
+<p>举个例子，如果初始序列为 "?????"，而你的印章 stamp 是
+"abc"，那么在第一回合，你可以得到
+"abc??"、"?abc?"、"??abc"。（请注意，印章必须完全包含在序列的边界内才能盖下去。）</p>
+<p>如果可以印出序列，那么返回一个数组，该数组由每个回合中被印下的最左边字母的索引组成。如果不能印出序列，就返回一个空数组。</p>
+<p>例如，如果序列是 "ababc"，印章是 "abc"，那么我们就可以返回与操作
+"?????" -&gt; "abc??" -&gt; "ababc" 相对应的答案 [0, 2]；</p>
+<p>另外，如果可以印出序列，那么需要保证可以在 10 * target.length
+个回合内完成。任何超过此数字的答案将不被接受。</p>
+<h2 id="思路"><a class="header" href="#思路">思路</a></h2>
+<p>我们记字母印章长度为 m ，目标字符串长度为 n
+。我们拿字母印章在目标字符串上进行滑动，那么在目标字符串中总共将会有
+n−m+1
+个窗口。另外，我们将逆序操作过程中所得到的各窗口的起始端点值记录在列表
+ans 中，最后只需将 ans 反转即可得到答案。</p>
+<p>那么我们可以将本题和拓扑排序的相关概念进行映射：</p>
+<pre><code>「入度」：每个窗口中对应字符不相同的总数，起始默认为 m。当入度为 0 时，说明这个窗口的所有字符都与目标字符串相对应，我们就可以把这个窗口放入到队列（不一定是 FIFO 的队列，任意容器均可）中。
+「边」：对于目标字符串的每个位置上，有不一致字符的窗口。我们用邻接表的方式存储边，如果一个滑动窗口的某一个字符与目标字符串不一致，那么我们就连一条边。
+</code></pre>
+<p>至此，我们通过拓扑排序，就可以得到最终的结果了：</p>
+<pre><code>遍历一遍所有的窗口，如果该位置上的字符与目标字符不一致，那么我们在邻接表中连接一条边；相反如果字符一致，那么该窗口的入度减 1。
+当某个窗口的入度为 0 时，那么这个窗口的所有字符都与目标字符串相对应，我们可以将该窗口的起始端点放入到队列中。
+将队列中的窗口依次出队，每次出队时，我们在 ans 列表中记录该窗口的起始端点。
+我们可以想象该窗口中的字符全部替换为 '*' ，表示可以匹配任意字符。那么我们可以从邻接表中将之前与该位置不同的窗口的入度都减 1。
+重复（2），直到队列为空。
+当队列为空时，判断 ans 的长度是否与 n−m+1 相等，相等则完成了拓扑排序；不相等则说明无法印出目标字符串。
+如果完成了拓扑排序，那么 ans 的长度一定是小于 10∗n 的，符合题目要求，我们只需返回逆序的 ans 即可（逆序分析）。相反，我们返回一个空列表。
+</code></pre>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    vector&lt;int&gt; movesToStamp(string stamp, string target) {
+        auto m=stamp.size();
+        auto n=target.size();
+        vector&lt;int&gt; inDegreee(n-m+1,m);
+        vector&lt;vector&lt;int&gt;&gt; edges(n);
+        vector&lt;int&gt; seen(n);
+        vector&lt;int&gt; q;
+        for(auto i=0;i&lt;n-m+1;i++){
+            for(auto j=0;j&lt;m;j++){
+                if(target[i+j]==stamp[j]){
+                    inDegreee[i]-=1;
+                    if(inDegreee[i]==0) q.emplace_back(i);
+                }else{
+                    edges[i+j].emplace_back(i);
+                }
+            }
+        }
+        vector&lt;int&gt; ans;
+        while(!q.empty()){
+            int cur=q.back();
+            q.pop_back();
+            ans.emplace_back(cur);
+            for(size_t i=0;i&lt;m;i++){
+                if(!seen[cur+i]){
+                    seen[cur+i]=true;
+                    for(auto &amp;&amp;edge: edges[cur+i]){
+                        inDegreee[edge]-=1;
+                        if(inDegreee[edge]==0) q.emplace_back(edge);
+                    }
+                }
+            }
+        }
+        if(ans.size()&lt;n-m+1) return {};
+        ranges::reverse(ans);
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="133-克隆图"><a class="header" href="#133-克隆图">133 克隆图</a></h1>
+<p>给你无向 连通 图中一个节点的引用，请你返回该图的 深拷贝（克隆）。</p>
+<p>图中的每个节点都包含它的值 val（int） 和其邻居的列表（list[Node]）。
+Node定义如下：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Node {
+    public int val;
+    public List&lt;Node&gt; neighbors;
+}
+</code></pre>
+</details>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    unordered_map&lt;Node *,Node*&gt; visited;
+    Node* cloneGraph(Node* node) {
+        if(!node) return node;  
+        if(visited.find(node)!=visited.end()) return visited[node];
+        Node *cloneNode=new Node(node-&gt;val);
+        visited[node]=cloneNode;
+        for(auto&amp; nodes: node-&gt;neighbors) cloneNode-&gt;neighbors.emplace_back(cloneGraph(nodes));
+        return cloneNode;
+    }
+};
+</code></pre>
+</details>
+<h1 id="785-判断二分图"><a class="header" href="#785-判断二分图">785 判断二分图</a></h1>
+<p>存在一个 无向图 ，图中有 n 个节点。其中每个节点都有一个介于 0 到 n - 1
+之间的唯一编号。给你一个二维数组 graph ，其中 graph[u]
+是一个节点数组，由节点 u 的邻接节点组成。形式上，对于 graph[u]
+中的每个 v ，都存在一条位于节点 u 和节点 v
+之间的无向边。该无向图同时具有以下属性：</p>
+<pre><code>不存在自环（graph[u] 不包含 u）。
+不存在平行边（graph[u] 不包含重复值）。
+如果 v 在 graph[u] 内，那么 u 也应该在 graph[v] 内（该图是无向图）
+这个图可能不是连通图，也就是说两个节点 u 和 v 之间可能不存在一条连通彼此的路径。
+</code></pre>
+<p>二分图 定义：如果能将一个图的节点集合分割成两个独立的子集 A 和 B
+，并使图中的每一条边的两个节点一个来自 A 集合，一个来自 B
+集合，就将这个图称为 二分图 。</p>
+<p>如果图是二分图，返回 true ；否则，返回 false 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    bool isBipartite(vector&lt;vector&lt;int&gt;&gt;&amp; graph) {
+        int n=graph.size();
+        vector&lt;int&gt; node_color(n,0);
+        bool valid=true;
+        function&lt;void(int,int)&gt; dfs=[&amp;](int i,int color){
+            node_color[i]=color;
+            int cur_color=color==1?2:1;
+            for(auto n:graph[i]){
+                if(node_color[n]==0){
+                    dfs(n,cur_color);
+                    if(!valid) return;
+                }else if(node_color[n]!=cur_color){
+                    valid=false;
+                    return;
+                }
+            }
+        };
+        for(int i=0;i&lt;n;i++){
+            if(node_color[i]==0){
+                dfs(i,1);
+            }
+        }
+        return valid;
+    }
+};
+</code></pre>
+</details>
+<h1 id="unsolved-787-k-站中转内最便宜的航班"><a class="header" href="#unsolved-787-k-站中转内最便宜的航班">UNSOLVED 787 K 站中转内最便宜的航班</a></h1>
+<p>有 n 个城市通过一些航班连接。给你一个数组 flights ，其中 flights[i] =
+[fromi, toi, pricei] ，表示该航班都从城市 from[i] 开始，以价格
+price[i] 抵达 to[i]。</p>
+<p>现在给定所有的城市和航班，以及出发城市 src 和目的地
+dst，你的任务是找到出一条最多经过 k 站中转的路线，使得从 src 到 dst 的
+价格最便宜 ，并返回该价格。 如果不存在这样的路线，则输出 -1。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+  int findCheapestPrice(int n, vector&lt;vector&lt;int&gt;&gt;&amp; flights, int src, int dst,
+                        int k) {
+    vector&lt;vector&lt;int&gt;&gt; dp(k + 2, vector&lt;int&gt;(n, INT_MAX / 2));
+    dp[0][src] = 0;
+    int res = INT_MAX / 2;
+    for (int t = 1; t &lt;= k + 1; t++) {
+      for (const auto&amp; flight : flights) {
+        int from = flight[0], to = flight[1], cost = flight[2];
+        dp[t][to] = std::min(dp[t][to], dp[t - 1][from] + cost);
+        if (to == dst) res = std::min(res, dp[t][to]);
+      }
+    }
+    return res == INT_MAX / 2 ? -1 : res;
+  }
+};
+</code></pre>
+</details>
+<h1 id="741-网络延迟时间"><a class="header" href="#741-网络延迟时间">741 网络延迟时间</a></h1>
+<p>有 n 个网络节点，标记为 1 到 n。</p>
+<p>给你一个列表 times，表示信号经过 有向 边的传递时间。 times[i] = (ui,
+vi, wi)，其中 ui 是源节点，vi 是目标节点， wi
+是一个信号从源节点传递到目标节点的时间。</p>
+<p>现在，从某个节点 K
+发出一个信号。需要多久才能使所有节点都收到信号？如果不能使所有节点收到信号，返回
+-1 。</p>
+<details>
+<pre><code class="language-cpp">class Solution {
+public:
+    int networkDelayTime(vector&lt;vector&lt;int&gt;&gt;&amp; times, int n, int k) {
+        vector&lt;vector&lt;int&gt;&gt; graph(n,vector&lt;int&gt;(n,INT_MAX/2));
+        for(auto &amp;t: times){
+            graph[t[0]-1][t[1]-1]=t[2];
+        }
+        vector&lt;int&gt; dis(n,INT_MAX/2),done(n);
+        dis[k-1]=0;
+        while(true){
+            int x=-1;
+            for(int i=0;i&lt;n;i++){
+                if(!done[i]&amp;&amp;(x&lt;0||dis[i]&lt;dis[x])){
+                    x=i;
+                }
+            }
+            if(x&lt;0){
+                return ranges::max(dis);
+            }
+            if(dis[x]==INT_MAX/2){//节点无法到达
+                return -1;
+            }
+            done[x]=true;
+            for(int y=0;y&lt;n;y++){
+                dis[y]=min(dis[y],dis[x]+graph[x][y]);
+            }
+        }
+    }
+};
+</code></pre>
+</details>
+<h1 id="85-最大矩形"><a class="header" href="#85-最大矩形">85 最大矩形</a></h1>
+<p>给定一个仅包含 0 和 1 、大小为 rows x cols 的二维二进制矩阵，找出只包含
+1 的最大矩形，并返回其面积。</p>
+<details>
+<summary>
+柱状图
+</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int maximalRectangle(vector&lt;vector&lt;char&gt;&gt;&amp; matrix) {
+        int m=matrix.size();
+        if(m==0){
+            return 0;
+        }
+        int n=matrix[0].size();
+        vector&lt;vector&lt;int&gt;&gt; left(m,vector&lt;int&gt;(n,0));
+        for(int i=0;i&lt;m;i++){
+            for(int j=0;j&lt;n;j++){
+                if(matrix[i][j]=='1'){
+                    left[i][j]=(j==0?0:left[i][j-1])+1;
+                }
+            }
+        }
+        int ret=0;
+        for(int i=0;i&lt;m;i++){
+            for(int j=0;j&lt;n;j++){
+                if(matrix[i][j]=='0'){
+                    continue;
+                }
+                int width=left[i][j];
+                int area=width;
+                for(int k=i-1;k&gt;=0;k--){
+                    width=min(width,left[k][j]);
+                    area=max(area,(i-k+1)*width);
+                }
+                ret=max(ret,area);
+            }
+        }
+        return ret;
+    }
+};
+</code></pre>
+</details>
+<details>
+<summary>
+单调栈
+</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    int maximalRectangle(vector&lt;vector&lt;char&gt;&gt;&amp; matrix) {
+        int m = matrix.size();
+        if (m == 0) {
+            return 0;
+        }
+        int n = matrix[0].size();
+        vector&lt;vector&lt;int&gt;&gt; left(m, vector&lt;int&gt;(n, 0));
+
+        for (int i = 0; i &lt; m; i++) {
+            for (int j = 0; j &lt; n; j++) {
+                if (matrix[i][j] == '1') {
+                    left[i][j] = (j == 0 ? 0: left[i][j - 1]) + 1;
+                }
+            }
+        }
+
+        int ret = 0;
+        for (int j = 0; j &lt; n; j++) { // 对于每一列，使用基于柱状图的方法
+            vector&lt;int&gt; up(m, 0), down(m, 0);
+
+            stack&lt;int&gt; stk;
+            for (int i = 0; i &lt; m; i++) {
+                while (!stk.empty() &amp;&amp; left[stk.top()][j] &gt;= left[i][j]) {
+                    stk.pop();
+                }
+                up[i] = stk.empty() ? -1 : stk.top();
+                stk.push(i);
+            }
+            stk = stack&lt;int&gt;();
+            for (int i = m - 1; i &gt;= 0; i--) {
+                while (!stk.empty() &amp;&amp; left[stk.top()][j] &gt;= left[i][j]) {
+                    stk.pop();
+                }
+                down[i] = stk.empty() ? m : stk.top();
+                stk.push(i);
+            }
+
+            for (int i = 0; i &lt; m; i++) {
+                int height = down[i] - up[i] - 1;
+                int area = height * left[i][j];
+                ret = max(ret, area);
+            }
+        }
+        return ret;
+    }
+};
+</code></pre>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../数据结构与算法/BTree.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../数据结构与算法/栈.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../数据结构与算法/BTree.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../数据结构与算法/栈.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

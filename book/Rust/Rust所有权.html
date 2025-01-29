@@ -1,0 +1,351 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>所有权 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#%E6%89%80%E6%9C%89%E6%9D%83">所有权</a>
+<ul>
+<li><a href="#%E6%A0%88%E4%B8%8E%E5%A0%86">栈与堆</a></li>
+<li><a href="#%E6%A0%88%E7%A9%BA%E9%97%B4%E4%B8%8E%E5%A0%86%E7%A9%BA%E9%97%B4">栈空间与堆空间</a></li>
+<li><a href="#%E5%8F%98%E9%87%8F%E4%B8%8E%E5%8F%AF%E5%8F%98%E6%80%A7">变量与可变性</a></li>
+<li><a href="#%E6%89%80%E6%9C%89%E6%9D%83-1">所有权</a></li>
+</ul>
+</li>
+<li><a href="#%E5%80%9F%E7%94%A8%E4%B8%8E%E5%BC%95%E7%94%A8">借用与引用</a>
+<ul>
+<li><a href="#%E5%A4%9A%E7%BA%A7%E5%BC%95%E7%94%A8">多级引用</a></li>
+</ul>
+</li>
+<li><a href="#%E6%80%9D%E8%80%83%E9%A2%98">思考题</a>
+<ul>
+<li><a href="#%E8%AF%B7%E6%80%9D%E8%80%83%E4%B8%BA%E4%BD%95%E5%9C%A8%E4%B8%8D%E5%8F%AF%E5%8F%98%E5%BC%95%E7%94%A8%E5%AD%98%E5%9C%A8%E7%9A%84%E6%83%85%E5%86%B5%E4%B8%8B%E5%8F%AA%E6%98%AF%E8%AF%BB%E6%93%8D%E4%BD%9C%E5%8E%9F%E6%89%80%E6%9C%89%E6%9D%83%E5%8F%98%E9%87%8F%E4%B9%9F%E6%97%A0%E6%B3%95%E5%86%99%E5%85%A5">请思考,为何在不可变引用存在的情况下(只是读操作),原所有权变量也无法写入?</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="所有权"><a class="header" href="#所有权">所有权</a></h1>
+<p>Rust中的值有两大类： 一类是固定内存长度的值，如i32, u32,
+由固定尺寸的类型组成的结构体；另一类是不固定内存长度的值，如字符串String。</p>
+<p>一种类型如果具有固定尺寸,那么它就能够在编译期做更多的分析。实际上固定尺寸类型也可以用来管理非固定尺寸类型。具体来说,Rust中的非固定尺寸类型就是靠指针或引用来指向,而指针或引用本身就是一种固定尺寸的类型。</p>
+<h2 id="栈与堆"><a class="header" href="#栈与堆">栈与堆</a></h2>
+<p>现代计算机会把内存划分为很多个区。比如二进制代码的存放区、静态数据的存放区、栈、堆等。</p>
+<p>栈上的操作比堆高效，因为栈上内存的分配和回收只需移动栈顶指针就行了。这就决定了分配和回收时都必须精确计算这个指针的增减量。</p>
+<p>因此栈上一般放固定尺寸的值。另一方面,栈的容量也是非常有限的,因此也不适合放尺寸太大的值,比如一个有
+1000 万个元素的数组。</p>
+<h2 id="栈空间与堆空间"><a class="header" href="#栈空间与堆空间">栈空间与堆空间</a></h2>
+<p>在一般的程序语言设计中,栈空间都会与函数关联起来。每一个函数的调用,都会对应一个帧,也叫做
+frame 栈帧,就像图片栈空间里的方块 main、fn1、fn2
+等。一个函数被调用,就会分配一个新的帧,函数调用结束后,这个帧就会被自动释放掉。因此栈帧是一个运行时的事物。函数中的参数、局部变量之类的资源,都会放在这个帧里面，比如图里
+fn2 中的局部变 量 a,这个帧释放时,这些局部变量就会被一起回收掉。</p>
+<p>函数的调用会形成层级关系,因此栈空间中的帧可能会同时存在很多个,并且在它们之间也对应地形成层级关系。</p>
+<p>可能的函数调用关系为,main 函数中调用了函数 fn1,fn1中调用了函数 fn2,fn2
+中调用了函数 fn3,fn3 中调用了函数 fn4,fn4
+调用了更深层次的其他函数。这样的话,在程序执行的某个时刻,main
+函数、fn1、fn2、fn3、fn4 等对应的帧副本就同时存在于栈中了。</p>
+<p>如果一个资源没有被任何一个栈帧中的变量引用或间接引用,如图中的
+C,那么它实际是一个被泄漏的资源,也就是发生了内存泄漏。</p>
+<p>计算机程序内存管理的复杂性,主要就在于堆内存的管理比较复杂------既要高效,又要安全。</p>
+<h2 id="变量与可变性"><a class="header" href="#变量与可变性">变量与可变性</a></h2>
+<p>Rust允许shadowing。意思很好理解,就是定义了一个新的变量名,只不过这个变量名和老的相同。原来那个变量就被遮盖起来了,访问不到了。这种方式最大的用处是程序员不用再去费力地想另一个名字了!变量的
+Shadow 甚至支持新的变量的类型和原来的不一样。</p>
+<h2 id="所有权-1"><a class="header" href="#所有权-1">所有权</a></h2>
+<p>Rust默认是移动语义。</p>
+<p>对于String s1, s2，Rust 虽然也是把字符串的引用由 s1 拷贝到了
+s2,但是只保留了最新的 s2 到字符串的指向,同时却把 s1
+到字符串的指向给"抹去"了。</p>
+<p>所有权的基础是三条定义。</p>
+<ol>
+<li>
+<p>Rust 中,每一个值都有一个所有者。</p>
+</li>
+<li>
+<p>任何一个时刻,一个值只有一个所有者。</p>
+</li>
+<li>
+<p>当所有者所在作用域(scope)结束的时候,其管理的值会被一起释放掉。</p>
+</li>
+</ol>
+<p>这种堆内存资源随着关联的栈上局部变量一起被回收的内存管理特性,叫作
+RAII(ResourceAcquisition Is Initialization)。它实际不是 Rust 的原创,而是
+C++ 创造的。</p>
+<p>Rust从某个角度看似乎不如其他语言强大：</p>
+<p>几乎所有其他实用的语言都允许开发者构建任意形式的对象图谱，对象之间可以互相任意引用。而Rust牺牲了在这方面的灵活性从而获得了更强的分析能力和实体关系的可追踪性。</p>
+<p>而且Rust对于上述规则还是有一些拓展：</p>
+<ol>
+<li>
+<p>可以把值从一个所有者转移到另一个所有者，从而方便构建、重塑和销毁关系树。</p>
+</li>
+<li>
+<p>标准库提供了基于引用计数的指针类型Rc和Arc,使用他们可以在满足限制条件的前提下将值指定给多个所有者。</p>
+</li>
+<li>
+<p>对一个值，可以借用其引用。引用的是生命期有限的非所有指针。</p>
+</li>
+</ol>
+<h1 id="借用与引用"><a class="header" href="#借用与引用">借用与引用</a></h1>
+<p>其实在 Rust
+中,借用和引用是一体两面。你把东西借给别人用,也就是别人持有了对你这个东西的引用。这里你理解就好,后面我们会混用这两个词。</p>
+<p>在 Rust 中,变量前用"&amp;"符号来表示引用,比如
+&amp;x。其实引用也是一种值,并且是固定尺寸的值,一般来说,与机器 CPU
+位数一致,比如 64 位或 32
+位。因为是值,所以就可以赋给另一个变量。同时它又是固定的而且是小尺寸的值,那其实赋值的时候,就可以直接复制一份这个引用。</p>
+<p>可以将变量按一个新的维度划分为所有权型变量和引用型变量。</p>
+<p>实际上默认 &amp;x 指的是不可变引用。而要获取到可变引用,需要使用 &amp;mut 符号,如
+&amp;mutx。</p>
+<p>为什么会有可变引用的存在呢?这个事情是这样的。到目前为止,如果要对一个变量内容进行修改,我们必须拥有所有权型变量才行。</p>
+<p>而很多时候,我们没法拥有那个资源的所有权,比如你引用一个别人的库,它没有把所有权类型暴露出来,但是确实又有更新其内部状态的需求。因此需要一个东西,它既是一种引用,又能够修改指向资源的内容。于是就引入了可变引用。</p>
+<p>println!会默认对所有权变量做不可变借用操作。</p>
+<p>可变引用调用的时机(对应代码里的第 7
+行)和不可变引用调用的时机(对应代码里的第6
+行),好像有顺序要求。目前我们尚不清楚这种机制是什么。</p>
+<ul>
+<li>注意：引用的最后一次调用时机很关键。*</li>
+</ul>
+<p>一个所有权型变量的作用域是从它定义时开始到花括号结束。而引用型变量的作用域不是这样,引用型变量的作用域是从它定义起到它最后一次使用时结束。</p>
+<p>同时,我们发现还存在一条规则:一个所有权型变量的可变引用与不可变引用的作用域不能交叠,也可以说不能同时存在。</p>
+<p>同一个所有权型变量的可变借用之间的作用域也不能交叠。</p>
+<p>提示在有借用的情况下,不能对所有权变量进行更改值的操作(写操作)。</p>
+<p>有可变借用存在的情况下也一样。</p>
+<p>提示在有借用的情况下,不能对所有权变量进行更改值的操作(写操作)。</p>
+<p>引用（借用）的一些规则：</p>
+<p>所有权型变量的作用域是从它定义时开始到所属那层花括号结束。</p>
+<p>引用型变量的作用域是从它定义起到它最后一次使用时结束。</p>
+<p>引用(不可变引用和可变引用)型变量的作用域不会长于所有权变量的作用域。这是肯定的,不然就会出现悬锤引用,这是典型的内存安全问题。</p>
+<p>一个所有权型变量的不可变引用可以同时存在多个,可以复制多份。</p>
+<p>一个所有权型变量的可变引用与不可变引用的作用域不能交叠,也可以说不能同时存在。（\textcolor{red}{有没有感觉很像数据库的排他锁和共享锁？？？}）</p>
+<p>某个时刻对某个所有权型变量只能存在一个可变引用,不能有超过一个可变借用同时存在,也可以说,对同一个所有权型变量的可变借用之间的作用域不能交叠。（\textcolor{red}{真像吧}）</p>
+<p>在有借用存在的情况下,不能通过原所有权型变量对值进行更新。当借用完成后(借用的作用域结束后),物归原主,又可以使用所有权型变量对值做更新操作了。</p>
+<p>可变引用的再赋值,会执行移动操作。赋值后,原来的那个可变引用变量就不能用了。</p>
+<p>这有点类似于所有权的转移,因此一个所有权型变量的可变引用也具有所有权特征,它可以被理解为那个所有权变量的独家代理,具有排它性。</p>
+<h2 id="多级引用"><a class="header" href="#多级引用">多级引用</a></h2>
+<p>可变引用和不可变引用是可以同时存在的。</p>
+<h1 id="思考题"><a class="header" href="#思考题">思考题</a></h1>
+<h2 id="请思考为何在不可变引用存在的情况下只是读操作原所有权变量也无法写入"><a class="header" href="#请思考为何在不可变引用存在的情况下只是读操作原所有权变量也无法写入">请思考,为何在不可变引用存在的情况下(只是读操作),原所有权变量也无法写入?</a></h2>
+<p>不可变引用的作用域跨越了所有权变量的写入过程,意味着同一个作用域同时存在可变引用和不可变引用,编译器为了防止读取错误,不能通过编译。可以把a
+= 20放到引用之前,即可编译通过。</p>
+<p>简单的嗦：借用规则不允许，防止数据竞争，编译时检查。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../Rust/Rust异步编程.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../Rust/Rust所有权与智能指针.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../Rust/Rust异步编程.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../Rust/Rust所有权与智能指针.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

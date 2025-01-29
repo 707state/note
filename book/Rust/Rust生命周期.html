@@ -1,0 +1,457 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>生命周期 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#%E7%BB%93%E6%9E%84%E4%BD%93%E4%B8%AD%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F">结构体中的生命周期</a>
+<ul>
+<li><a href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E6%B6%88%E9%99%A4">生命周期消除</a></li>
+</ul>
+</li>
+<li><a href="#%E4%B8%89%E6%9D%A1%E6%B6%88%E9%99%A4%E8%A7%84%E5%88%99">三条消除规则</a></li>
+<li><a href="#%E6%96%B9%E6%B3%95%E4%B8%AD%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F">方法中的生命周期</a></li>
+<li><a href="#%E9%9D%99%E6%80%81%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F">静态生命周期</a></li>
+<li><a href="#static%E5%92%8Ctstatic">&amp;'static和T:'static</a>
+<ul>
+<li><a href="#static">&amp;'static</a></li>
+<li><a href="#t-static">T: 'static</a></li>
+<li><a href="#static-%E9%92%88%E5%AF%B9%E8%B0%81">Static 针对谁？</a></li>
+</ul>
+</li>
+</ul>
+<p>在存在多个引用时，编译器有时会无法自动推导生命周期，此时就需要我们手动去标注，通过为参数标注合适的生命周期来帮助编译器进行借用检查的分析。</p>
+<p>生命周期标注并不会改变任何引用的实际作用域</p>
+<p>和泛型一样，使用生命周期参数，需要先声明 &lt;'a&gt;</p>
+<p>x、y 和返回值至少活得和 'a 一样久(因为返回值要么是 x，要么是 y)</p>
+<p>可以对生命周期进行下总结：生命周期语法用来将函数的多个引用参数和返回值的作用域关联到一起，一旦关联到一起后，Rust
+就拥有充分的信息来确保我们的操作是内存安全的。</p>
+<h2 id="结构体中的生命周期"><a class="header" href="#结构体中的生命周期">结构体中的生命周期</a></h2>
+<p>举例：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">struct ImportantExcerpt&lt;'a&gt; {
+    part: &amp;'a str,
+}
+
+fn main() {
+    let novel = String::from("Call me Ishmael. Some years ago...");
+    let first_sentence = novel.split('.').next().expect("Could not find a '.'");
+    let i = ImportantExcerpt {
+        part: first_sentence,
+    };
+}
+</code></pre>
+</details>
+<p>ImportantExcerpt 结构体中有一个引用类型的字段
+part，因此需要为它标注上生命周期。结构体的生命周期标注语法跟泛型参数语法很像，需要对生命周期参数进行声明
+&lt;'a&gt;。该生命周期标注说明，结构体 ImportantExcerpt 所引用的字符串 str
+必须比该结构体活得更久。</p>
+<p>从 main 函数实现来看，ImportantExcerpt 的生命周期从第 4 行开始，到 main
+函数末尾结束，而该结构体引用的字符串从第一行开始，也是到 main
+函数末尾结束，可以得出结论结构体引用的字符串活得比结构体久，这符合了编译器对生命周期的要求，因此编译通过。</p>
+<h3 id="生命周期消除"><a class="header" href="#生命周期消除">生命周期消除</a></h3>
+<p>编译器为了简化用户的使用，运用了生命周期消除大法。</p>
+<p>举例：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">fn first_word(s: &amp;str) -&gt; &amp;str {
+    let bytes = s.as_bytes();
+
+    for (i, &amp;item) in bytes.iter().enumerate() {
+        if item == b' ' {
+            return &amp;s[0..i];
+        }
+    }
+
+    &amp;s[..]
+}
+</code></pre>
+</details>
+<p>对于 first_word 函数，它的返回值是一个引用类型，那么该引用只有两种情况：</p>
+<p>从参数获取</p>
+<p>从函数体内部新创建的变量获取</p>
+<p>如果是后者，就会出现悬垂引用，最终被编译器拒绝，因此只剩一种情况：返回值的引用是获取自参数，这就意味着参数和返回值的生命周期是一样的。</p>
+<h2 id="三条消除规则"><a class="header" href="#三条消除规则">三条消除规则</a></h2>
+<p>编译器使用三条消除规则来确定哪些场景不需要显式地去标注生命周期。其中第一条规则应用在输入生命周期上，第二、三条应用在输出生命周期上。若编译器发现三条规则都不适用时，就会报错，提示你需要手动标注生命周期。</p>
+<ol>
+<li>
+<p>每一个引用参数都会获得独自的生命周期</p>
+<p>例如一个引用参数的函数就有一个生命周期标注: fn foo&lt;'a&gt;(x: &amp;'a
+i32)，两个引用参数的有两个生命周期标注:fn foo&lt;'a, 'b&gt;(x: &amp;'a
+i32, y: &amp;'b i32), 依此类推。</p>
+</li>
+<li>
+<p>若只有一个输入生命周期(函数参数中只有一个引用类型)，那么该生命周期会被赋给所有的输出生命周期，也就是所有返回值的生命周期都等于该输入生命周期</p>
+<p>例如函数 fn foo(x: &amp;i32) -&gt; &amp;i32，x
+参数的生命周期会被自动赋给返回值 &amp;i32，因此该函数等同于 fn
+foo&lt;'a&gt;(x: &amp;'a i32) -&gt; &amp;'a i32</p>
+</li>
+<li>
+<p>若存在多个输入生命周期，且其中一个是 &amp;self 或 &amp;mut self，则 &amp;self
+的生命周期被赋给所有的输出生命周期</p>
+<p>拥有 &amp;self 形式的参数，说明该函数是一个
+方法，该规则让方法的使用便利度大幅提升。</p>
+</li>
+</ol>
+<h2 id="方法中的生命周期"><a class="header" href="#方法中的生命周期">方法中的生命周期</a></h2>
+<p>首先看一下泛型的语法：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">struct Point&lt;T&gt; {
+    x: T,
+    y: T,
+}
+
+impl&lt;T&gt; Point&lt;T&gt; {
+    fn x(&amp;self) -&gt; &amp;T {
+        &amp;self.x
+    }
+}
+</code></pre>
+</details>
+<p>实际上，为具有生命周期的结构体实现方法时，我们使用的语法跟泛型参数语法很相似：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">struct ImportantExcerpt&lt;'a&gt; {
+    part: &amp;'a str,
+}
+
+impl&lt;'a&gt; ImportantExcerpt&lt;'a&gt; {
+    fn level(&amp;self) -&gt; i32 {
+        3
+    }
+}
+</code></pre>
+</details>
+<p>其中有几点需要注意的：</p>
+<p>impl 中必须使用结构体的完整名称，包括
+&lt;'a&gt;，因为生命周期标注也是结构体类型的一部分！</p>
+<p>方法签名中，往往不需要标注生命周期，得益于生命周期消除的第一和第三规则</p>
+<p>但是注意，如果要手动修改返回值的生命周期，就要注意到：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">impl&lt;'a: 'b, 'b&gt; ImportantExcerpt&lt;'a&gt; {
+    fn announce_and_return_part(&amp;'a self, announcement: &amp;'b str) -&gt; &amp;'b str {
+        println!("Attention please: {}", announcement);
+        self.part
+    }
+}
+</code></pre>
+</details>
+<p>需要指明输入参数的生命周期之间的关系。</p>
+<p>就关键点稍微解释下：</p>
+<p>'a: 'b，是生命周期约束语法，跟泛型约束非常相似，用于说明 'a 必须比
+'b 活得久</p>
+<p>可以把 'a 和 'b 都在同一个地方声明（如上），或者分开声明但通过 where
+'a: 'b 约束生命周期关系</p>
+<h2 id="静态生命周期"><a class="header" href="#静态生命周期">静态生命周期</a></h2>
+<p>在之前我们学过字符串字面量，提到过它是被硬编码进 Rust
+的二进制文件中，因此这些字符串变量全部具有 'static 的生命周期：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">let s: &amp;'static str = "我没啥优点，就是活得久，嘿嘿";
+</code></pre>
+</details>
+<p>在不少情况下，'static
+约束确实可以解决生命周期编译不通过的问题，但是问题来了：本来该引用没有活那么久，但是你非要说它活那么久，万一引入了潜在的
+BUG 怎么办？</p>
+<p>因此，遇到因为生命周期导致的编译不通过问题，首先想的应该是：是否是我们试图创建一个悬垂引用，或者是试图匹配不一致的生命周期，而不是简单粗暴的用
+'static 来解决问题。</p>
+<p>但是，话说回来，存在即合理，有时候，'static
+确实可以帮助我们解决非常复杂的生命周期问题甚至是无法被手动解决的生命周期问题，那么此时就应该放心大胆的用，只要你确定：你的所有引用的生命周期都是正确的，只是编译器太笨不懂罢了。</p>
+<h1 id="static和tstatic"><a class="header" href="#static和tstatic">&amp;'static和T:'static</a></h1>
+<h2 id="static"><a class="header" href="#static">&amp;'static</a></h2>
+<p>&amp;'static
+对于生命周期有着非常强的要求：一个引用必须要活得跟剩下的程序一样久，才能被标注为
+&amp;'static。</p>
+<p>对于字符串字面量来说，它直接被打包到二进制文件中，永远不会被
+drop，因此它能跟程序活得一样久，自然它的生命周期是 'static。</p>
+<p>但是，&amp;'static
+生命周期针对的仅仅是引用，而不是持有该引用的变量，对于变量来说，还是要遵循相应的作用域规则</p>
+<h2 id="t-static"><a class="header" href="#t-static">T: 'static</a></h2>
+<p>相比起来，这种形式的约束就有些复杂了。</p>
+<p>首先，在以下两种情况下，T: 'static 与 &amp;'static 有相同的约束：T
+必须活得和程序一样久</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">use std::fmt::Debug;
+
+fn print_it&lt;T: Debug + 'static&gt;( input: T) {
+    println!( "'static value passed in is: {:?}", input );
+}
+
+fn print_it1( input: impl Debug + 'static ) {
+    println!( "'static value passed in is: {:?}", input );
+}
+
+
+
+fn main() {
+    let i = 5;
+
+    print_it(&amp;i);
+    print_it1(&amp;i);
+}
+</code></pre>
+</details>
+<p>以上代码会报错，原因很简单: &amp;i 的生命周期无法满足 'static
+的约束，如果大家将 i 修改为常量，那自然一切 OK。</p>
+<p>稍加修改</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">use std::fmt::Debug;
+
+fn print_it&lt;T: Debug + 'static&gt;( input: &amp;T) {
+    println!( "'static value passed in is: {:?}", input );
+}
+
+fn main() {
+    let i = 5;
+
+    print_it(&amp;i);
+}
+</code></pre>
+</details>
+<p>就不会报错了</p>
+<p>原因在于我们约束的是 T，但是使用的却是它的引用
+&amp;T，换而言之，我们根本没有直接使用 T，因此编译器就没有去检查 T
+的生命周期约束！它只要确保 &amp;T
+的生命周期符合规则即可，在上面代码中，它自然是符合的。</p>
+<h2 id="static-针对谁"><a class="header" href="#static-针对谁">Static 针对谁？</a></h2>
+<p>大家有没有想过，到底是 &amp;'static
+这个引用还是该引用指向的数据活得跟程序一样久呢？</p>
+<p>答案是引用指向的数据，而引用本身是要遵循其作用域范围的，我们来简单验证下：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">fn main() {
+    {
+        let static_string = "I'm in read-only memory";
+        println!("static_string: {}", static_string);
+
+        // 当 `static_string` 超出作用域时，该引用不能再被使用，但是数据依然会存在于 binary 所占用的内存中
+    }
+
+    println!("static_string reference remains alive: {}", static_string);
+}
+</code></pre>
+</details>
+<p>以上代码不出所料会报错，原因在于虽然字符串字面量 "I'm in read-only
+memory" 的生命周期是
+'static，但是持有它的引用并不是，它的作用域在内部花括号 } 处就结束了。</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../Rust/Rust所有权与智能指针.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../Rust/Rust的线程安全.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../Rust/Rust所有权与智能指针.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../Rust/Rust的线程安全.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

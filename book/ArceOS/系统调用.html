@@ -1,0 +1,635 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>系统调用 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8">系统调用</a>
+<ul>
+<li><a href="#axstd">axstd</a>
+<ul>
+<li><a href="#file">File</a></li>
+<li><a href="#metadata">MetaData</a></li>
+<li><a href="#openoptions">OpenOptions</a></li>
+<li><a href="#thread">Thread</a></li>
+</ul>
+</li>
+<li><a href="#stdio">Stdio</a>
+<ul>
+<li><a href="#net%E6%A8%A1%E5%9D%97">Net模块</a></li>
+<li><a href="#mutex">Mutex</a></li>
+<li><a href="#process">Process</a></li>
+<li><a href="#time">Time</a></li>
+</ul>
+</li>
+<li><a href="#axalloc">axalloc</a></li>
+<li><a href="#axdma">axdma</a></li>
+<li><a href="#axfs">axfs</a>
+<ul>
+<li><a href="#file-1">File</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="系统调用"><a class="header" href="#系统调用">系统调用</a></h1>
+<h2 id="axstd"><a class="header" href="#axstd">axstd</a></h2>
+<p>ArceOS标准库，封装了系统调用。</p>
+<h3 id="file"><a class="header" href="#file">File</a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct File {
+    inner: api::AxFileHandle,
+}
+<span class="boring">}</span></code></pre></pre>
+<p>File对Read, Write, Seek方法的支持通过实现这三个Trait来实现。</p>
+<h3 id="metadata"><a class="header" href="#metadata">MetaData</a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct Metadata(api::AxFileAttr);
+<span class="boring">}</span></code></pre></pre>
+<p>封装系统调用的vfs的VfsNodeAttr。</p>
+<p>提供了对is_dir, is_file, len等方法的支持。</p>
+<h3 id="openoptions"><a class="header" href="#openoptions">OpenOptions</a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct OpenOptions(api::AxOpenOptions);
+<span class="boring">}</span></code></pre></pre>
+<p>提供了对文件权限的封装。</p>
+<h3 id="thread"><a class="header" href="#thread">Thread</a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct Thread {
+    id: ThreadId,
+}
+<span class="boring">}</span></code></pre></pre>
+<p>通过一个Builder从而实现Thread Factory。</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct Builder {
+    // A name for the thread-to-be, for identification in panic messages
+    name: Option&lt;String&gt;,
+    // The size of the stack for the spawned thread in bytes
+    stack_size: Option&lt;usize&gt;,
+}
+<span class="boring">}</span></code></pre></pre>
+<p>核心是spawn方法：</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    pub fn spawn&lt;F, T&gt;(self, f: F) -&gt; io::Result&lt;JoinHandle&lt;T&gt;&gt;
+    where
+        F: FnOnce() -&gt; T,
+        F: Send + 'static,
+        T: Send + 'static,
+    {
+        unsafe { self.spawn_unchecked(f) }
+    }
+
+    unsafe fn spawn_unchecked&lt;F, T&gt;(self, f: F) -&gt; io::Result&lt;JoinHandle&lt;T&gt;&gt;
+    where
+        F: FnOnce() -&gt; T,
+        F: Send + 'static,
+        T: Send + 'static,
+    {
+        let name = self.name.unwrap_or_default();
+        let stack_size = self
+            .stack_size
+            .unwrap_or(arceos_api::config::TASK_STACK_SIZE);
+
+        let my_packet = Arc::new(Packet {
+            result: UnsafeCell::new(None),
+        });
+        let their_packet = my_packet.clone();
+
+        let main = move || {
+            let ret = f();
+            // SAFETY: `their_packet` as been built just above and moved by the
+            // closure (it is an Arc&lt;...&gt;) and `my_packet` will be stored in the
+            // same `JoinHandle` as this closure meaning the mutation will be
+            // safe (not modify it and affect a value far away).
+            unsafe { *their_packet.result.get() = Some(ret) };
+            drop(their_packet);
+        };
+
+        let task = api::ax_spawn(main, name, stack_size);
+        Ok(JoinHandle {
+            thread: Thread::from_id(task.id()),
+            native: task,
+            packet: my_packet,
+        })
+    }
+<span class="boring">}</span></code></pre></pre>
+<p>通过JoinHandle来实现thread的join 和 handle 方法。</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct JoinHandle&lt;T&gt; {
+    native: AxTaskHandle,
+    thread: Thread,
+    packet: Arc&lt;Packet&lt;T&gt;&gt;,
+}
+<span class="boring">}</span></code></pre></pre>
+<h2 id="stdio"><a class="header" href="#stdio">Stdio</a></h2>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// A handle to the standard input stream of a process.
+pub struct Stdin {
+    inner: &amp;'static Mutex&lt;BufReader&lt;StdinRaw&gt;&gt;,
+}
+
+/// A locked reference to the [`Stdin`] handle.
+pub struct StdinLock&lt;'a&gt; {
+    inner: MutexGuard&lt;'a, BufReader&lt;StdinRaw&gt;&gt;,
+}
+
+impl Stdin {
+    /// Locks this handle to the standard input stream, returning a readable
+    /// guard.
+    ///
+    /// The lock is released when the returned lock goes out of scope. The
+    /// returned guard also implements the [`Read`] and [`BufRead`] traits for
+    /// accessing the underlying data.
+    pub fn lock(&amp;self) -&gt; StdinLock&lt;'static&gt; {
+        // Locks this handle with 'static lifetime. This depends on the
+        // implementation detail that the underlying `Mutex` is static.
+        StdinLock {
+            inner: self.inner.lock(),
+        }
+    }
+
+    /// Locks this handle and reads a line of input, appending it to the specified buffer.
+    #[cfg(feature = "alloc")]
+    pub fn read_line(&amp;self, buf: &amp;mut String) -&gt; io::Result&lt;usize&gt; {
+        self.inner.lock().read_line(buf)
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<p>这是Stdin的设计，重点在于StdinLock，这在先前的rCoreOS并不存在。</p>
+<p>同时，Read 给Stdin和StdinLock都实现了。</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl BufRead for StdinLock&lt;'_&gt; {
+    fn fill_buf(&amp;mut self) -&gt; io::Result&lt;&amp;[u8]&gt; {
+        self.inner.fill_buf()
+    }
+
+    fn consume(&amp;mut self, n: usize) {
+        self.inner.consume(n)
+    }
+
+    #[cfg(feature = "alloc")]
+    fn read_until(&amp;mut self, byte: u8, buf: &amp;mut Vec&lt;u8&gt;) -&gt; io::Result&lt;usize&gt; {
+        self.inner.read_until(byte, buf)
+    }
+
+    #[cfg(feature = "alloc")]
+    fn read_line(&amp;mut self, buf: &amp;mut String) -&gt; io::Result&lt;usize&gt; {
+        self.inner.read_line(buf)
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<p>BufRead是拥有内部缓冲区的Reader，能够提供在Read之外的操作。</p>
+<h3 id="net模块"><a class="header" href="#net模块">Net模块</a></h3>
+<p>ArceOS中实现了（部分的）网络协议栈。</p>
+<h4 id="scoketaddr"><a class="header" href="#scoketaddr">ScoketAddr</a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub trait ToSocketAddrs {
+    /// Returned iterator over socket addresses which this type may correspond to.
+    type Iter: Iterator&lt;Item = SocketAddr&gt;;
+
+    /// Converts this object to an iterator of resolved [`SocketAddr`]s.
+    fn to_socket_addrs(&amp;self) -&gt; io::Result&lt;Self::Iter&gt;;
+}
+<span class="boring">}</span></code></pre></pre>
+<p>用于IP之间的转换。</p>
+<h4 id="tcp"><a class="header" href="#tcp">Tcp</a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// A TCP stream between a local and a remote socket.
+pub struct TcpStream(AxTcpSocketHandle);
+
+/// A TCP socket server, listening for connections.
+pub struct TcpListener(AxTcpSocketHandle);
+<span class="boring">}</span></code></pre></pre>
+<p>两个系统调用都实现了Read那几个Trait。</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl TcpStream {
+    /// Opens a TCP connection to a remote host.
+    ///
+    /// `addr` is an address of the remote host. Anything which implements
+    /// [`ToSocketAddrs`] trait can be supplied for the address; see this trait
+    /// documentation for concrete examples.
+    ///
+    /// If `addr` yields multiple addresses, `connect` will be attempted with
+    /// each of the addresses until a connection is successful. If none of
+    /// the addresses result in a successful connection, the error returned from
+    /// the last connection attempt (the last address) is returned.
+    pub fn connect&lt;A: ToSocketAddrs&gt;(addr: A) -&gt; io::Result&lt;TcpStream&gt; {
+        super::each_addr(addr, |addr: io::Result&lt;&amp;SocketAddr&gt;| {
+            let addr = addr?;
+            let socket = api::ax_tcp_socket();
+            api::ax_tcp_connect(&amp;socket, *addr)?;
+            Ok(TcpStream(socket))
+        })
+    }
+
+    /// Returns the socket address of the local half of this TCP connection.
+    pub fn local_addr(&amp;self) -&gt; io::Result&lt;SocketAddr&gt; {
+        api::ax_tcp_socket_addr(&amp;self.0)
+    }
+
+    /// Returns the socket address of the remote peer of this TCP connection.
+    pub fn peer_addr(&amp;self) -&gt; io::Result&lt;SocketAddr&gt; {
+        api::ax_tcp_peer_addr(&amp;self.0)
+    }
+
+    /// Shuts down the connection.
+    pub fn shutdown(&amp;self) -&gt; io::Result&lt;()&gt; {
+        api::ax_tcp_shutdown(&amp;self.0)
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<h4 id="udp"><a class="header" href="#udp">Udp</a></h4>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// A UDP socket.
+pub struct UdpSocket(AxUdpSocketHandle);
+<span class="boring">}</span></code></pre></pre>
+<p>基本方法都是一样的，实现的差别在底层。</p>
+<h3 id="mutex"><a class="header" href="#mutex">Mutex</a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct Mutex&lt;T: ?Sized&gt; {
+    wq: AxWaitQueueHandle,
+    owner_id: AtomicU64,
+    data: UnsafeCell&lt;T&gt;,
+}
+<span class="boring">}</span></code></pre></pre>
+<p>维护一个wait
+queue和一个持有这id，用来保证原子性。owner_id通过current_task
+的id来维护。方法中有一个force_unlock并不常见。</p>
+<h3 id="process"><a class="header" href="#process">Process</a></h3>
+<p>只有一个exit()的syscall。</p>
+<h3 id="time"><a class="header" href="#time">Time</a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct Instant(AxTimeValue);
+<span class="boring">}</span></code></pre></pre>
+<p>实现了now, duration_since, elapsed等方法。</p>
+<p>并且实现了加减。</p>
+<h2 id="axalloc"><a class="header" href="#axalloc">axalloc</a></h2>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct GlobalAllocator {
+    balloc: SpinNoIrq&lt;DefaultByteAllocator&gt;,
+    palloc: SpinNoIrq&lt;BitmapPageAllocator&lt;PAGE_SIZE&gt;&gt;,
+}
+<span class="boring">}</span></code></pre></pre>
+<p>全局分配器，提供了一个balloc（字节分配器），palloc（页面分配器）。</p>
+<p>SpinNoIrq表示无中断锁，这是用来确保线程安全的。</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub struct GlobalPage {
+    start_vaddr: VirtAddr,
+    num_pages: usize,
+}
+<span class="boring">}</span></code></pre></pre>
+<p>全局页面，标记一组连续页面。</p>
+<p>采用的是bitmap allocator。</p>
+<h2 id="axdma"><a class="header" href="#axdma">axdma</a></h2>
+<p>ALLOCATOR 是一个静态变量，使用 SpinNoIrq 锁来确保线程安全。</p>
+<p>DmaAllocator 是具体的DMA分配器实现。</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub unsafe fn alloc_coherent(&amp;mut self, layout: Layout) -&gt; AllocResult&lt;DMAInfo&gt; {
+    if layout.size() &gt;= PAGE_SIZE_4K {
+        self.alloc_coherent_pages(layout)
+    } else {
+        self.alloc_coherent_bytes(layout)
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+<p>alloc_coherent 方法根据请求的内存大小选择不同的分配策略：</p>
+<p>如果请求的内存大小大于等于一页（4KB），调用 alloc_coherent_pages。</p>
+<p>否则，调用 alloc_coherent_bytes。</p>
+<h2 id="axfs"><a class="header" href="#axfs">axfs</a></h2>
+<p>root中的init_rootfs方法：</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub(crate) fn init_rootfs(disk: crate::dev::Disk) {
+    cfg_if::cfg_if! {
+        if #[cfg(feature = "myfs")] { // override the default filesystem
+            let main_fs = fs::myfs::new_myfs(disk);
+        } else if #[cfg(feature = "fatfs")] {
+            static FAT_FS: LazyInit&lt;Arc&lt;fs::fatfs::FatFileSystem&gt;&gt; = LazyInit::new();
+            FAT_FS.init_once(Arc::new(fs::fatfs::FatFileSystem::new(disk)));
+            FAT_FS.init();
+            let main_fs = FAT_FS.clone();
+        }
+    }
+
+    let mut root_dir = RootDirectory::new(main_fs);
+
+    #[cfg(feature = "devfs")]
+    root_dir
+        .mount("/dev", mounts::devfs())
+        .expect("failed to mount devfs at /dev");
+
+    #[cfg(feature = "ramfs")]
+    root_dir
+        .mount("/tmp", mounts::ramfs())
+        .expect("failed to mount ramfs at /tmp");
+
+    // Mount another ramfs as procfs
+    #[cfg(feature = "procfs")]
+    root_dir // should not fail
+        .mount("/proc", mounts::procfs().unwrap())
+        .expect("fail to mount procfs at /proc");
+
+    // Mount another ramfs as sysfs
+    #[cfg(feature = "sysfs")]
+    root_dir // should not fail
+        .mount("/sys", mounts::sysfs().unwrap())
+        .expect("fail to mount sysfs at /sys");
+
+    ROOT_DIR.init_once(Arc::new(root_dir));
+    CURRENT_DIR.init_once(Mutex::new(ROOT_DIR.clone()));
+    *CURRENT_DIR_PATH.lock() = "/".into();
+}
+<span class="boring">}</span></code></pre></pre>
+<p>用于将Disk进行初始化。</p>
+<p>重点是RootDirectory Crate, mount方法。</p>
+<p>挂载点</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>struct MountPoint {
+    path: &amp;'static str,
+    fs: Arc&lt;dyn VfsOps&gt;,
+}
+<span class="boring">}</span></code></pre></pre>
+<p>根目录</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>struct RootDirectory {
+    main_fs: Arc&lt;dyn VfsOps&gt;,
+    mounts: Vec&lt;MountPoint&gt;,
+}
+<span class="boring">}</span></code></pre></pre>
+<h3 id="file-1"><a class="header" href="#file-1">File</a></h3>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// An opened file object, with open permissions and a cursor.
+pub struct File {
+    node: WithCap&lt;VfsNodeRef&gt;,
+    is_append: bool,
+    offset: u64,
+}
+<span class="boring">}</span></code></pre></pre>
+<p>这个File表示一个文件对象。WithCap表示这个类型拥有一些Capability：</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    pub struct Cap: u32 {
+        /// Readable access.
+        const READ = 1 &lt;&lt; 0;
+        /// Writable access.
+        const WRITE = 1 &lt;&lt; 1;
+        /// Executable access.
+        const EXECUTE = 1 &lt;&lt; 2;
+    }
+<span class="boring">}</span></code></pre></pre>
+<p>目录</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// An opened directory object, with open permissions and a cursor for
+/// [`read_dir`](Directory::read_dir).
+pub struct Directory {
+    node: WithCap&lt;VfsNodeRef&gt;,
+    entry_idx: usize,
+}
+<span class="boring">}</span></code></pre></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../ArceOS/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../计网/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../ArceOS/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../计网/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

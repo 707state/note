@@ -1,0 +1,350 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Raft 选举领导者 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#raft%E7%AE%97%E6%B3%95%E5%88%9D%E8%A7%88">Raft算法初览</a></li>
+<li><a href="#%E6%88%90%E5%91%98">成员</a></li>
+<li><a href="#%E9%80%89%E4%B8%BE%E9%A2%86%E5%AF%BC%E8%80%85%E7%9A%84%E8%BF%87%E7%A8%8B">选举领导者的过程</a>
+<ul>
+<li><a href="#%E5%8F%AF%E8%83%BD%E7%9A%84%E9%97%AE%E9%A2%98">可能的问题</a>
+<ul>
+<li><a href="#%E8%8A%82%E7%82%B9%E9%97%B4%E5%A6%82%E4%BD%95%E9%80%9A%E8%AE%AF">节点间如何通讯？</a></li>
+<li><a href="#%E4%BB%80%E4%B9%88%E6%98%AF%E4%BB%BB%E6%9C%9F">什么是任期？</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#%E9%80%89%E4%B8%BE%E8%A7%84%E5%88%99">选举规则</a></li>
+<li><a href="#%E5%A6%82%E4%BD%95%E7%90%86%E8%A7%A3%E9%9A%8F%E5%8D%B3%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4">如何理解随即超时时间？</a></li>
+</ul>
+<h1 id="raft算法初览"><a class="header" href="#raft算法初览">Raft算法初览</a></h1>
+<p>Raft算法是一种Multi-Paxos算法，增加了如日志必须是连续的、只支持领导者、跟随者和候选人三种状态。</p>
+<p>一句话概括 Raft 算法,我觉得是这样的:从本质上说,Raft
+算法是通过一切以领导者为准
+的方式,实现一系列值的共识和各节点日志的一致。这句话比较抽象,我来做个比喻,领导者就是
+Raft
+算法中的霸道总裁,通过霸道的"一切以我为准"的方式,决定了日志中命令的值,也实现
+了各节点日志的一致。</p>
+<h1 id="成员"><a class="header" href="#成员">成员</a></h1>
+<p>成员身份,又叫做服务器节点状态。</p>
+<p>Raft 算法支持领导者 (Leader),跟随者 (Follower),候选人 (Candidate) 三种
+状态。</p>
+<p>跟随者:就相当于普通群众,默默地接收和处理来自领导者的消息,当等待领导者心跳信息超时的时候,就主动站出来,推荐自己当候选人。</p>
+<p>候选人:候选人将向其他节点发送请求投票(RequestVote)RPC
+消息,通知其他节点来投票,如果赢得了大多数选票,就晋升当领导者。</p>
+<p>领导者:蛮不讲理的霸道总裁,一切以我为准,平常的主要工作内容就是 3
+部分,处理写请求、管理日志复制和不断地发送心跳信息,通知其他节点"我是领导者,我还活着,你们现在不要发起新的选举,找个新领导者来替代我。"</p>
+<h1 id="选举领导者的过程"><a class="header" href="#选举领导者的过程">选举领导者的过程</a></h1>
+<p>初始状态下，所有节点都是跟随者状态。</p>
+<p>Raft
+算法实现了随机超时时间的特性。也就是说,每个节点等待领导者节点心跳信息的超时时间间隔是随机的。</p>
+<p>因此，由于集群中存在一个节点心跳超时，发起选举请求。</p>
+<p>假定有A, B, C三个节点，A节点心跳超时，这个时候,节点A
+就增加自己的任期编号,并推举自己为候选人,先给自己投一张选票,再向其他节点发送请求投票
+RPC 消息,请他们选举自己为领导者。</p>
+<p>如果其他节点接收到候选人 A 的请求投票 RPC 消息,在编号为 1
+的这届任期内,也还没有进行过投票,那么它将把选票投给节点
+A,并增加自己的任期编号。</p>
+<p>如果候选人在选举超市时间内赢得大多数的选票,它就会成为本届任期内的新的领导者。</p>
+<p>节点A
+当选领导者后,他将周期性地发送心跳消息,通知其他服务器我是领导者,阻止跟随者发起新的选举,篡权。</p>
+<h2 id="可能的问题"><a class="header" href="#可能的问题">可能的问题</a></h2>
+<h3 id="节点间如何通讯"><a class="header" href="#节点间如何通讯">节点间如何通讯？</a></h3>
+<p>在Raft
+算法中,服务器节点间的沟通联络采用的是远程过程调用(RPC),在领导者选举中,需要用到这样两类的
+RPC:</p>
+<ol>
+<li>
+<p>请求投票: 候选人在选举期间发起，通知各节点进行投票。</p>
+</li>
+<li>
+<p>日志复制: 领导者发起，用来复制日志和提供心跳信息。只能由领导者发起。</p>
+</li>
+</ol>
+<h3 id="什么是任期"><a class="header" href="#什么是任期">什么是任期？</a></h3>
+<p>议会选举中的领导者是有任期的,领导者任命到期后,要重新开会再次选举。Raft算法中的领导者也是有任期的,每个任期由单调递增的数字(任期编号)标识,比如节点期编号是
+1。任期编号是随着选举的举行而变化的,这是在说下面几点。</p>
+<p>跟随者在等待领导者心跳信息超时后,推举自己为候选人时,会增加自己的任期号,比如节点A的当前任期编号为
+0,那么在推举自己为候选人时,会将自己的任期编号增加为
+1。如果一个服务器节点,发现自己的任期编号比其他节点小,那么它会更新自己的编号到较大的编号值。比如节点B
+的任期编号是 0,当收到来自节点 A 的请求投票 RPC
+消息时,因为消息中包含了节点 A的任期编号,且编号为 1,那么节点 B
+将把自己的任期编号更新为 1。</p>
+<p>Raft
+算法中的任期不只是时间段,而且任期编号的大小,会影响领导者选举和请求的处理。
+在Raft
+算法中约定,如果一个候选人或者领导者,发现自己的任期编号比其他节点小,那么它会立即恢复成跟随者状态。比如分区错误恢复后,任期编号为
+3 的领导者节点 B,收到来自新领导者的、包含任期编号为4 的心跳消息,那么节点
+B
+将立即恢复成跟随者状态。还约定如果一个节点接收到一个包含较小的任期编号值的请求，那么他会直接拒绝这个请求，比如节点C
+的任期编号为 4,收到包含任期编号为 3 的请求投票 RPC
+消息,那么它将拒绝这个消息。</p>
+<h1 id="选举规则"><a class="header" href="#选举规则">选举规则</a></h1>
+<ol>
+<li>
+<p>领导者周期性地向所有跟随者发送心跳消息(即不包含日志项的日志复制RPC
+消息),通知大家我是领导者,阻止跟随者发起新的选举。</p>
+</li>
+<li>
+<p>如果在指定时间内,跟随者没有接收到来自领导者的消息,那么它就认为当前没有领导者推举自己为候选人,发起领导者选举。</p>
+</li>
+<li>
+<p>在一次选举中,赢得大多数选票的候选人,将晋升为领导者。</p>
+</li>
+<li>
+<p>在一个任期内,领导者一直都会是领导者,直到它自身出现问题(比如宕机),或者因为网络延迟,其他节点发起一轮新的选举。</p>
+</li>
+<li>
+<p>在一次选举中,每一个服务器节点最多会对一个任期编号投出一张选票,并且按照"先来先服务"的原则进行投票。比如节点
+C 的任期编号为 3,先收到了 1 个包含任期编号为 4 的投票请求(来自节点
+A),然后又收到了 1 个包含任期编号为 4 的投票请求(来自节点
+B)。那么节点 C 将会把唯一一张选票投给节点 A,当再收到节点 B
+的投票请求 RPC 消息时,对于编号为 4 的任期,已没有选票可投了。</p>
+</li>
+<li>
+<p>当任期编号相同时,日志完整性高的跟随者(也就是最后一条日志项对应的任期编号值更大,索引号更大),拒绝投票给日志完整性低的候选人。比如节点
+B、C 的任期编号都是 3,节点 B的最后一条日志项对应的任期编号为
+3,而节点 C 为 2,那么当节点 C 请求节点 B 投票给自己时,节点 B
+将拒绝投票。</p>
+</li>
+</ol>
+<p>选举是跟随者发起的,推举自己为候选人;大多数选票是指集群成员半数以上的选票;大多数选票规则的目标,是为了保证在一个给定的任期内最多只有一个领导者。</p>
+<h1 id="如何理解随即超时时间"><a class="header" href="#如何理解随即超时时间">如何理解随即超时时间？</a></h1>
+<p>在多个候选人同时发起选举,导致选票被瓜分的情况下,Raft
+利用随机超时时间解决选举无效的问题。</p>
+<p>在 Raft 算法中,随机超时时间是有 2 种含义的:</p>
+<ol>
+<li>
+<p>跟随者等待领导者心跳信息超时的时间间隔,是随机的;</p>
+</li>
+<li>
+<p>当没有候选人赢得过半票数,选举无效了,这时需要等待一个随机时间间隔,也就是说,等待选举超时的时间间隔,是随机的。</p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../分布式协议/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../分布式协议/Raft2.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../分布式协议/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../分布式协议/Raft2.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

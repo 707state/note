@@ -1,0 +1,544 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Sorted String Table - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#sst-sorted-string-table">SST: Sorted String Table</a>
+<ul>
+<li><a href="#sst-builder">SST Builder</a></li>
+<li><a href="#sst-iterator">SST Iterator</a></li>
+<li><a href="#block-cache">Block Cache</a></li>
+</ul>
+</li>
+<li><a href="#%E6%80%9D%E8%80%83%E9%A2%98">思考题</a></li>
+</ul>
+<h1 id="sst-sorted-string-table"><a class="header" href="#sst-sorted-string-table">SST: Sorted String Table</a></h1>
+<h2 id="sst-builder"><a class="header" href="#sst-builder">SST Builder</a></h2>
+<p>SST是存储在磁盘上的数据块和索引块的集合。通常，数据块都是懒加载的。</p>
+<p>SST Builder类似于Block Builder, 调用者都使用add函数。在SST Builder需要维护一个BlockBuilder，并且在必要时需要分离Blocks，同时要维护BlockMeta（包含起始和终止Key和每个Block的偏移量）。</p>
+<p>编码后的SST如下：</p>
+<pre><code class="language-txt">-------------------------------------------------------------------------------------------
+|         Block Section         |          Meta Section         |          Extra          |
+-------------------------------------------------------------------------------------------
+| data block | ... | data block |            metadata           | meta block offset (u32) |
+-------------------------------------------------------------------------------------------
+</code></pre>
+<p>实现如下：</p>
+<details>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Builds an SSTable from key-value pairs.
+pub struct SsTableBuilder {
+    builder: BlockBuilder,
+    first_key: KeyVec,
+    last_key: KeyVec,
+    data: Vec&lt;u8&gt;,
+    pub(crate) meta: Vec&lt;BlockMeta&gt;,
+    block_size: usize,
+    key_hashes: Vec&lt;u32&gt;,
+}
+
+impl SsTableBuilder {
+    /// Create a builder based on target block size.
+    pub fn new(block_size: usize) -&gt; Self {
+        Self {
+            data: Vec::new(),
+            block_size,
+            first_key: KeyVec::new(),
+            last_key: KeyVec::new(),
+            meta: Vec::new(),
+            key_hashes: Vec::new(),
+            builder: BlockBuilder::new(block_size),
+        }
+    }
+
+    /// Adds a key-value pair to SSTable.
+    ///
+    /// Note: You should split a new block when the current block is full.(`std::mem::replace` may
+    /// be helpful here)
+    pub fn add(&amp;mut self, key: KeySlice, value: &amp;[u8]) {
+        if self.first_key.is_empty() {
+            self.first_key.set_from_slice(key);
+        }
+        self.key_hashes.push(farmhash::fingerprint32(key.raw_ref()));
+        if self.builder.add(key, value) {
+            self.last_key.set_from_slice(key);
+            return;
+        }
+        self.finish_block();
+        assert!(self.builder.add(key, value));
+        self.first_key.set_from_slice(key);
+        self.last_key.set_from_slice(key);
+    }
+    fn finish_block(&amp;mut self) {
+        let builder = std::mem::replace(&amp;mut self.builder, BlockBuilder::new(self.block_size));
+        let encoded_block = builder.build().encode();
+        self.meta.push(BlockMeta {
+            offset: self.data.len(),
+            first_key: std::mem::take(&amp;mut self.first_key).into_key_bytes(),
+            last_key: std::mem::take(&amp;mut self.last_key).into_key_bytes(),
+        });
+        let checksum = crc32fast::hash(&amp;encoded_block);
+        self.data.extend(encoded_block);
+        self.data.put_u32(checksum);
+    }
+    /// Get the estimated size of the SSTable.
+    ///
+    /// Since the data blocks contain much more data than meta blocks, just return the size of data
+    /// blocks here.
+    pub fn estimated_size(&amp;self) -&gt; usize {
+        self.data.len()
+    }
+
+    /// Builds the SSTable and writes it to the given path. Use the `FileObject` structure to manipulate the disk objects.
+    pub fn build(
+        mut self,
+        id: usize,
+        block_cache: Option&lt;Arc&lt;BlockCache&gt;&gt;,
+        path: impl AsRef&lt;Path&gt;,
+    ) -&gt; Result&lt;SsTable&gt; {
+        self.finish_block();
+        let mut buf = self.data;
+        let meta_offset = buf.len();
+        BlockMeta::encode_block_meta(&amp;self.meta, &amp;mut buf);
+        buf.put_u32(meta_offset as u32);
+        let bloom = Bloom::build_from_key_hashes(
+            &amp;self.key_hashes,
+            Bloom::bloom_bits_per_key(self.key_hashes.len(), 0.01),
+        );
+        let bloom_offset = buf.len();
+        bloom.encode(&amp;mut buf);
+        buf.put_u32(bloom_offset as u32);
+        let file = FileObject::create(path.as_ref(), buf)?;
+        Ok(SsTable {
+            id,
+            file,
+            first_key: self.meta.first().unwrap().first_key.clone(),
+            last_key: self.meta.first().unwrap().last_key.clone(),
+            block_meta: self.meta,
+            block_meta_offset: meta_offset,
+            block_cache,
+            bloom: Some(bloom),
+            max_ts: 0,
+        })
+    }
+
+    #[cfg(test)]
+    pub(crate) fn build_for_test(self, path: impl AsRef&lt;Path&gt;) -&gt; Result&lt;SsTable&gt; {
+        self.build(0, None, path)
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>核心变量：</p>
+<ol>
+<li>
+<p>builder: BlockBuilder。用于填充当前正在填充的块。</p>
+</li>
+<li>
+<p>first_key, last_key: 分别记录当前块的第一个和最后一个键，主要用于块元数据的生成。</p>
+</li>
+<li>
+<p>data: Vec<code>&lt;u8&gt;</code>{=html}: 存储所有已完成块的序列化数据和元数据。最终写入磁盘。</p>
+</li>
+<li>
+<p>meta: Vec<code>&lt;BlockMeta&gt;</code>{=html}: 存储每个块的元数据，用于在SSTable构建完成后写入表文件，用于快速查找目标块。</p>
+</li>
+<li>
+<p>key_hashes: Vec<code>&lt;u32&gt;</code>{=html}: 存储每个键的哈希值，主要用于构建布隆过滤器。</p>
+</li>
+</ol>
+<h2 id="sst-iterator"><a class="header" href="#sst-iterator">SST Iterator</a></h2>
+<p>这一部分就是在SST上能够像其他迭代器一样工作。这里有一个SsTableIterator要实现StorageIterator的Trait, 这样才能与其他迭代器一同使用。</p>
+<p>这里的搜索算法大多为二分搜索（重点：Vec的partition_point方法是二分搜索）。</p>
+<details>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// An iterator over the contents of an SSTable.
+pub struct SsTableIterator {
+    table: Arc&lt;SsTable&gt;,
+    blk_iter: BlockIterator,
+    blk_idx: usize,
+}
+
+impl SsTableIterator {
+    fn seek_to_first_inner(table: &amp;Arc&lt;SsTable&gt;) -&gt; Result&lt;(usize, BlockIterator)&gt; {
+        Ok((
+            0,
+            BlockIterator::create_and_seek_to_first(table.read_block_cached(0)?),
+        ))
+    }
+    /// Create a new iterator and seek to the first key-value pair in the first data block.
+    pub fn create_and_seek_to_first(table: Arc&lt;SsTable&gt;) -&gt; Result&lt;Self&gt; {
+        let (blk_idx, blk_iter) = Self::seek_to_first_inner(&amp;table)?;
+        let iter = Self {
+            blk_iter,
+            table,
+            blk_idx,
+        };
+        Ok(iter)
+    }
+
+    /// Seek to the first key-value pair in the first data block.
+    pub fn seek_to_first(&amp;mut self) -&gt; Result&lt;()&gt; {
+        let (blk_idx, blk_iter) = Self::seek_to_first_inner(&amp;self.table)?;
+        self.blk_idx = blk_idx;
+        self.blk_iter = blk_iter;
+        Ok(())
+    }
+
+    fn seek_to_key_inner(table: &amp;Arc&lt;SsTable&gt;, key: KeySlice) -&gt; Result&lt;(usize, BlockIterator)&gt; {
+        let mut blk_idx = table.find_block_idx(key);
+        let mut blk_iter =
+            BlockIterator::create_and_seek_to_key(table.read_block_cached(blk_idx)?, key);
+        if !blk_iter.is_valid() {
+            blk_idx += 1;
+            if blk_idx &lt; table.num_of_blocks() {
+                blk_iter =
+                    BlockIterator::create_and_seek_to_first(table.read_block_cached(blk_idx)?);
+            }
+        }
+        Ok((blk_idx, blk_iter))
+    }
+    /// Create a new iterator and seek to the first key-value pair which &gt;= `key`.
+    pub fn create_and_seek_to_key(table: Arc&lt;SsTable&gt;, key: KeySlice) -&gt; Result&lt;Self&gt; {
+        let (blk_idx, blk_iter) = Self::seek_to_key_inner(&amp;table, key)?;
+        let iter = Self {
+            blk_iter,
+            table,
+            blk_idx,
+        };
+        Ok(iter)
+    }
+
+    /// Seek to the first key-value pair which &gt;= `key`.
+    /// Note: You probably want to review the handout for detailed explanation when implementing
+    /// this function.
+    pub fn seek_to_key(&amp;mut self, key: KeySlice) -&gt; Result&lt;()&gt; {
+        let (blk_idx, blk_iter) = Self::seek_to_key_inner(&amp;self.table, key)?;
+        self.blk_iter = blk_iter;
+        self.blk_idx = blk_idx;
+        Ok(())
+    }
+}
+
+impl StorageIterator for SsTableIterator {
+    type KeyType&lt;'a&gt; = KeySlice&lt;'a&gt;;
+
+    /// Return the `key` that's held by the underlying block iterator.
+    fn key(&amp;self) -&gt; KeySlice {
+        self.blk_iter.key()
+    }
+
+    /// Return the `value` that's held by the underlying block iterator.
+    fn value(&amp;self) -&gt; &amp;[u8] {
+        self.blk_iter.value()
+    }
+
+    /// Return whether the current block iterator is valid or not.
+    fn is_valid(&amp;self) -&gt; bool {
+        self.blk_iter.is_valid()
+    }
+
+    /// Move to the next `key` in the block.
+    /// Note: You may want to check if the current block iterator is valid after the move.
+    fn next(&amp;mut self) -&gt; Result&lt;()&gt; {
+        self.blk_iter.next();
+        if !self.blk_iter.is_valid() {
+            self.blk_idx += 1;
+            if self.blk_idx &lt; self.table.num_of_blocks() {
+                self.blk_iter = BlockIterator::create_and_seek_to_first(
+                    self.table.read_block_cached(self.blk_idx)?,
+                );
+            }
+        }
+        Ok(())
+    }
+}
+<span class="boring">}</span></code></pre></pre>
+</details>
+<p>这里，查找的block的布局如下：</p>
+<pre><code class="language-txt">--------------------------------------
+| block 1 | block 2 |   block meta   |
+--------------------------------------
+| a, b, c | e, f, g | 1: a/c, 2: e/g |
+--------------------------------------
+</code></pre>
+<p>这里，所有的block对应的区间都不重叠。但是如果seek_to_key(d)这样子做，就会到block 1的位置，然后要判断迭代器是否有效。</p>
+<h2 id="block-cache"><a class="header" href="#block-cache">Block Cache</a></h2>
+<p>Block Cache是通过moka-rs来实现的。</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>pub type BlockCache = moka::sync::Cache&lt;(usize, usize), Arc&lt;Block&gt;&gt;;
+<span class="boring">}</span></code></pre></pre>
+<p>这里存的是(sst_id, block_id)的结构，可以用try_get_with来从缓存中获取。这里要是实现read_block_cached函数。</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    /// Read a block from disk, with block cache. (Day 4)
+    pub fn read_block_cached(&amp;self, block_idx: usize) -&gt; Result&lt;Arc&lt;Block&gt;&gt; {
+        if let Some(ref block_cache) = self.block_cache {
+            let blk = block_cache
+                .try_get_with((self.id, block_idx), || self.read_block(block_idx))
+                .map_err(|e| anyhow!("{}", e))?;
+            Ok(blk)
+        } else {
+            self.read_block(block_idx)
+        }
+    }
+<span class="boring">}</span></code></pre></pre>
+<h1 id="思考题"><a class="header" href="#思考题">思考题</a></h1>
+<ol>
+<li>查找一个键的时间复杂度：</li>
+</ol>
+<p>定位块（find_block_idx 方法）：</p>
+<pre><code>使用 partition_point 方法在 block_meta 中定位键所在的块。
+由于 block_meta 是有序的，partition_point 使用的是二分查找算法。
+时间复杂度为 O(log N)，其中 N 是数据块的数量。
+</code></pre>
+<p>在块内查找键：</p>
+<pre><code>SST 的实现假设每个块内部的键值对也是有序的，因此通常使用二分查找来定位键。
+假设每个块中有 MM 个键值对，则在块内查找的时间复杂度为 O(log M)。
+</code></pre>
+<p>因此查找一个键的时间复杂度是 O( Log N + Log M )。</p>
+<ol start="2">
+<li>查找一个不存在的键时，光标停止的位置：</li>
+</ol>
+<p>块查找阶段：</p>
+<pre><code>使用 partition_point 方法，找到第一个键大于目标键的块。
+saturating_sub(1) 确保在目标块的范围内（防止越界）。
+若键小于所有块的 first_key，则定位到第一个块。
+</code></pre>
+<p>块内查找阶段：</p>
+<pre><code>如果在块内查找不到目标键，通常光标会停在块中第一个比目标键大的位置，或者块的末尾。
+</code></pre>
+<p>因此，光标的位置取决于：</p>
+<pre><code>若键在某块范围内，则光标停在块内最接近目标键的位置。
+若键比全表所有键都小，则光标停在第一个块。
+若键比全表所有键都大，则光标停在最后一个块。
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../LSM-Tree/LSMTree3.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../cpp/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../LSM-Tree/LSMTree3.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../cpp/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,676 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>BTree - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#b%E6%A0%91">B树</a>
+<ul>
+<li><a href="#wal">WAL</a></li>
+<li><a href="#pager%E9%A1%B5%E9%9D%A2%E7%AE%A1%E7%90%86">Pager页面管理</a>
+<ul>
+<li><a href="#get_page">get_page</a></li>
+<li><a href="#write_page">write_page</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#write_page_at_offset">write_page_at_offset</a>
+<ul>
+<li><a href="#page">page</a>
+<ul>
+<li><a href="#insert_byte_at_offset">insert_byte_at_offset</a></li>
+</ul>
+</li>
+<li><a href="#node">node</a>
+<ul>
+<li><a href="#split">split</a></li>
+</ul>
+</li>
+<li><a href="#btree">BTree</a>
+<ul>
+<li><a href="#btree-1">BTree</a></li>
+<li><a href="#b%E6%A0%91builder">B树Builder</a></li>
+<li><a href="#btree%E6%93%8D%E4%BD%9C">BTree操作</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="b树"><a class="header" href="#b树">B树</a></h1>
+<h2 id="wal"><a class="header" href="#wal">WAL</a></h2>
+<p>记录根节点偏移量，实现如下：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">pub struct Wal {
+    file: File,
+}
+impl Wal {
+    pub fn new(parent_directoy: PathBuf) -&gt; Result&lt;Self, Error&gt; {
+        let fd = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .write(true)
+            .truncate(true)
+            .open(parent_directoy.join("wal"))?;
+
+        Ok(Self { file: fd })
+    }
+    pub fn get_root(&amp;mut self) -&gt; Result&lt;Offset, Error&gt; {//读取偏移量
+        let mut buff: [u8; PTR_SIZE] = [0x00; PTR_SIZE];
+        let file_len = self.file.seek(SeekFrom::End(0))? as usize;
+        let mut root_offset: usize = 0;
+        if file_len &gt; 0 {
+            root_offset = (file_len / PTR_SIZE - 1) * PTR_SIZE;
+        }
+        self.file.seek(SeekFrom::Start(root_offset as u64))?;
+        self.file.read_exact(&amp;mut buff)?;
+        Offset::try_from(buff)
+    }
+
+    pub fn set_root(&amp;mut self, offset: Offset) -&gt; Result&lt;(), Error&gt; {//设置偏移量
+        self.file.seek(SeekFrom::End(0))?;
+        self.file.write_all(&amp;offset.0.to_be_bytes())?;
+        Ok(())
+    }
+}
+</code></pre>
+</details>
+<h2 id="pager页面管理"><a class="header" href="#pager页面管理">Pager页面管理</a></h2>
+<p>负责管理文件中的页面（即数据块），并提供从磁盘读取和写入页面的接口。</p>
+<h3 id="get_page"><a class="header" href="#get_page">get_page</a></h3>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">    pub fn get_page(&amp;mut self, offset: &amp;Offset) -&gt; Result&lt;Page, Error&gt; {
+        let mut page: [u8; PAGE_SIZE] = [0x00; PAGE_SIZE];
+        self.file.seek(SeekFrom::Start(offset.0 as u64))?;
+        self.file.read_exact(&amp;mut page)?;
+        Ok(Page::new(page))
+    }
+</code></pre>
+</details>
+<p>从磁盘上的特定偏移量读取一个页面。B+
+树的节点通常被存储在磁盘上的不同页面中，因此当需要访问特定节点时，Pager
+会从磁盘中读取相应的页面。偏移量 Offset 指向页面在文件中的位置。</p>
+<h3 id="write_page"><a class="header" href="#write_page">write_page</a></h3>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">    pub fn write_page(&amp;mut self, page: Page) -&gt; Result&lt;Offset, Error&gt; {
+        self.file.seek(SeekFrom::Start(self.curser as u64))?;
+        self.file.write_all(&amp;page.get_data())?;
+        let res = Offset(self.curser);
+        self.curser += PAGE_SIZE;
+        Ok(res)
+    }
+</code></pre>
+</details>
+<p>将页面写入磁盘文件的当前游标位置，并返回该页面的偏移量（Offset）。在 B+
+树的插入或删除操作后，节点可能会发生变动，此时 Pager
+会将变动后的节点（即页面）写入磁盘。这个函数通常在插入新节点或页面时使用，并自动将页面顺序写入磁盘。</p>
+<h1 id="write_page_at_offset"><a class="header" href="#write_page_at_offset">write_page_at_offset</a></h1>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">    pub fn write_page_at_offset(&amp;mut self, page: Page, offset: &amp;Offset) -&gt; Result&lt;(), Error&gt; {
+        self.file.seek(SeekFrom::Start(offset.0 as u64))?;
+        self.file.write_all(&amp;page.get_data())?;
+        Ok(())
+</code></pre>
+</details>
+<p>在给定的偏移量 Offset 上写入页面。用于覆盖磁盘中某个位置的页面数据。B+
+树中如果某个页面（节点）需要更新，而位置已经确定，则通过这个函数覆盖原有页面的数据。</p>
+<h2 id="page"><a class="header" href="#page">page</a></h2>
+<h3 id="insert_byte_at_offset"><a class="header" href="#insert_byte_at_offset">insert_byte_at_offset</a></h3>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">    pub fn insert_bytes_at_offset(
+        &amp;mut self,
+        bytes: &amp;[u8],
+        offset: usize,
+        end_offset: usize,
+        size: usize,
+    ) -&gt; Result&lt;(), Error&gt; {
+        // This Should not occur - better verify.
+        if end_offset + size &gt; self.data.len() {
+            return Err(Error::UnexpectedError);
+        }
+        for idx in (offset..=end_offset).rev() {
+            self.data[idx + size] = self.data[idx]
+        }
+        self.data[offset..offset + size].clone_from_slice(bytes);
+        Ok(())
+    }
+</code></pre>
+</details>
+<p>在指定offset处插入size大小的bytes。</p>
+<h2 id="node"><a class="header" href="#node">node</a></h2>
+<p>定义：</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">pub struct Node {
+    pub node_type: NodeType,
+    pub is_root: bool,
+    pub parent_offset: Option&lt;Offset&gt;,
+}
+</code></pre>
+</details>
+<h3 id="split"><a class="header" href="#split">split</a></h3>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">    pub fn split(&amp;mut self, b: usize) -&gt; Result&lt;(Key, Node), Error&gt; {
+        match self.node_type {
+            NodeType::Internal(ref mut children, ref mut keys) =&gt; {
+                // Populate siblings keys.
+                let mut sibling_keys = keys.split_off(b - 1);
+                // Pop median key - to be added to the parent..
+                let median_key = sibling_keys.remove(0);
+                // Populate siblings children.
+                let sibling_children = children.split_off(b);
+                Ok((
+                    median_key,
+                    Node::new(
+                        NodeType::Internal(sibling_children, sibling_keys),
+                        false,
+                        self.parent_offset.clone(),
+                    ),
+                ))
+            }
+            NodeType::Leaf(ref mut pairs) =&gt; {
+                // Populate siblings pairs.
+                let sibling_pairs = pairs.split_off(b);
+                // Pop median key.
+                let median_pair = pairs.get(b - 1).ok_or(Error::UnexpectedError)?.clone();
+
+                Ok((
+                    Key(median_pair.key),
+                    Node::new(
+                        NodeType::Leaf(sibling_pairs),
+                        false,
+                        self.parent_offset.clone(),
+                    ),
+                ))
+            }
+            NodeType::Unexpected =&gt; Err(Error::UnexpectedError),
+        }
+    }
+}
+</code></pre>
+</details>
+<p>节点分裂操作。</p>
+<h2 id="btree"><a class="header" href="#btree">BTree</a></h2>
+<h3 id="btree-1"><a class="header" href="#btree-1">BTree</a></h3>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">pub struct BTree {
+    pager: Pager,
+    b: usize,
+    wal: Wal,
+}
+</code></pre>
+</details>
+<h3 id="b树builder"><a class="header" href="#b树builder">B树Builder</a></h3>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">pub struct BTreeBuilder {
+    /// Path to the tree file.
+    path: &amp;'static Path,
+    /// The BTree parameter, an inner node contains no more than 2*b-1 keys and no less than b-1 keys
+    /// and no more than 2*b children and no less than b children.
+    b: usize,
+}
+</code></pre>
+</details>
+<h3 id="btree操作"><a class="header" href="#btree操作">BTree操作</a></h3>
+<p>判断node有没有满</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">    fn is_node_full(&amp;self, node: &amp;Node) -&gt; Result&lt;bool, Error&gt; {
+        match &amp;node.node_type {
+            NodeType::Leaf(pairs) =&gt; Ok(pairs.len() == (2 * self.b)),
+            NodeType::Internal(_, keys) =&gt; Ok(keys.len() == (2 * self.b - 1)),
+            NodeType::Unexpected =&gt; Err(Error::UnexpectedError),
+        }
+    }
+</code></pre>
+</details>
+<h4 id="插入"><a class="header" href="#插入">插入</a></h4>
+<p>插入的逻辑（不包含实际操作）</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">    pub fn insert(&amp;mut self, kv: KeyValuePair) -&gt; Result&lt;(), Error&gt; {
+        let root_offset = self.wal.get_root()?;
+        let root_page = self.pager.get_page(&amp;root_offset)?;
+        let new_root_offset: Offset;
+        let mut new_root: Node;
+        let mut root = Node::try_from(root_page)?;
+        if self.is_node_full(&amp;root)? {//节点满了，需要分裂
+            // split the root creating a new root and child nodes along the way.
+            new_root = Node::new(NodeType::Internal(vec![], vec![]), true, None);
+            // write the new root to disk to aquire an offset for the new root.
+            new_root_offset = self.pager.write_page(Page::try_from(&amp;new_root)?)?;
+            // set the old roots parent to the new root.
+            root.parent_offset = Some(new_root_offset.clone());
+            root.is_root = false;
+            // split the old root.
+            let (median, sibling) = root.split(self.b)?;//分裂，返回中位值和新创建的兄弟节点
+            // write the old root with its new data to disk in a *new* location.
+            let old_root_offset = self.pager.write_page(Page::try_from(&amp;root)?)?;
+            // write the newly created sibling to disk.
+            let sibling_offset = self.pager.write_page(Page::try_from(&amp;sibling)?)?;
+            // update the new root with its children and key.
+            new_root.node_type =
+                NodeType::Internal(vec![old_root_offset, sibling_offset], vec![median]);
+            // write the new_root to disk.
+            self.pager
+                .write_page_at_offset(Page::try_from(&amp;new_root)?, &amp;new_root_offset)?;
+        } else {
+            new_root = root.clone();
+            new_root_offset = self.pager.write_page(Page::try_from(&amp;new_root)?)?;
+        }
+        // continue recursively.
+        self.insert_non_full(&amp;mut new_root, new_root_offset.clone(), kv)?;//分裂后就不再满了
+        // finish by setting the root to its new copy.
+        self.wal.set_root(new_root_offset)
+    }
+</code></pre>
+</details>
+<p>插入非满的节点</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">    fn insert_non_full(
+        &amp;mut self,
+        node: &amp;mut Node,
+        node_offset: Offset,
+        kv: KeyValuePair,
+    ) -&gt; Result&lt;(), Error&gt; {
+        match &amp;mut node.node_type {
+            NodeType::Leaf(ref mut pairs) =&gt; {
+                let idx = pairs.binary_search(&amp;kv).unwrap_or_else(|x| x);
+                pairs.insert(idx, kv);
+                self.pager
+                    .write_page_at_offset(Page::try_from(&amp;*node)?, &amp;node_offset)
+            }
+            NodeType::Internal(ref mut children, ref mut keys) =&gt; {
+                let idx = keys
+                    .binary_search(&amp;Key(kv.key.clone()))
+                    .unwrap_or_else(|x| x);
+                let child_offset = children.get(idx).ok_or(Error::UnexpectedError)?.clone();
+                let child_page = self.pager.get_page(&amp;child_offset)?;
+                let mut child = Node::try_from(child_page)?;
+                // Copy each branching-node on the root-to-leaf walk.
+                // write_page appends the given page to the db file thus creating a new node.
+                let new_child_offset = self.pager.write_page(Page::try_from(&amp;child)?)?;
+                // Assign copied child at the proper place.
+                children[idx] = new_child_offset.to_owned();
+                if self.is_node_full(&amp;child)? {
+                    // split will split the child at b leaving the [0, b-1] keys
+                    // while moving the set of [b, 2b-1] keys to the sibling.
+                    let (median, mut sibling) = child.split(self.b)?;
+                    self.pager
+                        .write_page_at_offset(Page::try_from(&amp;child)?, &amp;new_child_offset)?;
+                    // Write the newly created sibling to disk.
+                    let sibling_offset = self.pager.write_page(Page::try_from(&amp;sibling)?)?;
+                    // Siblings keys are larger than the splitted child thus need to be inserted
+                    // at the next index.
+                    children.insert(idx + 1, sibling_offset.clone());
+                    keys.insert(idx, median.clone());
+
+                    // Write the parent page to disk.
+                    self.pager
+                        .write_page_at_offset(Page::try_from(&amp;*node)?, &amp;node_offset)?;
+                    // Continue recursively.
+                    if kv.key &lt;= median.0 {
+                        self.insert_non_full(&amp;mut child, new_child_offset, kv)
+                    } else {
+                        self.insert_non_full(&amp;mut sibling, sibling_offset, kv)
+                    }
+                } else {
+                    self.pager
+                        .write_page_at_offset(Page::try_from(&amp;*node)?, &amp;node_offset)?;
+                    self.insert_non_full(&amp;mut child, new_child_offset, kv)
+                }
+            }
+            NodeType::Unexpected =&gt; Err(Error::UnexpectedError),
+        }
+    }
+</code></pre>
+</details>
+<h4 id="搜索"><a class="header" href="#搜索">搜索</a></h4>
+<p>搜索一个节点</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">    fn search_node(&amp;mut self, node: Node, search: &amp;str) -&gt; Result&lt;KeyValuePair, Error&gt; {
+        match node.node_type {
+            NodeType::Internal(children, keys) =&gt; {
+                let idx = keys
+                    .binary_search(&amp;Key(search.to_string()))
+                    .unwrap_or_else(|x| x);
+                // Retrieve child page from disk and deserialize.
+                let child_offset = children.get(idx).ok_or(Error::UnexpectedError)?;
+                let page = self.pager.get_page(child_offset)?;
+                let child_node = Node::try_from(page)?;
+                self.search_node(child_node, search)
+            }
+            NodeType::Leaf(pairs) =&gt; {
+                if let Ok(idx) =
+                    pairs.binary_search_by_key(&amp;search.to_string(), |pair| pair.key.clone())
+                {
+                    return Ok(pairs[idx].clone());
+                }
+                Err(Error::KeyNotFound)
+            }
+            NodeType::Unexpected =&gt; Err(Error::UnexpectedError),
+        }
+    }
+</code></pre>
+</details>
+<h4 id="删除"><a class="header" href="#删除">删除</a></h4>
+<p>删除的逻辑</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">    pub fn delete(&amp;mut self, key: Key) -&gt; Result&lt;(), Error&gt; {
+        let root_offset = self.wal.get_root()?;
+        let root_page = self.pager.get_page(&amp;root_offset)?;
+        // Shadow the new root and rewrite it.
+        let mut new_root = Node::try_from(root_page)?;
+        let new_root_page = Page::try_from(&amp;new_root)?;
+        let new_root_offset = self.pager.write_page(new_root_page)?;
+        self.delete_key_from_subtree(key, &amp;mut new_root, &amp;new_root_offset)?;
+        self.wal.set_root(new_root_offset)
+    }
+</code></pre>
+</details>
+<p>从子树删除一个key</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">    fn delete_key_from_subtree(
+        &amp;mut self,
+        key: Key,
+        node: &amp;mut Node,
+        node_offset: &amp;Offset,
+    ) -&gt; Result&lt;(), Error&gt; {
+        match &amp;mut node.node_type {
+            NodeType::Leaf(ref mut pairs) =&gt; {
+                let key_idx = pairs
+                    .binary_search_by_key(&amp;key, |kv| Key(kv.key.clone()))
+                    .map_err(|_| Error::KeyNotFound)?;
+                pairs.remove(key_idx);
+                self.pager
+                    .write_page_at_offset(Page::try_from(&amp;*node)?, node_offset)?;
+                // Check for underflow - if it occures,
+                // we need to merge with a sibling.
+                // this can only occur if node is not the root (as it cannot "underflow").
+                // continue recoursively up the tree.
+                self.borrow_if_needed(node.to_owned(), &amp;key)?;
+            }
+            NodeType::Internal(children, keys) =&gt; {
+                let node_idx = keys.binary_search(&amp;key).unwrap_or_else(|x| x);
+                // Retrieve child page from disk and deserialize,
+                // copy over the child page and continue recursively.
+                let child_offset = children.get(node_idx).ok_or(Error::UnexpectedError)?;
+                let child_page = self.pager.get_page(child_offset)?;
+                let mut child_node = Node::try_from(child_page)?;
+                // Fix the parent_offset as the child node is a child of a copied parent
+                // in a copy-on-write root to leaf traversal.
+                // This is important for the case of a node underflow which might require a leaf to root traversal.
+                child_node.parent_offset = Some(node_offset.to_owned());
+                let new_child_page = Page::try_from(&amp;child_node)?;
+                let new_child_offset = self.pager.write_page(new_child_page)?;
+                // Assign the new pointer in the parent and continue reccoursively.
+                children[node_idx] = new_child_offset.to_owned();
+                self.pager
+                    .write_page_at_offset(Page::try_from(&amp;*node)?, node_offset)?;
+                return self.delete_key_from_subtree(key, &amp;mut child_node, &amp;new_child_offset);
+            }
+            NodeType::Unexpected =&gt; return Err(Error::UnexpectedError),
+        }
+        Ok(())
+    }
+</code></pre>
+</details>
+<h4 id="合并"><a class="header" href="#合并">合并</a></h4>
+<details><summary>Click to expand</summary>
+<pre><code class="language-rs">    fn merge(&amp;self, first: Node, second: Node) -&gt; Result&lt;Node, Error&gt; {
+        match first.node_type {
+            NodeType::Leaf(first_pairs) =&gt; {
+                if let NodeType::Leaf(second_pairs) = second.node_type {
+                    let merged_pairs: Vec&lt;KeyValuePair&gt; = first_pairs
+                        .into_iter()
+                        .chain(second_pairs.into_iter())
+                        .collect();
+                    let node_type = NodeType::Leaf(merged_pairs);
+                    Ok(Node::new(node_type, first.is_root, first.parent_offset))
+                } else {
+                    Err(Error::UnexpectedError)
+                }
+            }
+            NodeType::Internal(first_offsets, first_keys) =&gt; {
+                if let NodeType::Internal(second_offsets, second_keys) = second.node_type {
+                    let merged_keys: Vec&lt;Key&gt; = first_keys
+                        .into_iter()
+                        .chain(second_keys.into_iter())
+                        .collect();
+                    let merged_offsets: Vec&lt;Offset&gt; = first_offsets
+                        .into_iter()
+                        .chain(second_offsets.into_iter())
+                        .collect();
+                    let node_type = NodeType::Internal(merged_offsets, merged_keys);
+                    Ok(Node::new(node_type, first.is_root, first.parent_offset))
+                } else {
+                    Err(Error::UnexpectedError)
+                }
+            }
+            NodeType::Unexpected =&gt; Err(Error::UnexpectedError),
+        }
+    }
+</code></pre>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../数据结构与算法/Clock-Cache.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../数据结构与算法/图算法.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../数据结构与算法/Clock-Cache.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../数据结构与算法/图算法.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

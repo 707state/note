@@ -1,0 +1,376 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>随机数算法 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#%E7%BA%BF%E6%80%A7%E5%90%8C%E4%BD%99%E6%96%B9%E6%B3%95-lcg">线性同余方法 LCG</a>
+<ul>
+<li><a href="#c%E5%AE%9E%E7%8E%B0">C++实现</a></li>
+</ul>
+</li>
+<li><a href="#%E6%A2%85%E6%A3%AE%E6%97%8B%E8%BD%AC%E7%AE%97%E6%B3%95">梅森旋转算法</a>
+<ul>
+<li><a href="#%E4%BC%98%E7%82%B9">优点</a></li>
+<li><a href="#%E7%BC%BA%E7%82%B9">缺点</a></li>
+<li><a href="#%E7%AE%97%E6%B3%95%E7%BB%86%E8%8A%82">算法细节</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="线性同余方法-lcg"><a class="header" href="#线性同余方法-lcg">线性同余方法 LCG</a></h1>
+<p>这是一个产生伪随机数的方法。</p>
+<p>根据以下的递归式产生：</p>
+<p>N[j+1]=(A*N[j]+B) (mod M)</p>
+<p>LCG的周期最大为 M
+，但大部分情况都会少于M。要令LCG达到最大周期，应符合以下条件：</p>
+<ol>
+<li>
+<p>B, M互质；</p>
+</li>
+<li>
+<p>M的所有质因数都能整除A-1；</p>
+</li>
+<li>
+<p>若M是4的倍数，A-1也是；</p>
+</li>
+<li>
+<p>A, B, N[0]都比M小；</p>
+</li>
+<li>
+<p>A, B是正整数。</p>
+</li>
+</ol>
+<h2 id="c实现"><a class="header" href="#c实现">C++实现</a></h2>
+<p>X 是随机数序列。 aa 是乘数 (multiplier)。 cc 是增量 (increment)。 mm
+是模数 (modulus)，决定周期。 X[0] 是种子 (seed)。</p>
+<pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;limits&gt; // for std::numeric_limits
+
+class LinearCongruentialGenerator {
+private:
+    uint64_t a;       // 乘数
+    uint64_t c;       // 增量
+    uint64_t m;       // 模数
+    uint64_t seed;    // 当前种子（状态）
+
+public:
+    // 构造函数，初始化参数
+    LinearCongruentialGenerator(uint64_t multiplier, uint64_t increment, uint64_t modulus, uint64_t initial_seed)
+        : a(multiplier), c(increment), m(modulus), seed(initial_seed) {}
+
+    // 生成下一个随机数
+    uint64_t next() {
+        seed = (a * seed + c) % m;
+        return seed;
+    }
+
+    // 生成范围内的随机数 [min, max]
+    uint64_t nextInRange(uint64_t min, uint64_t max) {
+        return min + next() % (max - min + 1);
+    }
+};
+
+int main() {
+    // LCG 参数 (a, c, m)
+    // 使用 glibc 参数示例：a = 1103515245, c = 12345, m = 2^31
+    uint64_t a = 1103515245;
+    uint64_t c = 12345;
+    uint64_t m = static_cast&lt;uint64_t&gt;(1) &lt;&lt; 31; // 2^31
+    uint64_t seed = 42; // 初始种子
+
+    LinearCongruentialGenerator lcg(a, c, m, seed);
+
+    // 生成 10 个随机数
+    std::cout &lt;&lt; "10 个随机数：" &lt;&lt; std::endl;
+    for (int i = 0; i &lt; 10; ++i) {
+        std::cout &lt;&lt; lcg.next() &lt;&lt; " ";
+    }
+    std::cout &lt;&lt; std::endl;
+
+    // 生成范围内的随机数
+    std::cout &lt;&lt; "范围内随机数 (10-100): " &lt;&lt; lcg.nextInRange(10, 100) &lt;&lt; std::endl;
+
+    return 0;
+}
+</code></pre>
+<h1 id="梅森旋转算法"><a class="header" href="#梅森旋转算法">梅森旋转算法</a></h1>
+<p>Mersenne
+Twister这个名字来自周期长度取自梅森質數的这样一个事实。这个算法通常使用两个相近的变体，不同之处在于使用了不同的梅森素数。一个更新的和更常用的是MT19937,
+32位字长。还有一个变种是64位版的MT19937-64。对于一个k位的长度，Mersenne
+Twister会在 [ 0 , 2^k − 1 ] 的区间之间生成离散型均匀分布的随机数。</p>
+<h2 id="优点"><a class="header" href="#优点">优点</a></h2>
+<p>最为广泛使用Mersenne
+Twister的一种变体是MT19937，可以产生32位整数序列。具有以下的优点：</p>
+<pre><code>周期非常长，达到219937−1。尽管如此长的周期并不必然意味着高质量的伪随机数，但短周期（比如许多旧版本软件包提供的2^32）确实会带来许多问题。
+在1 ≤ k ≤ 623的维度之间都可以均等分布。
+除了在统计学意义上的不正确的随机数生成器以外，在所有伪随机数生成器法中是最快的（当时）
+</code></pre>
+<h2 id="缺点"><a class="header" href="#缺点">缺点</a></h2>
+<p>为了性能，这个算法付出了巨大的空间成本（当时而言）：需要 2.5 KiB
+的缓存空间。2011年，松本真和西村拓士针对这一问题提出了一个更小的版本，仅占127
+bits的 TinyMT （Tiny Mersenne Twister）。</p>
+<h2 id="算法细节"><a class="header" href="#算法细节">算法细节</a></h2>
+<p>整个算法主要分为三个阶段：</p>
+<p>第一阶段：获得基础的梅森旋转链；</p>
+<p>第二阶段：对于旋转链进行旋转算法；</p>
+<p>第三阶段：对于旋转算法所得的结果进行处理；</p>
+<p>算法实现的过程中，参数的选取取决于梅森素数，故此得名。</p>
+<p>python实现:</p>
+<pre><code class="language-python">def _int32(x):
+    return int(0xFFFFFFFF &amp; x)
+
+class MT19937:
+    def __init__(self, seed):
+        self.mt = [0] * 624
+        self.mt[0] = seed
+        self.mti = 0
+        for i in range(1, 624):
+            self.mt[i] = _int32(1812433253 * (self.mt[i - 1] ^ self.mt[i - 1] &gt;&gt; 30) + i)
+
+
+    def extract_number(self):
+        if self.mti == 0:
+            self.twist()
+        y = self.mt[self.mti]
+        y = y ^ y &gt;&gt; 11
+        y = y ^ y &lt;&lt; 7 &amp; 2636928640
+        y = y ^ y &lt;&lt; 15 &amp; 4022730752
+        y = y ^ y &gt;&gt; 18
+        self.mti = (self.mti + 1) % 624
+        return _int32(y)
+
+
+    def twist(self):
+        for i in range(0, 624):
+            y = _int32((self.mt[i] &amp; 0x80000000) + (self.mt[(i + 1) % 624] &amp; 0x7fffffff))
+            self.mt[i] = (y &gt;&gt; 1) ^ self.mt[(i + 397) % 624]
+
+            if y % 2 != 0:
+                self.mt[i] = self.mt[i] ^ 0x9908b0df
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../数据结构与算法/Shuffle.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../数据结构与算法/BloomFilter.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../数据结构与算法/Shuffle.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../数据结构与算法/BloomFilter.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>

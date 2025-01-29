@@ -1,0 +1,869 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>链表 - 学习笔记</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href=".././mdbook-admonish.css">
+
+        <!-- MathJax -->
+        <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">学习笔记</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <ul>
+<li><a href="#2-%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C">2 两数之和</a></li>
+<li><a href="#24-%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B9">24两两交换链表中的节点</a></li>
+<li><a href="#25-k%E4%B8%AA%E4%B8%80%E7%BB%84%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8">25 K个一组反转链表</a></li>
+<li><a href="#92-%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8">92 反转链表</a></li>
+<li><a href="#61-%E6%97%8B%E8%BD%AC%E9%93%BE%E8%A1%A8">61 旋转链表</a></li>
+<li><a href="#82-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A02">82删除链表中的重复元素2</a></li>
+<li><a href="#86-%E5%88%86%E5%89%B2%E9%93%BE%E8%A1%A8">86 分割链表</a></li>
+<li><a href="#109-%E6%9C%89%E5%BA%8F%E9%93%BE%E8%A1%A8%E8%BD%AC%E6%8D%A2%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91">109有序链表转换二叉搜索树</a></li>
+<li><a href="#141-%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A8">141 环形链表</a></li>
+<li><a href="#142-%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A8-2">142 环形链表 2</a></li>
+<li><a href="#143-%E9%87%8D%E6%8E%92%E9%93%BE%E8%A1%A8">143 重排链表</a></li>
+<li><a href="#148-%E6%8E%92%E5%BA%8F%E9%93%BE%E8%A1%A8">148 排序链表</a></li>
+<li><a href="#160-%E7%9B%B8%E4%BA%A4%E9%93%BE%E8%A1%A8">160 相交链表</a></li>
+<li><a href="#%E7%A7%BB%E9%99%A4%E9%93%BE%E8%A1%A8%E5%85%83%E7%B4%A0">移除链表元素</a></li>
+<li><a href="#138-%E9%9A%8F%E5%8D%B3%E9%93%BE%E8%A1%A8%E7%9A%84%E5%A4%8D%E5%88%B6">138 随即链表的复制</a></li>
+<li><a href="#328-%E5%A5%87%E5%81%B6%E9%93%BE%E8%A1%A8">328 奇偶链表</a></li>
+<li><a href="#725-%E5%88%86%E5%89%B2%E9%93%BE%E8%A1%A8">725 分割链表</a></li>
+<li><a href="#23-%E5%90%88%E5%B9%B6k%E4%B8%AA%E5%8D%87%E5%BA%8F%E9%93%BE%E8%A1%A8">23 合并K个升序链表</a></li>
+<li><a href="#234-%E5%9B%9E%E6%96%87%E9%93%BE%E8%A1%A8">234 回文链表</a></li>
+<li><a href="#19-%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACn%E4%B8%AA%E8%8A%82%E7%82%B9">19删除链表的倒数第n个节点</a></li>
+</ul>
+<h1 id="2-两数之和"><a class="header" href="#2-两数之和">2 两数之和</a></h1>
+<p>给你两个 非空 的链表，表示两个非负的整数。它们每位数字都是按照 逆序
+的方式存储的，并且每个节点只能存储 一位 数字。</p>
+<p>请你将两个数相加，并以相同形式返回一个表示和的链表。</p>
+<p>你可以假设除了数字 0 之外，这两个数都不会以 0 开头。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+ public:
+  ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+    ListNode dummy;
+    auto cur=&amp;dummy;
+    int carry=0;
+    while(l1||l2||carry){
+        int sum=carry+(l1?l1-&gt;val:0)+(l2?l2-&gt;val:0);
+        cur=cur-&gt;next=new ListNode(sum%10);
+        carry=sum/10;
+        if(l1) l1=l1-&gt;next;
+        if(l2) l2=l2-&gt;next;
+    }
+    return dummy.next;
+   }
+};
+</code></pre>
+</details>
+<p>递归法</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+
+public:
+
+    // l1 和 l2 为当前遍历的节点，carry 为进位
+
+    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2, int carry = 0) {
+
+        if (l1 == nullptr &amp;&amp; l2 == nullptr) { // 递归边界：l1 和 l2 都是空节点
+
+            return carry ? new ListNode(carry) : nullptr; // 如果进位了，就额外创建一个节点
+
+        }
+
+        if (l1 == nullptr) { // 如果 l1 是空的，那么此时 l2 一定不是空节点
+
+            swap(l1, l2); // 交换 l1 与 l2，保证 l1 非空，从而简化代码
+
+        }
+
+        int sum = carry + l1-&gt;val + (l2 ? l2-&gt;val : 0); // 节点值和进位加在一起
+
+        l1-&gt;val = sum % 10; // 每个节点保存一个数位
+
+        l1-&gt;next = addTwoNumbers(l1-&gt;next, (l2 ? l2-&gt;next : nullptr), sum / 10); // 进位
+
+        return l1;
+
+    }
+
+};
+</code></pre>
+</details>
+<h1 id="24-两两交换链表中的节点"><a class="header" href="#24-两两交换链表中的节点">24 两两交换链表中的节点</a></h1>
+<p>给你一个链表，两两交换其中相邻的节点，并返回交换后链表的头节点。你必须在不修改节点内部的值的情况下完成本题（即，只能进行节点交换）。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    ListNode* swapPairs(ListNode* head) {
+        if(head==nullptr||head-&gt;next==nullptr){
+            return head;
+        }
+        auto newHead=head-&gt;next;
+        head-&gt;next=swapPairs(newHead-&gt;next);
+        newHead-&gt;next=head;
+        return newHead;
+    }
+};
+</code></pre>
+</details>
+<h1 id="25-k个一组反转链表"><a class="header" href="#25-k个一组反转链表">25 K个一组反转链表</a></h1>
+<p>给你链表的头节点 head ，每 k 个节点一组进行翻转，请你返回修改后的链表。</p>
+<p>k 是一个正整数，它的值小于或等于链表的长度。如果节点总数不是 k
+的整数倍，那么请将最后剩余的节点保持原有顺序。</p>
+<p>你不能只是单纯的改变节点内部的值，而是需要实际进行节点交换。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    ListNode* reverseKGroup(ListNode* head, int k) {
+        int n=0;
+        for(auto cur=head;cur!=nullptr;cur=cur-&gt;next){
+            n++;
+        }
+        ListNode dummy{0,head};
+        auto p0=&amp;dummy;
+        ListNode* pre=nullptr;
+        auto cur=head;
+        for(;n&gt;=k;n-=k){
+            for(int i=0;i&lt;k;i++){
+                auto nxt=cur-&gt;next;
+                cur-&gt;next=pre;
+                pre=cur;
+                cur=nxt;
+            }
+            auto nxt=p0-&gt;next;
+            p0-&gt;next-&gt;next=cur;
+            p0-&gt;next=pre;
+            p0=nxt;
+        }
+        return dummy.next;
+    }
+};
+</code></pre>
+</details>
+<h1 id="92-反转链表"><a class="header" href="#92-反转链表">92 反转链表</a></h1>
+<p>给你单链表的头指针 head 和两个整数 left 和 right ，其中 left &lt;= right
+。请你反转从位置 left 到位置 right 的链表节点，返回 反转后的链表 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    ListNode* reverseBetween(ListNode* head, int left, int right) {
+        auto dummy=std::make_shared&lt;ListNode&gt;(0,head);
+        auto p0=dummy.get();
+        for(int i=0;i&lt;left-1;i++){
+            p0=p0-&gt;next;
+        }
+        ListNode* pre=nullptr;
+        ListNode* cur=p0-&gt;next;
+        for(int i=0;i&lt;right-left+1;i++){
+            auto next=cur-&gt;next;
+            cur-&gt;next=pre;
+            pre=cur;
+            cur=next;
+        }
+        p0-&gt;next-&gt;next=cur;
+        p0-&gt;next=pre;
+        return dummy-&gt;next;
+    }
+};
+</code></pre>
+</details>
+<h1 id="61-旋转链表"><a class="header" href="#61-旋转链表">61 旋转链表</a></h1>
+<p>给你一个链表的头节点 head ，旋转链表，将链表每个节点向右移动 k 个位置。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    ListNode* rotateRight(ListNode* head, int k) {
+        if(!head||!head-&gt;next) return head;
+        auto getTail=head;
+        int n=0;
+        while(true){
+            n++;
+            if(getTail-&gt;next==nullptr){
+                break;
+            }
+            getTail=getTail-&gt;next;
+        }
+        int add=n-k%n;
+        if(add==n) return head;
+        getTail-&gt;next=head;//拼成环，在合适位置断开
+        auto cur=head;
+        while(add--){
+            getTail=getTail-&gt;next;
+        }
+        auto ret=getTail-&gt;next;
+        getTail-&gt;next=nullptr;
+        return ret;
+    }
+};
+</code></pre>
+</details>
+<h1 id="82-删除链表中的重复元素2"><a class="header" href="#82-删除链表中的重复元素2">82 删除链表中的重复元素2</a></h1>
+<p>给定一个已排序的链表的头 head ，
+删除原始链表中所有重复数字的节点，只留下不同的数字 。返回 已排序的链表
+。</p>
+<p>注意是删除重复元素不是去重。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    ListNode* deleteDuplicates(ListNode* head) {
+        ListNode dummy{0,head};
+        auto cur=&amp;dummy;
+        while(cur-&gt;next&amp;&amp;cur-&gt;next-&gt;next){
+            int val=cur-&gt;next-&gt;val;
+            if(cur-&gt;next-&gt;next-&gt;val==val){
+                while(cur-&gt;next&amp;&amp; cur-&gt;next-&gt;val==val){
+                    cur-&gt;next=cur-&gt;next-&gt;next;
+                }
+            }else{
+                cur=cur-&gt;next;
+            }
+        }
+        return dummy.next;
+    }  
+};
+</code></pre>
+</details>
+<h1 id="86-分割链表"><a class="header" href="#86-分割链表">86 分割链表</a></h1>
+<p>给你一个链表的头节点 head 和一个特定值 x ，请你对链表进行分隔，使得所有
+小于 x 的节点都出现在 大于或等于 x 的节点之前。</p>
+<p>你应当 保留 两个分区中每个节点的初始相对位置。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    ListNode* partition(ListNode* head, int x) {
+        ListNode *small=new ListNode();
+        ListNode *large=new ListNode();
+        auto small_cur=small;
+        auto large_cur=large;
+        for(auto cur=head;cur!=nullptr;cur=cur-&gt;next){
+            if(cur-&gt;val&lt;x){
+                small_cur-&gt;next=cur;
+                small_cur=small_cur-&gt;next;   
+            }
+            else{
+             large_cur-&gt;next=cur;
+             large_cur=large_cur-&gt;next;
+            }
+        }
+        small_cur-&gt;next=large-&gt;next;
+        large_cur-&gt;next=nullptr;
+        return small-&gt;next;
+    }
+};
+</code></pre>
+</details>
+<h1 id="109-有序链表转换二叉搜索树"><a class="header" href="#109-有序链表转换二叉搜索树">109 有序链表转换二叉搜索树</a></h1>
+<p>给定一个单链表的头节点 head ，其中的元素 按升序排序
+，将其转换为平衡二叉搜索树。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    ListNode* find_mid(ListNode* left,ListNode* right){
+        auto fast=left;
+        auto slow=left;
+        while(fast!=right&amp;&amp;fast-&gt;next!=right){
+            fast=fast-&gt;next-&gt;next;
+            slow=slow-&gt;next;
+        }
+        return slow;
+    }
+    TreeNode* build_tree(ListNode* left,ListNode* right){
+        if(left==right){
+            return nullptr;
+        }
+        auto mid=find_mid(left,right);
+        auto root=new TreeNode(mid-&gt;val);
+        root-&gt;left=build_tree(left,mid);
+        root-&gt;right=build_tree(mid-&gt;next,right);
+        return root;
+    }
+    TreeNode* sortedListToBST(ListNode* head) {
+        return build_tree(head,nullptr);
+    }
+};
+</code></pre>
+</details>
+<h1 id="141-环形链表"><a class="header" href="#141-环形链表">141 环形链表</a></h1>
+<p>给你一个链表的头节点 head ，判断链表中是否有环。</p>
+<p>如果链表中有某个节点，可以通过连续跟踪 next
+指针再次到达，则链表中存在环。
+为了表示给定链表中的环，评测系统内部使用整数 pos
+来表示链表尾连接到链表中的位置（索引从 0 开始）。注意：pos
+不作为参数进行传递 。仅仅是为了标识链表的实际情况。</p>
+<p>如果链表中存在环 ，则返回 true 。 否则，返回 false 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    bool hasCycle(ListNode *head) {
+        if(head==nullptr||head-&gt;next==nullptr) return false;
+        auto fast=head-&gt;next;
+        auto slow=head;
+        while(slow!=fast){
+            if(fast==nullptr||fast-&gt;next==nullptr) return false;
+            fast=fast-&gt;next-&gt;next;
+            slow=slow-&gt;next;
+        }
+        return 1;
+    }
+};
+</code></pre>
+</details>
+<h1 id="142-环形链表-2"><a class="header" href="#142-环形链表-2">142 环形链表 2</a></h1>
+<p>给定一个链表的头节点 head ，返回链表开始入环的第一个节点。
+如果链表无环，则返回 null。</p>
+<p>如果链表中有某个节点，可以通过连续跟踪 next
+指针再次到达，则链表中存在环。
+为了表示给定链表中的环，评测系统内部使用整数 pos
+来表示链表尾连接到链表中的位置（索引从 0 开始）。如果 pos 是
+-1，则在该链表中没有环。注意：pos
+不作为参数进行传递，仅仅是为了标识链表的实际情况。</p>
+<p>不允许修改 链表。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    ListNode* detectCycle(ListNode* head) {
+        if (head == nullptr || head-&gt;next == nullptr)
+            return nullptr;
+        auto fast = head;
+        auto slow = head;
+        while (fast &amp;&amp; fast-&gt;next) {
+            slow = slow-&gt;next;
+            fast = fast-&gt;next-&gt;next;
+            if (slow == fast) {
+                while (slow != head) {
+                    slow = slow-&gt;next;
+                    head = head-&gt;next;
+                }
+                return slow;
+            }
+        }
+
+        return nullptr;
+    }
+};
+</code></pre>
+</details>
+<h1 id="143-重排链表"><a class="header" href="#143-重排链表">143 重排链表</a></h1>
+<p>给定一个单链表 L 的头节点 head ，单链表 L 表示为：</p>
+<p>L0 → L1 → ... → Ln - 1 → Ln</p>
+<p>请将其重新排列后变为：</p>
+<p>L0 → Ln → L1 → Ln - 1 → L2 → Ln - 2 → ...</p>
+<p>不能只是单纯的改变节点内部的值，而是需要实际的进行节点交换。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    void reorderList(ListNode* head) {
+        std::vector&lt;ListNode*&gt; list;
+        while(head){
+            list.push_back(head);
+            head=head-&gt;next;
+        }
+        int i=0,j=list.size()-1;
+        while(i&lt;j){
+            list[i]-&gt;next=list[j];
+            i++;
+            if(i==j){
+                break;
+            }
+            list[j]-&gt;next=list[i];
+            j--;
+        }
+        list[i]-&gt;next=nullptr;
+        head=list[0];
+    }
+};
+</code></pre>
+</details>
+<h1 id="148-排序链表"><a class="header" href="#148-排序链表">148 排序链表</a></h1>
+<p>给你链表的头结点 head ，请将其按 升序 排列并返回 排序后的链表 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    ListNode* sortList(ListNode* head) {
+        return sortList(head,nullptr);
+    }
+    ListNode* sortList(ListNode *head,ListNode *tail){
+        if(head==nullptr) return head;
+        if(head-&gt;next==tail){
+            head-&gt;next=nullptr;
+            return head;
+        }
+        ListNode *slow=head,*fast=head;
+        while (fast!=tail)
+        {
+            slow=slow-&gt;next;
+            fast=fast-&gt;next;
+            if(fast!=tail) fast=fast-&gt;next;
+            /* code */
+        }
+        auto mid=slow;
+        return merge(sortList(head,mid),sortList(mid,tail)); 
+    }
+    ListNode *merge(ListNode* head1,ListNode* head2){
+        ListNode* dummyHead=new ListNode(0);
+        auto temp=dummyHead,t1=head1,t2=head2;
+        while (t1!=nullptr&amp;&amp;t2!=nullptr)
+        {
+            if(t1-&gt;val&lt;=t2-&gt;val){
+                temp-&gt;next=t1;
+                t1=t1-&gt;next;
+            }else{
+                temp-&gt;next=t2;
+                t2=t2-&gt;next;
+            }
+            temp=temp-&gt;next;
+            /* code */
+        }
+        if(t1!=nullptr){
+            temp-&gt;next=t1;
+        }else if(t2!=nullptr){
+            temp-&gt;next=t2;
+        }
+        return dummyHead-&gt;next;
+    }
+    
+};
+</code></pre>
+</details>
+<h1 id="160-相交链表"><a class="header" href="#160-相交链表">160 相交链表</a></h1>
+<p>给你两个单链表的头节点 headA 和 headB
+，请你找出并返回两个单链表相交的起始节点。如果两个链表不存在相交节点，返回
+null 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        if(headA==nullptr||headB==nullptr) return nullptr;
+        auto t1=headA,t2=headB;
+        while(t1!=t2){
+            t1=t1==nullptr?headB:t1-&gt;next;
+            t2=t2==nullptr?headA:t2-&gt;next;
+        }
+        return t1;
+    }
+};
+</code></pre>
+</details>
+<h1 id="移除链表元素"><a class="header" href="#移除链表元素">移除链表元素</a></h1>
+<p>给你一个链表的头节点 head 和一个整数 val ，请你删除链表中所有满足
+Node.val == val 的节点，并返回 新的头节点 。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    ListNode* removeElements(ListNode* head, int val) {
+       ListNode dummy{0};
+       auto cur=&amp;dummy;
+       while(head){
+        while(head&amp;&amp;head-&gt;val==val){
+            head=head-&gt;next;
+        }
+        cur-&gt;next=head;
+        cur=cur-&gt;next;
+        if(head)
+        head=head-&gt;next;
+       }
+       return dummy.next;
+    }
+};
+</code></pre>
+</details>
+<h1 id="138-随即链表的复制"><a class="header" href="#138-随即链表的复制">138 随即链表的复制</a></h1>
+<p>给你一个长度为 n 的链表，每个节点包含一个额外增加的随机指针 random
+，该指针可以指向链表中的任何节点或空节点。</p>
+<p>构造这个链表的 深拷贝。 深拷贝应该正好由 n 个 全新
+节点组成，其中每个新节点的值都设为其对应的原节点的值。新节点的 next
+指针和 random
+指针也都应指向复制链表中的新节点，并使原链表和复制链表中的这些指针能够表示相同的链表状态。复制链表中的指针都不应指向原链表中的节点
+。</p>
+<p>例如，如果原链表中有 X 和 Y 两个节点，其中 X.random --&gt; Y
+。那么在复制链表中对应的两个节点 x 和 y ，同样有 x.random --&gt; y 。</p>
+<p>返回复制链表的头节点。</p>
+<p>用一个由 n 个节点组成的链表来表示输入/输出中的链表。每个节点用一个
+[val, random_index] 表示：</p>
+<pre><code>val：一个表示 Node.val 的整数。
+random_index：随机指针指向的节点索引（范围从 0 到 n-1）；如果不指向任何节点，则为  null 。
+</code></pre>
+<p>你的代码 只 接受原链表的头节点 head 作为传入参数。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+unordered_map&lt;Node*,Node*&gt; cache;
+    Node* copyRandomList(Node* head) {
+        if(head==nullptr) return nullptr;
+        if(!cache.count(head)){
+            Node* newHead=new Node(head-&gt;val);
+            cache[head]=newHead;
+            newHead-&gt;next=copyRandomList(head-&gt;next);
+            newHead-&gt;random=copyRandomList(head-&gt;random);
+        }    
+        return cache[head];
+    }
+};
+</code></pre>
+</details>
+<h1 id="328-奇偶链表"><a class="header" href="#328-奇偶链表">328 奇偶链表</a></h1>
+<p>给定单链表的头节点 head
+，将所有索引为奇数的节点和索引为偶数的节点分别组合在一起，然后返回重新排序的列表。</p>
+<p>第一个节点的索引被认为是 奇数 ， 第二个节点的索引为 偶数 ，以此类推。</p>
+<p>请注意，偶数组和奇数组内部的相对顺序应该与输入时保持一致。</p>
+<p>你必须在 O(1) 的额外空间复杂度和 O(n) 的时间复杂度下解决这个问题。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    ListNode* oddEvenList(ListNode* head) {
+        if(head==nullptr) return head;
+        auto evenHead=head-&gt;next;
+        auto odd=head;
+        auto even=evenHead;
+        while(even!=nullptr&amp;&amp;even-&gt;next!=nullptr){
+            odd-&gt;next=even-&gt;next;
+            odd=odd-&gt;next;
+            even-&gt;next=odd-&gt;next;
+            even=even-&gt;next;
+        }
+        odd-&gt;next=evenHead;
+        return head;
+    }
+};
+</code></pre>
+</details>
+<h1 id="725-分割链表"><a class="header" href="#725-分割链表">725 分割链表</a></h1>
+<p>给你一个头结点为 head 的单链表和一个整数 k
+，请你设计一个算法将链表分隔为 k 个连续的部分。</p>
+<p>每部分的长度应该尽可能的相等：任意两部分的长度差距不能超过 1
+。这可能会导致有些部分为 null 。</p>
+<p>这 k
+个部分应该按照在链表中出现的顺序排列，并且排在前面的部分的长度应该大于或等于排在后面的长度。</p>
+<p>返回一个由上述 k 部分组成的数组。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    vector&lt;ListNode*&gt; splitListToParts(ListNode* head, int k) {
+        int count=0;
+        auto tmp=head;
+        while(tmp&amp;&amp;++count) tmp=tmp-&gt;next;
+        int per=count/k,remainder=count%k;
+        vector&lt;ListNode*&gt; ans(k);
+        auto cur=head;
+        for(int i=0;i&lt;k&amp;&amp;cur!=nullptr;i++){
+            ans[i]=cur;
+            int parSize=per+(i&lt;remainder?1:0);
+            for(int j=1;j&lt;parSize;j++) cur=cur-&gt;next;
+            auto next=cur-&gt;next;
+            cur-&gt;next=nullptr;
+            cur=next;
+        }
+        return ans;
+    }
+};
+</code></pre>
+</details>
+<h1 id="23-合并k个升序链表"><a class="header" href="#23-合并k个升序链表">23 合并K个升序链表</a></h1>
+<p>给你一个链表数组，每个链表都已经按升序排列。</p>
+<p>请你将所有链表合并到一个升序链表中，返回合并后的链表。</p>
+<p>思路：链表上的归并排序</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    ListNode* mergeTwoList(ListNode* a, ListNode* b) {
+        ListNode dummy{0};
+        auto p0 = &amp;dummy;
+        while (a &amp;&amp; b) {
+            if (a-&gt;val &lt; b-&gt;val) {
+                p0-&gt;next = a;
+                a = a-&gt;next;
+            } else {
+                p0-&gt;next = b;
+                b = b-&gt;next;
+            }
+            p0 = p0-&gt;next;
+        }
+        if (a) {
+            p0-&gt;next = a;
+        } else {
+            p0-&gt;next = b;
+        }
+        return dummy.next;
+    }
+    ListNode* mergeKLists(vector&lt;ListNode*&gt;&amp; lists, int i, int j) {
+        if (i &gt;= j)
+            return nullptr;
+        int m = j - i;
+        if (m == 0)
+            return nullptr;
+        if (m == 1)
+            return lists[i];
+        auto a = mergeKLists(lists, i, i + m / 2);
+        auto b = mergeKLists(lists, i + m / 2, j);
+        return mergeTwoList(a, b);
+    }
+    ListNode* mergeKLists(vector&lt;ListNode*&gt;&amp; lists) {
+        return mergeKLists(lists, 0, lists.size());
+    }
+};
+</code></pre>
+</details>
+<h1 id="234-回文链表"><a class="header" href="#234-回文链表">234 回文链表</a></h1>
+<p>给你一个单链表的头节点 head ，请你判断该链表是否为 回文链表
+。如果是，返回 true ；否则，返回 false</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    bool isPalindrome(ListNode* head) {
+        vector&lt;int&gt; num;
+        while(head){
+            num.emplace_back(head-&gt;val);
+            head=head-&gt;next;
+        }
+        for(int i=0,j=num.size()-1;i&lt;j;i++,j--){
+            if(num[i]!=num[j]){
+                return false;
+            }
+        }
+        return true;
+    }
+};
+</code></pre>
+</details>
+<h1 id="19-删除链表的倒数第n个节点"><a class="header" href="#19-删除链表的倒数第n个节点">19 删除链表的倒数第n个节点</a></h1>
+<p>给你一个链表，删除链表的倒数第 n 个结点，并且返回链表的头结点。</p>
+<details><summary>Click to expand</summary>
+<pre><code class="language-cpp">class Solution {
+public:
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        ListNode dummy{0,head};
+        auto cur=head;
+        auto ptr=&amp;dummy;
+        for(int i=0;i&lt;n;i++){
+            cur=cur-&gt;next;
+        }
+        while(cur){
+            cur=cur-&gt;next;
+            ptr=ptr-&gt;next;
+        }
+        ptr-&gt;next=ptr-&gt;next-&gt;next;
+        return dummy.next;
+    }
+};
+</code></pre>
+</details>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../数据结构与算法/红黑树.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../数据结构与算法/堆.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../数据结构与算法/红黑树.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../数据结构与算法/堆.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="../ace.js"></script>
+        <script src="../editor.js"></script>
+        <script src="../mode-rust.js"></script>
+        <script src="../theme-dawn.js"></script>
+        <script src="../theme-tomorrow_night.js"></script>
+
+        <script src="../elasticlunr.min.js"></script>
+        <script src="../mark.min.js"></script>
+        <script src="../searcher.js"></script>
+
+        <script src="../clipboard.min.js"></script>
+        <script src="../highlight.js"></script>
+        <script src="../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
