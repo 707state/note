@@ -32,7 +32,9 @@
 -   [UNSOLVED 3250单调数组对的数目](#unsolved-3250-单调数组对的数目)
 -   [2464 有效分割中的最少子数组数目](#2464-有效分割中的最少子数组数目)
 -   [935 骑士拨号器](#935-骑士拨号器)
-
+-   [UNSOLVED 3287 求出数组中最大序列值](#3287-求出数组中最大序列值)
+-   [UNSOLVED 2920 收集所有金币可获得的最大积分](#unsolved-2920-收集所有金币可获得的最大积分)
+-   [2412 完成所有交易的初始最少钱数](#-2412-完成所有交易的初始最少钱数)
 # 983 最低票价 {#983-最低票价}
 
 在一个火车旅行很受欢迎的国度，你提前一年计划了一些火车旅行。在接下来的一年里，你要旅行的日子将以一个名为
@@ -653,15 +655,19 @@ public:
             for(int i=0;i<n;i++){
                 int j=l+i-1;
                 if(j>=n) break;
+                //s[i]和s[j]的关系
                 if(s[i]!=s[j]){
                     dp[i][j]=false;
                 }else{
+                    //相等时，如果长度不大于2,说明是最小回文串单位
                     if(j-i<3){
                         dp[i][j]=true;
+                    //否则就根据其内部一个单位来判断
                     }else{
                         dp[i][j]=dp[i+1][j-1];
                     }
                 }
+                //更新
                 if(dp[i][j]&&j-i+1>maxLen){
                     maxLen=j-i+1;
                     begin=i;
@@ -1533,6 +1539,213 @@ impl Solution {
         ans
     }
 }
+```
+
+</details>
+
+# UNSOLVED 3287 求出数组中最大序列值
+
+给你一个整数数组 nums 和一个 正 整数 k 。
+
+定义长度为 2 * x 的序列 seq 的 值 为：
+
+    (seq[0] OR seq[1] OR ... OR seq[x - 1]) XOR (seq[x] OR seq[x + 1] OR ... OR seq[2 * x - 1]).
+
+请你求出 nums 中所有长度为 2 * k 的子序列的 最大值 。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    int maxValue(vector<int>& nums, int k) {
+        auto findORs=[&](const vector<int>& nums,int k)->vector<unordered_set<int>>{
+            vector<unordered_set<int>> dp;
+            vector<unordered_set<int>> prev(k+1);
+            prev[0].insert(0);
+            for(int i=0;i<nums.size();i++){
+                for(int j=min(k-1,i+1);j>=0;--j){
+                    for(int x:prev[j]){
+                        prev[j+1].insert(x|nums[i]);
+                    }
+                }
+                dp.push_back(prev[k]);
+            }
+            return dp;
+        };
+        vector<unordered_set<int>> A=findORs(nums, k);
+        vector<unordered_set<int>> B=findORs(vector<int>(nums.rbegin(),nums.rend()),k);
+        int mx=0;
+        for(auto i=k-1;i<nums.size()-k;i++){
+            for(int a:A[i]){
+                for(int b: B[nums.size()-i-2]){
+                    mx=max(mx,a^b);
+                }
+            }
+        }
+        return mx;
+    }
+};
+```
+
+</details>
+
+# 2266 统计打字方案
+
+为了 打出 一个字母，Alice 需要 按 对应字母 i 次，i 是该字母在这个按键上所处的位置。
+
+    比方说，为了按出字母 's' ，Alice 需要按 '7' 四次。类似的， Alice 需要按 '5' 两次得到字母  'k' 。
+    注意，数字 '0' 和 '1' 不映射到任何字母，所以 Alice 不 使用它们。
+
+但是，由于传输的错误，Bob 没有收到 Alice 打字的字母信息，反而收到了 按键的字符串信息 。
+
+    比方说，Alice 发出的信息为 "bob" ，Bob 将收到字符串 "2266622" 。
+
+给你一个字符串 pressedKeys ，表示 Bob 收到的字符串，请你返回 Alice 总共可能发出多少种文字信息 。
+
+由于答案可能很大，将它对 109 + 7 取余 后返回。
+
+<details>
+
+本质上是 70. 爬楼梯，每次可以跳 1 到 3 或者 1 到 4 个台阶，计算跳 cnt 个台阶的方案数。其中 cnt 表示连续相同子串的长度。
+
+对于字符不为 7 或 9 的情况，定义一个类似爬楼梯的 DP，即 f[i] 表示长为 i 的只有一种字符的字符串所对应的文字信息种类数，我们可以将末尾的 1 个、2 个或 3 个字符变成一个字母，那么有转移方程
+f[i]=f[i−1]+f[i−2]+f[i−3]
+
+对于字符为 7 或 9 的情况，定义 g[i] 表示长为 i 的只有一种字符的字符串对应的文字信息种类数，可以得到类似的转移方程
+g[i]=g[i−1]+g[i−2]+g[i−3]+g[i−4]
+
+由于各个组（连续相同子串）的打字方案互相独立，根据乘法原理，把各个组的方案数相乘，即为答案。
+
+```cpp
+
+class Solution {
+    constexpr static int MOD = 1e9 + 7;
+    constexpr static int MX = 1e6 + 1;
+    std::array<long long, MX> f, g;
+
+public:
+    Solution() {
+        f[0] = g[0] = 1;
+        f[1] = g[1] = 1;
+        f[2] = g[2] = 2;
+        f[3] = g[3] = 4;
+        for (int i = 4; i < MX; i++) {
+            f[i] = (f[i - 1] + f[i - 2] + f[i - 3]) % MOD;
+            g[i] = (g[i - 1] + g[i - 2] + g[i - 3] + g[i - 4]) % MOD;
+        }
+    }
+    int countTexts(string pressedKeys) {
+        long long ans = 1;
+        int cnt = 0;
+        for (int i = 0; i < pressedKeys.length(); i++) {
+            char c = pressedKeys[i];
+            cnt++;
+            if (i == pressedKeys.length() - 1 || c != pressedKeys[i + 1]) {
+                ans = ans * (c != '7' && c != '9' ? f[cnt] : g[cnt]) % MOD;
+                cnt = 0;
+            }
+        }
+        return ans;
+    }
+};
+```
+
+</details>
+
+# UNSOLVED 2920 收集所有金币可获得的最大积分
+
+有一棵由 n 个节点组成的无向树，以 0  为根节点，节点编号从 0 到 n - 1 。给你一个长度为 n - 1 的二维 整数 数组 edges ，其中 edges[i] = [ai, bi] 表示在树上的节点 ai 和 bi 之间存在一条边。另给你一个下标从 0 开始、长度为 n 的数组 coins 和一个整数 k ，其中 coins[i] 表示节点 i 处的金币数量。
+
+从根节点开始，你必须收集所有金币。要想收集节点上的金币，必须先收集该节点的祖先节点上的金币。
+
+节点 i 上的金币可以用下述方法之一进行收集：
+
+    收集所有金币，得到共计 coins[i] - k 点积分。如果 coins[i] - k 是负数，你将会失去 abs(coins[i] - k) 点积分。
+    收集所有金币，得到共计 floor(coins[i] / 2) 点积分。如果采用这种方法，节点 i 子树中所有节点 j 的金币数 coins[j] 将会减少至 floor(coins[j] / 2) 。
+
+返回收集 所有 树节点的金币之后可以获得的最大积分。
+
+<details>
+
+floor(coins[i] / 2) 等价于 coins[i] >> 1。
+
+右移运算是可以叠加的，即 (x >> 1) >> 1 等于 x >> 2。
+
+我们可以在递归的过程中，额外记录从根节点递归到当前节点的过程中，一共执行了多少次右移，也就是子树中的每个节点值需要右移的次数。
+
+故定义 dfs(i,j) 表示递归到以 i 为根的子树，在上面已经执行了 j 次右移的前提下，我们在这棵子树中最多可以得到多少积分。
+
+用「选或不选」来思考，即是否执行右移：
+
+    不右移：答案为 (coins[i] >> j)−k 加上 i 的每个子树 ch 的 dfs(ch,j)。
+    右移：答案为 coins[i] >> (j+1) 加上 i 的每个子树 ch 的 dfs(ch,j+1)。
+
+两种情况取最大值，得
+dfs(i,j)=max{(coins[i] >> j)−k+∑ch​dfs(ch,j)(coins[i] >> (j+1))+∑ch​dfs(ch,j+1)​
+
+递归入口：dfs(0,0)。其中 i=0 表示根节点。一开始没有执行右移，所以 j=0。
+
+```cpp
+class Solution {
+public:
+    int maximumPoints(vector<vector<int>>& edges, vector<int>& coins, int k) {
+        int n = coins.size();
+        vector<vector<int>> g(n);
+        for (auto& e : edges) {
+            int x = e[0], y = e[1];
+            g[x].emplace_back(y);
+            g[y].emplace_back(x);
+        }
+        array<int, 14> init_val;
+        ranges::fill(init_val, -1);
+        vector memo(n, init_val);
+        auto dfs = [&](this auto&& dfs, int i, int j, int fa) {
+            int& res = memo[i][j];
+            if (res != -1)
+                return res;
+            int res1 = (coins[i] >> j) - k;
+            int res2 = (coins[i] >> (j + 1));
+            for (int ch : g[i]) {
+                if (ch == fa)
+                    continue;
+                res1 += dfs(ch, j, i);
+                if (j < 13) {
+                    res2 += dfs(ch, j + 1, i);
+                }
+            }
+            return res = max(res1, res2);
+        };
+        return dfs(0, 0, -1);
+    }
+};
+```
+
+</details>
+
+# 2412 完成所有交易的初始最少钱数
+
+给你一个下标从 0 开始的二维整数数组 transactions，其中transactions[i] = [costi, cashbacki] 。
+
+数组描述了若干笔交易。其中每笔交易必须以 某种顺序 恰好完成一次。在任意一个时刻，你有一定数目的钱 money ，为了完成交易 i ，money >= costi 这个条件必须为真。执行交易后，你的钱数 money 变成 money - costi + cashbacki 。
+
+请你返回 任意一种 交易顺序下，你都能完成所有交易的最少钱数 money 是多少。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    long long minimumMoney(vector<vector<int>>& transactions) {
+        long long total_lose=0;
+        int mx=0;
+        for(auto& t: transactions){
+            total_lose+=max(t[0]-t[1],0);
+            mx=max(mx,min(t[0],t[1]));
+        }
+        return total_lose+mx;
+    }
+};
 ```
 
 </details>
