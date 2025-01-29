@@ -15,6 +15,7 @@ cargo install mdbook-admonish
 
 pushd book
 eprintln "Installing mdbook-admonish (to book)"
+cd ..
 mdbook-admonish install .
 
 eprintln "Building book"
