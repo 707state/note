@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Development only. Rebuilds the book, including recompiling styles.
+
+set -euo pipefail
+
+cd "$(dirname "$0")"/..
+
+function eprintln() {
+  >&2 echo "$1"
+}
+
+eprintln "Generating styles"
+pushd compile_assets
+yarn run build
+popd
+
+./scripts/build-book

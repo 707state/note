@@ -1,0 +1,57 @@
+#!/bin/bash
+
+set -euo pipefail
+
+cd "$(dirname "$0")"/..
+
+function eprintln() {
+  >&2 echo "$1"
+}
+
+# Node things
+pushd compile_assets > /dev/null
+
+eprintln "Linting style sources"
+yarn run lint
+
+eprintln "Checking compiled styles up to date"
+COMITTED_ASSETS="$(cat ../src/bin/assets/mdbook-admonish.css)"
+yarn run build
+RECOMPILED_ASSETS="$(cat ../src/bin/assets/mdbook-admonish.css)"
+set +e
+diff -u <(printf "%s" "$COMITTED_ASSETS") <(printf "%s" "$RECOMPILED_ASSETS")
+DIFF_RESULT=$?
+set -e
+
+if [ "$DIFF_RESULT" != 0 ]; then
+  eprintln ""
+  eprintln "error: committed assets are not up to date"
+  eprintln ""
+  eprintln "error: To update committed assets, please run"
+  eprintln "cd compile_assets && yarn run build"
+  eprintln "and commit the result"
+  exit 1
+fi
+
+popd > /dev/null
+
+# Rust things
+eprintln "Formatting sources"
+cargo fmt -- --check
+
+eprintln "Linting sources"
+cargo clippy --all-targets -- -D warnings
+
+eprintln "Running tests (default)"
+cargo test
+eprintln "Running tests (no features)"
+cargo test --no-default-features
+eprintln "Running tests (cli)"
+cargo test --no-default-features --features cli
+
+eprintln "Building documentation"
+cargo doc --no-deps --lib
+
+# Integration test
+eprintln "Running mdbook integration test"
+./integration/scripts/check
