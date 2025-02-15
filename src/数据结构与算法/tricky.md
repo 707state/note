@@ -44,7 +44,7 @@ public:
     MedianFinder() {
 
     }
-    
+
     void addNum(int num) {
         if(queMin.empty()||num<=queMin.top()){
             queMin.push(num);
@@ -60,7 +60,7 @@ public:
             }
         }
     }
-    
+
     double findMedian() {
         if(queMin.size()>queMax.size()){
             return queMin.top();
@@ -632,7 +632,7 @@ public:
         int n=nums.size();
         for(int& num:nums){
             if(num<=0) num=n+1;
-        }   
+        }
         for(int i=0;i<n;i++){
             int num=abs(nums[i]);
             if(num<=n) nums[num-1]=-abs(nums[num-1]);
@@ -1145,6 +1145,101 @@ public:
                bin(stoi(date.substr(8, 2)));
     }
 };
+```
+
+</details>
+
+# 1706 球会落在何处？
+用一个大小为 m x n 的二维网格 grid 表示一个箱子。你有 n 颗球。箱子的顶部和底部都是开着的。
+
+箱子中的每个单元格都有一个对角线挡板，跨过单元格的两个角，可以将球导向左侧或者右侧。
+
+    将球导向右侧的挡板跨过左上角和右下角，在网格中用 1 表示。
+    将球导向左侧的挡板跨过右上角和左下角，在网格中用 -1 表示。
+
+在箱子每一列的顶端各放一颗球。每颗球都可能卡在箱子里或从底部掉出来。如果球恰好卡在两块挡板之间的 "V" 形图案，或者被一块挡导向到箱子的任意一侧边上，就会卡住。
+
+返回一个大小为 n 的数组 answer ，其中 answer[i] 是球放在顶部的第 i 列后从底部掉出来的那一列对应的下标，如果球卡在盒子里，则返回 -1 。
+
+<details>
+
+```cpp
+class Solution{
+public:
+    vector<int> findBall(vector<vector<int>>& grid){
+        int n=grid[0].size();
+        vector<int> ans(n);
+        for(int i=0;i<n;i++){
+            int cur_col=i;
+            for(auto& row:grid){
+                int d=row[cur_col];
+                cur_col+=d;
+                if(cur_col<0 || cur_col==n || row[cur_col]!=d){
+                    cur_col=-1;
+                    break;
+                }
+            }
+            ans[i]=cur_col;
+        }
+        return ans;
+    }
+};
+```
+
+</details>
+
+# 348 井字棋
+
+请在 n × n 的棋盘上，实现一个判定井字棋（Tic-Tac-Toe）胜负的神器，判断每一次玩家落子后，是否有胜出的玩家。
+
+在这个井字棋游戏中，会有 2 名玩家，他们将轮流在棋盘上放置自己的棋子。
+
+在实现这个判定器的过程中，你可以假设以下这些规则一定成立：
+
+      1. 每一步棋都是在棋盘内的，并且只能被放置在一个空的格子里；
+
+      2. 一旦游戏中有一名玩家胜出的话，游戏将不能再继续；
+
+      3. 一个玩家如果在同一行、同一列或者同一斜对角线上都放置了自己的棋子，那么他便获得胜利。
+
+<details>
+
+```cpp
+class TicTacToe {
+    vector<int> rows,cols;
+    int diagonal;
+    int antiDiagonal;
+public:
+    TicTacToe(int n):rows(n,0),cols(n,0),diagonal(0),antiDiagonal(0) {
+        
+    }
+    
+    int move(int row, int col, int player) {
+        int currentPlauer=(player==1)?1:-1;
+        rows[row]+=currentPlauer;
+        cols[col]+=currentPlauer;
+        if(row==col){
+            diagonal+=currentPlauer;
+        }
+        if(col==(cols.size()-row-1)){
+            antiDiagonal+=currentPlauer;
+        }
+        int n=rows.size();
+        if(abs(rows[row])==n||
+        abs(cols[col])==n||
+        abs(diagonal)==n||
+        abs(antiDiagonal)==n){
+            return player;
+        }
+        return 0;
+    }
+};
+
+/**
+ * Your TicTacToe object will be instantiated and called as such:
+ * TicTacToe* obj = new TicTacToe(n);
+ * int param_1 = obj->move(row,col,player);
+ */
 ```
 
 </details>
