@@ -1,12 +1,13 @@
--   [Mem Table Iterator](#mem-table-iterator)
-    -   [实现Memtable Iterator](#实现memtable-iterator)
-    -   [Merge Iterator](#merge-iterator)
-    -   [LSM Iterator + Fused Iterator ](#lsm-iterator--fused-iterator-lsm-iterator--fused-iterator)
-    -   [Concat Iterator](#concat-iterator)
-    -   [Merge Two Iterator](#merge-two-iterator)
--   [思考题](#思考题)
-    -   [使用Merge Iterator的时间/空间复杂度是多大？](#使用merge-iterator的时间空间复杂度是多大)
-
+<!--toc:start-->
+- [Mem Table Iterator](#mem-table-iterator)
+  - [实现Memtable Iterator](#实现memtable-iterator)
+  - [Merge Iterator](#merge-iterator)
+  - [LSM Iterator + Fused Iterator](#lsm-iterator-fused-iterator)
+  - [Concat Iterator](#concat-iterator)
+  - [Merge Two Iterator](#merge-two-iterator)
+- [思考题](#思考题)
+  - [使用Merge Iterator的时间/空间复杂度是多大？](#使用merge-iterator的时间空间复杂度是多大)
+<!--toc:end-->
 # Mem Table Iterator
 
 这一部分需要实现Scan函数，Scan函数会通过一个迭代器API按顺序返回一组键值对。
@@ -212,7 +213,7 @@ impl<I: 'static + for<'a> StorageIterator<KeyType<'a> = KeySlice<'a>>> StorageIt
 
 </details>
 
-## LSM Iterator + Fused Iterator {#lsm-iterator\--fused-iterator} {#lsm-iterator--fused-iterator-lsm-iterator--fused-iterator}
+## LSM Iterator + Fused Iterator
 
 在LSM Tree的内部，用LSM
 Iterator作为迭代器，当更多的迭代器加入到系统中是需要修改树的结构。

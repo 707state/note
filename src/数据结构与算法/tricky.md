@@ -1,25 +1,30 @@
--   [295 数据流的中文数](#295-数据流的中文数)
--   [42 接雨水](#42-接雨水)
--   [3162优质数对的总数1](#3162-优质数对的总数1)
--   [LCR 170交易逆序对的总数](#lcr-170-交易逆序对的总数)
-    -   [前置知识](#前置知识)
--   [3200三角形的最大高度](#3200-三角形的最大高度)
--   [71 简化路径](#71-简化路径)
--   [54 螺旋矩阵](#54-螺旋矩阵)
--   [164 最大间距](#164-最大间距)
--   [910 最小差值1](#910-最小差值1)
--   [31 下一个排列](#31-下一个排列)
--   [287 寻找重复数](#287-寻找重复数)
--   [41缺失的第一个正数](#41-缺失的第一个正数)
--   [3233统计不是特殊数字的数字数量](#3233-统计不是特殊数字的数字数量)
--   [1739 放置盒子](#1739-放置盒子)
--   [407 接雨水 2](#407-接雨水-2)
--   [408 有效单词缩写](#408-有效单词缩写)
--   [3208 交替数组](#3208-交替数组)
--   [UNSOLVED 3209 子数组按位与值为 K的数目](#unsolved-3209-子数组按位与值为-k-的数目)
--   [782 变为棋盘](#782-变为棋盘)
-
-# 295 数据流的中文数 {#295-数据流的中文数}
+<!--toc:start-->
+- [295 数据流的中文数](#295-数据流的中文数)
+- [42 接雨水 {#42-接雨水}](#42-接雨水-42-接雨水)
+- [3162 优质数对的总数1 {#3162-优质数对的总数1}](#3162-优质数对的总数1-3162-优质数对的总数1)
+- [LCR 170 交易逆序对的总数](#lcr-170-交易逆序对的总数)
+  - [前置知识](#前置知识)
+- [3200 三角形的最大高度 {#3200-三角形的最大高度}](#3200-三角形的最大高度-3200-三角形的最大高度)
+- [71 简化路径 {#71-简化路径}](#71-简化路径-71-简化路径)
+- [54 螺旋矩阵 {#54-螺旋矩阵}](#54-螺旋矩阵-54-螺旋矩阵)
+- [164 最大间距 {#164-最大间距}](#164-最大间距-164-最大间距)
+- [910 最小差值1 {#910-最小差值1}](#910-最小差值1-910-最小差值1)
+- [31 下一个排列 {#31-下一个排列}](#31-下一个排列-31-下一个排列)
+- [287 寻找重复数 {#287-寻找重复数}](#287-寻找重复数-287-寻找重复数)
+- [41 缺失的第一个正数 {#41-缺失的第一个正数}](#41-缺失的第一个正数-41-缺失的第一个正数)
+- [3233 统计不是特殊数字的数字数量 {#3233-统计不是特殊数字的数字数量}](#3233-统计不是特殊数字的数字数量-3233-统计不是特殊数字的数字数量)
+- [1739 放置盒子 {#1739-放置盒子}](#1739-放置盒子-1739-放置盒子)
+- [407 接雨水 2 {#407-接雨水-2}](#407-接雨水-2-407-接雨水-2)
+- [408 有效单词缩写 {#408-有效单词缩写}](#408-有效单词缩写-408-有效单词缩写)
+- [3208 交替数组 {#3208-交替数组}](#3208-交替数组-3208-交替数组)
+- [UNSOLVED 3209 子数组按位与值为 K 的数目](#unsolved-3209-子数组按位与值为-k-的数目)
+- [782 变为棋盘](#782-变为棋盘)
+- [3280 将日期转换为二进制表示](#3280-将日期转换为二进制表示)
+- [1706 球会落在何处？](#1706-球会落在何处)
+- [348 井字棋](#348-井字棋)
+- [1538 找出u隐藏数组中出现次数最多的元素](#1538-找出u隐藏数组中出现次数最多的元素)
+<!--toc:end-->
+# 295 数据流的中文数
 
 中位数是有序整数列表中的中间值。如果列表的大小是偶数，则没有中间值，中位数是两个中间值的平均值。
 
@@ -1211,9 +1216,9 @@ class TicTacToe {
     int antiDiagonal;
 public:
     TicTacToe(int n):rows(n,0),cols(n,0),diagonal(0),antiDiagonal(0) {
-        
+
     }
-    
+
     int move(int row, int col, int player) {
         int currentPlauer=(player==1)?1:-1;
         rows[row]+=currentPlauer;
@@ -1242,4 +1247,109 @@ public:
  */
 ```
 
+</details>
+
+# 1538 找出u隐藏数组中出现次数最多的元素
+
+给定一个整数数组 nums，且 nums 中的所有整数都为 0 或 1。你不能直接访问这个数组，你需要使用 API ArrayReader ，该 API 含有下列成员函数：
+
+    int query(int a, int b, int c, int d)：其中 0 <= a < b < c < d < ArrayReader.length() 。此函数查询以这四个参数为下标的元素并返回：
+        4 : 当这四个元素相同（0 或 1）时。
+        2 : 当其中三个元素的值等于 0 且一个元素等于 1 时，或当其中三个元素的值等于 1 且一个元素等于 0 时。
+        0 : 当其中两个元素等于 0 且两个元素等于 1 时。
+    int length()：返回数组的长度。
+
+你可以调用 query() 最多 2 * n 次，其中 n 等于 ArrayReader.length()。
+
+返回 nums 中出现次数最多的值的任意索引，若所有的值出现次数均相同，返回 -1。
+
+<details>
+
+```cpp
+/**
+ * // This is the ArrayReader's API interface.
+ * // You should not implement it, or speculate about its implementation
+ * class ArrayReader {
+ *   public:
+ *     // Compares 4 different elements in the array
+ *     // return 4 if the values of the 4 elements are the same (0 or 1).
+ *     // return 2 if three elements have a value equal to 0 and one element has value equal to 1 or vice versa.
+ *     // return 0 : if two element have a value equal to 0 and two elements have a value equal to 1.
+ *     int query(int a, int b, int c, int d);
+ *
+ *     // Returns the length of the array
+ *     int length();
+ * };
+ */
+
+class Solution {
+public:
+    int guessMajority(ArrayReader &reader) {
+        int cnt1=1;
+        int cnt2=0;
+        int n=reader.length();
+        int i2=-1;
+        int base=reader.query(0,1,2,4);
+        if(reader.query(1,2,3,4)==base){
+            ++cnt1;
+        }
+        else{
+            ++cnt2;
+            i2=0;
+        }
+        if(reader.query(0,2,3,4)==base){
+            ++cnt1;
+        }else{
+            ++cnt2;
+            i2=1;
+        }
+        if(reader.query(0,1,3,4)==base){
+            ++cnt1;
+        }else{
+            ++cnt2;
+            i2=2;
+        }
+        base=reader.query(0,1,2,3);
+        for(int i=4;i<n;i++){
+            if(reader.query(0,1,2,i)==base){
+                ++cnt1;
+            }else{
+                ++cnt2;
+                i2=i;
+            }
+        }
+        return cnt1!=cnt2?(cnt1>cnt2?3:i2):-1;
+    }
+};
+```
+
+</details>
+
+# 1183 矩阵中1的最大数量
+
+现在有一个尺寸为 width * height 的矩阵 M，矩阵中的每个单元格的值不是 0 就是 1。
+
+而且矩阵 M 中每个大小为 sideLength * sideLength 的 正方形 子阵中，1 的数量不得超过 maxOnes。
+
+请你设计一个算法，计算矩阵中最多可以有多少个 1。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    int maximumNumberOfOnes(int width, int height, int sideLength, int maxOnes) {
+        vector<int> all;
+        for(int i=0;i<sideLength;i++){
+            for(int j=0;j<sideLength;j++){
+                int w=width/sideLength+(width%sideLength>i?1:0);
+                int h=height/sideLength+(height%sideLength>j?1:0);
+                all.emplace_back(w*h);
+            }
+        }
+        ranges::sort(all,std::greater<>());
+        return accumulate(all.begin(),all.begin()+maxOnes,0);
+    }
+};
+```
 </details>

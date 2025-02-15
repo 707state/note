@@ -70,7 +70,7 @@ trait 本身的尺寸在编译期是未知的,所以 dyn trait
 如果 dyn trait 出现在结构体里,那么 Box`<dyn trait>` 形式就比 &dyn
 trait 形式要方便得多。
 
-# Arc\< T \> {#arc-t-}
+# Arc\< T \>
 
 Arc\< T \> 是共享所有权模型的智能指针，也就是shared_ptr。
 
