@@ -1,17 +1,9 @@
----
-title: "SSE: Server-Sent Events"
-author: "jask"
-date: "10/04/2024"
-output: pdf_document
-header-includes:
-  - \usepackage{fontspec}
-  - \usepackage{xeCJK}
-  - \setmainfont{ComicShannsMono Nerd Font}
-  - \setCJKmainfont{Noto Sans CJK SC}  # 替换为可用的字体
-  - \setCJKmonofont{Noto Sans CJK SC}
-  - \setCJKsansfont{Noto Sans CJK SC}
-  - \usepackage[top=1cm, bottom=1cm, left=1cm, right=1cm]{geometry}
----
+<!--toc:start-->
+- [原理](#原理)
+- [特点](#特点)
+  - [优点](#优点)
+<!--toc:end-->
+
 
 服务器向浏览器推送信息，除了 WebSocket，还有一种方法：Server-Sent Events（以下简称 SSE）。
 
@@ -44,6 +36,3 @@ SSE 默认支持断线重连，WebSocket 需要自己实现。
 SSE 一般只用来传送文本，二进制数据需要编码后传送，WebSocket 默认支持传送二进制数据。
 
 SSE 支持自定义发送的消息类型。
-
-
-

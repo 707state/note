@@ -23,4 +23,3 @@ with open("updated_document.org", "w", encoding="utf-8") as f:
     f.write(content)
 
 print("图片路径已替换完成，生成 updated_document.org")
-

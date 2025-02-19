@@ -1,9 +1,13 @@
--   [深度探索C++对象模型（总结篇）](#深度探索c对象模型总结篇)
--   [C++自己的对象模式](#c自己的对象模式)
--   [Data member](#data-member)
--   [Function](#function)
--   [Constructor
-    ,Destructor,copy](#constructor-destructorcopy)
+<!--toc:start-->
+- [深度探索C++对象模型（总结篇）](#深度探索c对象模型总结篇)
+- [C++自己的对象模式](#c自己的对象模式)
+- [Data member](#data-member)
+- [Function](#function)
+- [Constructor ,Destructor,copy](#constructor-destructorcopy)
+  - [default constructor](#default-constructor)
+  - [copy constructor](#copy-constructor)
+  - [destructror](#destructror)
+<!--toc:end-->
 
 
 ### 深度探索C++对象模型（总结篇）

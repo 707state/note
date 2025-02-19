@@ -8,10 +8,7 @@
 
 # Linux网络
 
-NAPI(New
-API)是Linux内核针对网络数据传输做出的一个优化措施，其目的是在高负载的大数据传输时，网络驱动收到硬件中断后，通过poll(轮询)方式将传输过来的数据包统一处理，
-在poll时通过禁止网络设备中断以减少硬件中断数量(Interrupt
-Mitigation)，从而实现更高的数据传输速率。
+NAPI(New API)是Linux内核针对网络数据传输做出的一个优化措施，其目的是在高负载的大数据传输时，网络驱动收到硬件中断后，通过poll(轮询)方式将传输过来的数据包统一处理，在poll时通过禁止网络设备中断以减少硬件中断数量(Interrupt Mitigation)，从而实现更高的数据传输速率。
 
 基于NAPI接口， 一般的网络传输(接收)有如下几个步骤：
 
@@ -48,7 +45,7 @@ Mitigation)，从而实现更高的数据传输速率。
 
 e1000_main.c
 
-``` c
+``` cpp
 static int __init e1000_init_module(void)
 {
     int ret;
@@ -139,7 +136,7 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
     /* make ready for any if (hw->...) below */
     err = e1000_init_hw_struct(adapter, hw);
     if (err)
-        goto err_sw_init;   
+        goto err_sw_init;
     ...
     // 设置网络设备对象的操作接口
     netdev->netdev_ops = &e1000_netdev_ops;
@@ -190,7 +187,7 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 
     /* reset the hardware with the new settings */
     e1000_reset(adapter);
-    
+
     // 设置网卡名字，注册网络设备对象
     strcpy(netdev->name, "eth%d");
     err = register_netdev(netdev);
@@ -234,7 +231,7 @@ static int e1000_open(struct net_device *netdev)
     err = e1000_setup_all_rx_resources(adapter);
 
     e1000_power_up_phy(adapter);
-    
+
     ...
     err = e1000_request_irq(adapter);
 
@@ -251,7 +248,7 @@ static int e1000_open(struct net_device *netdev)
     ew32(ICS, E1000_ICS_LSC);
 
     return E1000_SUCCESS;
-    
+
     ...
 
     return err;
@@ -554,7 +551,7 @@ static int napi_poll(struct napi_struct *n, struct list_head *repoll)
         work = n->poll(n, weight);
         trace_napi_poll(n);
     }
-    
+
     ...
 
     return work;
@@ -920,7 +917,7 @@ skip_taps:
             goto out;
     }
 #endif
- ... 
+ ...
 }
 ```
 
