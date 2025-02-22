@@ -40,10 +40,11 @@
 - [254 因子的组合](#254-因子的组合)
 - [276 栅栏涂色](#276-栅栏涂色)
 - [1259 不相交的握手](#1259-不相交的握手)
+- [UNSOLVED 2209 用地毯覆盖后的最少砖块数](#unsolved-2209-用地毯覆盖后的最少砖块数)
 <!--toc:end-->
 
 
-# 983 最低票价 
+# 983 最低票价
 在一个火车旅行很受欢迎的国度，你提前一年计划了一些火车旅行。在接下来的一年里，你要旅行的日子将以一个名为
 days 的数组给出。每一项是一个从 1 到 365 的整数。
 
@@ -1881,6 +1882,45 @@ class Solution {
 public:
     int numberOfWays(int numPeople) {
         return (int)(dp[numPeople/2]%MOD);
+    }
+};
+```
+
+</details>
+
+# UNSOLVED 2209 用地毯覆盖后的最少砖块数
+
+给你一个下标从 0 开始的 二进制 字符串 floor ，它表示地板上砖块的颜色。
+
+    floor[i] = '0' 表示地板上第 i 块砖块的颜色是 黑色 。
+    floor[i] = '1' 表示地板上第 i 块砖块的颜色是 白色 。
+
+同时给你 numCarpets 和 carpetLen 。你有 numCarpets 条 黑色 的地毯，每一条 黑色 的地毯长度都为 carpetLen 块砖块。请你使用这些地毯去覆盖砖块，使得未被覆盖的剩余 白色 砖块的数目 最小 。地毯相互之间可以覆盖。
+
+请你返回没被覆盖的白色砖块的 最少 数目。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    int minimumWhiteTiles(string floor, int numCarpets, int carpetLen) {
+        int m=floor.size();
+        vector memo(numCarpets+1,vector<int>(m,-1));
+        auto dfs=[&](this auto&& dfs,int i,int j)->int{
+            if(j<carpetLen*i){
+                return 0;
+            }
+            int& res=memo[i][j];
+            if(res!=-1){
+                return res;
+            }
+            if(i==0){
+                return res=dfs(i,j-1)+(floor[j]-'0');
+            }
+            return res=min(dfs(i,j-1)+(floor[j]-'0'),dfs(i-1,j-carpetLen));
+        };
+        return dfs(numCarpets,m-1);
     }
 };
 ```

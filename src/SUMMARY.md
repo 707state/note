@@ -110,6 +110,7 @@
 
   - [乐观锁](./数据库/乐观锁.md)
   - [悲观锁](./数据库/悲观锁.md)
+  - [B+树](./数据库/BPlusTree.md)
   - [时序数据库](./数据库/TimeSeriesDB.md)
   - [Mysql复习](./数据库/Mysql.md)
   - [Mysql索引](./数据库/Mysql索引.md)
@@ -141,6 +142,9 @@
   - [短字符串优化](./cpp/SSO.md)
   - [Folly 库](./cpp/Folly.md)
 
+- [编译原理](./编译原理/README.md)
+  - [LLVM相关1-Inkwell](./编译原理/inkwell.md)
+
 - [The Art Of ComputerProgramming](./TheArtOfComputerProgramming/README.md)
 
   - [基本算法](./TheArtOfComputerProgramming/基本算法.md)
@@ -150,6 +154,7 @@
   - [NAPI](./Linux/NAPI.md)
   - [binfmt](./Linux/binfmt.md)
   - [K8S](./Linux/K8S.md)
+  - [zram](./Linux/zRAM.md)
 
 - [Go](./Go/README.md)
 
