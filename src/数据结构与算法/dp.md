@@ -41,6 +41,7 @@
 - [276 栅栏涂色](#276-栅栏涂色)
 - [1259 不相交的握手](#1259-不相交的握手)
 - [UNSOLVED 2209 用地毯覆盖后的最少砖块数](#unsolved-2209-用地毯覆盖后的最少砖块数)
+- [UNSOLVED 10 正则表达式匹配](#unsolved-10-正则表达式匹配)
 <!--toc:end-->
 
 
@@ -1921,6 +1922,55 @@ public:
             return res=min(dfs(i,j-1)+(floor[j]-'0'),dfs(i-1,j-carpetLen));
         };
         return dfs(numCarpets,m-1);
+    }
+};
+```
+
+</details>
+
+# UNSOLVED 10 正则表达式匹配
+
+给你一个字符串 s 和一个字符规律 p，请你来实现一个支持 '.' 和 '*' 的正则表达式匹配。
+
+    '.' 匹配任意单个字符
+    '*' 匹配零个或多个前面的那一个元素
+
+所谓匹配，是要涵盖 整个 字符串 s 的，而不是部分字符串。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    bool isMatch(string s, string p) {
+        int m=s.size();
+        int n=p.size();
+        auto matches=[&](int i,int j){
+            if(i==0){
+                return false;
+            }
+            if(p[j-1]=='.'){
+                return true;
+            }
+            return s[i-1]==p[j-1];
+        };
+        vector<vector<int>> f(m+1,vector<int>(n+1));
+        f[0][0]=true;
+        for(int i=0;i<=m;i++){
+            for(int j=1;j<=n;j++){
+                if(p[j-1]=='*'){
+                    f[i][j]|=f[i][j-2];
+                    if(matches(i,j-1)){
+                        f[i][j]|=f[i-1][j];
+                    }
+                }else{
+                    if(matches(i,j)){
+                        f[i][j]|=f[i-1][j-1];
+                    }
+                }
+            }
+        }
+        return f[m][n];
     }
 };
 ```

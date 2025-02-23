@@ -143,6 +143,7 @@
   - [Folly 库](./cpp/Folly.md)
 
 - [编译原理](./编译原理/README.md)
+  - [文法](./编译原理/文法.md)
   - [LLVM相关1-Inkwell](./编译原理/inkwell.md)
 
 - [The Art Of ComputerProgramming](./TheArtOfComputerProgramming/README.md)
@@ -179,3 +180,4 @@
   - [Github Action](./零零碎碎/Github%20Action.md)
   - [B 树和 B+树的区别](./零零碎碎/BTreeVSBPlusTree.md)
   - [Datawhale AI 冬令营参与体验](./零零碎碎/Datawhale%20AI冬令营参与体验.md)
+  - [Mod Alternative](./零零碎碎/ModuloAlternative.md)
