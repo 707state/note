@@ -140,14 +140,12 @@
   - [内存模型](./cpp/深度探索C++对象模型（总结篇）.md)
   - [标准库容器](./cpp/标准库算法.md)
   - [短字符串优化](./cpp/SSO.md)
-  - [Folly 库](./cpp/Folly.md)
 
 - [编译原理](./编译原理/README.md)
   - [文法](./编译原理/文法.md)
   - [LLVM相关1-Inkwell](./编译原理/inkwell.md)
 
 - [The Art Of ComputerProgramming](./TheArtOfComputerProgramming/README.md)
-
   - [基本算法](./TheArtOfComputerProgramming/基本算法.md)
 
 - [Linux](./Linux/README.md)
