@@ -42,6 +42,7 @@
 - [1259 不相交的握手](#1259-不相交的握手)
 - [UNSOLVED 2209 用地毯覆盖后的最少砖块数](#unsolved-2209-用地毯覆盖后的最少砖块数)
 - [UNSOLVED 10 正则表达式匹配](#unsolved-10-正则表达式匹配)
+- [337 打家劫舍Ⅲ](#337-打家劫舍ⅲ)
 <!--toc:end-->
 
 
@@ -1971,6 +1972,37 @@ public:
             }
         }
         return f[m][n];
+    }
+};
+```
+
+</details>
+
+# 337 打家劫舍Ⅲ
+
+小偷又发现了一个新的可行窃的地区。这个地区只有一个入口，我们称之为 root 。
+
+除了 root 之外，每栋房子有且只有一个“父“房子与之相连。一番侦察之后，聪明的小偷意识到“这个地方的所有房屋的排列类似于一棵二叉树”。 如果 两个直接相连的房子在同一天晚上被打劫 ，房屋将自动报警。
+
+给定二叉树的 root 。返回 在不触动警报的情况下 ，小偷能够盗取的最高金额 。
+
+<details>
+
+```cpp
+class Solution {
+    unordered_map<TreeNode* , int> umap;
+public:
+    int rob(TreeNode* root) {
+        if(root==nullptr) return 0;
+        if(!root->left&&!root->right) return root->val;
+        if(umap[root]) return umap[root];
+        int val=root->val;
+        if(root->right) val+=rob(root->right->left)+rob(root->right->right);
+        if(root->left) val+=rob(root->left->left)+rob(root->left->right);
+
+        int val2=rob(root->left)+rob(root->right);
+        umap[root]=max(val,val2);
+        return max(val,val2);
     }
 };
 ```

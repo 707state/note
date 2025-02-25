@@ -115,6 +115,7 @@
   - [Mysql复习](./数据库/Mysql.md)
   - [Mysql索引](./数据库/Mysql索引.md)
   - [Mysql锁](./数据库/Mysql锁.md)
+  - [Mysql日志](./数据库/MySQL日志.md)
 
 - [分布式协议](./分布式协议/README.md)
 

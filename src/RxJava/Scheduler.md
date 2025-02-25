@@ -1,11 +1,13 @@
--   [使用Scheduler进行线程调度](#使用scheduler进行线程调度)
-    -   [Scheduler类型](#scheduler类型)
-        -   [computation](#computation)
-        -   [newThread](#newthread)
-        -   [io](#io)
-        -   [immediate](#immediate)
-        -   [trampoline](#trampoline)
-        -   [from](#from)
+<!--toc:start-->
+- [使用Scheduler进行线程调度](#使用scheduler进行线程调度)
+  - [Scheduler类型](#scheduler类型)
+    - [computation](#computation)
+    - [newThread](#newthread)
+    - [io](#io)
+    - [immediate](#immediate)
+    - [trampoline](#trampoline)
+    - [from](#from)
+<!--toc:end-->
 
 # 使用Scheduler进行线程调度
 
