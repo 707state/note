@@ -28,6 +28,7 @@
 - [1538 找出隐藏数组中出现次数最多的元素](#1538-找出隐藏数组中出现次数最多的元素)
 - [1183 矩阵中1的最大数量](#1183-矩阵中1的最大数量)
 - [12 整数转罗马数字](#12-整数转罗马数字)
+- [59 螺旋矩阵Ⅱ](#59-螺旋矩阵ⅱ)
 <!--toc:end-->
 
 
@@ -1380,6 +1381,44 @@ class Solution {
     }
     return res;
   }
+};
+```
+
+</details>
+
+# 59 螺旋矩阵Ⅱ
+
+给你一个正整数 n ，生成一个包含 1 到 n2 所有元素，且元素按顺时针顺序螺旋排列的 n x n 正方形矩阵 matrix 。
+
+<details>
+
+```cpp
+class Solution {
+    constexpr static array<pair<int,int>,4> dxy={
+        {
+            {0,1},
+            {1,0},
+            {0,-1},
+            {-1,0}
+        }
+    };
+public:
+    vector<vector<int>> generateMatrix(int n) {
+        vector matrix(n,vector<int>(n));
+        int x=0,y=0;
+        int directionIndex=0;
+        int curNum=1,endNum=n*n;
+        while(curNum<=endNum){
+            matrix[x][y]=curNum++;
+            auto [dx,dy]=dxy[directionIndex];
+            int nx=x+dx,ny=y+dy;
+            if(nx<0||ny<0||nx>=n||ny>=n||matrix[nx][ny]!=0){
+                directionIndex=(directionIndex+1)%4;
+            }
+            x=x+dxy[directionIndex].first,y=y+dxy[directionIndex].second;
+        }
+        return matrix;
+    }
 };
 ```
 

@@ -69,6 +69,7 @@
   - [并查集](./数据结构与算法/并查集.md)
   - [深搜](./数据结构与算法/dfs.md)
   - [广搜](./数据结构与算法/bfs.md)
+  - [状态机](./数据结构与算法/状态机.md)
   - [单调栈](./数据结构与算法/单调栈.md)
   - [单调队列](./数据结构与算法/单调队列.md)
   - [数学](./数据结构与算法/数学.md)
@@ -114,8 +115,10 @@
   - [时序数据库](./数据库/TimeSeriesDB.md)
   - [Mysql复习](./数据库/Mysql.md)
   - [Mysql索引](./数据库/Mysql索引.md)
+  - [Mysql事务](./数据库/Mysql事务.md)
   - [Mysql锁](./数据库/Mysql锁.md)
   - [Mysql日志](./数据库/MySQL日志.md)
+  - [SQL题目](./数据库/SQL题目.md)
 
 - [分布式协议](./分布式协议/README.md)
 
@@ -155,6 +158,7 @@
   - [binfmt](./Linux/binfmt.md)
   - [K8S](./Linux/K8S.md)
   - [zram](./Linux/zRAM.md)
+  - [systemtap](./Linux/systemtap.md)
 
 - [Go](./Go/README.md)
 

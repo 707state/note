@@ -1,14 +1,18 @@
--   [3235判断矩形的两个角落是否可达](#3235-判断矩形的两个角落是否可达)
--   [386 字典序排数](#386-字典序排数)
--   [486 预测赢家](#486-预测赢家)
--   [365 水壶问题](#365-水壶问题)
--   [130 被围绕的区域](#130-被围绕的区域)
--   [529 扫地雷](#529-扫地雷)
--   [2056 棋盘上有效移动组合的数目](#2056-棋盘上有效移动组合的数目)
--   [688 骑士落在棋盘上的概率](#688-骑士落在棋盘上的概率)
+<!--toc:start-->
+- [3235 判断矩形的两个角落是否可达](#3235-判断矩形的两个角落是否可达)
+- [386 字典序排数](#386-字典序排数)
+- [486 预测赢家](#486-预测赢家)
+- [365 水壶问题](#365-水壶问题)
+- [130 被围绕的区域](#130-被围绕的区域)
+- [529 UNSOLVED 扫地雷](#529-unsolved-扫地雷)
+- [2056 棋盘上有效移动组合的数目](#2056-棋盘上有效移动组合的数目)
+- [688 骑士落在棋盘上的概率](#688-骑士落在棋盘上的概率)
+- [UNSOLVED 1755 最接近目标值的子序列和](#unsolved-1755-最接近目标值的子序列和)
+- [1755 最接近目标值的子序列和](#1755-最接近目标值的子序列和)
+<!--toc:end-->
 
 
-# 3235 判断矩形的两个角落是否可达 {#3235-判断矩形的两个角落是否可达}
+# 3235 判断矩形的两个角落是否可达
 
 给你两个正整数 xCorner 和 yCorner 和一个二维整数数组 circles ，其中
 circles\[i\] = \[xi, yi, ri\] 表示一个圆心在 (xi, yi) 半径为 ri 的圆。
@@ -64,7 +68,7 @@ public:
 
 </details>
 
-# 386 字典序排数 {#386-字典序排数}
+# 386 字典序排数
 
 给你一个整数 n ，按字典序返回范围 \[1, n\] 内所有整数。
 
@@ -96,19 +100,13 @@ public:
 
 </details>
 
-# 486 预测赢家 {#486-预测赢家}
+# 486 预测赢家
 
 给你一个整数数组 nums 。玩家 1 和玩家 2 基于这个数组设计了一个游戏。
 
-玩家 1 和玩家 2 轮流进行自己的回合，玩家 1
-先手。开始时，两个玩家的初始分值都是 0
-。每一回合，玩家从数组的任意一端取一个数字（即，nums\[0\] 或
-nums\[nums.length - 1\]），取到的数字将会从数组中移除（数组长度减 1
-）。玩家选中的数字将会加到他的得分上。当数组中没有剩余数字可取时，游戏结束。
+玩家 1 和玩家 2 轮流进行自己的回合，玩家 1 先手。开始时，两个玩家的初始分值都是 0。每一回合，玩家从数组的任意一端取一个数字（即，nums\[0\] 或nums\[nums.length - 1\]），取到的数字将会从数组中移除（数组长度减 1）。玩家选中的数字将会加到他的得分上。当数组中没有剩余数字可取时，游戏结束。
 
-如果玩家 1 能成为赢家，返回 true 。如果两个玩家得分相等，同样认为玩家 1
-是游戏的赢家，也返回 true
-。你可以假设每个玩家的玩法都会使他的分数最大化。
+如果玩家 1 能成为赢家，返回 true 。如果两个玩家得分相等，同样认为玩家 1 是游戏的赢家，也返回 true。你可以假设每个玩家的玩法都会使他的分数最大化。
 
 <details><summary>Click to expand</summary>
 
@@ -131,7 +129,7 @@ public:
 
 </details>
 
-# 365 水壶问题 {#365-水壶问题}
+# 365 水壶问题
 
 有两个水壶，容量分别为 x 和 y
 升。水的供应是无限的。确定是否有可能使用这两个壶准确得到 target 升。
@@ -179,7 +177,7 @@ public:
 
 </details>
 
-# 130 被围绕的区域 {#130-被围绕的区域}
+# 130 被围绕的区域
 
 给你一个 m x n 的矩阵 board ，由若干字符 \'X\' 和 \'O\' 组成，捕获 所有
 被围绕的区域：
@@ -208,7 +206,7 @@ public:
         dfs(dfs,x-1,y);
         dfs(dfs,x,y-1);
         dfs(dfs,x,y+1);
-       }; 
+       };
        for(int i=0;i<n;i++){
         dfs(dfs,i,0);
         dfs(dfs,i,m-1);
@@ -232,7 +230,7 @@ public:
 
 </details>
 
-# 529 UNSOLVED 扫地雷 {#529-扫地雷}
+# 529 UNSOLVED 扫地雷
 
 给你一个大小为 m x n 二维字符矩阵 board ，表示扫雷游戏的盘面，其中：
 
@@ -298,7 +296,7 @@ public:
 
 </details>
 
-# 2056 棋盘上有效移动组合的数目 {#2056-棋盘上有效移动组合的数目}
+# 2056 棋盘上有效移动组合的数目
 
 有一个 8 x 8 的棋盘，它包含 n 个棋子（棋子包括车，后和象三种）。给你一个长度为 n 的字符串数组 pieces ，其中 pieces[i] 表示第 i 个棋子的类型（车，后或象）。除此以外，还给你一个长度为 n 的二维整数数组 positions ，其中 positions[i] = [ri, ci] 表示第 i 个棋子现在在棋盘上的位置为 (ri, ci) ，棋盘下标从 1 开始。
 
@@ -401,8 +399,8 @@ public:
 ```
 
 </details>
- 
-# 688 骑士落在棋盘上的概率 (#688-骑士落在棋盘上的概率)
+
+# 688 骑士落在棋盘上的概率
 
 在一个 n x n 的国际象棋棋盘上，一个骑士从单元格 (row, column) 开始，并尝试进行 k 次移动。行和列是 从 0 开始 的，所以左上单元格是 (0,0) ，右下单元格是 (n - 1, n - 1) 。
 
@@ -511,5 +509,113 @@ impl Solution {
 ```
 
 </details>
- 
- 
+
+# UNSOLVED 1755 最接近目标值的子序列和
+
+给你一个整数数组 nums 和一个目标值 goal 。
+
+你需要从 nums 中选出一个子序列，使子序列元素总和最接近 goal 。也就是说，如果子序列元素和为 sum ，你需要 最小化绝对差 abs(sum - goal) 。
+
+返回 abs(sum - goal) 可能的 最小值 。
+
+注意，数组的子序列是通过移除原始数组中的某些元素（可能全部或无）而形成的数组。
+
+<details>
+
+```cpp
+class Solution {
+    constexpr static int N=2e6+10;
+    array<int,N> q;
+    int n,cnt,goal,res;
+    void dfs1(vector<int>& nums,int idx,int sum){
+        if(idx==(n+1)/2){
+            q[cnt++]=sum;
+            return;
+        }
+        dfs1(nums,idx+1,sum);
+        dfs1(nums,idx+1,sum+nums[idx]);
+    }
+    void dfs2(vector<int>& nums,int idx,int sum){
+        if(idx==n){
+            int l=0,r=cnt-1;
+            while(l<r){
+                int mid=(l+r+1)>>1;
+                if(q[mid]+sum<=goal) l=mid;
+                else r=mid-1;
+            }
+            res=min(res,abs(q[r]+sum-goal));
+            if(r+1<cnt){
+                res=min(res,abs(q[r+1]+sum-goal));
+            }
+            return;
+        }
+        dfs2(nums,idx+1,sum);
+        dfs2(nums,idx+1,sum+nums[idx]);
+    }
+public:
+    int minAbsDifference(vector<int>& nums, int goal_) {
+        n=nums.size(),cnt=0,goal=goal_,res=INT_MAX;
+        dfs1(nums,0,0);
+        ranges::sort(q.begin(),q.begin()+cnt);
+        dfs2(nums,(n+1)/2,0);
+        return res;
+    }
+};
+```
+
+</details>
+
+# 1755 最接近目标值的子序列和
+
+给你一个整数数组 nums 和一个目标值 goal 。
+
+你需要从 nums 中选出一个子序列，使子序列元素总和最接近 goal 。也就是说，如果子序列元素和为 sum ，你需要 最小化绝对差 abs(sum - goal) 。
+
+返回 abs(sum - goal) 可能的 最小值 。
+
+注意，数组的子序列是通过移除原始数组中的某些元素（可能全部或无）而形成的数组。
+
+<details>
+
+```cpp
+class Solution {
+    constexpr static int N=2e6+10;
+    array<int,N> q;
+    int n,cnt,goal,res;
+    void dfs1(vector<int>& nums,int idx,int sum){
+        if(idx==(n+1)/2){
+            q[cnt++]=sum;
+            return;
+        }
+        dfs1(nums,idx+1,sum);
+        dfs1(nums,idx+1,sum+nums[idx]);
+    }
+    void dfs2(vector<int>& nums,int idx,int sum){
+        if(idx==n){
+            int l=0,r=cnt-1;
+            while(l<r){
+                int mid=(l+r+1)>>1;
+                if(q[mid]+sum<=goal) l=mid;
+                else r=mid-1;
+            }
+            res=min(res,abs(q[r]+sum-goal));
+            if(r+1<cnt){
+                res=min(res,abs(q[r+1]+sum-goal));
+            }
+            return;
+        }
+        dfs2(nums,idx+1,sum);
+        dfs2(nums,idx+1,sum+nums[idx]);
+    }
+public:
+    int minAbsDifference(vector<int>& nums, int goal_) {
+        n=nums.size(),cnt=0,goal=goal_,res=INT_MAX;
+        dfs1(nums,0,0);
+        ranges::sort(q.begin(),q.begin()+cnt);
+        dfs2(nums,(n+1)/2,0);
+        return res;
+    }
+};
+```
+
+</details>

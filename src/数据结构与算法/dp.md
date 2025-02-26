@@ -43,6 +43,8 @@
 - [UNSOLVED 2209 用地毯覆盖后的最少砖块数](#unsolved-2209-用地毯覆盖后的最少砖块数)
 - [UNSOLVED 10 正则表达式匹配](#unsolved-10-正则表达式匹配)
 - [337 打家劫舍Ⅲ](#337-打家劫舍ⅲ)
+- [494 目标和](#494-目标和)
+- [1035 不相交的线](#1035-不相交的线)
 <!--toc:end-->
 
 
@@ -2004,6 +2006,91 @@ public:
         umap[root]=max(val,val2);
         return max(val,val2);
     }
+};
+```
+
+</details>
+
+# 494 目标和
+
+给你一个非负整数数组 nums 和一个整数 target 。
+
+向数组中的每个整数前添加 '+' 或 '-' ，然后串联起所有整数，可以构造一个 表达式 ：
+
+    例如，nums = [2, 1] ，可以在 2 之前添加 '+' ，在 1 之前添加 '-' ，然后串联起来得到表达式 "+2-1" 。
+
+返回可以通过上述方法构造的、运算结果等于 target 的不同 表达式 的数目。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    int findTargetSumWays(vector<int>& nums, int target) {
+        int s= reduce(nums.begin(),nums.end())-abs(target);
+        if(s<0 || s%2){
+            return 0;
+        }
+        int m=s/2;
+        vector<int> dp(m+1);
+        dp[0]=1;
+        for(int i=0;i<nums.size();i++){
+            for(int c=m;c>=nums[i];c--){
+                dp[c]+=dp[c-nums[i]];
+            }
+        }
+        return dp[m];
+    }
+};
+```
+
+</details>
+
+# 1035 不相交的线
+
+在两条独立的水平线上按给定的顺序写下 nums1 和 nums2 中的整数。
+
+现在，可以绘制一些连接两个数字 nums1[i] 和 nums2[j] 的直线，这些直线需要同时满足：
+
+     nums1[i] == nums2[j]
+    且绘制的直线不与任何其他连线（非水平线）相交。
+
+请注意，连线即使在端点也不能相交：每个数字只能属于一条连线。
+
+以这种方法绘制线条，并返回可以绘制的最大连线数。
+
+<details>
+
+思路：
+
+为方便描述，下文把 nums1​ 记作 s，把 nums2​ 记作 t。
+
+看示例 1，s=[1,4,2], t=[1,2,4]，我们要计算这两个数组的最大连线数。
+
+用「选或不选」分类讨论：
+
+    不选 s[2]=2，那么需要解决的问题为：s=[1,4], t=[1,2,4] 的最大连线数。
+    不选 t[2]=4，那么需要解决的问题为：s=[1,4,2], t=[1,2] 的最大连线数。
+
+除此以外，对于 s=[1,4], t=[1,2,4]，由于 s[1]=t[2]=4，我们可以都选，也就是在两个数字之间连线，问题变成：s=[1], t=[1,2] 的最大连线数。
+
+这些问题都是和原问题相似的、规模更小的子问题，可以用递归解决。
+
+```cpp
+class Solution {
+ public:
+  int maxUncrossedLines(vector<int>& nums1, vector<int>& nums2) {
+    int m = nums1.size(), n = nums2.size();
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+    for (int i = 1; i <= m; i++) {
+      for (int j = 1; j <= n; j++) {
+        dp[i][j] = (nums1[i - 1] == nums2[j - 1])
+                       ? (dp[i - 1][j - 1] + 1)
+                       : (std::max(dp[i - 1][j], dp[i][j - 1]));
+      }
+    }
+    return dp[m][n];
+  }
 };
 ```
 
