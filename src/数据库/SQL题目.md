@@ -4,6 +4,11 @@
 - [197 上升的温度](#197-上升的温度)
 - [1661 每台机器的平均运行时间](#1661-每台机器的平均运行时间)
 - [1280 学生们参加各科测试的次数](#1280-学生们参加各科测试的次数)
+- [570 至少有5名直接下属的经理](#570-至少有5名直接下属的经理)
+- [1934 确认率](#1934-确认率)
+- [1251 平均售价](#1251-平均售价)
+- [1211 查询结果的质量和占比](#1211-查询结果的质量和占比)
+- [1193 每月交易Ⅰ](#1193-每月交易ⅰ)
 <!--toc:end-->
 
 # 1581 进店但是从未进行过交易的顾客
@@ -269,6 +274,181 @@ from Signups as s
 left join Confirmations as c
 on s.user_id = c.user_id
 group by s.user_id;
+```
+
+</details>
+
+# 1251 平均售价
+
+表：Prices
+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| product_id    | int     |
+| start_date    | date    |
+| end_date      | date    |
+| price         | int     |
++---------------+---------+
+(product_id，start_date，end_date) 是 prices 表的主键（具有唯一值的列的组合）。
+prices 表的每一行表示的是某个产品在一段时期内的价格。
+每个产品的对应时间段是不会重叠的，这也意味着同一个产品的价格时段不会出现交叉。
+
+
+
+表：UnitsSold
+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| product_id    | int     |
+| purchase_date | date    |
+| units         | int     |
++---------------+---------+
+该表可能包含重复数据。
+该表的每一行表示的是每种产品的出售日期，单位和产品 id。
+
+
+
+编写解决方案以查找每种产品的平均售价。average_price 应该 四舍五入到小数点后两位。如果产品没有任何售出，则假设其平均售价为 0。
+
+返回结果表 无顺序要求 。
+
+<details>
+
+```sql
+select product_id, IFNULL(Round(SUM(sales)/SUM(units),2),0) as average_price
+from (
+  select Prices.product_id as product_id,
+  Prices.price * UnitsSold.units as sales,
+  UnitsSold.units as units
+  from Prices
+  left join UnitsSold on Prices.product_id = UnitsSold.product_id
+  and (UnitsSold.purchase_date between Prices.start_date and Prices.end_date)
+) T
+group by product_id;
+```
+
+</details>
+
+# 1211 查询结果的质量和占比
+
+Queries 表：
+
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| query_name  | varchar |
+| result      | varchar |
+| position    | int     |
+| rating      | int     |
++-------------+---------+
+此表可能有重复的行。
+此表包含了一些从数据库中收集的查询信息。
+“位置”（position）列的值为 1 到 500 。
+“评分”（rating）列的值为 1 到 5 。评分小于 3 的查询被定义为质量很差的查询。
+
+
+
+将查询结果的质量 quality 定义为：
+
+    各查询结果的评分与其位置之间比率的平均值。
+
+将劣质查询百分比 poor_query_percentage 定义为：
+
+    评分小于 3 的查询结果占全部查询结果的百分比。
+
+编写解决方案，找出每次的 query_name 、 quality 和 poor_query_percentage。
+
+quality 和 poor_query_percentage 都应 四舍五入到小数点后两位 。
+
+以 任意顺序 返回结果表。
+
+<details>
+
+```sql
+select query_name, ROUND(AVG(rating/position),2) quality,
+ROUND(SUM(IF(rating < 3,1,0))*100/COUNT(*),2) poor_query_percentage
+from Queries
+where query_name IS NOT NULL
+group by query_name;
+```
+
+</details>
+
+# 1193 每月交易Ⅰ
+
+表：Transactions
+
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| id            | int     |
+| country       | varchar |
+| state         | enum    |
+| amount        | int     |
+| trans_date    | date    |
++---------------+---------+
+id 是这个表的主键。
+该表包含有关传入事务的信息。
+state 列类型为 ["approved", "declined"] 之一。
+
+
+
+编写一个 sql 查询来查找每个月和每个国家/地区的事务数及其总金额、已批准的事务数及其总金额。
+
+以 任意顺序 返回结果表。
+
+<details>
+
+这道题目的知识点在于DATE_FORMAT函数。
+
+```sql
+select DATE_FORMAT(trans_date,'%Y-%m') as month,
+country,
+COUNT(*) as trans_count,
+COUNT(IF(state='approved',1,NULL)) as approved_count,
+SUM(amount) AS trans_total_amount,
+SUM(IF(state='approved',amount,0)) AS approved_total_amount
+from Transactions
+group by month,country;
+```
+
+</details>
+
+# 550 游戏玩法分析Ⅱ
+
+Table: Activity
+
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| player_id    | int     |
+| device_id    | int     |
+| event_date   | date    |
+| games_played | int     |
++--------------+---------+
+（player_id，event_date）是此表的主键（具有唯一值的列的组合）。
+这张表显示了某些游戏的玩家的活动情况。
+每一行是一个玩家的记录，他在某一天使用某个设备注销之前登录并玩了很多游戏（可能是 0）。
+
+
+
+编写解决方案，报告在首次登录的第二天再次登录的玩家的 比率，四舍五入到小数点后两位。换句话说，你需要计算从首次登录日期开始至少连续两天登录的玩家的数量，然后除以玩家总数。
+
+<details>
+
+AVG非常灵活，可以对bool值进行计算。
+
+```sql
+select ROUND(avg(a.event_date is not NULL),2) fraction
+from (
+    select player_id,min(event_date) as login
+    from Activity
+    group by player_id
+) p
+left join Activity a
+on p.player_id=a.player_id and datediff(a.event_date,p.login)=1;
 ```
 
 </details>
