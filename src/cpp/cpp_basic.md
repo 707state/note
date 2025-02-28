@@ -617,6 +617,26 @@ inline 要起作用（指内联）,必须要与函数定义放在一起，而不
 3. Cache Miss
 4. 分支预测失败
 
+## 构造函数默认使用浅拷贝
+
+如下代码：
+```cpp
+struct Test {
+  int* i;
+};
+
+int main() {
+  Test t1;
+  t1.i = new int(1);
+  Test t2 = t1;
+  *t2.i = 3;
+
+  std::cout << *t1.i; // 3
+}
+```
+
+如果是被定义好的构造函数，就要看构造函数使用的是哪一个。
+
 # 杂项
 
 ## forward declaration
@@ -635,11 +655,9 @@ xxx
 }
 ```
 
-这是历史问题，c/c++编译器被设计为 single-pass,
-当编译器需要链接符号时必须知道这个符号链接的对象是谁。
+这是历史问题，c/c++编译器被设计为 single-pass,当编译器需要链接符号时必须知道这个符号链接的对象是谁。
 
-对于 C#, java 这样的 two pass
-compiler 来说，就不需要前向声明（但是仍然有两个包互相依赖的问题）
+对于 C#, java 这样的 two pass compiler 来说，就不需要前向声明（但是仍然有两个包互相依赖的问题）
 
 ## std::swap VS xor
 

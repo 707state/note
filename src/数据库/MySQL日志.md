@@ -1,5 +1,3 @@
-# MySQL日志
-
 <!--toc:start-->
 - [MySQL日志](#mysql日志)
   - [undo log](#undo-log)
@@ -7,6 +5,8 @@
   - [redo log](#redo-log)
   - [binlog](#binlog)
 <!--toc:end-->
+
+# MySQL日志
 
 ## undo log
 

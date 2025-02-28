@@ -78,13 +78,14 @@
   - [随机数算法](./数据结构与算法/随机数算法.md)
   - [布隆过滤器](./数据结构与算法/BloomFilter.md)
 
-- [RxJava](./RxJava/README.md)
-  - [基本操作符](./RxJava/介绍.md)
-  - [Scheduler](./RxJava/Scheduler.md)
-  - [踩坑](./RxJava/踩坑.md)
-  - [Spring 相关](./RxJava/Spring相关.md)
-  - [Java 一些知识](./RxJava/Java一些知识.md)
-  - [线程池](./RxJava/ThreadPool.md)
+- [Java](./Java/README.md)
+  - [基本操作符](./Java/介绍.md)
+  - [Scheduler](./Java/Scheduler.md)
+  - [踩坑](./Java/踩坑.md)
+  - [Spring 相关](./Java/Spring相关.md)
+  - [Java 一些知识](./Java/Java一些知识.md)
+  - [线程池](./Java/ThreadPool.md)
+  - [线程](./Java/线程.md)
 
 - [ArceOS](./ArceOS/README.md)
   - [系统调用](./ArceOS/系统调用.md)
@@ -137,7 +138,7 @@
   - [协程](./操作系统/协程.md)
   - [内存分配与内存碎片](./操作系统/内存碎片.md)
   - [Unix环境编程](./操作系统/Unix高级编程.md)
-
+  - [进程调度](./操作系统/进程调度算法.md)
 - [cpp](./cpp/README.md)
 
   - [基本知识](./cpp/cpp_basic.md)
