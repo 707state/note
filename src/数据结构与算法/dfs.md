@@ -619,3 +619,53 @@ public:
 ```
 
 </details>
+
+# 980 不同路径Ⅲ
+
+在二维网格 grid 上，有 4 种类型的方格：
+
+    1 表示起始方格。且只有一个起始方格。
+    2 表示结束方格，且只有一个结束方格。
+    0 表示我们可以走过的空方格。
+    -1 表示我们无法跨越的障碍。
+
+返回在四个方向（上、下、左、右）上行走时，从起始方格到结束方格的不同路径的数目。
+
+每一个无障碍方格都要通过一次，但是一条路径中不能重复通过同一个方格。
+
+<details>
+
+```cpp
+class Solution {
+    int dfs(int x,int y,int left,vector<vector<int>>& grid){
+        if(x<0||y<0||x>=grid.size()||y>=grid[x].size()||grid[x][y]<0){
+            return 0;
+        }
+        if(grid[x][y]==2){
+            return left==0;
+        }
+        grid[x][y]=-1;
+        int ans=dfs(x-1,y,left-1,grid)+dfs(x,y-1,left-1,grid)+dfs(x+1,y,left-1,grid)+dfs(x,y+1,left-1,grid);
+        grid[x][y]=0;
+        return ans;
+    }
+public:
+    int uniquePathsIII(vector<vector<int>>& grid) {
+        int left=0;
+        int sx,sy;
+        for(int i=0;i<grid.size();i++){
+            for(int j=0;j<grid[0].size();j++){
+                if(grid[i][j]==0){
+                    left++;
+                }else if(grid[i][j]==1){
+                    sx=i;
+                    sy=j;
+                }
+            }
+        }
+        return dfs(sx,sy,left+1,grid);
+    }
+};
+```
+
+</details>

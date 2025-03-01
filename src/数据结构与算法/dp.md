@@ -45,6 +45,9 @@
 - [337 打家劫舍Ⅲ](#337-打家劫舍ⅲ)
 - [494 目标和](#494-目标和)
 - [1035 不相交的线](#1035-不相交的线)
+- [1639 通过给定词典构造目标字符串的方案数](#1639-通过给定词典构造目标字符串的方案数)
+- [UNSOLVED 741 摘樱桃](#unsolved-741-摘樱桃)
+- [UNSOLVED LCP34 二叉树染色](#unsolved-lcp34-二叉树染色)
 <!--toc:end-->
 
 
@@ -2091,6 +2094,156 @@ class Solution {
     }
     return dp[m][n];
   }
+};
+```
+
+</details>
+
+# 1639 通过给定词典构造目标字符串的方案数
+
+给你一个字符串列表 words 和一个目标字符串 target 。words 中所有字符串都 长度相同  。
+
+你的目标是使用给定的 words 字符串列表按照下述规则构造 target ：
+
+    从左到右依次构造 target 的每一个字符。
+    为了得到 target 第 i 个字符（下标从 0 开始），当 target[i] = words[j][k] 时，你可以使用 words 列表中第 j 个字符串的第 k 个字符。
+    一旦你使用了 words 中第 j 个字符串的第 k 个字符，你不能再使用 words 字符串列表中任意单词的第 x 个字符（x <= k）。也就是说，所有单词下标小于等于 k 的字符都不能再被使用。
+    请你重复此过程直到得到目标字符串 target 。
+
+请注意， 在构造目标字符串的过程中，你可以按照上述规定使用 words 列表中 同一个字符串 的 多个字符 。
+
+请你返回使用 words 构造 target 的方案数。由于答案可能会很大，请对 109 + 7 取余 后返回。
+
+<details>
+
+```cpp
+class Solution {
+    constexpr static int MOD=1e9+7;
+public:
+    int numWays(vector<string>& words, string target) {
+        int n=words[0].size();
+        int m=target.size();
+        vector dp(n+1,vector<int>(m+1));
+        vector<array<int,26>> cnt(n);
+        // 统计i位置的字符出现次数
+        for(int i=0;i<n;++i){
+            for(auto& word: words){
+                cnt[i][word[i]-'a']++;
+            }
+        }
+        for(int i=0;i<=n;i++){
+            dp[i][0]=1;
+        }
+        for(int i=0;i<n;i++){
+            for(int j=0;j<m;j++){
+                dp[i+1][j+1]=(int)(((long)cnt[i][target[j]-'a']*dp[i][j]+dp[i][j+1])%MOD);
+            }
+        }
+        return dp[n][m];
+    }
+};
+```
+
+</details>
+
+# UNSOLVED 741 摘樱桃
+
+给你一个 n x n 的网格 grid ，代表一块樱桃地，每个格子由以下三种数字的一种来表示：
+
+    0 表示这个格子是空的，所以你可以穿过它。
+    1 表示这个格子里装着一个樱桃，你可以摘到樱桃然后穿过它。
+    -1 表示这个格子里有荆棘，挡着你的路。
+
+请你统计并返回：在遵守下列规则的情况下，能摘到的最多樱桃数：
+
+    从位置 (0, 0) 出发，最后到达 (n - 1, n - 1) ，只能向下或向右走，并且只能穿越有效的格子（即只可以穿过值为 0 或者 1 的格子）；
+    当到达 (n - 1, n - 1) 后，你要继续走，直到返回到 (0, 0) ，只能向上或向左走，并且只能穿越有效的格子；
+    当你经过一个格子且这个格子包含一个樱桃时，你将摘到樱桃并且这个格子会变成空的（值变为 0 ）；
+    如果在 (0, 0) 和 (n - 1, n - 1) 之间不存在一条可经过的路径，则无法摘到任何一个樱桃。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    int cherryPickup(vector<vector<int>>& grid) {
+        int n=grid.size();
+        // -1 表示没有计算过
+        vector memo(n*2-1,vector(n,vector<int>(n,-1)));
+        auto dfs=[&](this auto&& dfs,int t,int j,int k)->int{
+            // 不能出界，不能访问-1格子
+            if(j<0 || k<0 || t<j || t<k || grid[t-j][j]<0 || grid[t-k][k]<0){
+                return INT_MIN;
+            }
+            //此时j=k=0
+            if(t==0){
+                return grid[0][0];
+            }
+            int& res=memo[t][j][k];
+            if(res!=-1){
+                return res;
+            }
+            return res=max({dfs(t-1,j,k),dfs(t-1,j,k-1),dfs(t-1,j-1,k),dfs(t-1,j-1,k-1)})+
+                    grid[t-j][j]+(k!=j?grid[t-k][k]:0);
+        };
+        return max(dfs(n*2-2,n-1,n-1),0);
+    }
+};
+```
+
+</details>
+
+# UNSOLVED LCP34 二叉树染色
+
+小扣有一个根结点为 root 的二叉树模型，初始所有结点均为白色，可以用蓝色染料给模型结点染色，模型的每个结点有一个 val 价值。小扣出于美观考虑，希望最后二叉树上每个蓝色相连部分的结点个数不能超过 k 个，求所有染成蓝色的结点价值总和最大是多少？
+
+<details>
+
+树形DP
+
+定义一维数组 dp[k+1]：
+dp[i] 表示 每个节点的状态，i 表示染了几个节点，i=0 表示没有染色，i>0 表示染色 。
+
+定义状态转移方程：
+当前节点为root，dp逻辑为（详见注释）：
+
+    root不染色，那么只要返回 dp[0]，其值为左、右子树染色或不染色的最大值之和
+
+    root染色，那么就分左子树染色 j 个，右子树染色 i - 1 - j 个时，加上 root.val 的和。
+
+    注意：j 需要从 0 取到 i - 1，也就是包含 l[0] 和 r[0]。因为 l[0] 也包含左子树染了j个节点的情况，因为左子树的下一层子节点可能染了j个节点。
+
+dp[i] = Math.max(dp[i], root.val + l[j] + r[i - 1 - j]);
+
+```cpp
+class Solution {
+public:
+    int maxValue(TreeNode* root, int k) {
+        int maxnum=INT_MIN;
+        return ranges::max(dfs(root,k));
+    }
+    vector<int> dfs(TreeNode *root,int k){
+        if(!root){
+            return vector<int>(k+1,0);
+        }
+        auto left=dfs(root->left,k);
+        auto right=dfs(root->right,k);
+        auto dp=vector<int>(k+1,0);
+        int maxLeft=-1;
+        int maxRight=-1;
+        for(int i=0;i<=k;i++){
+            maxLeft=max(maxLeft,left[i]);
+            maxRight=max(maxRight,right[i]);
+        }
+        dp[0]=maxLeft+maxRight;
+        dp[1]=root->val+left[0]+right[0];
+        for(int i=2;i<=k;i++){
+            for(int j=0;j<i;j++){
+                dp[i]=max(dp[i],left[j]+right[i-j-1]+root->val);
+            }
+        }
+        return dp;
+    }
 };
 ```
 
