@@ -86,6 +86,8 @@
   - [Java 一些知识](./Java/Java一些知识.md)
   - [线程池](./Java/ThreadPool.md)
   - [线程](./Java/线程.md)
+  - [并发](./Java/并发.md)
+  - [设计模式](./Java/设计模式.md)
 
 - [ArceOS](./ArceOS/README.md)
   - [系统调用](./ArceOS/系统调用.md)
