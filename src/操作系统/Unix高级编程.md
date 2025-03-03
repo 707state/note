@@ -43,9 +43,9 @@ int syscall(SYS_io_getevents, aio_context_t ctx_id,
 可以看出POSIX AIO并不是真正意义上的异步，而是多线程+阻塞IO。
 
 好处是：
-1.兼容所有的文件系统。
-2.跨平台(glibc是跨平台的)
-3.可以和开启缓冲的文件使用(no O_DIRECT)
+1. 兼容所有的文件系统。
+2. 跨平台(glibc是跨平台的)
+3. 可以和开启缓冲的文件使用(no O_DIRECT)
 
 > The kernel AIO (i.e. io_submit() et.al.) is kernel support for asynchronous I/O operations, where the io requests are actually queued up in the kernel, sorted by whatever disk scheduler you have, presumably some of them are forwarded (in somewhat optimal order one would hope) to the actual disk as asynchronous operations (using TCQ or NCQ).
 
@@ -68,6 +68,7 @@ Linux AIO是Kernel AIO。
 long __builtin_expect(long exp, long c);
 ```
 你期望 exp 表达式的值等于常量 c, 看 c 的值, 如果 c 的值为0(即期望的函数返回值), 那么 执行 if 分支的的可能性小, 否则执行 else 分支的可能性小(函数的返回值等于第一个参数 exp)。
+
 GCC在编译过程中，会将可能性更大的代码紧跟着前面的代码，从而减少指令跳转带来的性能上的下降, 达到优化程序的目的。
 
 返回值为第一个参数exp。

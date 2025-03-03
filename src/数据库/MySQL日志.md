@@ -4,6 +4,10 @@
     - [BufferPool的作用？](#bufferpool的作用)
   - [redo log](#redo-log)
   - [binlog](#binlog)
+  - [bin log和redo log的区别？](#bin-log和redo-log的区别)
+  - [两阶段提交](#两阶段提交)
+    - [两阶段提交的问题？](#两阶段提交的问题)
+  - [组提交机制](#组提交机制)
 <!--toc:end-->
 
 # MySQL日志

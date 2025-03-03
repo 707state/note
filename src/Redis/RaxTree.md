@@ -1,3 +1,12 @@
+<!--toc:start-->
+- [什么是Radix Tree?](#什么是radix-tree)
+- [实现](#实现)
+  - [raxLowWalk](#raxlowwalk)
+  - [raxGenericInsert的逻辑](#raxgenericinsert的逻辑)
+    - [返回值不等于len并且是一个压缩节点](#返回值不等于len并且是一个压缩节点)
+    - [是一个压缩节点并且返回值等于len](#是一个压缩节点并且返回值等于len)
+<!--toc:end-->
+
 # 什么是Radix Tree?
 我们看到字典树，即一个Trie Tree，但是字典树针对具有相同前缀的结构并没有进行压缩，会导致树的深度非常深，因此在Trie Tree的基础上，对于公共前缀进行了优化，产生了压缩字典树/Radix Tree。
 
@@ -81,3 +90,4 @@ typedef struct rax {
 之后就继续插入。
 
 ### 是一个压缩节点并且返回值等于len
+首先保存下一个节点，然后创建后缀节点，分割当前的压缩节点。
