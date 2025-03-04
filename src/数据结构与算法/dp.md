@@ -1,13 +1,14 @@
 <!--toc:start-->
 - [983 最低票价](#983-最低票价)
 - [组合总和 4](#组合总和-4)
-- [1928 规定时间内到达终点的最小花费](#1928-规定时间内到达终点的最小花费)
+- [UNSOLVED 1928 规定时间内到达终点的最小花费](#unsolved-1928-规定时间内到达终点的最小花费)
 - [LCP 09 最小跳跃次数](#lcp-09-最小跳跃次数)
 - [790 多米诺和托米诺平铺](#790-多米诺和托米诺平铺)
 - [96 不同的二叉搜索树](#96-不同的二叉搜索树)
 - [32 最长有效括号](#32-最长有效括号)
 - [322 零钱兑换](#322-零钱兑换)
 - [375 猜数字大小Ⅱ](#375-猜数字大小ⅱ)
+  - [思路](#思路)
 - [213 打家劫舍Ⅱ](#213-打家劫舍ⅱ)
 - [3193 统计逆序对的数量](#3193-统计逆序对的数量)
 - [3180 执行操作可获得的最大总奖励Ⅰ](#3180-执行操作可获得的最大总奖励ⅰ)
@@ -51,6 +52,7 @@
 - [3469 移除所有数组元素的最小代价](#3469-移除所有数组元素的最小代价)
 - [44 通配符匹配](#44-通配符匹配)
 - [132 分割回文串Ⅱ](#132-分割回文串ⅱ)
+- [UNSOLVED 1278 分割回文串Ⅲ](#unsolved-1278-分割回文串ⅲ)
 <!--toc:end-->
 
 
@@ -2449,6 +2451,92 @@ public:
             dp[r]=res;
         }
         return dp[n-1];
+    }
+};
+```
+
+</details>
+
+# UNSOLVED 1278 分割回文串Ⅲ
+
+给你一个由小写字母组成的字符串 s，和一个整数 k。
+
+请你按下面的要求分割字符串：
+
+    首先，你可以将 s 中的部分字符修改为其他的小写英文字母。
+    接着，你需要把 s 分割成 k 个非空且不相交的子串，并且每个子串都是回文串。
+
+请返回以这种方式分割字符串所需修改的最少字符数。
+
+<details>
+
+![思路](https://leetcode.cn/problems/palindrome-partitioning-iii/solutions/3081309/jiao-ni-yi-bu-bu-si-kao-dpcong-ji-yi-hua-z363/)
+
+```cpp
+class Solution {
+public:
+    int palindromePartition(string s, int k) {
+        int n=s.size();
+        vector memo_change(n,vector<int>(n,-1));
+        auto minChange=[&](this auto&& minChange,int i,int j)->int{
+            if(i>=j){// 子串只有一个字母，或者子串是空串
+                return 0;// 不用修改
+            }
+            int& res=memo_change[i][j];
+            if(res!=-1){
+                return res;
+            }
+            return res=minChange(i+1,j-1)+(s[i]!=s[j]);
+        };
+        // -1表示没有计算过
+        vector memo_dfs(k,vector<int>(n,-1));
+        //把s[:r+1]切i刀，分成i+1个子串，每个子串改成回文串的最小总修改次数
+        auto dfs=[&](this auto&& dfs,int i,int r)->int{
+            if(i==0){
+                //只有一个子串
+                return minChange(0,r);
+            }
+            //这里是引用
+            int& res=memo_dfs[i][r];
+            if(res!=-1){
+                return res;
+            }
+            res=INT_MAX;
+            //枚举子串左端点
+            for(int l=i;l<=r;l++){
+                res=min(res,dfs(i-1,l-1)+minChange(l,r));
+            }
+            return res;
+        };
+        return dfs(k-1,n-1);
+    }
+};
+```
+
+递推版本：
+
+```cpp
+class Solution {
+    // 1278. 分割回文串 III
+    int palindromePartition(string& s, int k) {
+        int n = s.size();
+        vector min_change(n, vector<int>(n));
+        for (int i = n - 2; i >= 0; i--) {
+            for (int j = i + 1; j < n; j++) {
+                min_change[i][j] = min_change[i + 1][j - 1] + (s[i] != s[j] ? 1 : 0);
+            }
+        }
+
+        auto f = move(min_change[0]);
+        for (int i = 1; i < k; i++) {
+            for (int r = n - k + i; r >= i; r--) {
+                f[r] = INT_MAX;
+                for (int l = i; l <= r; l++) {
+                    f[r] = min(f[r], f[l - 1] + min_change[l][r]);
+                }
+            }
+        }
+        return f[n - 1];
     }
 };
 ```

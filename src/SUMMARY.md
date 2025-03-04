@@ -88,6 +88,8 @@
   - [线程](./Java/线程.md)
   - [并发](./Java/并发.md)
   - [设计模式](./Java/设计模式.md)
+  - [限流算法](./Java/限流算法.md)
+  - [Kafka相关](./Java/Kafka.md)
 
 - [ArceOS](./ArceOS/README.md)
   - [系统调用](./ArceOS/系统调用.md)
@@ -104,6 +106,7 @@
   - [PING](./计算机网络/计网八股2.md)
   - [Socket编程](./计算机网络/计网八股4.md)
   - [流量控制、拥塞控制](./计算机网络/计网八股6.md)
+  - [网络层](./计算机网络/网络层.md)
   - [SSE](./计算机网络/SSE.md)
   - [RDMA](./计网/RDMA.md)
   - [DPDK](./计网/DPDK.md)
