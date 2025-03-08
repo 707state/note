@@ -1,7 +1,9 @@
--   [3243 新增道路查询后的最短距离
-    1](#3243-新增道路查询后的最短距离-1)
+<!--toc:start-->
+- [3243 新增道路查询后的最短距离1](#3243-新增道路查询后的最短距离1)
+- [407 接雨水Ⅱ](#407-接雨水ⅱ)
+<!--toc:end-->
 
-# 3243 新增道路查询后的最短距离 1 {#3243-新增道路查询后的最短距离-1}
+# 3243 新增道路查询后的最短距离1
 
 给你一个整数 n 和一个二维整数数组 queries。
 
@@ -48,6 +50,49 @@ public:
             }
         }
         return dist.back();
+    }
+};
+```
+
+</details>
+
+# 407 接雨水Ⅱ
+
+给你一个 m x n 的矩阵，其中的值均为非负整数，代表二维高度图每个单元的高度，请计算图中形状最多能接多少体积的雨水。
+
+<details>
+
+```cpp
+class Solution {
+    static constexpr int dxy[4][2]={{1,0},{-1,0},{0,1},{0,-1}};
+public:
+    int trapRainWater(vector<vector<int>>& heightMap) {
+        int m=heightMap.size(),n=heightMap[0].size();
+        priority_queue<tuple<int,int,int>,vector<tuple<int,int,int>>,greater<>> pq;
+        for(int i=0;i<m;i++){
+            for(int j=0;j<n;j++){
+                if(i==0||i==m-1||j==0||j==n-1){
+                    pq.emplace(heightMap[i][j],i,j);
+                    heightMap[i][j]=-1;//标记(i,j)，表示访问过
+                }
+            }
+        }
+        int ans=0;
+        while(!pq.empty()){
+            auto [min_height,i,j]=pq.top();
+            pq.pop();
+            for(auto& [dx,dy]:dxy){
+                int x=i+dx,y=j+dy;//(x,y)的邻居
+                if(x>=0&&x<m&&y>=0&&y<n&&heightMap[x][y]>=0){//(x,y)没有访问过
+                    //如果(x,y)的高度小于min_height,那么接水量为min_height-heightMap[x][y]
+                    ans+=max(min_height-heightMap[x][y],0);
+                    //给木桶新增一块高为max(heightMap[x][y],min_height)的木板
+                    pq.emplace(max(min_height,heightMap[x][y]),x,y);
+                    heightMap[x][y]=-1;
+                }
+            }
+        }
+        return ans;
     }
 };
 ```
