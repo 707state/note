@@ -1,6 +1,7 @@
 <!--toc:start-->
 - [3243 新增道路查询后的最短距离1](#3243-新增道路查询后的最短距离1)
 - [407 接雨水Ⅱ](#407-接雨水ⅱ)
+- [773 滑动谜题](#773-滑动谜题)
 <!--toc:end-->
 
 # 3243 新增道路查询后的最短距离1
@@ -93,6 +94,153 @@ public:
             }
         }
         return ans;
+    }
+};
+```
+
+</details>
+
+# UNSOLVED 773 滑动谜题
+
+在一个 2 x 3 的板上（board）有 5 块砖瓦，用数字 1~5 来表示, 以及一块空缺用 0 来表示。一次 移动 定义为选择 0 与一个相邻的数字（上下左右）进行交换.
+
+最终当板 board 的结果是 [[1,2,3],[4,5,0]] 谜板被解开。
+
+给出一个谜板的初始状态 board ，返回最少可以通过多少次移动解开谜板，如果不能解开谜板，则返回 -1 。
+
+<details>
+
+```cpp
+class Solution {
+    vector<vector<int>> neighbors = {{1, 3}, {0, 2, 4}, {1, 5},
+                                     {0, 4}, {1, 3, 5}, {2, 4}};
+
+public:
+    int slidingPuzzle(vector<vector<int>>& board) {
+        auto get = [&](string& status) -> vector<string> {
+            vector<string> ret;
+            int x = status.find('0');
+            for (int y : neighbors[x]) {
+                swap(status[x], status[y]);
+                ret.push_back(status);
+                swap(status[x], status[y]);
+            }
+            return ret;
+        };
+        string initial;
+        for (int i = 0; i < 2; ++i) {
+            for (int j = 0; j < 3; j++) {
+                initial += char(board[i][j] + '0');
+            }
+        }
+        if (initial == "123450") {
+            return 0;
+        }
+        queue<pair<string, int>> q;
+        q.emplace(initial, 0);
+        unordered_set<string> seen = {initial};
+        while (!q.empty()) {
+            auto [status, step] = q.front();
+            q.pop();
+            for (auto&& next_status : get(status)) {
+                if (!seen.count(next_status)) {
+                    if (next_status == "123450") {
+                        return step + 1;
+                    }
+                    q.emplace(next_status, step + 1);
+                    seen.insert(move(next_status));
+                }
+            }
+        }
+        return -1;
+    }
+};
+```
+
+A*做法：
+
+```cpp
+struct AStar {
+    // 曼哈顿距离
+    static constexpr array<array<int, 6>, 6> dist = {{
+        {0, 1, 2, 1, 2, 3},
+        {1, 0, 1, 2, 1, 2},
+        {2, 1, 0, 3, 2, 1},
+        {1, 2, 3, 0, 1, 2},
+        {2, 1, 2, 1, 0, 1},
+        {3, 2, 1, 2, 1, 0}
+    }};
+
+    // 计算启发函数
+    static int getH(const string& status) {
+        int ret = 0;
+        for (int i = 0; i < 6; ++i) {
+            if (status[i] != '0') {
+                ret += dist[i][status[i] - '1'];
+            }
+        }
+        return ret;
+    };
+
+    AStar(const string& status, int g): status_{status}, g_{g}, h_{getH(status)} {
+        f_ = g_ + h_;
+    }
+
+    bool operator< (const AStar& that) const {
+        return f_ > that.f_;
+    }
+
+    string status_;
+    int f_, g_, h_;
+};
+
+class Solution {
+private:
+    vector<vector<int>> neighbors = {{1, 3}, {0, 2, 4}, {1, 5}, {0, 4}, {1, 3, 5}, {2, 4}};;
+
+public:
+    int slidingPuzzle(vector<vector<int>>& board) {
+        // 枚举 status 通过一次交换操作得到的状态
+        auto get = [&](string& status) -> vector<string> {
+            vector<string> ret;
+            int x = status.find('0');
+            for (int y: neighbors[x]) {
+                swap(status[x], status[y]);
+                ret.push_back(status);
+                swap(status[x], status[y]);
+            }
+            return ret;
+        };
+
+        string initial;
+        for (int i = 0; i < 2; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                initial += char(board[i][j] + '0');
+            }
+        }
+        if (initial == "123450") {
+            return 0;
+        }
+
+        priority_queue<AStar> q;
+        q.emplace(initial, 0);
+        unordered_set<string> seen = {initial};
+
+        while (!q.empty()) {
+            AStar node = q.top();
+            q.pop();
+            for (auto&& next_status: get(node.status_)) {
+                if (!seen.count(next_status)) {
+                    if (next_status == "123450") {
+                        return node.g_ + 1;
+                    }
+                    q.emplace(next_status, node.g_ + 1);
+                    seen.insert(move(next_status));
+                }
+            }
+        }
+
+        return -1;
     }
 };
 ```
