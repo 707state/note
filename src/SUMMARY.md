@@ -48,6 +48,7 @@
   - [链表](./数据结构与算法/链表.md)
   - [堆](./数据结构与算法/堆.md)
   - [SkipList](./数据结构与算法/SkipList.md)
+  - [Swiss Table](./数据结构与算法/SwissTable.md)
   - [双指针](./数据结构与算法/双指针.md)
   - [滑动窗口](./数据结构与算法/滑动窗口.md)
   - [LRUCache](./数据结构与算法/LRUCache.md)

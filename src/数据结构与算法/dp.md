@@ -2603,63 +2603,33 @@ f[i+1]={f[i]+f[i−1]⋅(2ci​−1),f[i]⋅2ci​,​a[i]−a[i−1]=ka[i]−a[
 
 ```cpp
 class Solution {
-
 public:
-
     int beautifulSubsets(vector<int>& nums, int k) {
-
         unordered_map<int, map<int, int>> groups;
-
         for (int x : nums) {
-
             // 模 k 同余的数分到同一组，记录元素 x 及其出现次数
-
             groups[x % k][x]++;
-
         }
-
-
-
         int ans = 1;
-
         for (auto& [_, cnt] : groups) {
-
             // 计算这一组的方案数
-
             int m = cnt.size();
-
             vector<int> f(m + 1);
-
             auto it = cnt.begin();
-
             f[0] = 1;
-
             f[1] = 1 << it++->second;
-
             for (int i = 1; i < m; i++, it++) {
-
                 auto [x, c] = *it;
-
                 if (x - prev(it)->first == k) {
-
                     f[i + 1] = f[i] + f[i - 1] * ((1 << c) - 1);
-
                 } else {
-
                     f[i + 1] = f[i] << c;
-
                 }
-
             }
-
             ans *= f[m]; // 每组方案数相乘
-
         }
-
         return ans - 1; // 去掉空集
-
     }
-
 };
 ```
 
