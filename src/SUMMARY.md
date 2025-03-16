@@ -77,6 +77,9 @@
   - [莫对算法](./数据结构与算法/莫对算法.md)
   - [字典树](./数据结构与算法/字典树.md)
 
+- [设计模式](./设计模式/README.md)
+  - [面试题](./设计模式/常见题目.md)
+
 - [Java](./Java/README.md)
   - [基本操作符](./Java/介绍.md)
   - [Scheduler](./Java/Scheduler.md)
