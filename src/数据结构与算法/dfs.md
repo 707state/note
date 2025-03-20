@@ -10,6 +10,7 @@
 - [UNSOLVED 1755 最接近目标值的子序列和](#unsolved-1755-最接近目标值的子序列和)
 - [1755 最接近目标值的子序列和](#1755-最接近目标值的子序列和)
 - [980 不同路径Ⅲ](#980-不同路径ⅲ)
+- [2698 求一个整数的惩罚数](#2698-求一个整数的惩罚数)
 <!--toc:end-->
 
 
@@ -665,6 +666,48 @@ public:
             }
         }
         return dfs(sx,sy,left+1,grid);
+    }
+};
+```
+
+</details>
+
+# 2698 求一个整数的惩罚数
+
+给你一个正整数 n ，请你返回 n 的 惩罚数 。
+
+n 的 惩罚数 定义为所有满足以下条件 i 的数的平方和：
+
+    1 <= i <= n
+    i * i 的十进制表示的字符串可以分割成若干连续子字符串，且这些子字符串对应的整数值之和等于 i 。
+
+<details>
+
+```cpp
+int PRE_SUM[1001];
+int init=[](){
+    for(int i=1;i<=1000;i++){
+        string s=to_string(i*i);
+        int n=s.length();
+        auto dfs=[&](this auto&& dfs,int p,int sum)->bool{
+            if(p==n) return sum==i;
+            int x=0;
+            for(int j=p;j<n;j++){
+                x=x*10+s[j]-'0';
+                if(dfs(j+1,sum+x)){
+                    return true;
+                }
+            }
+            return false;
+        };
+        PRE_SUM[i]=PRE_SUM[i-1]+(dfs(0,0)?i*i:0);
+    }
+    return 0;
+}();
+class Solution {
+public:
+    int punishmentNumber(int n) {
+        return PRE_SUM[n];
     }
 };
 ```

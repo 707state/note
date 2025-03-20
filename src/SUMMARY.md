@@ -166,6 +166,8 @@
   - [zram](./Linux/zRAM.md)
   - [systemtap](./Linux/systemtap.md)
   - [eBPF](./Linux/eBPF.md)
+  - [内存管理](./Linux/内存管理.md)
+  - [进程间通信与同步机制](./Linux/进程间通信.md)
 
 - [Go](./Go/README.md)
   - [基础知识](./Go/basic.md)

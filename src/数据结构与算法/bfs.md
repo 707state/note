@@ -1,7 +1,8 @@
 <!--toc:start-->
 - [3243 新增道路查询后的最短距离1](#3243-新增道路查询后的最短距离1)
 - [407 接雨水Ⅱ](#407-接雨水ⅱ)
-- [773 滑动谜题](#773-滑动谜题)
+- [UNSOLVED 773 滑动谜题](#unsolved-773-滑动谜题)
+- [UNSOLVED 2612 最少翻转操作数](#unsolved-2612-最少翻转操作数)
 <!--toc:end-->
 
 # 3243 新增道路查询后的最短距离1
@@ -241,6 +242,57 @@ public:
         }
 
         return -1;
+    }
+};
+```
+
+</details>
+
+# UNSOLVED 2612 最少翻转操作数
+
+给你一个整数 n 和一个在范围 [0, n - 1] 以内的整数 p ，它们表示一个长度为 n 且下标从 0 开始的数组 arr ，数组中除了下标为 p 处是 1 以外，其他所有数都是 0 。
+
+同时给你一个整数数组 banned ，它包含数组中的一些位置。banned 中第 i 个位置表示 arr[banned[i]] = 0 ，题目保证 banned[i] != p 。
+
+你可以对 arr 进行 若干次 操作。一次操作中，你选择大小为 k 的一个 子数组 ，并将它 翻转 。在任何一次翻转操作后，你都需要确保 arr 中唯一的 1 不会到达任何 banned 中的位置。换句话说，arr[banned[i]] 始终 保持 0 。
+
+请你返回一个数组 ans ，对于 [0, n - 1] 之间的任意下标 i ，ans[i] 是将 1 放到位置 i 处的 最少 翻转操作次数，如果无法放到位置 i 处，此数为 -1 。
+
+    子数组 指的是一个数组里一段连续 非空 的元素序列。
+    对于所有的 i ，ans[i] 相互之间独立计算。
+    将一个数组中的元素 翻转 指的是将数组中的值变成 相反顺序 。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    vector<int> minReverseOperations(int n, int p, vector<int>& banned, int k) {
+        unordered_set<int> ban{banned.begin(), banned.end()};
+        set<int> indices[2];
+        for (int i = 0; i < n; i++) {
+            if (i != p && !ban.contains(i)) {
+                indices[i % 2].insert(i);
+            }
+        }
+        indices[0].insert(n); // 哨兵，下面无需判断 it != st.end()
+        indices[1].insert(n);
+        vector<int> ans(n, -1);
+        ans[p] = 0; // 起点
+        queue<int> q;
+        q.push(p);
+        while (!q.empty()) {
+            int i = q.front(); q.pop();
+            // indices[mn % 2] 中的从 mn 到 mx 的所有下标都可以从 i 翻转到
+            int mn = max(i - k + 1, k - i - 1);
+            int mx = min(i + k - 1, n * 2 - k - i - 1);
+            auto& st = indices[mn % 2];
+            for (auto it = st.lower_bound(mn); *it <= mx; it = st.erase(it)) {
+                ans[*it] = ans[i] + 1; // 移动一步
+               q.push(*it);
+            }
+        }
+        return ans;
     }
 };
 ```
