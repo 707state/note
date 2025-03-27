@@ -1,30 +1,26 @@
+<!--toc:start-->
+- [Raft日志](#raft日志)
+  - [如何复制日志？](#如何复制日志)
+    - [过程](#过程)
+    - [问题：领导和将日志项提交到状态机，怎么没通知跟随者提交日志项呢？](#问题领导和将日志项提交到状态机怎么没通知跟随者提交日志项呢)
+    - [如何保证日志的一致？](#如何保证日志的一致)
+  - [总结](#总结)
+<!--toc:end-->
 
----
-title: "Raft算法（2）：如何复制日志"
-author: "jask"
-date: "2024-08-11"
-output: pdf_document
-header-includes:
-  - \usepackage{xeCJK}
-  - \usepackage{fontspec}
-  - \setCJKmainfont{Noto Sans CJK SC}  # 替换为可用的字体
-  - \setCJKmonofont{Noto Sans CJK SC}
-  - \setCJKsansfont{Noto Sans CJK SC}
-  - \setmainfont{ComicShannsMono Nerd Font} 
----
 # Raft日志
+
 格式：主要包含用户指定的数据，也就是指令（Command），还包含一些附加信息，比如索引值（Log index）、任期编号（Term）。那你该怎么理解这些信息呢？
 
 指令：一条由客户端请求指定的、状态机需要执行的指令。你可以将指令理解成客户端指定的数据。
 索引值：日志项对应的整数索引值。它其实就是用来标识日志项的，是一个连续的、单调递增的整数号码。
 任期编号：创建这条日志项的领导者的任期编号。
 
-![日志结构](../../Pictures/Screenshots/Screenshot_2024-08-22-09-49-09_3840x1080.png)
-
 ## 如何复制日志？
+
 可以理解为一个优化的二阶段提交，减少了一半的往返消息，也就是降低了一半的消息延迟。
 
 ### 过程
+
 首先，领导者进入第一阶段，通过日志复制（AppendEntries）RPC 消息，将日志项复制到集群其他节点上。
 
 接着，如果领导者接收到大多数的“复制成功”响应后，它将日志项提交到它的状态机，并返回成功给客户端。如果领导者没有接收到大多数的“复制成功”响应，那么就返回错误给客户端。
