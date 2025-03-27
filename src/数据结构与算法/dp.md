@@ -69,6 +69,8 @@
 - [115 不同的子序列](#115-不同的子序列)
 - [2712 使所有字符相等的最小成本](#2712-使所有字符相等的最小成本)
 - [120 三角形最小路径和](#120-三角形最小路径和)
+- [124 二叉树中的最大路径和](#124-二叉树中的最大路径和)
+- [139 单词拆分](#139-单词拆分)
 <!--toc:end-->
 
 
@@ -3331,6 +3333,70 @@ public:
             }
         }
         return triangle[0][0];
+    }
+};
+```
+
+</details>
+
+# 124 二叉树中的最大路径和
+
+二叉树中的 路径 被定义为一条节点序列，序列中每对相邻节点之间都存在一条边。同一个节点在一条路径序列中 至多出现一次 。该路径 至少包含一个 节点，且不一定经过根节点。
+
+路径和 是路径中各节点值的总和。
+
+给你一个二叉树的根节点 root ，返回其 最大路径和 。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    int maxPathSum(TreeNode* root) {
+        int ans=INT_MIN;
+        auto dfs=[&](this auto&& dfs,TreeNode *node){
+            if(!node){
+                return 0;
+            }
+            auto l_val=dfs(node->left);
+            auto r_val=dfs(node->right);
+            ans=max(ans,l_val+r_val+node->val);
+            return max(0,max(l_val,r_val)+node->val);
+        };
+        dfs(root);
+        return ans;
+    }
+};
+```
+
+</details>
+
+# 139 单词拆分
+
+给你一个字符串 s 和一个字符串列表 wordDict 作为字典。如果可以利用字典中出现的一个或多个单词拼接出 s 则返回 true。
+
+注意：不要求字典中出现的单词全部都使用，并且字典中的单词可以重复使用。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    bool wordBreak(string s, vector<string>& wordDict) {
+        int max_len=ranges::max(wordDict,{},&string::length).length();
+        unordered_set<string> words(wordDict.begin(),wordDict.end());
+        int n=s.length();
+        vector<int> dp(n+1);
+        dp[0]=true;
+        for(int i=1;i<=n;i++){
+            for(int j=i-1;j>=max(i-max_len,0);j--){
+                if(dp[j] && words.count(s.substr(j,i-j))){
+                    dp[i]=true;
+                    break;
+                }
+            }
+        }
+        return dp[n];
     }
 };
 ```
