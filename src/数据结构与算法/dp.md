@@ -71,6 +71,8 @@
 - [120 三角形最小路径和](#120-三角形最小路径和)
 - [124 二叉树中的最大路径和](#124-二叉树中的最大路径和)
 - [139 单词拆分](#139-单词拆分)
+- [2291 股票的最大收益](#2291-股票的最大收益)
+- [5 最长回文子串](#5-最长回文子串)
 <!--toc:end-->
 
 
@@ -3397,6 +3399,72 @@ public:
             }
         }
         return dp[n];
+    }
+};
+```
+
+</details>
+
+# 2291 股票的最大收益
+
+给你两个下标从 0 开始的数组 present 和 future ，present[i] 和 future[i] 分别代表第 i 支股票现在和将来的价格。每支股票你最多购买 一次 ，你的预算为 budget 。
+
+求最大的收益。
+
+<details>
+
+本质上是一个0-1背包。
+
+```cpp
+class Solution {
+public:
+    int maximumProfit(vector<int>& present, vector<int>& future, int budget) {
+        int n=budget+1;
+        vector<int> dp(n);
+        dp[0]=0;
+        int days=present.size();
+        int ans=0;
+        for(int i=0;i<days;i++){
+            for(int j=budget;j>=present[i];j--){
+                dp[j]=max(dp[j],dp[j-present[i]]+future[i]-present[i]);
+            }
+        }
+        return ranges::max(dp);
+    }
+};
+```
+
+</details>
+
+# 5 最长回文子串
+
+给你一个字符串 s，找到 s 中最长的 。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    string longestPalindrome(string s) {
+        int n=s.length();
+        if(n==0 || n<2){
+            return s;
+        }
+        int startIndex=0;
+        int maxLen=1;
+        vector dp(n,vector<bool>(n));
+        for(int r=1;r<n;r++){
+            for(int l=0;l<r;l++){
+                if(s[l]==s[r]&& (r-l<=2||dp[l+1][r-1])){
+                    dp[l][r]=true;
+                    if(r-l+1>maxLen){
+                        startIndex=l;
+                        maxLen=r-l+1;
+                    }
+                }
+            }
+        }
+        return s.substr(startIndex,maxLen);
     }
 };
 ```

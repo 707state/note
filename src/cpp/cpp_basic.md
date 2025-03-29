@@ -3,6 +3,10 @@
   - [41 章并发](#41-章并发)
     - [P280](#p280)
 - [语言标准](#语言标准)
+  - [C++11的重要特性总结](#c11的重要特性总结)
+  - [C++14的重要新特性](#c14的重要新特性)
+  - [C++17的重要新特性](#c17的重要新特性)
+  - [C++20的重要新特性](#c20的重要新特性)
   - [concept](#concept)
   - [std::ref](#stdref)
   - [std::cref](#stdcref)
@@ -76,6 +80,471 @@
 \"还请注意，只要你不向其他线程传递局部数据的指针，你的局部数据就不存在这里讨论的诸多问题。\"
 
 # 语言标准
+
+## C++11的重要特性总结
+
+1. 类型推导：
+
+    auto：编译器可根据初始化表达式自动推导变量类型，简化代码编写。
+
+    decltype：用于获取表达式的类型，常用于泛型编程中。
+
+2. 右值引用和移动语义：
+
+    引入右值引用（&&），允许对临时对象进行引用，配合移动构造函数和移动赋值运算符，可显著提高资源管理和程序性能。
+
+3. Lambda表达式：
+
+    支持在代码中定义匿名函数，简化回调函数的使用，增强了函数式编程的能力。
+
+4. 智能指针：
+
+    引入了std::shared_ptr、std::unique_ptr和std::weak_ptr，用于自动管理动态分配的内存，减少内存泄漏的风险。
+
+5. 基于范围的for循环：
+
+    允许直接遍历容器或数组，简化循环语法，提高代码可读性。
+
+6. nullptr关键字：
+
+    引入了nullptr作为空指针常量，替代了原来的NULL，提高了类型安全性。
+
+7. constexpr关键字：
+
+    用于定义在编译期可求值的常量表达式，提升程序的运行效率。
+
+8. std::thread和多线程支持：
+
+    标准库中加入了对多线程的支持，包括std::thread、std::mutex、std::lock等，方便进行并发编程。
+
+9. std::function和std::bind：
+
+    提供了通用的函数包装器和绑定器，增强了函数对象的灵活性和可用性。
+
+10. 初始化列表：
+
+    引入了统一的列表初始化语法，支持使用花括号{}对变量进行初始化，简化了初始化过程。
+
+11. std::array和std::tuple：
+
+    std::array提供了定长数组的封装，std::tuple允许存储多个不同类型的值，增强了数据结构的表达能力。
+
+12. enum class：
+
+    引入了强类型枚举，避免了传统枚举可能导致的命名冲突和隐式转换问题。
+
+13. 模板别名和可变参数模板：
+
+    支持为模板定义别名，简化了模板的使用；可变参数模板允许模板接受任意数量的模板参数，增强了模板的灵活性。
+
+14. override和final关键字：
+
+    override用于显式声明重写基类的虚函数，final用于防止类或虚函数被继承或重写，增加了代码的安全性和可读性。
+
+15. 原子操作和内存模型：
+
+    引入了std::atomic和内存顺序模型，提供了对原子操作的支持，简化了多线程编程中的同步问题。
+
+## C++14的重要新特性
+
+1. 泛型Lambda表达式：
+
+    在C++14中，Lambda表达式的参数类型可以使用auto关键字进行自动推导，使Lambda更加通用和灵活。
+
+    示例：
+
+```cpp
+    auto add = [](auto a, auto b) { return a + b; };
+    auto result = add(1, 2);       // result为3
+    auto result2 = add(1.5, 2.5);  // result2为4.0
+```
+
+2. Lambda初始化捕获：
+
+    允许在Lambda捕获列表中直接初始化新的变量，简化了在Lambda中使用外部变量的方式。
+
+    示例：
+
+```cpp
+    int x = 10;
+    auto lambda = \[y = x + 1\]() { return y * y; };
+    auto result = lambda();  // result为121
+```
+
+3. 返回类型自动推导：
+
+    C++14支持对普通函数的返回类型进行自动推导，简化了函数的声明。
+
+    示例：
+
+```cpp
+    auto add(int a, int b) {
+        return a + b;
+    }
+    auto result = add(3, 4);  // result为7
+```
+
+
+4. constexpr函数的改进：
+
+    constexpr函数的限制有所放宽，允许包含更多的语句，如循环和条件语句，使其在编译期计算时更加灵活。
+
+    示例：
+
+```cpp
+    constexpr int factorial(int n) {
+        int result = 1;
+        for (int i = 1; i <= n; ++i) {
+            result *= i;
+        }
+        return result;
+    }
+    constexpr int val = factorial(5);  // val为120
+```
+
+5. 变量模板：
+
+    引入了变量模板，允许为变量定义模板，从而创建通用的常量或变量。
+
+    示例：
+
+```cpp
+    template<typename T>
+    constexpr T pi = T(3.1415926535897932385);
+
+    auto pi_float = pi<float>;    // pi_float为3.1415927f
+    auto pi_double = pi<double>;  // pi_double为3.141592653589793
+```
+
+6. 二进制字面量和数字分隔符：
+
+    C++14支持使用二进制字面量表示二进制数，并引入了单引号作为数字分隔符，提高了数字的可读性。
+
+    示例：
+
+```cpp
+    auto binary = 0b101010;      // 等于42
+    auto big_number = 1'000'000; // 等于1000000
+```
+
+
+7. std::make_unique：
+
+    在C++14中，标准库新增了std::make_unique函数，用于创建std::unique_ptr对象，提供了与std::make_shared类似的功能，简化了动态内存管理。
+
+    示例：
+
+```cpp
+    auto ptr = std::make_unique<int>(42);
+```
+
+8. std::shared_timed_mutex和std::shared_lock：
+
+    引入了共享的互斥体和锁，允许多个线程同时读取共享资源，但在写入时需要独占锁，提高了多线程编程的效率。
+
+    示例：
+
+```cpp
+    std::shared_timed_mutex mutex;
+    std::shared_lock<std::shared_timed_mutex> lock(mutex);
+```
+
+9. \[\[deprecated\]\]属性：
+
+    新增了\[\[deprecated\]\]属性，用于标记不建议使用的函数或变量，编译器在使用这些被标记的实体时会发出警告。
+
+    示例：
+
+```cpp
+    [[deprecated("Use new_function instead")]]
+    void old_function() {
+        // ...
+    }
+```
+
+10. std::integer_sequence和std::index_sequence：
+
+    引入了整数序列模板，简化了在模板编程中处理参数包的操作，特别是在处理可变参数模板时。
+
+    示例：
+
+```cpp
+template<std::size_t... Indices>
+void print_indices(std::index_sequence<Indices...>) {
+    ((std::cout << Indices << ' '), ...);
+}
+```
+
+## C++17的重要新特性
+
+1. 结构化绑定（Structured Bindings）：
+
+    允许将元组、结构体或数组的成员解构为独立的变量，简化了对复合数据类型的访问。
+
+    示例：
+
+```cpp
+    #include <tuple>
+    #include <iostream>
+
+    std::tuple<int, double, std::string> getData() {
+        return {42, 3.14, "Hello"};
+    }
+
+    int main() {
+        auto [id, value, name] = getData();
+        std::cout << id << ", " << value << ", " << name << std::endl;
+    }
+```
+
+2. if constexpr：
+
+    引入了编译期条件判断，允许在编译时根据条件选择性地编译代码块，常用于模板元编程。
+
+    示例：
+
+```cpp
+    template<typename T>
+    void print(T value) {
+        if constexpr (std::is_integral_v<T>) {
+            std::cout << "Integer: " << value << std::endl;
+        } else {
+            std::cout << "Other type: " << value << std::endl;
+        }
+    }
+```
+
+3. 内联变量（Inline Variables）：
+
+    允许在头文件中定义具有外部链接的变量，而不会导致多重定义问题，简化了常量的声明和使用。
+
+    示例：
+
+```cpp
+    struct Config {
+        inline static const int max_value = 100;
+    };
+```
+
+4. 类模板参数推导（Class Template Argument Deduction）：
+
+    编译器可以根据构造函数的参数自动推导类模板的参数类型，减少了显式指定模板参数的需要。
+
+    示例：
+
+```cpp
+    std::pair p = {42, 3.14}; // 编译器自动推导为std::pair<int, double>
+```
+
+5. 并行算法（Parallel Algorithms）：
+
+    标准库算法新增了并行执行策略，允许利用多核处理器并行执行算法，提高性能。
+
+    示例：
+
+```cpp
+    #include <algorithm>
+    #include <vector>
+    #include <execution>
+
+    std::vector<int> vec = {/*...*/};
+    std::sort(std::execution::par, vec.begin(), vec.end());
+```
+
+6. std::optional、std::variant和std::any：
+
+    std::optional：表示可能包含或不包含值的对象，避免使用指针表示可选值。
+
+    std::variant：类型安全的联合体，存储多个类型中的一个值。
+
+    std::any：可存储任意类型的值，类似于动态类型变量。
+
+7. std::filesystem：
+
+    引入了文件系统库，提供了跨平台的文件和目录操作功能，简化了文件操作的实现。
+
+8. std::string_view：
+
+    提供了对字符串的非拥有只读视图，避免了不必要的字符串拷贝，提高了性能。
+
+9. std::invoke和std::apply：
+
+    std::invoke：通用调用包装器，可调用函数指针、成员函数指针等。
+
+    std::apply：将元组的元素展开作为函数的参数进行调用。
+
+10. 折叠表达式（Fold Expressions）：
+
+    简化了可变参数模板中参数的累积操作，支持对参数包进行折叠处理。
+
+    示例：
+
+```c++
+template<typename... Args>
+auto sum(Args... args) {
+    return (args + ...);
+}
+```
+
+## C++20的重要新特性
+
+1. 概念（Concepts）：
+
+    概念为模板参数提供了明确的约束条件，使模板编程更加直观和安全。通过使用requires关键字或标准库中的概念，可以对模板参数进行类型检查，提升代码的可读性和错误诊断能力。
+
+    示例：
+
+```cpp
+    #include <concepts>
+
+    template<typename T>
+    requires std::integral<T> // 约束T必须是整数类型
+    T add(T a, T b) {
+        return a + b;
+    }
+```
+
+2. 范围（Ranges）库：
+
+    范围库提供了一种新的方式来操作和处理集合数据，支持惰性求值和管道式操作，使代码更加简洁和直观。
+
+    示例：
+
+```cpp
+    #include <ranges>
+    #include <vector>
+    #include <iostream>
+
+    int main() {
+        std::vector<int> data {3, 1, 4, 1, 5, 9, 2, 6};
+        auto result = data | std::views::filter([](int x) { return x % 2 == 0; })
+                           | std::views::transform([](int x) { return x * 2; });
+        for (int v : result) {
+            std::cout << v << " ";
+        }
+    }
+```
+
+3. 协程（Coroutines）：
+
+    协程引入了一种编写异步代码的新方式，允许函数在执行过程中暂停和恢复，适用于异步I/O操作、生成器等场景。
+
+    示例：
+
+```cpp
+    #include <coroutine>
+    #include <iostream>
+
+    struct Generator {
+        struct promise_type {
+            int current_value;
+            std::suspend_always yield_value(int value) {
+                current_value = value;
+                return {};
+            }
+            std::suspend_always initial_suspend() { return {}; }
+            std::suspend_always final_suspend() noexcept { return {}; }
+            Generator get_return_object() {
+                return Generator{std::coroutine_handle<promise_type>::from_promise(*this)};
+            }
+            void return_void() {}
+            void unhandled_exception() { std::terminate(); }
+        };
+
+        std::coroutine_handle<promise_type> coro;
+
+        Generator(std::coroutine_handle<promise_type> h) : coro(h) {}
+        ~Generator() { if (coro) coro.destroy(); }
+
+        bool next() {
+            coro.resume();
+            return !coro.done();
+        }
+
+        int value() {
+            return coro.promise().current_value;
+        }
+    };
+
+    Generator counter(int max) {
+        for (int i = 0; i < max; ++i)
+            co_yield i;
+    }
+
+    int main() {
+        auto gen = counter(5);
+        while (gen.next()) {
+            std::cout << gen.value() << " ";
+        }
+    }
+```
+
+4. 模块（Modules）：
+
+    模块提供了一种新的代码组织和重用方式，替代了传统的头文件机制，减少了编译时间和依赖复杂度。
+
+    示例：
+
+```cpp
+// math.ixx
+export module math;
+
+export namespace math {
+    int add(int a, int b) {
+        return a + b;
+    }
+}
+
+    // main.cpp
+    import math;
+    #include <iostream>
+
+    int main() {
+        std::cout << math::add(2, 3) << std::endl;
+    }
+```
+
+5. 三路比较运算符（<=>）：
+
+    引入了“太空船操作符”，用于自动生成比较运算符，简化了对象的比较操作。
+
+    示例：
+
+```cpp
+    #include <compare>
+
+    struct Point {
+        int x, y;
+        auto operator<=>(const Point&) const = default;
+    };
+```
+
+6. constexpr的增强：
+
+    constexpr函数现在支持更复杂的操作，包括循环、分支和异常处理等，使得更多的计算可以在编译期完成。
+
+7. Lambda表达式的改进：
+
+    Lambda表达式现在支持模板参数和constexpr，并允许捕获[=, this]，提升了灵活性和适用性。
+
+8. 指定初始化器（Designated Initializers）：
+
+    允许在初始化结构体时指定成员名称，增强了可读性和维护性。
+
+    示例：
+
+```cpp
+    struct Point {
+        int x;
+        int y;
+    };
+
+    Point p = {.x = 1, .y = 2};
+```
+
+9. std::span：
+
+    std::span提供了一种对连续内存序列的视图，类似于指针，但具有更丰富的接口和更好的安全性，适用于处理数组和容器的片段。
 
 ## concept
 

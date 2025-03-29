@@ -160,6 +160,7 @@
   - [基本算法](./TheArtOfComputerProgramming/基本算法.md)
 
 - [Linux](./Linux/README.md)
+  - [GNU/Linux的C库](./Linux/glibc.md)
   - [NAPI](./Linux/NAPI.md)
   - [binfmt](./Linux/binfmt.md)
   - [K8S](./Linux/K8S.md)
@@ -168,6 +169,7 @@
   - [eBPF](./Linux/eBPF.md)
   - [内存管理](./Linux/内存管理.md)
   - [进程间通信与同步机制](./Linux/进程间通信.md)
+  - [UDS](./Linux/UnixDomainSocket.md)
 
 - [Go](./Go/README.md)
   - [基础知识](./Go/basic.md)
@@ -175,6 +177,7 @@
 - [前端](./前端/README.md)
   - [常见题目](./前端/常见题目.md)
   - [移动应用开发技术一览](./前端/移动开发技术.md)
+  - [OpenGL相关](./分布式/OpenGL.md)
   - [Flutter](./前端/Flutter.md)
   - [JS Framework](./前端/JSFramework.md)
   - [SolidJS 踩坑](./前端/SolidJS.md)

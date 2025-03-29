@@ -78,8 +78,5 @@ struct mi_tld_s {
 
 在mimalloc中，如果一个线程结束了，那么其对应的Thread Local的堆就可以释放了，但是在该堆中还可能存在有一些内存块正在被使用，且此时会将对应的segment设置为ABANDON，之后由其他线程来获取该segment，之后利用该segment进行对应的内存分配与释放(mimalloc也有一个no_reclaim的选项，设置了该选项的堆不会主动获取其他线程ABANDON的segment)。
 
-
 === Huge类型页面的分配
 由于huge类型的页面对应的segment中仅有一个页，且该页仅能分配一个块，因此其会重新分配一个segment，从中建立新的页面。mi_huge_page_alloc会调用mi_page_fresh_alloc分配一个页面，然后将其插入堆对应的BIN中(即heap->pages[MI_BIN_HUGE])。由下图可以看到Small与Large类型页面分配时所调用的mi_find_free_page也会调用该函数来进行页面的分配，接下来我们就介绍一下mi_page_fresh_alloc。
-
-
