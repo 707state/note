@@ -141,6 +141,7 @@
 
 - [操作系统](./操作系统/README.md)
   - [协程](./操作系统/协程.md)
+  - [虚拟化](./操作系统/虚拟化.md)
   - [内存分配与内存碎片](./操作系统/内存碎片.md)
   - [Unix环境编程](./操作系统/Unix高级编程.md)
   - [进程调度](./操作系统/进程调度算法.md)
@@ -177,7 +178,7 @@
 - [前端](./前端/README.md)
   - [常见题目](./前端/常见题目.md)
   - [移动应用开发技术一览](./前端/移动开发技术.md)
-  - [OpenGL相关](./分布式/OpenGL.md)
+  - [OpenGL相关](./前端/OpenGL.md)
   - [Flutter](./前端/Flutter.md)
   - [JS Framework](./前端/JSFramework.md)
   - [SolidJS 踩坑](./前端/SolidJS.md)
