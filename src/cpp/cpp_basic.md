@@ -386,6 +386,28 @@ auto sum(Args... args) {
 }
 ```
 
+11. std::launder
+
+解决掉placement new和reinterpret_cast在const场景下带来的未定义行为。
+```c++
+struct X{const int n;};
+union U {X x; float f;};
+void tong(){
+    U u=1;
+    u.f=5.f; // 创建了u的子对象
+    X *p=new (&u.x) X{2}; //创建了u的子对象
+    assert(p->n==2);
+    assert(*std::launder(&u.x.n)==2);
+    // 未定义行为
+    assert(u.x.n==2);
+}
+```
+
+这里内部有const可能编译器会优化掉访问值的行为，std::launder就是为了解决掉这个场景，阻止编译器优化。
+
+std::launder是一层阻止优化的抽象，具体实现对于不同的库来说也有不同的实现，GNU C的话有一个通过插入内联汇编的方式来阻止编译器优化。
+
+
 ## C++20的重要新特性
 
 1. 概念（Concepts）：
