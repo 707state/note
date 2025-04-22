@@ -74,6 +74,8 @@
 - [2291 股票的最大收益](#2291-股票的最大收益)
 - [5 最长回文子串](#5-最长回文子串)
 - [2140 解决智力问题](#2140-解决智力问题)
+- [368 最大整除子集](#368-最大整除子集)
+- [UNSOLVED 2843 统计对称整数的数目](#unsolved-2843-统计对称整数的数目)
 <!--toc:end-->
 
 
@@ -3496,6 +3498,108 @@ public:
             dp[i]=std::max(dp[i+1],questions[i][0]+dp[std::min(n,i+questions[i][1]+1)]);
         }
         return dp.front();
+    }
+};
+```
+
+</details>
+
+# 368 最大整除子集
+
+给你一个由 无重复 正整数组成的集合 nums ，请你找出并返回其中最大的整除子集 answer ，子集中每一元素对 (answer[i], answer[j]) 都应当满足：
+answer[i] % answer[j] == 0 ，或
+answer[j] % answer[i] == 0
+如果存在多个有效解子集，返回其中任何一个均可。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    vector<int> largestDivisibleSubset(vector<int>& nums) {
+        int n=nums.size();
+        ranges::sort(nums);
+        vector<int> f(n),from_(n,-1);
+        int max_i=0;
+        for(int i=0;i<n;i++){
+            for(int j=0;j<i;j++){
+                if(nums[i]%nums[j]==0 && f[j]>f[i]){
+                    f[i]=f[j];
+                    from_[i]=j;
+                }
+            }
+            f[i]++;
+            if(f[i]>f[max_i]){
+                max_i=i;
+            }
+        }
+        vector<int> path;
+        for(int i=max_i;i>=0;i=from_[i]){
+            path.emplace_back(nums[i]);
+        }
+        return path;
+    }
+};
+```
+
+</details>
+
+# UNSOLVED 2843 统计对称整数的数目
+
+给你两个正整数 low 和 high 。
+
+对于一个由 2 * n 位数字组成的整数 x ，如果其前 n 位数字之和与后 n 位数字之和相等，则认为这个数字是一个对称整数。
+
+返回在 [low, high] 范围内的 对称整数的数目 。
+
+<details>
+
+```cpp
+class Solution {
+public:
+    int countSymmetricIntegers(int low, int high) {
+        string low_s = to_string(low), high_s = to_string(high);
+        int n = high_s.size(), m = n / 2;
+        int diff_lh = n - low_s.size();
+
+        vector memo(n, vector(diff_lh + 1, vector<int>(m * 18 + 1, -1))); // 注意 start <= diff_lh
+        auto dfs = [&](this auto&& dfs, int i, int start, int diff, bool limit_low, bool limit_high) -> int {
+            if (i == n) {
+                return diff == m * 9;
+            }
+
+            // start 当 is_num 用
+            if (start != -1 && !limit_low && !limit_high && memo[i][start][diff] != -1) {
+                return memo[i][start][diff];
+            }
+
+            int lo = limit_low && i >= diff_lh ? low_s[i - diff_lh] - '0' : 0;
+            int hi = limit_high ? high_s[i] - '0' : 9;
+
+            // 如果前面没有填数字，且剩余数位个数是奇数，那么当前数位不能填数字
+            if (start < 0 && (n - i) % 2) {
+                // 如果必须填数字（lo > 0），不合法，返回 0
+                return lo > 0 ? 0 : dfs(i + 1, start, diff, true, false);
+            }
+
+            int res = 0;
+            bool is_left = start < 0 || i < (start + n) / 2;
+            for (int d = lo; d <= hi; d++) {
+                res += dfs(i + 1,
+                           start < 0 && d > 0 ? i : start, // 记录第一个填数字的位置
+                           diff + (is_left ? d : -d), // 左半 +，右半 -
+                           limit_low && d == lo,
+                           limit_high && d == hi);
+            }
+
+            if (start != -1 && !limit_low && !limit_high) {
+                memo[i][start][diff] = res;
+            }
+            return res;
+        };
+
+        // 初始化 diff = m * 9，避免出现负数导致 memo 下标越界
+        return dfs(0, -1, m * 9, true, true);
     }
 };
 ```
