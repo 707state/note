@@ -6,3 +6,6 @@ webui
 main
 *.pdf
 pdf/
+**/*.tex
+**/*.png
+**/*.pdf

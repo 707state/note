@@ -1,0 +1,45 @@
+@startuml OpenGL Triangle Drawing Process
+
+participant "Application" as App
+participant "GLFW" as GLFW
+participant "GLAD" as GLAD
+participant "Shader" as Shader
+participant "Buffer" as Buffer
+
+== Initialization Phase ==
+App -> GLFW : glfwInit()
+App -> GLFW : glfwCreateWindow()
+App -> GLAD : gladLoadGLLoader()
+
+== Shader Preparation ==
+App -> Shader : glCreateShader(GL_VERTEX_SHADER)
+App -> Shader : glCreateShader(GL_FRAGMENT_SHADER)
+App -> Shader : glCreateProgram()
+App -> Shader : glLinkProgram()
+
+== Buffer Configuration ==
+App -> Buffer : glGenVertexArrays(VAO)
+App -> Buffer : glGenBuffers(VBO)
+App -> Buffer : glGenBuffers(EBO)
+App -> Buffer : glBindVertexArray()
+App -> Buffer : glBufferData(vertices)
+App -> Buffer : glBufferData(indices)
+App -> Buffer : glVertexAttribPointer()
+
+== Render Loop ==
+loop while !glfwWindowShouldClose()
+        App -> GLFW : glfwWindowShouldClose()
+        App -> Buffer : glClear()
+        App -> Shader : glUseProgram()
+        App -> Buffer : glBindVertexArray()
+        App -> Buffer : glDrawElements()
+        App -> GLFW : glfwSwapBuffers()
+end
+
+== Cleanup ==
+App -> Buffer : glDeleteVertexArrays()
+App -> Buffer : glDeleteBuffers()
+App -> Shader : glDeleteProgram()
+App -> GLFW : glfwTerminate()
+
+@enduml

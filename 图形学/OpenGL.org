@@ -1,0 +1,149 @@
+#+title: 图形学系列——OpenGL
+#+author: jask
+#+LATEX_COMPILER: xelatex
+#+LATEX_HEADER: \usepackage{fontspec}
+#+LATEX_HEADER: \usepackage{ctex}
+#+LATEX_HEADER: \setmainfont{Noto Sans CJK SC}
+#+LATEX_HEADER: \usepackage[a4paper,margin=1in]{geometry}
+#+OPTIONS: toc:nil
+#+mathspec: true
+
+* 画出来三角形！
+画一下流程
+
+简单地说，OpenGL画出一个三角形无外乎：glfw准备，glad准备，顶点着色器、片段着色器编译，顶点数据、顶点属性准备，数据绑定，事件循环，终结。
+
+#+begin_src plantuml :file images/RenderingProcess.png
+@startuml OpenGL Triangle Drawing Process
+participant "Application" as App
+participant "GLFW" as GLFW
+participant "GLAD" as GLAD
+participant "Shader" as Shader
+participant "Buffer" as Buffer
+
+== Initialization Phase ==
+App -> GLFW : glfwInit()
+App -> GLFW : glfwCreateWindow()
+App -> GLAD : gladLoadGLLoader()
+
+== Shader Preparation ==
+App -> Shader : glCreateShader(GL_VERTEX_SHADER)
+App -> Shader : glCreateShader(GL_FRAGMENT_SHADER)
+App -> Shader : glCreateProgram()
+App -> Shader : glLinkProgram()
+
+== Buffer Configuration ==
+App -> Buffer : glGenVertexArrays(VAO)
+App -> Buffer : glGenBuffers(VBO)
+App -> Buffer : glGenBuffers(EBO)
+App -> Buffer : glBindVertexArray()
+App -> Buffer : glBufferData(vertices)
+App -> Buffer : glBufferData(indices)
+App -> Buffer : glVertexAttribPointer()
+
+== Render Loop ==
+loop while !glfwWindowShouldClose()
+    App -> GLFW : glfwWindowShouldClose()
+    App -> Buffer : glClear()
+    App -> Shader : glUseProgram()
+    App -> Buffer : glBindVertexArray()
+    App -> Buffer : glDrawElements()
+    App -> GLFW : glfwSwapBuffers()
+end
+
+== Cleanup ==
+App -> Buffer : glDeleteVertexArrays()
+App -> Buffer : glDeleteBuffers()
+App -> Shader : glDeleteProgram()
+App -> GLFW : glfwTerminate()
+
+@enduml
+
+#+end_src
+
+** 渲染流程
+涉及到渲染流程上，比如说一个三角形可能太过简单，怎么才能渲染两个三角形、渲染两个重叠的三角形？这些就涉及到顶点数据和索引数组。
+
+#+begin_src cpp
+    float vertices[] = { 
+        -0.9f,-0.5f,0.0f,  
+        -0.0f,-0.5f,0.0f,
+        -0.45f,0.5f,0.0f,
+        0.0f,-0.5f,0.0f, 
+        0.9f,-0.5f,0.0f, 
+        0.45f,0.5f,0.0f  
+    };                   
+#+end_src
+这里给出来了两个三角形对应的6个点，那么就可以通过glDrawArrays来依次渲染6个点。
+
+渲染两个不同颜色的三角形就意味着要使用不同的片段着色器，片段着色器使用的vec4是一个RGBA格式的四元组，最后一个A代表透明度。
+
+也可以使用不同的VAO和VBO来渲染。
+* 着色器
+上面是快速地过一遍OpenGL的流程，这里是深入学习一下着色器。
+** GLSL
+着色器的开头总是要声明版本，接着是输入和输出变量、uniform和main函数。每个着色器的入口点都是main函数，在这个函数中我们处理所有的输入变量，并将结果输出到输出变量中。
+#+begin_src c
+#version version_number
+in type in_variable_name;
+in type in_variable_name;
+
+out type out_variable_name;
+
+uniform type uniform_name;
+
+void main()
+{
+  // 处理输入并进行一些图形操作
+  ...
+  // 输出处理过的结果到输出变量
+  out_variable_name = weird_stuff_we_processed;
+}
+#+end_src
+输入变量叫做顶点属性。我们能声明的顶点属性是有上限的，它一般由硬件来决定。OpenGL确保至少有16个包含4分量的顶点属性可用，但是有些硬件或许允许更多的顶点属性，你可以查询GL_MAX_VERTEX_ATTRIBS来获取具体的上限。
+** 数据类型
+GLSL中包含C等其它语言大部分的默认基础数据类型：int、float、double、uint和bool。GLSL也有两种容器类型，它们会在这个教程中使用很多，分别是向量(Vector)和矩阵(Matrix)。
+
+***** 向量
+vec, bvec, ivec, uvec, dvec对应的类型参考前缀（vec是float vector, bvec是bool vector）。
+
+向量获取分量可以用.x/.y/.z./.w也可以使用重组，也就是：
+#+begin_src c
+vec2 someVec;
+vec4 differentVec = someVec.xyxx;
+vec3 anotherVec = differentVec.zyw;
+vec4 otherVec = someVec.xxxx + anotherVec.yxzy;
+#+end_src
+
+***** 输入与输出
+GLSL定义了in和out关键字专门来实现这个目的。每个着色器使用这两个关键字设定输入和输出，只要一个输出变量与下一个着色器阶段的输入匹配，它就会传递下去。但在顶点和片段着色器中会有点不同。
+
++ 顶点着色器接受的是从顶点数据中直接传入的输入，使用location来管理变量。
++ 片段着色器需要用一个vec4颜色输出变量，因为片段着色器需要生成一个最终输出的颜色。
+
+如果打算从一个着色器向另一个着色器发送数据，就必须在发送方着色器中声明一个输出，在接收方着色器中声明一个类似的输入。当名称和类型都一致是OpenGL会把两个变量链接在一起，就可以发送数据了。
+
+***** Uniform
+Uniform是另一种从我们的应用程序在 CPU 上传递数据到 GPU 上的着色器的方式，但uniform和顶点属性有些不同。
++ 首先，uniform是全局的(Global)。全局意味着uniform变量必须在每个着色器程序对象中都是独一无二的，而且它可以被着色器程序的任意着色器在任意阶段访问。
++ 第二，无论你把uniform值设置成什么，uniform会一直保存它们的数据，直到它们被重置或更新。
+
+使用只需要在着色器使用uniform关键字并带上类型和名称。
+
+有了Uniform，我们就可以在运行期修改图形的着色了。（相关API：glUniform4f, glGetUniformLocation）。
+
+注意，查询uniform地址不要求你之前使用过着色器程序，但是更新一个uniform之前你必须先使用程序（调用glUseProgram)，因为它是在当前激活的着色器程序中设置uniform的。
+
+***** 更多属性
+颜色数据也可以被加入到顶点数据中，这时候需要修改顶点着色器中的layout，讲location=1的位置设置为颜色属性。由于添加了一个新的顶点属性，并且更新了VBO的内存，就必须重新配置顶点属性指针。
+* 纹理
+为了能够把纹理映射(Map)到三角形上，我们需要指定三角形的每个顶点各自对应纹理的哪个部分。这样每个顶点就会关联着一个纹理坐标(Texture Coordinate)，用来标明该从纹理图像的哪个部分采样（译注：采集片段颜色）。之后在图形的其它片段上进行片段插(Fragment Interpolation)。
+** 纹理过滤
+纹理坐标不依赖于分辨率(Resolution)，它可以是任意浮点值，所以OpenGL需要知道怎样将纹理像素(Texture Pixel，也叫Texel），映射到纹理坐标。当你有一个很大的物体但是纹理的分辨率很低的时候这就变得很重要了。你可能已经猜到了，OpenGL也有对于纹理过滤(Texture Filtering)的选项。纹理过滤有很多个选项，但是现在我们只讨论最重要的两种：GL_NEAREST和GL_LINEAR。
+** 多级渐远纹理
+多级渐远纹理背后的理念很简单：距观察者的距离超过一定的阈值，OpenGL会使用不同的多级渐远纹理，即最适合物体的距离的那个。由于距离远，解析度不高也不会被用户注意到。同时，多级渐远纹理另一加分之处是它的性能非常好。OpenGL对应的API叫做glGenerateMipmap。
+** 加载与创建纹理
+可以使用第三方图像加载库。图像加载之后，以char*的形式，通过glTex相关的API进行采样，之后就可以通过纹理坐标加载进去。
+
+
+
