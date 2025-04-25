@@ -3,6 +3,7 @@
 #+LATEX_COMPILER: xelatex
 #+LATEX_HEADER: \usepackage{fontspec}
 #+LATEX_HEADER: \usepackage{ctex}
+#+LATEX_HEADER: \usepackage{amsmath}
 #+LATEX_HEADER: \setmainfont{Noto Sans CJK SC}
 #+LATEX_HEADER: \usepackage[a4paper,margin=1in]{geometry}
 #+OPTIONS: toc:nil
@@ -144,6 +145,70 @@ Uniform是另一种从我们的应用程序在 CPU 上传递数据到 GPU 上的
 多级渐远纹理背后的理念很简单：距观察者的距离超过一定的阈值，OpenGL会使用不同的多级渐远纹理，即最适合物体的距离的那个。由于距离远，解析度不高也不会被用户注意到。同时，多级渐远纹理另一加分之处是它的性能非常好。OpenGL对应的API叫做glGenerateMipmap。
 ** 加载与创建纹理
 可以使用第三方图像加载库。图像加载之后，以char*的形式，通过glTex相关的API进行采样，之后就可以通过纹理坐标加载进去。
+** 纹理环绕方式
+| 环绕方式 | 描述 |
+| GL_REPEAT | 对纹理的默认行为，重复纹理图像 | 
+| GL_MIRRORED_REPEAT | 每次重复的图像镜像放置 |
+| GL_CLAMP_TO_EDGE | 纹理坐标被约束在0-1之间，超出部分会重复纹理边缘 |
+| GL_CLAMP_TO_BORDER  | 超出的坐标为用户指定的边缘颜色 |
+** 纹理单元
+使用glUniform1i，我们可以给纹理采样器分配一个位置值，这样的话我们能够在一个片段着色器中设置多个纹理。一个纹理的位置值通常称为一个纹理单元(Texture Unit)。一个纹理的默认纹理单元是0，它是默认的激活纹理单元。
 
+纹理单元的主要目的是让我们在着色器中可以使用多于一个的纹理。
 
+* 变换
+** 向量
+向量最基本的定义就是一个方向。或者更正式的说，向量有一个方向(Direction)和大小(Magnitude，也叫做强度或长度)。
+** 旋转
+在3D空间中旋转需要定义一个角和一个旋转轴(Rotation Axis)。物体会沿着给定的旋转轴旋转特定角度。
+传参数时可以使用glUniformMatrix4fv。
+注意一点，OpenGL中的矩阵操作是从右到左的，也就是是说，这样的代码：
+#+BEGIN_SRC c++
+  glm::mat4 trans = glm::mat4(1.0f);                            
+  //trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+  trans = glm::rotate(trans, (float)glfwGetTime(),glm::vec3(0.0f, 0.0f, 1.0f));             
+  trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));    
+#+END_SRC
+执行的是先平移再旋转，交换rotate和translate的位置，就是先旋转后平移。
 
+* 坐标系统
+为了将坐标从一个坐标系变换到另一个坐标系，我们需要用到几个变换矩阵，最重要的几个分别是模型(Model)、观察(View)、投影(Projection)三个矩阵。
+
+我们的顶点坐标起始于局部空间(Local Space)，在这里它称为局部坐标(Local Coordinate)，它在之后会变为世界坐标(World Coordinate)，观察坐标(View Coordinate)，裁剪坐标(Clip Coordinate)，并最后以屏幕坐标(Screen Coordinate)的形式结束。
+** Entering Three Dimension!
+***** ZBuffer
+OpenGL存储它的所有深度信息于一个Z缓冲(Z-buffer)中，也被称为深度缓冲(Depth Buffer)。GLFW会自动为你生成这样一个缓冲（就像它也有一个颜色缓冲来存储输出图像的颜色）。深度值存储在每个片段里面（作为片段的z值），当片段想要输出它的颜色时，OpenGL会将它的深度值和z缓冲进行比较，如果当前的片段在其它片段之后，它将会被丢弃，否则将会覆盖。这个过程称为深度测试(Depth Testing)，它是由OpenGL自动完成的。
+
+然而，如果我们想要确定OpenGL真的执行了深度测试，首先我们要告诉OpenGL我们想要启用深度测试；它默认是关闭的。我们可以通过glEnable函数来开启深度测试。glEnable和glDisable函数允许我们启用或禁用某个OpenGL功能。这个功能会一直保持启用/禁用状态，直到另一个调用来禁用/启用它。
+***** Camera
+获取摄像机位置很简单。摄像机位置简单来说就是世界空间中一个指向摄像机位置的向量。
+
+这里指的是摄像机指向哪个方向。现在我们让摄像机指向场景原点：(0, 0, 0)。还记得如果将两个矢量相减，我们就能得到这两个矢量的差吗？用场景原点向量减去摄像机位置向量的结果就是摄像机的指向向量。由于我们知道摄像机指向z轴负方向，但我们希望方向向量(Direction Vector)指向摄像机的z轴正方向。如果我们交换相减的顺序，我们就会获得一个指向摄像机正z轴方向的向量。
+***** 右轴
+我们需要的另一个向量是一个右向量(Right Vector)，它代表摄像机空间的x轴的正方向。为获取右向量我们需要先使用一个小技巧：先定义一个上向量(Up Vector)。接下来把上向量和第二步得到的方向向量进行叉乘。两个向量叉乘的结果会同时垂直于两向量，因此我们会得到指向x轴正方向的那个向量。
+***** 上轴
+现在我们已经有了x轴向量和z轴向量，获取一个指向摄像机的正y轴向量就相对简单了：我们把右向量和方向向量进行叉乘。
+***** LookAt
+使用矩阵的好处之一是如果你使用3个相互垂直（或非线性）的轴定义了一个坐标空间，你可以用这3个轴外加一个平移向量来创建一个矩阵，并且你可以用这个矩阵乘以任何向量来将其变换到那个坐标空间。这正是LookAt矩阵所做的，现在我们有了3个相互垂直的轴和一个定义摄像机空间的位置坐标，我们可以创建我们自己的LookAt矩阵了。
+#+begin_export latex
+\[
+LookAt=
+\begin{bmatrix}
+R_x & R_y &  R_z & 0 \\
+U_x & U_y & U_z & 0 \\
+D_x & D_y & D_z & 0 \\
+0   & 0   & 0   & 1 
+\end{bmatrix}
+\times
+\begin{bmatrix}
+1 & 0 & 0 & -P_x \\
+0 & 1 & 0 & -P_y \\
+0 & 0 & 1 & -P_z \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+\]
+#+end_export
+
+其中R是右向量，U是上向量，D是方向向量P是摄像机位置向量。注意，位置向量是相反的，因为我们最终希望把世界平移到与我们自身移动的相反方向。
+
+GLM已经提供了这些支持。我们要做的只是定义一个摄像机位置，一个目标位置和一个表示世界空间中的上向量的向量（我们计算右向量使用的那个上向量）。接着GLM就会创建一个LookAt矩阵，我们可以把它当作我们的观察矩阵。
