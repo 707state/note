@@ -76,6 +76,7 @@
 - [2140 解决智力问题](#2140-解决智力问题)
 - [368 最大整除子集](#368-最大整除子集)
 - [UNSOLVED 2843 统计对称整数的数目](#unsolved-2843-统计对称整数的数目)
+- [UNSOLVED 2338 统计理想数组的数目](#unsolved-2338-统计理想数组的数目)
 <!--toc:end-->
 
 
@@ -3600,6 +3601,66 @@ public:
 
         // 初始化 diff = m * 9，避免出现负数导致 memo 下标越界
         return dfs(0, -1, m * 9, true, true);
+    }
+};
+```
+
+</details>
+
+# UNSOLVED 2338 统计理想数组的数目
+
+给你两个整数 n 和 maxValue ，用于描述一个 理想数组 。
+
+对于下标从 0 开始、长度为 n 的整数数组 arr ，如果满足以下条件，则认为该数组是一个 理想数组 ：
+
+每个 arr[i] 都是从 1 到 maxValue 范围内的一个值，其中 0 <= i < n 。
+每个 arr[i] 都可以被 arr[i - 1] 整除，其中 0 < i < n 。
+返回长度为 n 的 不同 理想数组的数目。由于答案可能很大，返回对 109 + 7 取余的结果。
+
+<details>
+
+```c++
+constexpr static int MOD=1e9+7;
+constexpr static int MAX_N=1e4;
+constexpr static int MAX_E=13;
+vector<int> EXP[MAX_N+1];
+int C[MAX_N+MAX_E][MAX_E+1];
+int init=[](){
+    for(int x=2;x<=MAX_N;x++){
+        int t=x;
+        for(int i=2;i*i<=t;i++){
+            int e=0;
+            for(;t%i==0;t/=i){
+                e++;
+            }
+            if(e){
+                EXP[x].push_back(e);
+            }
+        }
+        if(t>1){
+            EXP[x].push_back(1);
+        }
+    }
+    for(int i=0;i<MAX_N+MAX_E;i++){
+        C[i][0]=1;
+        for(int j=1;j<=min(i,MAX_E);j++){
+            C[i][j]=(C[i-1][j]+C[i-1][j-1])%MOD;
+        }
+    }
+    return 0;
+}();
+class Solution {
+public:
+    int idealArrays(int n, int maxValue) {
+        long long ans=0;
+        for(int x=1;x<=maxValue;x++){
+            long long res=1;
+            for(int e: EXP[x]){
+                res=res*C[n+e-1][e]%MOD;
+            }
+            ans+=res;
+        }
+        return ans%MOD;
     }
 };
 ```
