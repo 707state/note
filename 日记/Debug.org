@@ -1,0 +1,20 @@
+#+title: 记录各种debug遇到的问题
+#+author: Jask
+#+LATEX_COMPILER: xelatex
+#+LATEX_HEADER: \usepackage{fontspec}                    
+#+LATEX_HEADER: \usepackage{ctex}                        
+#+LATEX_HEADER: \usepackage{amsmath}                     
+#+LATEX_HEADER: \setmainfont{Noto Sans CJK SC}           
+#+LATEX_HEADER: \usepackage[a4paper,margin=1in]{geometry}
+#+OPTIONS: toc:nil                                       
+#+mathspec: true                                         
+
+* C++ 相关
+** RAII
+C++中RAII会要求编写者必须注意变量的释放。
+#+begin_src c++
+  std::string getStr(){}
+  ...
+  const char* getFirst=getStr.c_str();
+#+end_src
+就是一个典型的不清楚RAII导致的bug。

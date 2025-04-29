@@ -1,0 +1,20 @@
+#+title: 好玩的博客
+#+author: jask                                           
+#+LATEX_COMPILER: xelatex                                
+#+LATEX_HEADER: \usepackage{fontspec}                    
+#+LATEX_HEADER: \usepackage{ctex}                        
+#+LATEX_HEADER: \usepackage{amsmath}                     
+#+LATEX_HEADER: \setmainfont{Noto Sans CJK SC}           
+#+LATEX_HEADER: \usepackage[a4paper,margin=1in]{geometry}
+#+OPTIONS: toc:nil                                       
+#+mathspec: true                                         
+
+
+* lisyarus blog
++ https://lisyarus.github.io/blog/feed.xml
+* Carlos Carrasco
++ https://carloscarrasco.com
+* Dusty Cloud
++ https://dustycloud.org/
+* Wingolog
++ https://wingolog.org/about/
