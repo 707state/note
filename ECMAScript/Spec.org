@@ -1,0 +1,143 @@
+#+title: ECMAScript学习
+#+author: jask                                           
+#+LATEX_COMPILER: xelatex                                
+#+LATEX_HEADER: \usepackage{fontspec}                    
+#+LATEX_HEADER: \usepackage{ctex}                        
+#+LATEX_HEADER: \usepackage{amsmath}                     
+#+LATEX_HEADER: \setmainfont{Noto Sans CJK SC}           
+#+LATEX_HEADER: \usepackage[a4paper,margin=1in]{geometry}
+#+OPTIONS: toc:nil                                       
+#+mathspec: true                                         
+
+* 环境记录
+Environment Record（环境记录）是ECMAScript规范中的一个核心概念，它是JavaScript引擎如何存储和管理变量、函数以及词法作用域的关键组成部分。
+** 声明式环境记录（Declarative Environment Record）
+#+begin_src javascript
+  function makeCounter() {
+  let count = 0;  // 存储在声明式环境记录中
+  
+  return function() {
+    return ++count;  // 通过闭包访问环境记录中的变量
+  };
+}
+
+const counter = makeCounter();
+console.log(counter()); // 1
+console.log(counter()); // 2
+#+end_src
+** 对象式环境变量(Object Environment Record)
+#+begin_src javascript
+const user = {
+  name: "Alice",
+  age: 30
+};
+
+with (user) {  // 创建对象式环境记录
+  console.log(name);  // "Alice"
+  console.log(age);   // 30
+}
+#+end_src
+with语句创建了一个对象式环境记录，将标识符直接映射到user对象的属性。在with块内部，引用name时实际访问的是user.name。(注意：实际开发中不推荐使用with)
+** 全局环境记录(Global Environment Record)
+#+begin_src javascript
+var globalVar = "我是全局变量";  // 成为全局对象的属性
+let blockScopedVar = "我是块级作用域变量";  // 不成为全局对象的属性
+
+function globalFunction() {
+  return "全局函数";
+}
+
+console.log(window.globalVar);  // "我是全局变量" (在浏览器环境)
+console.log(window.blockScopedVar);  // undefined
+#+end_src
+全局环境记录管理全局作用域中的标识符。使用var声明的变量会成为全局对象的属性，而let/const声明的变量不会。
+** 函数环境记录(Function Environment Record)
+#+begin_src javascript
+function outer(param) {
+  const outerVar = "外部变量";
+  
+  function inner() {
+    const innerVar = "内部变量";
+    console.log(param, outerVar, innerVar);
+  }
+  
+  return inner;
+}
+
+const closureFn = outer("参数值");
+closureFn();  // "参数值 外部变量 内部变量"
+#+end_src
+outer函数执行时创建函数环境记录，包含param参数和outerVar变量
+inner函数创建自己的环境记录，包含innerVar
+inner函数可以访问自身环境记录以及外部环境记录中的变量
+** 变量提升与环境记录
+#+begin_src javascript
+function hoistingExample() {
+  console.log(hoistedVar);  // undefined (不报错)
+  // console.log(notHoisted);  // 报错: ReferenceError
+  
+  var hoistedVar = "我被提升了";
+  let notHoisted = "我没被提升";
+}
+
+hoistingExample();
+#+end_src
+环境记录处理var声明的方式是在函数开始执行前创建变量并初始化为undefined，而let/const声明的变量虽然也被记录，但在实际声明前处于"暂时性死区"。
+
+* Realm
+一个realm包含:
++ 一组完整的内置对象：所有标准内置对象（如Object, Array, Function, Math等），全局对象（浏览器中的window，Node.js中的global），所有标准构造函数
++ 全局环境：全局作用域，全局对象
+
+  Realm概念解释了为什么在不同的执行环境中，同样的代码可能有不同的行为。
+  #+begin_src javascript
+  // 在iframe或跨窗口通信中
+const arrayFromFrameA = window.frames[0].Array(1,2,3);
+console.log(arrayFromFrameA instanceof Array); // false，因为来自不同的Realm
+#+end_src
+
+* Execution Context（执行上下文）
+执行上下文是JavaScript代码执行时的环境抽象，定义了代码执行所需的所有信息。
+** 全局执行上下文
++ 代码执行开始时创建
++ 只有一个全局上下文
+** 函数执行上下文
++ 每次调用函数时创建
++ 函数执行完毕后销毁
+** Eval执行上下文
++ 在eval函数内部执行代码时创建
+** 组成部分
++ 词法环境（LexicalEnvironment）
++ 变量环境（VariableEnvironment）
++ This绑定
++ 代码执行状态
+** 执行上下文栈
+JavaScript引擎使用执行上下文栈（也称为调用栈）来管理执行上下文：
+#+begin_src javascript
+function first() {
+  console.log('Inside first function');
+  second();
+}
+
+function second() {
+  console.log('Inside second function');
+}
+
+first();
+// 执行上下文栈变化：
+// 1. 全局执行上下文入栈
+// 2. first函数执行上下文入栈
+// 3. second函数执行上下文入栈
+// 4. second函数执行上下文出栈
+// 5. first函数执行上下文出栈
+#+end_src
+
+* 调度机制
+JS的执行模型就是执行上下文(调用栈)是如何被ECMAScript实现执行的。底层的实现机制是Agents和Agent Clusters。
+** Agents
+一个agent包含一组执行上下文、一个上下文栈和一个运行中的执行上下文。
+基本原则：不同Agent的执行是相互独立的，这保证了执行环境的隔离
+优化策略：为了资源效率，多个Agent可以共享同一个执行线程，但有限制条件
+阻塞限制：如果Agent可能执行阻塞操作（CanBlock=true），则不能与其他Agent共享线程，必须使用独立线程。
+** Agent Cluster
+Agent Cluster是一组能够通过操作共享内存进行通信的最大Agent集合，决定了哪些执行单元（Agent）可以通过共享内存直接通信。

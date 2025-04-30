@@ -58,6 +58,8 @@
     - [final](#final)
   - [虚函数究竟在哪些地方变慢了？](#虚函数究竟在哪些地方变慢了)
   - [构造函数默认使用浅拷贝](#构造函数默认使用浅拷贝)
+  - [PGO](#pgo)
+  - [syncstream](#syncstream)
 - [杂项](#杂项)
   - [forward declaration](#forward-declaration)
   - [std::swap VS xor](#stdswap-vs-xor)
@@ -1256,11 +1258,15 @@ int main() {
 
 如果是被定义好的构造函数，就要看构造函数使用的是哪一个。
 
-# PGO
+## PGO
 
 PGO是指的程序运行过程中利用采集到的profile数据重新编译程序以达到优化效果的post-link优化技术。
 
 通过采集数据+重新构建的方式可以做到这一点。
+
+## syncstream
+
+C++20实现了osyncstream的相关功能，提供了线程安全的输出。
 
 # 杂项
 
