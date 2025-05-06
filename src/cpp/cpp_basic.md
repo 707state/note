@@ -66,6 +66,8 @@
   - [cbrt](#cbrt)
   - [sendto](#sendto)
   - [__builtin_ffs](#builtinffs)
+  - [Bitfield](#bitfield)
+    - [为什么用这个东西？](#为什么用这个东西)
 <!--toc:end-->
 
 
@@ -1312,3 +1314,66 @@ sys/socket.h 中的函数，用来将消息发送到 dest_addr。被用于实现
 ## __builtin_ffs
 
 __builtin_ffs返回输入数的二进制表示的最低非零位的下标
+
+## Bitfield
+C++允许使用Bitfield的方式来让用户自行定义变量在内存中的布局。
+
+```c++
+#include <iostream>
+#include <iomanip>
+
+// 使用位域定义一个日期时间结构体，类似于嵌入式系统中的RTC寄存器
+struct DateTime {
+    // 日期部分
+    unsigned int second : 6;    // 0-59 (需要6位)
+    unsigned int minute : 6;    // 0-59 (需要6位)
+    unsigned int hour   : 5;    // 0-23 (需要5位)
+    unsigned int day    : 5;    // 1-31 (需要5位)
+    unsigned int month  : 4;    // 1-12 (需要4位)
+    unsigned int year   : 6;    // 0-63 (表示2000-2063年，需要6位)
+    
+    // 状态标志
+    unsigned int is_dst     : 1;  // 夏令时标志
+    unsigned int is_leap    : 1;  // 闰年标志
+    unsigned int alarm_set  : 1;  // 闹钟设置标志
+    unsigned int power_low  : 1;  // 低电量标志
+    
+    // 显示日期时间的方法
+    void print() const {
+        std::cout << "日期: " 
+                  << std::setfill('0') << std::setw(2) << (2000 + year) << "-"
+                  << std::setfill('0') << std::setw(2) << month << "-"
+                  << std::setfill('0') << std::setw(2) << day << " "
+                  << std::setfill('0') << std::setw(2) << hour << ":"
+                  << std::setfill('0') << std::setw(2) << minute << ":"
+                  << std::setfill('0') << std::setw(2) << second << std::endl;
+                  
+        std::cout << "状态: "
+                  << "夏令时=" << is_dst
+                  << ", 闰年=" << is_leap
+                  << ", 闹钟=" << alarm_set
+                  << ", 低电量=" << power_low << std::endl;
+    }
+};
+
+int main() {
+    DateTime now{30, 45, 15, 6, 5, 23, 1, 0, 1, 0};  // 2023-05-06 15:45:30
+    
+    std::cout << "DateTime 大小: " << sizeof(DateTime) << " 字节" << std::endl;
+    now.print();
+    
+    // 修改时间
+    now.hour = 16;
+    now.minute = 20;
+    now.power_low = 1;
+    
+    std::cout << "\n更新后:" << std::endl;
+    now.print();
+    
+    return 0;
+}
+```
+
+### 为什么用这个东西？
+C++中是有一种机制叫做内存对齐的，也就是说，C++中的struct/class默认会按照一个字节的标准进行填充，对于内存来说就有了浪费。
+
