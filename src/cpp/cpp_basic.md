@@ -1331,23 +1331,23 @@ struct DateTime {
     unsigned int day    : 5;    // 1-31 (需要5位)
     unsigned int month  : 4;    // 1-12 (需要4位)
     unsigned int year   : 6;    // 0-63 (表示2000-2063年，需要6位)
-    
+
     // 状态标志
     unsigned int is_dst     : 1;  // 夏令时标志
     unsigned int is_leap    : 1;  // 闰年标志
     unsigned int alarm_set  : 1;  // 闹钟设置标志
     unsigned int power_low  : 1;  // 低电量标志
-    
+
     // 显示日期时间的方法
     void print() const {
-        std::cout << "日期: " 
+        std::cout << "日期: "
                   << std::setfill('0') << std::setw(2) << (2000 + year) << "-"
                   << std::setfill('0') << std::setw(2) << month << "-"
                   << std::setfill('0') << std::setw(2) << day << " "
                   << std::setfill('0') << std::setw(2) << hour << ":"
                   << std::setfill('0') << std::setw(2) << minute << ":"
                   << std::setfill('0') << std::setw(2) << second << std::endl;
-                  
+
         std::cout << "状态: "
                   << "夏令时=" << is_dst
                   << ", 闰年=" << is_leap
@@ -1358,18 +1358,18 @@ struct DateTime {
 
 int main() {
     DateTime now{30, 45, 15, 6, 5, 23, 1, 0, 1, 0};  // 2023-05-06 15:45:30
-    
+
     std::cout << "DateTime 大小: " << sizeof(DateTime) << " 字节" << std::endl;
     now.print();
-    
+
     // 修改时间
     now.hour = 16;
     now.minute = 20;
     now.power_low = 1;
-    
+
     std::cout << "\n更新后:" << std::endl;
     now.print();
-    
+
     return 0;
 }
 ```
@@ -1377,3 +1377,132 @@ int main() {
 ### 为什么用这个东西？
 C++中是有一种机制叫做内存对齐的，也就是说，C++中的struct/class默认会按照一个字节的标准进行填充，对于内存来说就有了浪费。
 
+## 生命周期
+
+```c++
+Before the lifetime of an object has started but after the storage which the object will occupy has been
+allocated38 or, after the lifetime of an object has ended and before the storage which the object occupied is
+reused or released, any pointer that refers to the storage location where the object will be or was located
+may be used but only in limited ways. For an object under construction or destruction, see 12.7. Otherwise,
+such a pointer refers to allocated storage (3.7.4.2), and using the pointer as if the pointer were of type void*,
+is well-defined. Such a pointer may be dereferenced but the resulting lvalue may only be used in limited
+ways, as described below. The program has undefined behavior if:
+— the object will be or was of a class type with a non-trivial destructor and the pointer is used as the
+operand of a delete-expression,
+— the pointer is used to access a non-static data member or call a non-static member function of the
+object, or
+— the pointer is implicitly converted (4.10) to a pointer to a base class type, or
+— the pointer is used as the operand of a static_cast (5.2.9) (except when the conversion is to void*,
+or to void* and subsequently to char*, or unsigned char*), or
+— the pointer is used as the operand of a dynamic_cast (5.2.7). [ Example:
+#include <cstdlib>
+struct B {
+virtual void f();
+void mutate();
+virtual ~B();
+};
+struct D1 : B { void f(); };
+struct D2 : B { void f(); };
+void B::mutate() {
+new (this) D2; // reuses storage — ends the lifetime of *this
+f(); // undefined behavior
+... = this; // OK, this points to valid memory
+}
+void g() {
+void* p = std::malloc(sizeof(D1) + sizeof(D2));
+B* pb = new (p) D1;
+pb->mutate();
+&pb; void* q = pb; pb->f(); // OK: pb points to valid memory
+// OK: pb points to valid memory
+// undefined behavior, lifetime of *pb has ended
+}
+
+```
+
+这段代码里面，ph->mutate()的调用在this上构造了新的D2对象，这就导致了*this的生命周期的结束。
+
+## 类型转换
+
+### Lvalue to Rvalue
+
+glvalue也就是非函数、非数组的值可以被转换为prvalue。
+
+当lvalue-to-rvalue转换发生在未求值表达式（如 sizeof, decltype, typeid, noexcept 的操作数）或其子表达式中时，被引用对象中的值不会被访问。
+也就是说，编译器只关心类型，不会真正读取对象的值。
+
+如果glvalue是类类型，转换时会用该glvalue拷贝初始化一个临时对象，转换结果是一个指向这个临时对象的prvalue。
+
+### 其他
+
+数组到指针是一个合法转换，指针指向第一个元素。
+
+函数到指针需要注意重载的情况。
+
+函数类型永远不是CV-Qualified的。
+
+### 整形提升
+
+对于除了bool, char16\_t, char32\_t和wchar\_t之外的类型，每种整数类型有一个“转换等级（rank）”，int 的rank比 char、short 等要高。
+
+只有rank低于int的类型（如char、short）才适用这条规则。
+
+如果 int 能表示源类型的所有值，则将其提升为 int 类型。
+例如：char、short 一般都能被 int 表示，所以会提升为 int。
+否则（即 int 不能表示源类型的所有值），则提升为 unsigned int。
+这通常发生在某些罕见的实现中，比如 unsigned short 的取值范围大于 int。
+
+#### 第一种特殊情况
+
+char16\_t, char32\_t和wchar\_t的整形提升规则：这些类型通常用于Unicode字符编码（如UTF-16、UTF-32），它们的底层类型和大小由实现决定（比如2字节、4字节）。
+
+步骤1：查找能容纳所有值的类型
+
+编译器会按顺序检查以下类型：
+int
+unsigned int
+long int
+unsigned long int
+long long int
+unsigned long long int
+找到第一个能表示char16\_t、char32\_t或wchar\_t所有可能值的类型，就把它转换成该类型。
+
+步骤2：如果都不行
+
+如果上面这些类型都不能表示原类型的所有值（理论上极少见），则转换为其底层类型（underlying type）。
+
+#### 第二种特殊情况
+
+这里是C++中未限定作用域的枚举类型（unscoped enum）在进行整型提升（integer promotion）时的规则，尤其是底层类型未固定时的情况。
+
+未限定作用域：
+
+```c++
+enum Color { Red, Green, Blue };
+```
+
+没有enum class/struct修饰的就是未限定作用域。
+
+枚举类型有一组可能的值（bmin到bmax）。
+编译器按顺序检查下面这些类型，找到第一个能够表示所有枚举值的类型，就提升为这种类型：
+int
+unsigned int
+long int
+unsigned long int
+long long int
+unsigned long long int
+例如：如果所有枚举值都在int范围内，就提升为int；如果不行就尝试unsigned int，依此类推。
+
+如果上面6种类型都无法容纳所有枚举值（极为罕见，除非枚举值特别大或小），
+就提升为比long long还大的实现定义的扩展整型类型（extended integer type），
+选取rank最低（即最小的）且能容纳所有枚举值的类型，
+如果有一个有符号、一个无符号都满足，则选有符号类型。
+
+对于Bitfield来说：
+
+```c++
+struct S {
+    int a : 3;   // a 是一个3位宽的有符号整型位域
+    unsigned int b : 5; // b 是一个5位宽的无符号整型位域
+};
+```
+如果int不能表示所有位域的值（比如某些无符号大位宽的位域），那么如果unsigned int可以表示所有的值，就提升为 unsigned int。
