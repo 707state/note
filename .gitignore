@@ -8,3 +8,4 @@ main
 pdf/
 **/*.tex
 **/*.pdf
+!src/cpp/spec/cpp11.pdf
