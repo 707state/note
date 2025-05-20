@@ -68,6 +68,14 @@
   - [__builtin_ffs](#builtinffs)
   - [Bitfield](#bitfield)
     - [为什么用这个东西？](#为什么用这个东西)
+  - [生命周期](#生命周期)
+  - [类型转换](#类型转换)
+    - [Lvalue to Rvalue](#lvalue-to-rvalue)
+    - [其他](#其他)
+    - [整形提升](#整形提升)
+      - [第一种特殊情况](#第一种特殊情况)
+      - [第二种特殊情况](#第二种特殊情况)
+  - [carries\_dependency](#carriesdependency)
 <!--toc:end-->
 
 
@@ -1506,3 +1514,58 @@ struct S {
 };
 ```
 如果int不能表示所有位域的值（比如某些无符号大位宽的位域），那么如果unsigned int可以表示所有的值，就提升为 unsigned int。
+
+## carries\_dependency
+carries\_dependency是C++11引入的一个属性，用于内存序(memory order)优化，特别是在处理依赖关系链(dependency chain)时。它主要与memory_order_consume加载操作一起使用，用于指示编译器保留数据依赖关系，防止编译器优化破坏这些依赖关系。
+
+当我们在多线程编程中使用原子操作时，memory_order_consume允许我们利用数据依赖关系来减少同步开销。carries_dependency属性告诉编译器某个函数参数或返回值携带了这种依赖关系，应该保留而不是优化掉。
+```c++
+#include <atomic>
+#include <iostream>
+
+void print(int* val)
+{
+    std::cout << *val << std::endl;
+}
+
+void print2(int* val [[carries_dependency]])
+{
+    std::cout << *val << std::endl;
+}
+
+int main()
+{
+    int x{42};
+    std::atomic<int*> p = &x;
+    int* local = p.load(std::memory_order_consume);
+
+    if (local)
+    {
+        // The dependency is explicit, so the compiler knows that local is
+        // dereferenced, and that it must ensure that the dependency chain
+        // is preserved in order to avoid a fence (on some architectures).
+        std::cout << *local << std::endl;
+    }
+
+    if (local)
+    {
+        // The definition of print is opaque (assuming it is not inlined),
+        // so the compiler must issue a fence in order to ensure that
+        // reading *p in print returns the correct value.
+        print(local);
+    }
+
+    if (local)
+    {
+        // The compiler can assume that although print2 is also opaque then
+        // the dependency from the parameter to the dereferenced value is
+        // preserved in the instruction stream, and no fence is necessary (on
+        // some architectures). Obviously, the definition of print2 must actually
+        // preserve this dependency, so the attribute will also impact the
+        // generated code for print2.
+        print2(local);
+    }
+}
+```
+
+此attribute已经在C++26标准被移除。

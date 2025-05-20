@@ -1,0 +1,68 @@
+#+title: 图形学系列——Skia
+#+author: jask                                           
+#+LATEX_COMPILER: xelatex
+#+LATEX_HEADER: \usepackage{fontspec}
+#+LATEX_HEADER: \usepackage{ctex}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \setmainfont{Noto Sans CJK SC}
+#+LATEX_HEADER: \usepackage[a4paper,margin=1in]{geometry}
+#+OPTIONS: toc:nil
+#+mathspec: true
+
+* Skia基本知识
+先画出来第一个图形！
+#+begin_src c++
+#include "skia.h"
+void draw(SkCanvas *canvas);
+int main() {
+    // 创建一个位图表面
+    const int width = 640;
+    const int height = 480;
+    auto surface=SkSurfaces::Raster(SkImageInfo::MakeN32Premul(width,height));
+    auto canvas = surface->getCanvas();
+
+    // 清除背景
+    canvas->clear(SK_ColorWHITE);
+    // 绘制
+    draw(canvas);
+    // 保存为 PNG
+    sk_sp<SkImage> image = surface->makeImageSnapshot();
+    sk_sp<SkData> png_data = SkPngEncoder::Encode(nullptr, image.get(), SkPngEncoder::Options());
+
+    SkFILEWStream file_stream("output.png");
+    file_stream.write(png_data->data(), png_data->size());
+    return 0;
+}
+void draw(SkCanvas *canvas) {
+    const SkScalar scale = 256.0f;
+    const SkScalar R = 0.45f * scale;
+    const SkScalar TAU = 6.2831853f;
+    SkPath path;
+    path.moveTo(R, 0.0f);
+    for (int i = 0; i < 7; i++) {
+        SkScalar theta = 3 * i * TAU / 7;
+        path.lineTo(R * cos(theta), R * sin(theta));
+    }
+    path.close();
+    SkPaint p;
+    p.setAntiAlias(true);
+    canvas->clear(SK_ColorWHITE);
+    canvas->translate(0.5f * scale, 0.5f * scale);
+    canvas->drawPath(path, p);
+}
+#+end_src
+
+这个例子已经涵盖了大多数Skia的用途，比如说绘图、路径...
+
+接下来就探索一下每一部分如何使用！
+** SkPath
+SkPath包括几何。一个path需要包含至少一个能够画出图形的动作。path的起点是一个笛卡尔坐标系(Cartessian Coordinate)的动作，并且所有的动作需要连为一个连续的轮廓。需要注意，SkPath是惰性计算的。
+
++ moveTo: 将当前的起点移动到坐标(x,y)。
++ lineTo: 在当前的位置移动到(x,y)，之后当前位置就变为(x,y)。
++ quadTo: 绘制二次贝塞尔曲线，从当前点到终点(x2,y2)，使用(x1,y1)作为控制点。意思就是，以当前点为起点到(x2,y2), (x1,y1)作为控制点决定了曲线的弯曲程度。
++ conicTo: 绘制圆锥曲线，由起始点、终点、控制点和权重决定。起始点是目前的点。
++ arcTo: 绘制圆弧专用，能够直观地控制弧度。
++ cubicTo: 创建三次贝塞尔曲线，通过两个控制点定义更复杂的曲率。
+
+基础的内容就是这些，还有rArcTo等方法。
