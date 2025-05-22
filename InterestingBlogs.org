@@ -24,9 +24,64 @@
 + https://semantic-domain.blogspot.com/
 * matins3
 + https://martins3.github.io
-* C++ Weekly CN
+* C++ Related
 + https://github.com/wanghenshui/cppweeklynews
++ https://blog.llvm.org
 * Richard Mitton
 + http://www.codersnotes.com/about/
 * jwhitham
 + https://www.jwhitham.org/
+* 谭升
++ https://face2ai.com/program-blog/#GPU编程（CUDA）
+* HPC from scratch
++ https://wiki.lcpu.dev/zh/hpc/from-scratch/cuda
+* 并行化相关
++ https://github.com/parallel101/course
+* 杂谈
++ https://liam.page
++ https://paulgraham.com/index.html
++ https://0xrick.github.io
++ https://thesecretlivesofdata.com/
+
+* JavaScript Related
++ https://v8.dev/blog
+
++ Wingolog has something about js inside guile. Worth reading.
+
++ https://webkit.org/blog/
+
++ https://blog.jcoglan.com
+
+* Some Indie stuff
++ https://rahulsharma.pro
+
++ https://www.sczyh30.com/archives/
+
+* 苏洋
++ https://soulteary.com
+
+* 9front related
++ https://9fans.topicbox.com/latest
+
+* Marco Righele
++ https://righele.it
+
+* Kotlin related
+
+* Arch Linux Related
++ https://www.rainafter.cn
+
+* Apple related
++ https://nshipster.com
+
+* Caturra
++ https://www.bluepuni.com
+
+* 蔡博士
++ https://microcai.org
+
+* ray eldath
++ https://ray-eldath.me
+
+* 根
++ https://www.yinwang.org

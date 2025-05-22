@@ -9,3 +9,14 @@ pdf/
 **/*.tex
 **/*.pdf
 !src/cpp/spec/cpp11.pdf
+!ECMAScript/spec/ecma_262.pdf
+图形学/OpenGL.md
+**/build
+**/.cache
+**/.DS_Store
+**/.tex
+ECMAScript/EvaluateModule.png
+!src/ASM/arm64_asm.pdf
+**/*.o
+.obsidian/
+!Paper/*.pdf
