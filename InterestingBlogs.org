@@ -24,3 +24,9 @@
 + https://semantic-domain.blogspot.com/
 * matins3
 + https://martins3.github.io
+* C++ Weekly CN
++ https://github.com/wanghenshui/cppweeklynews
+* Richard Mitton
++ http://www.codersnotes.com/about/
+* jwhitham
++ https://www.jwhitham.org/
