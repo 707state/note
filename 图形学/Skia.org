@@ -79,17 +79,17 @@ SkPaint相当于一个画笔，可以在Canvas上绘制。
 + canComputeFastBounds: 该方法通过检查 SkPaint 的属性，判断是否需要复杂计算来确定绘制内容的设备边界。
 
 有6种effect可以赋值给paint：
-****** SkPathEffect
+*** SkPathEffect
 在生成Alpha Mask之前对几何路径的修改。
-****** SkRasterizer
+*** SkRasterizer
 合成自定义的Mask层。
-****** SkMaskFilter
+*** SkMaskFilter
 Alpha层被着色和绘制之前进行修改。
-****** SkShader
+*** SkShader
 定义颜色或图案的填充方式，支持渐变和位图图案，并控制它们的平铺模式。
-****** SkColorFilter
+*** SkColorFilter
 在颜色与目标像素混合之前，修改源颜色（Source Color）。
-****** SkBlendMode
+*** SkBlendMode
 接受两个颜色(起点，终点)，返回一个新的颜色。
 
 #+begin_src c++
@@ -191,3 +191,5 @@ void draw(SkCanvas *canvas) {
     }
 }
 #+end_src
+
+** SkCanvas
