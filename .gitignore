@@ -9,3 +9,4 @@ pdf/
 **/*.tex
 **/*.pdf
 !src/cpp/spec/cpp11.pdf
+!ECMAScript/spec/ecma_262.pdf
