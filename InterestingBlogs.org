@@ -30,3 +30,9 @@
 + http://www.codersnotes.com/about/
 * jwhitham
 + https://www.jwhitham.org/
+* 谭升
++ https://face2ai.com/program-blog/#GPU编程（CUDA）
+* HPC from scratch
++ https://wiki.lcpu.dev/zh/hpc/from-scratch/cuda
+* 并行化相关
++ https://github.com/parallel101/course

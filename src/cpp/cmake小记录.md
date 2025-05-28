@@ -47,3 +47,30 @@ cmake_parse_arguments(
 <args>：实际传入的参数，可以是 ${ARGV} 或 ${ARGN}。
 
 用这个函数可以做到一些很方便的操作，比如说避免条件编译而是把编译放在单独的编译选项中，在编译时把符合要求的实现加入进来而不是通过大量的宏来隐藏实现细节。
+
+### 例子
+
+```cmake
+function(auto_link TARGET)
+    cmake_parse_arguments(ARG
+        "EXE;LIB"
+        ""
+        "LIBS;INCLUDES"
+        ${ARGN})
+    set(SOURCES ${ARG_UNPARSED_ARGUMENTS})
+    if(ARG_EXE)
+        add_executable(${TARGET} ${SOURCES})
+    elseif(ARG_LIB)
+        add_library(${TARGET} ${SOURCES})
+    endif()
+    target_link_libraries(${TARGET} PUBLIC ${ARG_LIBS})
+    target_link_libraries(${TARGET}
+    PUBLIC
+    ${ARG_INCLUDES})
+    set_target_properties(${TARGET}
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+  )
+endfunction()
+```
+这个函数可以简化添加一个target所需要的那些命令，对我而言非常方便。
