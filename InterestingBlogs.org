@@ -36,3 +36,5 @@
 + https://wiki.lcpu.dev/zh/hpc/from-scratch/cuda
 * 并行化相关
 + https://github.com/parallel101/course
+* 杂谈
++ https://liam.page

@@ -74,3 +74,6 @@ function(auto_link TARGET)
 endfunction()
 ```
 这个函数可以简化添加一个target所需要的那些命令，对我而言非常方便。
+
+# aux_source_directory
+把一个路径下的所有源文件添加到一个列表里面，可以用来简化添加library或者executable的过程。

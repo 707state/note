@@ -10,3 +10,4 @@ pdf/
 **/*.pdf
 !src/cpp/spec/cpp11.pdf
 !ECMAScript/spec/ecma_262.pdf
+图形学/OpenGL.md
