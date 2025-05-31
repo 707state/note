@@ -375,3 +375,5 @@ glGenXXX的作用就是创建对应的一个数据结构并把对应的数据和
 后续就可以对这个id进行操作。
 
 比如说，glDrawArrays就会调用最近绑定的VAO去读取其关联的数据并渲染。
+
+glVertexAttribPointer会把数据绑定到index所对应的位置，glEnableVertexAttribArray则会把index上绑定的数据会启用这一块的数据，index可以被用来绑定别的数据，但是先前以及绑定过的数据不会被覆盖。
