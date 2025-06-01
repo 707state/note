@@ -377,3 +377,127 @@ glGenXXX的作用就是创建对应的一个数据结构并把对应的数据和
 比如说，glDrawArrays就会调用最近绑定的VAO去读取其关联的数据并渲染。
 
 glVertexAttribPointer会把数据绑定到index所对应的位置，glEnableVertexAttribArray则会把index上绑定的数据会启用这一块的数据，index可以被用来绑定别的数据，但是先前以及绑定过的数据不会被覆盖。
+换句话说，glBindXXX的作用和Kotlin中的apply是非常相似的。
+
+** 事件循环
+OpenGL的事件循环，通常会包括计算帧时间、处理输入事件、渲染设置和清空屏幕、渲染物体（使用着色器，从useProgram到drawArrays）、渲染光源（取决于光源类型）、交换缓冲区并处理事件（pollEvents）。
+
+事件循环的过程中，包含了整个渲染的流程，也就是模型矩阵的平移、旋转、缩放，视图矩阵（世界空间转移到摄像机空间），投影矩阵（摄像机空间转移到裁剪空间）的应用。
+
+通常的做法是把Camera、Shader和Texturex等组件封装起来。例如model, projection, view这些矩阵就可以通过封装Camera来简化代码，然后就可以通过封装Shader的设置uniform的操作来设置对应的属性。
+
+** 纹理
+纹理也是与VAO一样的，先通过一个loader把一张素材转化为一个char *的数据，然后也是使用一个id来与数据进行一个绑定。
+glTexImage2D是一个2D的纹理，通过glGenerateMipmap自动生成这个纹理的多级贴图。
+
+** 模型
+模型这一块要复杂得多，比如说加载模型的网格数据这一部分：
+#+begin_src cpp
+    void Mesh::setupMesh() {                                                     
+      // create buffers/arrays                                                   
+      glGenVertexArrays(1, &VAO);                                                
+      glGenBuffers(1, &VBO);                                                     
+      glGenBuffers(1, &EBO);                                                     
+      //绑定 VAO，将后续操作关联到这个顶点数组对象。                                              
+      glBindVertexArray(VAO);                                                    
+      // load data into vertex buffers
+      // 绑定 VBO 到目标 GL_ARRAY_BUFFER，接下来对顶点数据的操作将作用于这个缓冲区对象。
+      glBindBuffer(GL_ARRAY_BUFFER, VBO);                                        
+      // A great thing about structs is that their memory layout is sequential fo
+      // all its items. The effect is that we can simply pass a pointer to the   
+      // struct and it translates perfectly to a glm::vec3/2 array which again   
+      // translates to 3/2 floats which translates to a byte array.              
+      glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0],
+                   GL_STATIC_DRAW);                                              
+      //绑定 EBO，用于储存索引数据。索引用于定义顶点绘制的顺序。
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);                   
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);                                
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int)
+                   &indices[0], GL_STATIC_DRAW);                                 
+
+      // set the vertex attribute pointers                          
+      // set the vertex attribute pointers                                       
+      // vertex Positions                                                        
+      glEnableVertexAttribArray(0);                                              
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
+      // vertex normals                                                          
+      glEnableVertexAttribArray(1);                                              
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),            
+                            (void *)offsetof(Vertex, Normal));                   
+      // vertex texture coords                                                   
+      glEnableVertexAttribArray(2);                                              
+      glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),            
+                            (void *)offsetof(Vertex, TexCoords));                
+      // vertex tangent                                                          
+      glEnableVertexAttribArray(3);                                              
+      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),            
+                            (void *)offsetof(Vertex, Tangent));                  
+      // vertex bitangent                                                        
+      glEnableVertexAttribArray(4);                                              
+      glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),            
+                            (void *)offsetof(Vertex, Bitangent));                
+      // ids                                                                     
+      glEnableVertexAttribArray(5);                                              
+      glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex),                       
+                             (void *)offsetof(Vertex, m_BoneIDs));               
+
+      // weights                                        
+      // weights                                                                 
+      glEnableVertexAttribArray(6);                                              
+      glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),            
+                            (void *)offsetof(Vertex, m_Weights));                
+      glBindVertexArray(0);                                                      
+    }
+#+end_src
+
+这段代码会和之前的理解不太一样，也就是glBindVertexArray之后立马就glBindBufferData，这里的作用是为了确保当前VAO记录对VBO的使用状态。
+VAO记录有关GL_ARRAY_BUFFER绑定的信息。即这么做能使得VAO完整维护一个和特定对象渲染相关的状态集。当之后再绑定此VAO时，这些状态会自动恢复。
+
+绘制的代码也不太一样：
+#+begin_src cpp
+      void Mesh::Draw(Shader &shader) {                                                 
+        // bind appropriate textures
+        //计数变量用于跟踪不同类型的纹理：漫反射、镜面反射、法线和高度。
+        unsigned int diffuseNr = 1;                                                     
+        unsigned int specularNr = 1;                                                    
+        unsigned int normalNr = 1;                                                      
+        unsigned int heightNr = 1;
+        //循环遍历所有与网格关联的纹理，通过 glActiveTexture 激活当前纹理单元。
+        //GL_TEXTURE0 + i 指定了激活的纹理单元，确保每个纹理分配到一个单独的单元。
+        for (unsigned int i = 0; i < textures.size(); i++) {                            
+          glActiveTexture(GL_TEXTURE0 +                                                 
+                          i);  // active proper texture unit before binding             
+          // retrieve texture number (the N in diffuse_textureN)
+          // 根据纹理的类型（漫反射、镜面反射、法线、高度），决定其编号。
+          //将编号转换为字符串，标记为 number，如 "texture_diffuse1"。
+          std::string number;                                                           
+          std::string name = textures[i].type;                                          
+          if (name == "texture_diffuse")                                                 
+            number = std::to_string(diffuseNr++);                                       
+          else if (name == "texture_specular")                                           
+            number = std::to_string(specularNr++);  // transfer unsigned int to string  
+          else if (name == "texture_normal")                                             
+            number = std::to_string(normalNr++);  // transfer unsigned int to string    
+          else if (name == "texture_height")                                             
+            number = std::to_string(heightNr++);  // transfer unsigned int to string    
+  //glGetUniformLocation 返回着色器的uniform位置。
+  //glUniform1i 将当前纹理单元 i 传递给着色器中的对应采样器。
+          // now set the sampler to the correct texture unit                       
+          // now set the sampler to the correct texture unit                            
+          glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);     
+          // and finally bind the texture
+          //绑定纹理到激活的纹理单元，使得它在绘制时可用。
+          glBindTexture(GL_TEXTURE_2D, textures[i].id);                                 
+        }                                                                               
+        // 上面的过程把所有的纹理都绑定起来
+        // 下面就是进行网格的绘制
+        // draw mesh                                                                    
+        glBindVertexArray(VAO);                                                         
+        glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()),         
+                       GL_UNSIGNED_INT, 0);                                             
+        glBindVertexArray(0);                                                           
+                                                                                        
+        // always good practice to set everything back to defaults once configured.     
+        glActiveTexture(GL_TEXTURE0);                                                   
+      }
+#+end_src
