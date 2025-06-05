@@ -24,8 +24,9 @@
 + https://semantic-domain.blogspot.com/
 * matins3
 + https://martins3.github.io
-* C++ Weekly CN
+* C++ Related
 + https://github.com/wanghenshui/cppweeklynews
++ https://blog.llvm.org
 * Richard Mitton
 + http://www.codersnotes.com/about/
 * jwhitham
@@ -38,3 +39,12 @@
 + https://github.com/parallel101/course
 * 杂谈
 + https://liam.page
+* JavaScript Related
++ https://v8.dev/blog
+
++ Wingolog has something about js inside guile. Worth reading.
+
++ https://webkit.org/blog/
+
+* Kotlin related
+
