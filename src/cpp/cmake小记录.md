@@ -77,3 +77,53 @@ endfunction()
 
 # aux_source_directory
 把一个路径下的所有源文件添加到一个列表里面，可以用来简化添加library或者executable的过程。
+
+# 生成器表达式
+作用：在CMake生成构建系统的时候根据不同配置动态生成特定的内容。
+
+可以在条件编译或者条件定义的情况下提供不同的配置项。
+
+## 变量查询
+在实际使用的时候会根据不同CMake内置变量生成不同配置，核心就在于“判断”：
+
+- $<TARGET_EXISTS:target>：判断目标是否存在
+- $<CONFIG:cfgs>：判断编译类型配置是否包含在cfgs列表（比如"release,debug"）中；不区分大小写
+- $<PLATFORM_ID:platform_ids>：判断CMake定义的平台ID是否包含在platform_ids列表中
+- $<COMPILE_LANGUAGE:languages>：判断编译语言是否包含在languages列表中
+
+## 字符串生成器表达式
+例如：基于编译器ID指定include目录：
+```cmake
+include_directories(/usr/include/$<CXX_COMPILER_ID>/)
+```
+根据编译器的类型，$<CXX_COMPILER_ID>会被替换成对应的ID（比如“GNU”、“Clang”）。
+
+## 条件表达式
+
+主要有两个格式：
+
+1. $<condition:true_string>：如果条件为真，则结果为true_string，否则为空
+2. $<IF:condition,str1,str2>：如果条件为真，则结果为str1，否则为str2
+
+适用于简化编译选项：
+
+```cmake
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+```
+
+通过应用生成器表达式可以变为：
+
+```cmake
+add_compile_options("$<$<CONFIG:Debug>:-g;-O0>")
+add_compile_options($<$<CONFIG:Release>:-O2>)
+```
+
+# cmake常用option总结
+
+1. CMAKE\_BUILD\_TYPE：设置优化类型。
+2. CMAKE\_EXPORT\_COMPILE_COMMANDS：导出编译数据库。
+3. BUILD\_SHARED\_LIBS: 觉得动态/静态链接。
+4. CMAKE\_C\_COMPILER和CMAKE\_CXX\_COMPILER：设置编译器。

@@ -154,6 +154,7 @@
   - [标准库容器](./cpp/标准库算法.md)
   - [短字符串优化](./cpp/SSO.md)
   - [内存序](./cpp/内存序.md)
+  - [FFI](./cpp/libffi.md)
   - [CMake](./cpp/cmake小记录.md)
 
 - [编译原理](./编译原理/README.md)
