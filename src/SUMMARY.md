@@ -134,6 +134,9 @@
   - [Raft 日志](./分布式协议/Raft2.md)
   - [Raft 成员变更](./分布式协议/Raft3.md)
 
+- [分布式](./分布式/Raft.md)
+  - [小知识](./分布式/小问题.md)
+
 - [LSM Tree](./LSM-Tree/README.md)
   - [Overview & Memtable](./LSM-Tree/LSMTree.md)
   - [Iterators](./LSM-Tree/LSMTree2.md)

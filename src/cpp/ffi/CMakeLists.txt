@@ -34,6 +34,10 @@ auto_link(test_struct
   LIB
   COMPILE -fPIC
 )
+auto_link(test_pass_struct
+  libs/test_pass_struct.cc
+  LIB
+  COMPILE -fPIC)
 auto_link(test_ffi
   test.c
   EXE
@@ -46,3 +50,8 @@ auto_link(test_ffi_struct
   LINK -lffi
   COMPILE -Wno-incompatible-function-pointer-types
 )
+auto_link(test_ffi_pass_struct
+  test_pass_struct.cc
+  EXE
+  LINK -lffi
+  COMPILE -Wno-incompatible-function-pointer-types)

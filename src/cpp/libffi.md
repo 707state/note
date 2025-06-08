@@ -38,6 +38,22 @@ int main() {
 
 这里调用的函数是puts，代码中没有显式调用，puts而是用ffi的方式去调用puts函数。
 
+## 结构体
+
+libffi允许结构体作为参数的传递（返回值或者函数参数）。
+
+核心是一个ffi_type。
+
+```c++
+    ffi_type ffi_type_my_struct = {
+        .type = FFI_TYPE_STRUCT,
+        .size = sizeof(MyStruct),
+        .alignment = alignof(MyStruct),
+        .elements = placeholder};
+```
+这之后这个struct就可以和别的ffi类型一样用了。注意，这里涉及到elements数组的生命周期，可以做封装来利用C++的RAII。
+
+
 # 要点
 
 - 一个cif对应一个FFI函数的上下文，也就是说不能绑定多个。
