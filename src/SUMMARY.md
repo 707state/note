@@ -203,8 +203,8 @@
 - [零零碎碎](./零零碎碎/README.md)
   - [Github Action](./零零碎碎/Github%20Action.md)
   - [B 树和 B+树的区别](./零零碎碎/BTreeVSBPlusTree.md)
-  - [Datawhale AI 冬令营参与体验](./零零碎碎/Datawhale%20AI冬令营参与体验.md)
   - [Mod Alternative](./零零碎碎/ModuloAlternative.md)
+  - [Vim](./零零碎碎/Vim.md)
 
 - [面试题](./面试经验/README.md)
   - [数据结构](./面试经验/数据结构.md)
