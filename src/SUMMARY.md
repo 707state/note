@@ -192,6 +192,7 @@
   - [JS Framework](./前端/JSFramework.md)
   - [SolidJS 踩坑](./前端/SolidJS.md)
   - [路由到底是怎么回事](./前端/Router.md)
+- [FP](./Functional/README.md)
 
 - [Redis](./Redis/README.md)
   - [常见问题](./Redis/redisOverview.md)
