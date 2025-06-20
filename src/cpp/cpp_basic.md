@@ -1573,3 +1573,10 @@ int main()
 ## offsetof
 
 C++中有一个函数可以获得一个成员在一个结构体的偏移量，这个函数就是offsetof，接受两个参数，第一个参数是结构体名字，第二个参数是结构体中的变量名。
+
+## +[]{}
+
+C++ 11 spec:
+> The closure type for a lambda-expression with no lambda-capture has a public non-virtual non-explicit const conversion function to pointer to function having the same parameter and return types as the closure type’s function call operator. The value returned by this conversion function shall be the address of a function that, when invoked, has the same eﬀect as invoking the closure type’s function call operator.
+
+也就是说，对于没有捕获变量的Lambda Expression，可以通过+符号完成从lambda expression到function pointer的转变。
