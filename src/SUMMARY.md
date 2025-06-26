@@ -160,6 +160,7 @@
   - [内存序](./cpp/内存序.md)
   - [FFI](./cpp/libffi.md)
   - [CMake](./cpp/cmake小记录.md)
+  - [CUDA](./cpp/CUDA.md)
 
 - [编译原理](./编译原理/README.md)
   - [文法](./编译原理/文法.md)
