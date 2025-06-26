@@ -49,5 +49,11 @@
 * Some Indi stuff
 + https://rahulsharma.pro
 
+* 苏洋
++ https://soulteary.com
+
+* 9front related
++ https://9fans.topicbox.com/latest
+
 * Kotlin related
 
