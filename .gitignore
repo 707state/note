@@ -16,3 +16,4 @@ pdf/
 **/.DS_Store
 **/.tex
 ECMAScript/EvaluateModule.png
+!src/ASM/arm64_asm.pdf
