@@ -55,5 +55,10 @@
 * 9front related
 + https://9fans.topicbox.com/latest
 
+* Marco Righele
++ https://righele.it
+
 * Kotlin related
 
+* Apple related
++ https://nshipster.com
