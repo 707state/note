@@ -17,3 +17,4 @@ pdf/
 **/.tex
 ECMAScript/EvaluateModule.png
 !src/ASM/arm64_asm.pdf
+**/*.o
