@@ -11,7 +11,6 @@ function(add_asm_exe TARGET)
 		"LIBS;LINK;COMPILE;PLATFORM"
 		${ARGN})
 	set(SOURCES ${ARG_UNPARSED_ARGUMENTS})
-
 	if(ARG_EXE)
 		add_executable(${TARGET} ${SOURCES})
 	elseif(ARG_LIB)
@@ -46,7 +45,7 @@ function(add_asm_exe TARGET)
 		endif()
 	endif()
 endfunction()
-
+include_directories(.)
 add_asm_exe(hello
 	hello.s
 	EXE
@@ -74,3 +73,49 @@ add_asm_exe(add_example2
 	COMPILE "-g"
 	LINK "-e _start"
 	PLATFORM "Apple")
+add_asm_exe(loop_example
+	./loop_example.s
+	EXE
+	COMPILE "-g"
+	LINK "-e _start"
+	PLATFORM "Apple")
+add_asm_exe(switch_case
+	./switch_case.s
+	EXE
+	COMPILE "-g"
+	LINK "-e _start"
+	PLATFORM "Apple")
+add_asm_exe(upper
+	upper.s
+	EXE
+	COMPILE "-g"
+	LINK "-e _start"
+	PLATFORM "Apple")
+add_asm_exe(toupper
+	toupper.s
+	LIB
+	COMPILE "-g")
+
+add_asm_exe(main_toupper
+	main.s
+	EXE
+	COMPILE "-g"
+	LIBS toupper "-e _start"
+	PLATFORM "Apple")
+add_asm_exe(main_macro
+	main_macro.s
+	EXE
+	COMPILE "-g"
+	LIBS "-e _start"
+	PLATFORM "Apple")
+add_asm_exe(main_file
+	main_file.s
+	EXE
+	COMPILE "-g"
+	LINK "-e _start"
+	LIBS toupper)
+add_asm_exe(matrix_mult_neon
+	matrix_mult_neon.s
+	EXE
+	COMPILE "-g"
+	LINK "-e main")
