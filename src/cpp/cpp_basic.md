@@ -1580,3 +1580,17 @@ C++ 11 spec:
 > The closure type for a lambda-expression with no lambda-capture has a public non-virtual non-explicit const conversion function to pointer to function having the same parameter and return types as the closure type’s function call operator. The value returned by this conversion function shall be the address of a function that, when invoked, has the same eﬀect as invoking the closure type’s function call operator.
 
 也就是说，对于没有捕获变量的Lambda Expression，可以通过+符号完成从lambda expression到function pointer的转变。
+
+## defer
+C++本身没有defer，但是可以利用RAII机制实现defer。
+
+```cpp
+#ifndef defer
+struct defer_dummy {};
+template <class F> struct deferrer { F f; ~deferrer() { f(); } };
+template <class F> deferrer<F> operator*(defer_dummy, F f) { return {f}; }
+#define DEFER_(LINE) zz_defer##LINE
+#define DEFER(LINE) DEFER_(LINE)
+#define defer auto DEFER(__LINE__) = defer_dummy{} *[&]()
+#endif // defer
+```

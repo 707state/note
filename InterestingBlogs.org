@@ -39,6 +39,7 @@
 + https://github.com/parallel101/course
 * 杂谈
 + https://liam.page
++ https://paulgraham.com/index.html
 * JavaScript Related
 + https://v8.dev/blog
 
@@ -65,3 +66,4 @@
 
 * Apple related
 + https://nshipster.com
+

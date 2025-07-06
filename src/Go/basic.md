@@ -157,3 +157,17 @@ go中每一个并发执行的活动称为goroutine。
 通道分为无缓冲通道和有缓冲的两种。
 
 无缓冲通道上的发送操作将会阻塞，直到另一个goroutine在对应的通道上执行接收操作，这时候值传送完成，两个goroutine可以继续执行。相反，如果接受操作先执行，就阻塞接收方的goroutine，直到另一个goroutine在同一个通道上发送一个值。
+
+# defer
+
+defer 语句中的参数在 defer 语句执行时就被求值，而不是在延迟函数实际执行。
+
+```go
+func example() {
+    i := 0
+    defer fmt.Println(i) // 这里 i 的值是 0
+    i++
+    return
+}
+// 输出：0（不是 1）
+```
