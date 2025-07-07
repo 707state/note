@@ -47,6 +47,8 @@
 
 + https://webkit.org/blog/
 
++ https://blog.jcoglan.com
+
 * Some Indi stuff
 + https://rahulsharma.pro
 
