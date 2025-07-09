@@ -40,6 +40,7 @@
 * 杂谈
 + https://liam.page
 + https://paulgraham.com/index.html
++ https://0xrick.github.io
 * JavaScript Related
 + https://v8.dev/blog
 
@@ -71,3 +72,5 @@
 * Apple related
 + https://nshipster.com
 
+* Caturra
++ https://www.bluepuni.com
