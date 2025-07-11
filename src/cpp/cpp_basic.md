@@ -1594,3 +1594,7 @@ template <class F> deferrer<F> operator*(defer_dummy, F f) { return {f}; }
 #define defer auto DEFER(__LINE__) = defer_dummy{} *[&]()
 #endif // defer
 ```
+
+## 编译器指令
+
+#pragma pack 是一个编译器指令，用于控制结构体（struct）和联合体（union）的内存对齐方式。
