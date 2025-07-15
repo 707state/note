@@ -17,6 +17,10 @@
 * Dusty Cloud
 + https://dustycloud.org/
 * Wingolog
+
+* Russ Cox
++ https://research.swtch.com
+
 + https://wingolog.org/about/
 * Paul（未悔/强波）
 + https://paul.pub/about/
@@ -42,6 +46,7 @@
 + https://paulgraham.com/index.html
 + https://0xrick.github.io
 + https://thesecretlivesofdata.com/
++ https://doc.cat-v.org/
 
 * JavaScript Related
 + https://v8.dev/blog
@@ -56,6 +61,8 @@
 + https://rahulsharma.pro
 
 + https://www.sczyh30.com/archives/
+
++ https://eli.thegreenplace.net
 
 * 苏洋
 + https://soulteary.com
@@ -79,6 +86,8 @@
 
 * 蔡博士
 + https://microcai.org
+** related
++ https://www.jackarain.org
 
 * ray eldath
 + https://ray-eldath.me
