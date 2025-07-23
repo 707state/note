@@ -16,12 +16,17 @@
 + https://carloscarrasco.com
 * Dusty Cloud
 + https://dustycloud.org/
+
+* Rust
++ https://blog.rust-lang.org
+
 * Wingolog
+
++ https://wingolog.org/about/
 
 * Russ Cox
 + https://research.swtch.com
 
-+ https://wingolog.org/about/
 * Paul（未悔/强波）
 + https://paul.pub/about/
 * Neel Krishnaswami
@@ -70,6 +75,8 @@
 + https://nihil.cc
 
 + https://photonlibos.github.io/blog
+
++ https://r-wos.org/about
 
 * 苏洋
 + https://soulteary.com

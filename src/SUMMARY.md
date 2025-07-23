@@ -215,6 +215,7 @@
   - [Mod Alternative](./零零碎碎/ModuloAlternative.md)
   - [Vim](./零零碎碎/Vim.md)
   - [重大日历](./零零碎碎/CQUCalendar.md)
+  - [git](./src/零零碎碎/git.md)
 
 - [面试题](./面试经验/README.md)
   - [数据结构](./面试经验/数据结构.md)
