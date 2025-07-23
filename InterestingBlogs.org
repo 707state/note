@@ -57,6 +57,9 @@
 
 + https://blog.jcoglan.com
 
+* Java Related
++ https://blogs.oracle.com/javamagazine/
+
 * Some Indie stuff
 + https://rahulsharma.pro
 
@@ -88,6 +91,8 @@
 * Caturra
 + https://www.bluepuni.com
 
++ https://devblogs.microsoft.com/oldnewthing/
+
 * 蔡博士
 + https://microcai.org
 ** related
@@ -98,3 +103,4 @@
 
 * 根
 + https://www.yinwang.org
++ https://yinwang0.wordpress.com
