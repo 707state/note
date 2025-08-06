@@ -1,0 +1,67 @@
+#+title: QuickJS学习
+#+author: jask                                           
+#+LATEX_COMPILER: xelatex                                
+#+LATEX_HEADER: \usepackage{fontspec}                    
+#+LATEX_HEADER: \usepackage{ctex}                        
+#+LATEX_HEADER: \usepackage{amsmath}                     
+#+LATEX_HEADER: \setmainfont{Noto Sans CJK SC}           
+#+LATEX_HEADER: \usepackage[a4paper]{geometry}
+#+OPTIONS: toc:nil                                                
+#+mathspec: true
+#+OPTIONS: ^:nil
+
+* 核心
++ qjs的核心是__JS_EvalInternal这个方法。
+  qjs作为一个bytecode interpreter，核心不像v8那样庞大，v8有非常多的层级，比如说turbo jit，liftoff wasm compiler, ignition interpreter这些工具。
+
++ __JS_EvalInternal
+  这一方法有两步，第一步是解析JS文件并emit到字节码（不是一个传统的语法树）；
+  第二步是JS_EvalFunctionInternal，这里会执行：
+  1. js\_create\_module\_function：初始化模块的导出和依赖关系，确保模块函数被正确创建。可能涉及到C/JS两种不同的module，C则初始化导出的变量，JS则将模块的字节码转换为一个可执行的函数对象，并初始化相关的闭包变量。这个函数是递归的，确保所有依赖模块都被正确初始化。
+
+  2. js_link_module：准备一个模块执行，通过解析所有导入的变量来实现模块的链接。
+
+  3. js_evaluate_module：通过运行module的eval函数和他依赖的函数，返回一个promise或者exception。
+** js_evaluate_module
+这是整个qjs最为核心的部分，整个求值过程都发生在这里。
+
+以console.log这样的调用为例，整体的流程如下：
+#+begin_src dot :file EvaluateModule.png :exports results
+digraph G {
+  subgraph cluster_0 {
+    style=filled;
+    color=lightgrey;
+    node [style=filled,color=white];
+    js_evaluate_module -> js_inner_module_evaluation;
+    js_inner_module_evaluation -> js_execute_sync_module;
+    js_execute_sync_module -> js_async_function_call;
+    js_async_function_call -> js_async_function_resume;
+    js_async_function_resume -> async_func_resume;
+  }
+
+  subgraph cluster_1 {
+    style=filled;
+    color=lightblue;
+    node [style=filled];
+    async_func_resume -> JS_CallInternal;
+    JS_CallInternal -> js_call_c_function;
+    js_call_c_function -> js_print;
+  }
+
+  // VR 1 - Forces async_func_resume to be phsycaly apart from others by relating it vertically
+  // VR 2 - Connects subgraphs across to faciliate same hight rank resolve favorable to clarity
+  async_func_resume -> js_evaluate_module [style=invis]; 
+
+  { rank=same; js_evaluate_module; js_inner_module_evaluation; }
+
+}
+#+end_src 
+
+这里面，async_func_resume函数会发起对内部函数的调用，这是因为本质上qjs里面所有的对象都是由c/c++提供的，包括console(js_std_add_helper)等，而log函数在标准库里面就是用js_printf来实现的。
+** JS_CallInternal
+这是对所有的qjs的字节码调用操作，封装了JS到下层的C代码之间的调用。
+这样理解，JSRuntime本身是没有任何Object的（只有一个global挂载点），因此，所有的Object都是从C写出来、在JS_NewContext的时候提供的。也就是说，Object/Property/Function就这几个JS的核心机制才是Runtime提供的，而具体的Object则由C来提供。
+所有由c提供的方法都会进入js_call_c_function这里，可以看出来这里对于多种类型的函数都提供了支持，包括constructor, setter, getter这些都有，也就是说可以用C实现完整的JavaScript Object。
+因此可以知道，qjs里面，方法的调用是按需调用，优化思路可以尝试把object缓存起来。
+
+

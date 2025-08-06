@@ -1,0 +1,195 @@
+#+title: 图形学系列——Skia
+#+author: jask                                           
+#+LATEX_COMPILER: xelatex
+#+LATEX_HEADER: \usepackage{fontspec}
+#+LATEX_HEADER: \usepackage{ctex}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \setmainfont{Noto Sans CJK SC}
+#+LATEX_HEADER: \usepackage[a4paper,margin=1in]{geometry}
+#+OPTIONS: toc:nil
+#+mathspec: true
+
+* Skia基本知识
+先画出来第一个图形！
+#+begin_src c++
+#include "skia.h"
+void draw(SkCanvas *canvas);
+int main() {
+    // 创建一个位图表面
+    const int width = 640;
+    const int height = 480;
+    auto surface=SkSurfaces::Raster(SkImageInfo::MakeN32Premul(width,height));
+    auto canvas = surface->getCanvas();
+
+    // 清除背景
+    canvas->clear(SK_ColorWHITE);
+    // 绘制
+    draw(canvas);
+    // 保存为 PNG
+    sk_sp<SkImage> image = surface->makeImageSnapshot();
+    sk_sp<SkData> png_data = SkPngEncoder::Encode(nullptr, image.get(), SkPngEncoder::Options());
+
+    SkFILEWStream file_stream("output.png");
+    file_stream.write(png_data->data(), png_data->size());
+    return 0;
+}
+void draw(SkCanvas *canvas) {
+    const SkScalar scale = 256.0f;
+    const SkScalar R = 0.45f * scale;
+    const SkScalar TAU = 6.2831853f;
+    SkPath path;
+    path.moveTo(R, 0.0f);
+    for (int i = 0; i < 7; i++) {
+        SkScalar theta = 3 * i * TAU / 7;
+        path.lineTo(R * cos(theta), R * sin(theta));
+    }
+    path.close();
+    SkPaint p;
+    p.setAntiAlias(true);
+    canvas->clear(SK_ColorWHITE);
+    canvas->translate(0.5f * scale, 0.5f * scale);
+    canvas->drawPath(path, p);
+}
+#+end_src
+
+这个例子已经涵盖了大多数Skia的用途，比如说绘图、路径...
+
+接下来就探索一下每一部分如何使用！
+** SkPath
+SkPath包括几何。一个path需要包含至少一个能够画出图形的动作。path的起点是一个笛卡尔坐标系(Cartessian Coordinate)的动作，并且所有的动作需要连为一个连续的轮廓。需要注意，SkPath是惰性计算的。
+
++ moveTo: 将当前的起点移动到坐标(x,y)。
++ lineTo: 在当前的位置移动到(x,y)，之后当前位置就变为(x,y)。
++ quadTo: 绘制二次贝塞尔曲线，从当前点到终点(x2,y2)，使用(x1,y1)作为控制点。意思就是，以当前点为起点到(x2,y2), (x1,y1)作为控制点决定了曲线的弯曲程度。
++ conicTo: 绘制圆锥曲线，由起始点、终点、控制点和权重决定。起始点是目前的点。
++ arcTo: 绘制圆弧专用，能够直观地控制弧度。
++ cubicTo: 创建三次贝塞尔曲线，通过两个控制点定义更复杂的曲率。
+
+基础的内容就是这些，还有rArcTo等方法。
+** SkPaint
+SkPaint相当于一个画笔，可以在Canvas上绘制。
++ setAntiAlias: 抗锯齿。
++ isDither/setDither: 误差扩散相关。
++ getShader: 获取SkShader。
++ asBlendMode: 检查当前混合器是否属于 Skia 预定义的 SkBlendMode 类型。如果是，可以直接使用高效的枚举值；如果不是，可能需要处理更复杂的混合逻辑（如自定义着色器或高级混合操作）。
++ getPathEffect: 用于安全地获取当前设置的 SkPathEffect 对象。
++ getMaskFilter:  用于对绘制内容的遮罩（Alpha 通道）进行动态处理（如模糊、浮雕、阴影等）。通过 getMaskFilter，可以获取当前设置的遮罩滤镜对象，用于查询或进一步操作。
++ getImageFilter: 获取ImageFilter。
++ nothingToDraw: 如果没有可以绘制的图形，就返回true。
++ canComputeFastBounds: 该方法通过检查 SkPaint 的属性，判断是否需要复杂计算来确定绘制内容的设备边界。
+
+有6种effect可以赋值给paint：
+*** SkPathEffect
+在生成Alpha Mask之前对几何路径的修改。
+*** SkRasterizer
+合成自定义的Mask层。
+*** SkMaskFilter
+Alpha层被着色和绘制之前进行修改。
+*** SkShader
+定义颜色或图案的填充方式，支持渐变和位图图案，并控制它们的平铺模式。
+*** SkColorFilter
+在颜色与目标像素混合之前，修改源颜色（Source Color）。
+*** SkBlendMode
+接受两个颜色(起点，终点)，返回一个新的颜色。
+
+#+begin_src c++
+#include "skia.h"
+sk_sp<SkFontMgr> fontMgr;
+void draw(SkCanvas*);
+int main() {
+    constexpr int width = 800;
+    constexpr int height = 600;
+    auto surface =
+        SkSurfaces::Raster(SkImageInfo::MakeN32Premul(width, height));
+    auto canvas = surface->getCanvas();
+    draw(canvas);
+    auto image = surface->makeImageSnapshot();
+    auto pngData =
+        SkPngEncoder::Encode(nullptr, image.get(), SkPngEncoder::Options());
+    SkFILEWStream fileStream("output.png");
+    fileStream.write(pngData->data(), pngData->size());
+    return 0;
+}
+static void draw_utf8_string(SkCanvas* c, const char* t, SkScalar x, SkScalar y,
+                             const SkFont& f, const SkPaint& p) {
+    c->drawTextBlob(SkTextBlob::MakeFromString(t, f).get(), x, y, p);
+}
+
+void draw(SkCanvas *canvas) {
+    fontMgr = SkFontMgr::RefEmpty();
+    SkBlendMode modes[] = {
+        SkBlendMode::kClear,
+        SkBlendMode::kSrc,
+        SkBlendMode::kDst,
+        SkBlendMode::kSrcOver,
+        SkBlendMode::kDstOver,
+        SkBlendMode::kSrcIn,
+        SkBlendMode::kDstIn,
+        SkBlendMode::kSrcOut,
+        SkBlendMode::kDstOut,
+        SkBlendMode::kSrcATop,
+        SkBlendMode::kDstATop,
+        SkBlendMode::kXor,
+        SkBlendMode::kPlus,
+        SkBlendMode::kModulate,
+        SkBlendMode::kScreen,
+        SkBlendMode::kOverlay,
+        SkBlendMode::kDarken,
+        SkBlendMode::kLighten,
+        SkBlendMode::kColorDodge,
+        SkBlendMode::kColorBurn,
+        SkBlendMode::kHardLight,
+        SkBlendMode::kSoftLight,
+        SkBlendMode::kDifference,
+        SkBlendMode::kExclusion,
+        SkBlendMode::kMultiply,
+        SkBlendMode::kHue,
+        SkBlendMode::kSaturation,
+        SkBlendMode::kColor,
+        SkBlendMode::kLuminosity,
+    };
+    SkRect rect = SkRect::MakeWH(64.0f, 64.0f);
+    SkPaint stroke, src, dst;
+    stroke.setStyle(SkPaint::kStroke_Style);
+    SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 24);
+    SkPoint srcPoints[2] = {
+        SkPoint::Make(0.0f, 0.0f),
+        SkPoint::Make(64.0f, 0.0f)
+    };
+    SkColor srcColors[2] = {SK_ColorMAGENTA & 0x00FFFFFF, SK_ColorMAGENTA};
+    src.setShader(SkGradientShader::MakeLinear(
+                                               srcPoints, srcColors, nullptr, 2,
+                                               SkTileMode::kClamp, 0, nullptr));
+
+    SkPoint dstPoints[2] = {
+        SkPoint::Make(0.0f, 0.0f),
+        SkPoint::Make(0.0f, 64.0f)
+    };
+    SkColor dstColors[2] = {
+        SK_ColorCYAN & 0x00FFFFFF,
+        SK_ColorCYAN};
+    dst.setShader(SkGradientShader::MakeLinear(
+                                               dstPoints, dstColors, nullptr, 2,
+                                               SkTileMode::kClamp, 0, nullptr));
+    canvas->clear(SK_ColorWHITE);
+    size_t N = sizeof(modes) / sizeof(modes[0]);
+    size_t K = (N - 1) / 3 + 1;
+    SkASSERT(K * 64 == 640);  // tall enough
+    for (size_t i = 0; i < N; ++i) {
+        SkAutoCanvasRestore autoCanvasRestore(canvas, true);
+        canvas->translate(192.0f * (i / K), 64.0f * (i % K));
+        const char* desc = SkBlendMode_Name(modes[i]);
+        draw_utf8_string(canvas, desc, 68.0f, 30.0f, font, SkPaint());
+        canvas->clipRect(SkRect::MakeWH(64.0f, 64.0f));
+        canvas->drawColor(SK_ColorLTGRAY);
+        canvas->saveLayer(nullptr, nullptr);
+        canvas->clear(SK_ColorTRANSPARENT);
+        canvas->drawPaint(dst);
+        src.setBlendMode(modes[i]);
+        canvas->drawPaint(src);
+        canvas->drawRect(rect, stroke);
+    }
+}
+#+end_src
+
+** SkCanvas

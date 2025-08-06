@@ -1,0 +1,10 @@
+# title: 找工作相关
+# author: jask                                     
+# LATEX_COMPILER: lualatex                         
+# LaTeX_HEADER: \usepackage{fontspec}              
+# LATEX_HEADER: \setmainfont{Noto Serif CJK SC}    
+# LATEX_HEADER: \usepackage[margin=1in]{geometry}  
+# OPTIONS: toc:nil                                          
+# mathspec: true
+
+

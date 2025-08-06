@@ -1,0 +1,419 @@
+#+title: ECMAScript学习
+#+author: jask
+#+LATEX_COMPILER: xelatex
+#+LATEX_HEADER: \usepackage{fontspec}
+#+LATEX_HEADER: \usepackage{ctex}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \setmainfont{Noto Sans CJK SC}
+#+LATEX_HEADER: \usepackage[a4paper,margin=1in]{geometry}
+#+OPTIONS: toc:nil
+#+mathspec: true
+
+* 环境记录
+Environment Record（环境记录）是ECMAScript规范中的一个核心概念，它是JavaScript引擎如何存储和管理变量、函数以及词法作用域的关键组成部分。
+** 声明式环境记录（Declarative Environment Record）
+#+begin_src javascript
+  function makeCounter() {
+  let count = 0;  // 存储在声明式环境记录中
+
+  return function() {
+    return ++count;  // 通过闭包访问环境记录中的变量
+  };
+}
+
+const counter = makeCounter();
+console.log(counter()); // 1
+console.log(counter()); // 2
+#+end_src
+** 对象式环境变量(Object Environment Record)
+#+begin_src javascript
+const user = {
+  name: "Alice",
+  age: 30
+};
+
+with (user) {  // 创建对象式环境记录
+  console.log(name);  // "Alice"
+  console.log(age);   // 30
+}
+#+end_src
+with语句创建了一个对象式环境记录，将标识符直接映射到user对象的属性。在with块内部，引用name时实际访问的是user.name。(注意：实际开发中不推荐使用with)
+** 全局环境记录(Global Environment Record)
+#+begin_src javascript
+var globalVar = "我是全局变量";  // 成为全局对象的属性
+let blockScopedVar = "我是块级作用域变量";  // 不成为全局对象的属性
+
+function globalFunction() {
+  return "全局函数";
+}
+
+console.log(window.globalVar);  // "我是全局变量" (在浏览器环境)
+console.log(window.blockScopedVar);  // undefined
+#+end_src
+全局环境记录管理全局作用域中的标识符。使用var声明的变量会成为全局对象的属性，而let/const声明的变量不会。
+** 函数环境记录(Function Environment Record)
+#+begin_src javascript
+function outer(param) {
+  const outerVar = "外部变量";
+
+  function inner() {
+    const innerVar = "内部变量";
+    console.log(param, outerVar, innerVar);
+  }
+
+  return inner;
+}
+
+const closureFn = outer("参数值");
+closureFn();  // "参数值 外部变量 内部变量"
+#+end_src
+outer函数执行时创建函数环境记录，包含param参数和outerVar变量
+inner函数创建自己的环境记录，包含innerVar
+inner函数可以访问自身环境记录以及外部环境记录中的变量
+** 变量提升与环境记录
+#+begin_src javascript
+function hoistingExample() {
+  console.log(hoistedVar);  // undefined (不报错)
+  // console.log(notHoisted);  // 报错: ReferenceError
+
+  var hoistedVar = "我被提升了";
+  let notHoisted = "我没被提升";
+}
+
+hoistingExample();
+#+end_src
+环境记录处理var声明的方式是在函数开始执行前创建变量并初始化为undefined，而let/const声明的变量虽然也被记录，但在实际声明前处于"暂时性死区"。
+
+* Realm
+一个realm包含:
++ 一组完整的内置对象：所有标准内置对象（如Object, Array, Function, Math等），全局对象（浏览器中的window，Node.js中的global），所有标准构造函数
++ 全局环境：全局作用域，全局对象
+
+  Realm概念解释了为什么在不同的执行环境中，同样的代码可能有不同的行为。
+  #+begin_src javascript
+  // 在iframe或跨窗口通信中
+const arrayFromFrameA = window.frames[0].Array(1,2,3);
+console.log(arrayFromFrameA instanceof Array); // false，因为来自不同的Realm
+#+end_src
+
+* Execution Context（执行上下文）
+执行上下文是JavaScript代码执行时的环境抽象，定义了代码执行所需的所有信息。
+** 全局执行上下文
++ 代码执行开始时创建
++ 只有一个全局上下文
+** 函数执行上下文
++ 每次调用函数时创建
++ 函数执行完毕后销毁
+** Eval执行上下文
++ 在eval函数内部执行代码时创建
+** 组成部分
++ 词法环境（LexicalEnvironment）
++ 变量环境（VariableEnvironment）
++ This绑定
++ 代码执行状态
+** 执行上下文栈
+JavaScript引擎使用执行上下文栈（也称为调用栈）来管理执行上下文：
+#+begin_src javascript
+function first() {
+  console.log('Inside first function');
+  second();
+}
+
+function second() {
+  console.log('Inside second function');
+}
+
+first();
+// 执行上下文栈变化：
+// 1. 全局执行上下文入栈
+// 2. first函数执行上下文入栈
+// 3. second函数执行上下文入栈
+// 4. second函数执行上下文出栈
+// 5. first函数执行上下文出栈
+#+end_src
+
+* 调度机制
+JS的执行模型就是执行上下文(调用栈)是如何被ECMAScript实现执行的。底层的实现机制是Agents和Agent Clusters。
+** Agents
+一个agent包含一组执行上下文、一个上下文栈和一个运行中的执行上下文。
+基本原则：不同Agent的执行是相互独立的，这保证了执行环境的隔离
+优化策略：为了资源效率，多个Agent可以共享同一个执行线程，但有限制条件
+阻塞限制：如果Agent可能执行阻塞操作（CanBlock=true），则不能与其他Agent共享线程，必须使用独立线程。
+** Agent Cluster
+Agent Cluster是一组能够通过操作共享内存进行通信的最大Agent集合，决定了哪些执行单元（Agent）可以通过共享内存直接通信。
+
+* Hoisting(提升)
+JavaScript 提升是指解释器在执行代码之前，似乎将函数、变量、类或导入的声明移动到其作用域的顶部的过程。
+
+提升通常也被认为是 var 声明的一个特性，尽管方式不同。用通俗的话来说，以下任何行为都可以被视为提升：
+
++ 能够在声明变量之前在其作用域中使用该变量的值。（“值提升”）
++ 能够在声明变量之前在其作用域中引用该变量而不抛出 ReferenceError，但值始终是 undefined。（“声明提升”）
++ 变量的声明导致在声明行之前的作用域中行为发生变化。
++ 声明的副作用在评估包含该声明的其余代码之前产生。
+
+常用场景：变量的定义放置在文件末尾由于测试工作。
+
+* 数字属性应该按照索引值大小升序排列，字符串属性根据创建时的顺序升序排序。
+
+* 函数表达式和函数声明
+
+本质上是函数和变量的区别，可以参考上面的Hoisting部分。
+
+在变量提升阶段，V8并不会执行赋值的表达式，该阶段只会分析基础的语句，比如变量的定义，函数的声明。
+
+这里有一个编译阶段和执行阶段的区别，比如说var x=5，会被拆成两部分：var x=undefined和x=5，第一部分在声明阶段，第二部分在执行阶段。在变量提升阶段，V8将这些变量存放在作用域时，还会给它们赋一个默认的undefined值，所以在定义一个普通的变量之前，使用该变量，那么该变量的值就是undefined。
+
+函数表达式与函数声明的最主要区别有以下三点：
+
++ 函数表达式是在表达式语句中使用function的，最典型的表达式是“a=b”这种形式，因为函数也是一个对象，我们把“a = function (){}”这种方式称为函数表达式；
++ 在函数表达式中，可以省略函数名称，从而创建匿名函数（anonymous functions）；
++ 一个函数表达式可以被用作一个即时调用的函数表达式——IIFE（Immediately Invoked Function Expression）。
+
+* 对象继承
+
+V8中的函数有一个call的属性，可以用来调用函数。这样一来，new就是一个语法糖，让一个变量的__proto__指向了函数的prototype。
+
+* 作用域和变量查找
+
+JavaScript是基于词法作用域的，也就是说变量查找是根据定义时的作用域而不是调用栈（动态作用域）。
+
+* 类型系统
+
+在JavaScript中，类型系统是依据ECMAScript标准来实现的，所以V8会严格根据ECMAScript标准来执行。在执行加法过程中，V8会先通过ToPrimitive函数，将对象转换为原生的字符串或者是数字类型，在转换过程中，ToPrimitive会先调用对象的valueOf方法，如果没有valueOf方法，则调用toString方法，如果vauleOf和toString两个方法都不返回基本类型值，便会触发一个TypeError的错误。
+
+当V8执行1+“2”时，因为这是两个原始值相加，原始值相加的时候，如果其中一项是字符串，那么V8会默认将另外一个值也转换为字符串。
+
+* 闭包
+
+编译JavaScript代码的过程中，V8并不会一次性将所有的JavaScript解析为中间代码。所有主流的JavaScript虚拟机都实现了惰性解析，如果遇到函数声明，那么会跳过函数内部的代码，并不会为其生成AST和字节码，而仅仅生成顶层代码的AST和字节码。
+
+V8通过预解析器来解决闭包中的变量的捕获问题。
+
+V8引入预解析器，比如当解析顶层代码的时候，遇到了一个函数，那么预解析器并不会直接跳过该函数，而是对该函数做一次快速的预解析:
+1. 是判断当前函数是不是存在一些语法上的错误。
+2. 除了检查语法错误之外，预解析器另外的一个重要的功能就是检查函数内部是否引用了外部变量，如果引用了外部的变量，预解析器会将栈中的变量复制到堆中，在下次执行到该函数的时候，直接使用堆中的引用，这样就解决了闭包所带来的问题。
+
+** V8字节码
+
+字节码的优势有如下三点：
+
++ 解决启动问题：生成字节码的时间很短；
++ 解决空间问题：字节码占用内存不多，缓存字节码会大大降低内存的使用；
++ 代码架构清晰：采用字节码，可以简化程序的复杂度，使得V8移植到不同的CPU架构平台更加容易。
+
+** V8隐藏类
+
+将JavaScript中的对象静态化，也就是V8在运行JavaScript的过程中，会假设JavaScript中的对象是静态的，具体地讲，V8对每个对象做如下两点假设：
+
++ 对象创建好了之后就不会添加新的属性；
++ 对象创建好了之后也不会删除属性。
+
+具体地讲，V8会为每个对象创建一个隐藏类，对象的隐藏类中记录了该对象一些基础的布局信息，包括以下两点：
+
++ 对象中所包含的所有的属性；
++ 每个属性相对于对象的偏移量。
+
+有了隐藏类之后，那么当V8访问某个对象中的某个属性时，就会先去隐藏类中查找该属性相对于它的对象的偏移量，有了偏移量和属性类型，V8就可以直接去内存中取出对于的属性值，而不需要经历一系列的查找过程，那么这就大大提升了V8查找对象的效率。
+
+** 多个对象共用一个隐藏类
+
+如果两个对象的形状(相同的属性名称,相等的属性个数)是相同的：
+
+1. 减少隐藏类的创建次数，也间接加速了代码的执行速度；
+2. 减少了隐藏类的存储空间。
+
+** V8 Inline Cache
+
+大致原理：V8执行函数的过程中，会观察函数中一些调用点(CallSite)上的关键的中间数据，然后将这些数据缓存起来，当下次再次执行该函数的时候，V8就可以直接利用这些中间数据，节省了再次获取这些数据的过程，因此V8利用IC，可以有效提升一些重复代码的执行效率。
+
+IC会为每个函数维护一个反馈向量(FeedBack Vector)，反馈向量记录了函数在执行过程中的一些关键的中间数据。
+
+V8在缓存o.x这种LOAD类型的操作以外，还会缓存存储(STORE)类型和函数调用(CALL)类型的中间数据。
+
+V8引入了IC，IC会监听每个函数的执行过程，并在一些关键的地方埋下监听点，这些包括了加载对象属性(Load)、给对象属性赋值(Store)、还有函数调用(Call)，V8会将监听到的数据写入一个称为反馈向量(FeedBack Vector)的结构中，同时V8会为每个执行的函数维护一个反馈向量。有了反馈向量缓存的临时数据，V8就可以缩短对象属性的查找路径，从而提升执行效率。
+
+** JS标准库？
+sleep这个函数怎么实现的呢？
+#+begin_src javascript
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+#+end_src
+
+*** EventEmitter机制
+事件发射器
+#+begin_src javascript
+// 1. 实现一个简单的事件发射器
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+
+  on(event, listener) {
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
+    this.events[event].push(listener);
+  }
+
+  emit(event, ...args) {
+    if (this.events[event]) {
+      this.events[event].forEach(listener => listener(...args));
+    }
+  }
+}
+#+end_src
+
+** delete运算符
+
+delete这个操作的正式语法设计并不是“删除某个东西”，而是“删除一个表达式的结果”。
+
+这里有一个叫做规范类型的东西。有两个东西可以被执行并存在执行结果（Result），包括语句和表达式。比如你用eval()来执行一个字符串，那么实际上，你执行的是一个语句，并返回了语句的值；而如果你使用一对括号来强制一个表达式执行，那么这个括号运算得到的，就是这个表达式的值。表达式的值，在ECMAScript的规范中，称为“引用”。
+
++ 如果它是值，则按照传统的JavaScript的约定返回true；
++ 如果它是一个引用，那么对该引用进行分析，以决定如何操作。
+
+单值表达式的运算结果返回那个“对象字面量”的单值。然后，delete运算发现它的操作数是“值/非引用类型”，就直接返回了true。
+
+如果是一个引用，delete只能删除对象的Property而不能删除一个global空间的变量，并且delte会收到严格模式的影响。
+
+总结：
++ delete 运算符尝试删除值数据时，会返回true，用于表示没有错误（Error）。
++ delete 0的本质是删除一个表达式的值（Result）。
++ delete x与上述的区别只在于Result是一个引用（Reference）。
++ delete其实只能删除一种引用，即对象的成员（Property）。
+
+** 变量声明
+- var等声明语句总是在变量作用域（变量表）或词法作用域中静态地声明一个或多个标识符。
+- 全局变量的管理方式决定了“向一个不存在的变量赋值”所导致的变量泄漏是不可避免的。
+- 动态添加的“var声明”是可以删除的，这是唯一能操作varNames列表的方式（不过它并不存在多少实用意义）。
+- 变量声明在引擎的处理上被分成两个部分：一部分是静态的、基于标识符的词法分析和管理，它总是在相应上下文的环境构建时作为名字创建的；另一部分是表达式执行过程，是对上述名字的赋值，这个过程也称为绑定。
+
+举个例子：
+with ({x:100}) delete x的执行过程：
+
+1. 创建临时对象 {x: 100}
+2. 将对象添加到作用域链
+3. 解析 x - 找到对象的 x 属性
+4. 执行删除 - 删除对象的 x 属性
+5. 返回结果 - true（删除成功）
+
+*** eval
+(eval)() 和 (0, eval)() 在行为上有根本性的区别，涉及到直接调用和间接调用的概念。
+
+（eval)()是直接调用，其eval的语句的作用域在当前作用域，而(0,eval)()通过逗号运算符使其变为间接调用，从而使其求值变成全局作用域。
+
+*** 块级作用域
+
+绝大多数JavaScript语句都并没有自己的块级作用域！！！
+
+*** super
+- 只能在方法中使用super，因为只有方法有[[HomeObject]]。
+- super.xxx()是对super.xxx这个引用（SuperReference）作函数调用操作，调用中传入的this引用是在当前环境的上下文中查找的。
+- super实际上是在通过原型链查找父一级的对象，而与它是不是类继承无关。
+- 如果在类的声明头部没有声明extends，那么在构造方法中也就不能调用父类构造方法。
+
+* 宏任务、微任务
+
+看一个经典例子：
+#+begin_src js
+console.log('A');
+setTimeout(()=>{
+  console.log('B');
+  Promise.resolve().then(()=>{
+    console.log('c');
+  });
+},0);
+Promise.resolve().then(()=>{
+  console.log('D');
+  setTimeout(()=>{
+    console.log('E');
+  },0);
+});
+console.log('F');
+#+end_src
+
+请说出打印顺序。
+
+** 这个涉及到浏览器环境的任务队列
+
+#+begin_src js
+console.log('A');                    // 1. 同步执行
+setTimeout(()=>{                     // 2. 注册宏任务1
+    console.log('B');
+    Promise.resolve().then(()=>{
+        console.log('C');
+    });
+}, 0);
+Promise.resolve().then(()=>{         // 3. 注册微任务1
+    console.log('D');
+    setTimeout(() =>{                // 4. 在微任务中注册宏任务2
+        console.log('E');
+    }, 0);
+});
+console.log('F');                    // 5. 同步执行
+#+end_src
+1. 同步代码执行，将 callback1 添加到宏任务队列，将 callback2 添加到微任务队列
+2. 执行微任务(callback2)，将callback2中的宏任务添加到宏任务队列。
+3. 处理第一个宏任务，将第一个宏任务里面的微任务添加到微任务队列。
+4. 处理新产生的微任务。
+5. 处理最后一个宏任务。
+
+** 事件循环的工作原理
+
+伪代码：
+#+begin_src js
+// 事件循环的简化模型
+class EventLoop {
+    constructor() {
+        this.callStack = [];
+        this.macroTaskQueue = [];
+        this.microTaskQueue = [];
+    }
+
+    run() {
+        while (this.hasWork()) {
+            // 1. 执行当前宏任务（如果有）
+            if (this.callStack.length === 0 && this.macroTaskQueue.length > 0) {
+                const macroTask = this.macroTaskQueue.shift();
+                this.callStack.push(macroTask);
+                macroTask.execute();
+            }
+
+            // 2. 执行所有微任务
+            while (this.microTaskQueue.length > 0) {
+                const microTask = this.microTaskQueue.shift();
+                this.callStack.push(microTask);
+                microTask.execute();
+                this.callStack.pop();
+            }
+
+            // 3. 如果执行栈为空，处理下一个宏任务
+            if (this.callStack.length > 0) {
+                this.callStack.pop();
+            }
+        }
+    }
+
+    hasWork() {
+        return this.macroTaskQueue.length > 0 ||
+               this.microTaskQueue.length > 0 ||
+               this.callStack.length > 0;
+    }
+}
+#+end_src
+
+*** 任务优先级
+
+优先级（从高到低）：
+1. 同步代码（当前执行栈）
+2. 微任务（Promise.then, queueMicrotask, MutationObserver）
+3. 宏任务（setTimeout, setInterval, setImmediate, I/O）
+
+*** 分类
+
+1. 宏任务：setTimeout, setInterval, IO操作，用户交互事件，页面生命周期事件，媒体相关事件，MessageChannel 和 postMessageWeb API 相关；
+2. 微任务：Promise，MutationObserver，process.nextTick，queueMicrotask， IntersectionObserver，。
+
+不过实际上浏览器中的优先级非常多，常见的可以分为这两种。

@@ -1,0 +1,557 @@
+#+title: 图形学系列——OpenGL
+#+author: jask
+#+LATEX_COMPILER: xelatex
+#+LATEX_HEADER: \usepackage{fontspec}
+#+LATEX_HEADER: \usepackage{ctex}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \setmainfont{Noto Sans CJK SC}
+#+LATEX_HEADER: \usepackage[a4paper,margin=1in]{geometry}
+#+OPTIONS: toc:nil
+#+mathspec: true
+
+* 画出来三角形！
+画一下流程
+
+简单地说，OpenGL画出一个三角形无外乎：glfw准备，glad准备，顶点着色器、片段着色器编译，顶点数据、顶点属性准备，数据绑定，事件循环，终结。
+
+#+begin_src plantuml :file images/RenderingProcess.png
+@startuml OpenGL Triangle Drawing Process
+participant "Application" as App
+participant "GLFW" as GLFW
+participant "GLAD" as GLAD
+participant "Shader" as Shader
+participant "Buffer" as Buffer
+
+== Initialization Phase ==
+App -> GLFW : glfwInit()
+App -> GLFW : glfwCreateWindow()
+App -> GLAD : gladLoadGLLoader()
+
+== Shader Preparation ==
+App -> Shader : glCreateShader(GL_VERTEX_SHADER)
+App -> Shader : glCreateShader(GL_FRAGMENT_SHADER)
+App -> Shader : glCreateProgram()
+App -> Shader : glLinkProgram()
+
+== Buffer Configuration ==
+App -> Buffer : glGenVertexArrays(VAO)
+App -> Buffer : glGenBuffers(VBO)
+App -> Buffer : glGenBuffers(EBO)
+App -> Buffer : glBindVertexArray()
+App -> Buffer : glBufferData(vertices)
+App -> Buffer : glBufferData(indices)
+App -> Buffer : glVertexAttribPointer()
+
+== Render Loop ==
+loop while !glfwWindowShouldClose()
+    App -> GLFW : glfwWindowShouldClose()
+    App -> Buffer : glClear()
+    App -> Shader : glUseProgram()
+    App -> Buffer : glBindVertexArray()
+    App -> Buffer : glDrawElements()
+    App -> GLFW : glfwSwapBuffers()
+end
+
+== Cleanup ==
+App -> Buffer : glDeleteVertexArrays()
+App -> Buffer : glDeleteBuffers()
+App -> Shader : glDeleteProgram()
+App -> GLFW : glfwTerminate()
+
+@enduml
+
+#+end_src
+
+** 渲染流程
+涉及到渲染流程上，比如说一个三角形可能太过简单，怎么才能渲染两个三角形、渲染两个重叠的三角形？这些就涉及到顶点数据和索引数组。
+
+#+begin_src cpp
+    float vertices[] = { 
+        -0.9f,-0.5f,0.0f,  
+        -0.0f,-0.5f,0.0f,
+        -0.45f,0.5f,0.0f,
+        0.0f,-0.5f,0.0f, 
+        0.9f,-0.5f,0.0f, 
+        0.45f,0.5f,0.0f  
+    };                   
+#+end_src
+这里给出来了两个三角形对应的6个点，那么就可以通过glDrawArrays来依次渲染6个点。
+
+渲染两个不同颜色的三角形就意味着要使用不同的片段着色器，片段着色器使用的vec4是一个RGBA格式的四元组，最后一个A代表透明度。
+
+也可以使用不同的VAO和VBO来渲染。
+* 着色器
+上面是快速地过一遍OpenGL的流程，这里是深入学习一下着色器。
+** GLSL
+着色器的开头总是要声明版本，接着是输入和输出变量、uniform和main函数。每个着色器的入口点都是main函数，在这个函数中我们处理所有的输入变量，并将结果输出到输出变量中。
+#+begin_src c
+#version version_number
+in type in_variable_name;
+in type in_variable_name;
+
+out type out_variable_name;
+
+uniform type uniform_name;
+
+void main()
+{
+  // 处理输入并进行一些图形操作
+  ...
+  // 输出处理过的结果到输出变量
+  out_variable_name = weird_stuff_we_processed;
+}
+#+end_src
+输入变量叫做顶点属性。我们能声明的顶点属性是有上限的，它一般由硬件来决定。OpenGL确保至少有16个包含4分量的顶点属性可用，但是有些硬件或许允许更多的顶点属性，你可以查询GL_MAX_VERTEX_ATTRIBS来获取具体的上限。
+** 数据类型
+GLSL中包含C等其它语言大部分的默认基础数据类型：int、float、double、uint和bool。GLSL也有两种容器类型，它们会在这个教程中使用很多，分别是向量(Vector)和矩阵(Matrix)。
+
+***** 向量
+vec, bvec, ivec, uvec, dvec对应的类型参考前缀（vec是float vector, bvec是bool vector）。
+
+向量获取分量可以用.x/.y/.z./.w也可以使用重组，也就是：
+#+begin_src c
+vec2 someVec;
+vec4 differentVec = someVec.xyxx;
+vec3 anotherVec = differentVec.zyw;
+vec4 otherVec = someVec.xxxx + anotherVec.yxzy;
+#+end_src
+
+***** 输入与输出
+GLSL定义了in和out关键字专门来实现这个目的。每个着色器使用这两个关键字设定输入和输出，只要一个输出变量与下一个着色器阶段的输入匹配，它就会传递下去。但在顶点和片段着色器中会有点不同。
+
++ 顶点着色器接受的是从顶点数据中直接传入的输入，使用location来管理变量。
++ 片段着色器需要用一个vec4颜色输出变量，因为片段着色器需要生成一个最终输出的颜色。
+
+如果打算从一个着色器向另一个着色器发送数据，就必须在发送方着色器中声明一个输出，在接收方着色器中声明一个类似的输入。当名称和类型都一致是OpenGL会把两个变量链接在一起，就可以发送数据了。
+
+***** Uniform
+Uniform是另一种从我们的应用程序在 CPU 上传递数据到 GPU 上的着色器的方式，但uniform和顶点属性有些不同。
++ 首先，uniform是全局的(Global)。全局意味着uniform变量必须在每个着色器程序对象中都是独一无二的，而且它可以被着色器程序的任意着色器在任意阶段访问。
++ 第二，无论你把uniform值设置成什么，uniform会一直保存它们的数据，直到它们被重置或更新。
+
+使用只需要在着色器使用uniform关键字并带上类型和名称。
+
+有了Uniform，我们就可以在运行期修改图形的着色了。（相关API：glUniform4f, glGetUniformLocation）。
+
+注意，查询uniform地址不要求你之前使用过着色器程序，但是更新一个uniform之前你必须先使用程序（调用glUseProgram)，因为它是在当前激活的着色器程序中设置uniform的。
+
+***** 更多属性
+颜色数据也可以被加入到顶点数据中，这时候需要修改顶点着色器中的layout，讲location=1的位置设置为颜色属性。由于添加了一个新的顶点属性，并且更新了VBO的内存，就必须重新配置顶点属性指针。
+* 纹理
+为了能够把纹理映射(Map)到三角形上，我们需要指定三角形的每个顶点各自对应纹理的哪个部分。这样每个顶点就会关联着一个纹理坐标(Texture Coordinate)，用来标明该从纹理图像的哪个部分采样（译注：采集片段颜色）。之后在图形的其它片段上进行片段插(Fragment Interpolation)。
+** 纹理过滤
+纹理坐标不依赖于分辨率(Resolution)，它可以是任意浮点值，所以OpenGL需要知道怎样将纹理像素(Texture Pixel，也叫Texel），映射到纹理坐标。当你有一个很大的物体但是纹理的分辨率很低的时候这就变得很重要了。你可能已经猜到了，OpenGL也有对于纹理过滤(Texture Filtering)的选项。纹理过滤有很多个选项，但是现在我们只讨论最重要的两种：GL_NEAREST和GL_LINEAR。
+** 多级渐远纹理
+多级渐远纹理背后的理念很简单：距观察者的距离超过一定的阈值，OpenGL会使用不同的多级渐远纹理，即最适合物体的距离的那个。由于距离远，解析度不高也不会被用户注意到。同时，多级渐远纹理另一加分之处是它的性能非常好。OpenGL对应的API叫做glGenerateMipmap。
+** 加载与创建纹理
+可以使用第三方图像加载库。图像加载之后，以char*的形式，通过glTex相关的API进行采样，之后就可以通过纹理坐标加载进去。
+** 纹理环绕方式
+| 环绕方式 | 描述 |
+| GL_REPEAT | 对纹理的默认行为，重复纹理图像 | 
+| GL_MIRRORED_REPEAT | 每次重复的图像镜像放置 |
+| GL_CLAMP_TO_EDGE | 纹理坐标被约束在0-1之间，超出部分会重复纹理边缘 |
+| GL_CLAMP_TO_BORDER  | 超出的坐标为用户指定的边缘颜色 |
+** 纹理单元
+使用glUniform1i，我们可以给纹理采样器分配一个位置值，这样的话我们能够在一个片段着色器中设置多个纹理。一个纹理的位置值通常称为一个纹理单元(Texture Unit)。一个纹理的默认纹理单元是0，它是默认的激活纹理单元。
+
+纹理单元的主要目的是让我们在着色器中可以使用多于一个的纹理。
+
+* 变换
+** 向量
+向量最基本的定义就是一个方向。或者更正式的说，向量有一个方向(Direction)和大小(Magnitude，也叫做强度或长度)。
+** 旋转
+在3D空间中旋转需要定义一个角和一个旋转轴(Rotation Axis)。物体会沿着给定的旋转轴旋转特定角度。
+传参数时可以使用glUniformMatrix4fv。
+注意一点，OpenGL中的矩阵操作是从右到左的，也就是是说，这样的代码：
+#+BEGIN_SRC c++
+  glm::mat4 trans = glm::mat4(1.0f);                            
+  //trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+  trans = glm::rotate(trans, (float)glfwGetTime(),glm::vec3(0.0f, 0.0f, 1.0f));             
+  trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));    
+#+END_SRC
+执行的是先平移再旋转，交换rotate和translate的位置，就是先旋转后平移。
+
+* 坐标系统
+为了将坐标从一个坐标系变换到另一个坐标系，我们需要用到几个变换矩阵，最重要的几个分别是模型(Model)、观察(View)、投影(Projection)三个矩阵。
+
+我们的顶点坐标起始于局部空间(Local Space)，在这里它称为局部坐标(Local Coordinate)，它在之后会变为世界坐标(World Coordinate)，观察坐标(View Coordinate)，裁剪坐标(Clip Coordinate)，并最后以屏幕坐标(Screen Coordinate)的形式结束。
+** Entering Three Dimension!
+***** ZBuffer
+OpenGL存储它的所有深度信息于一个Z缓冲(Z-buffer)中，也被称为深度缓冲(Depth Buffer)。GLFW会自动为你生成这样一个缓冲（就像它也有一个颜色缓冲来存储输出图像的颜色）。深度值存储在每个片段里面（作为片段的z值），当片段想要输出它的颜色时，OpenGL会将它的深度值和z缓冲进行比较，如果当前的片段在其它片段之后，它将会被丢弃，否则将会覆盖。这个过程称为深度测试(Depth Testing)，它是由OpenGL自动完成的。
+
+然而，如果我们想要确定OpenGL真的执行了深度测试，首先我们要告诉OpenGL我们想要启用深度测试；它默认是关闭的。我们可以通过glEnable函数来开启深度测试。glEnable和glDisable函数允许我们启用或禁用某个OpenGL功能。这个功能会一直保持启用/禁用状态，直到另一个调用来禁用/启用它。
+***** Camera
+获取摄像机位置很简单。摄像机位置简单来说就是世界空间中一个指向摄像机位置的向量。
+
+这里指的是摄像机指向哪个方向。现在我们让摄像机指向场景原点：(0, 0, 0)。还记得如果将两个矢量相减，我们就能得到这两个矢量的差吗？用场景原点向量减去摄像机位置向量的结果就是摄像机的指向向量。由于我们知道摄像机指向z轴负方向，但我们希望方向向量(Direction Vector)指向摄像机的z轴正方向。如果我们交换相减的顺序，我们就会获得一个指向摄像机正z轴方向的向量。
+***** 右轴
+我们需要的另一个向量是一个右向量(Right Vector)，它代表摄像机空间的x轴的正方向。为获取右向量我们需要先使用一个小技巧：先定义一个上向量(Up Vector)。接下来把上向量和第二步得到的方向向量进行叉乘。两个向量叉乘的结果会同时垂直于两向量，因此我们会得到指向x轴正方向的那个向量。
+***** 上轴
+现在我们已经有了x轴向量和z轴向量，获取一个指向摄像机的正y轴向量就相对简单了：我们把右向量和方向向量进行叉乘。
+***** LookAt
+使用矩阵的好处之一是如果你使用3个相互垂直（或非线性）的轴定义了一个坐标空间，你可以用这3个轴外加一个平移向量来创建一个矩阵，并且你可以用这个矩阵乘以任何向量来将其变换到那个坐标空间。这正是LookAt矩阵所做的，现在我们有了3个相互垂直的轴和一个定义摄像机空间的位置坐标，我们可以创建我们自己的LookAt矩阵了。
+#+begin_export latex
+\[
+LookAt=
+\begin{bmatrix}
+R_x & R_y &  R_z & 0 \\
+U_x & U_y & U_z & 0 \\
+D_x & D_y & D_z & 0 \\
+0   & 0   & 0   & 1 
+\end{bmatrix}
+\times
+\begin{bmatrix}
+1 & 0 & 0 & -P_x \\
+0 & 1 & 0 & -P_y \\
+0 & 0 & 1 & -P_z \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+\]
+#+end_export
+
+其中R是右向量，U是上向量，D是方向向量P是摄像机位置向量。注意，位置向量是相反的，因为我们最终希望把世界平移到与我们自身移动的相反方向。
+
+GLM已经提供了这些支持。我们要做的只是定义一个摄像机位置，一个目标位置和一个表示世界空间中的上向量的向量（我们计算右向量使用的那个上向量）。接着GLM就会创建一个LookAt矩阵，我们可以把它当作我们的观察矩阵。
+***** 视角移动
+视角移动是依靠的欧拉角。欧拉角(Euler Angle)是可以表示3D空间中任何旋转的3个值，由莱昂哈德·欧拉(Leonhard Euler)在18世纪提出。一共有3种欧拉角：俯仰角(Pitch)、偏航角(Yaw)和滚转角(Roll)。
+
+俯仰角是描述我们如何往上或往下看的角，可以在第一张图中看到。第二张图展示了偏航角，偏航角表示我们往左和往右看的程度。滚转角代表我们如何翻滚摄像机，通常在太空飞船的摄像机中使用。每个欧拉角都有一个值来表示，把三个角结合起来我们就能够计算3D空间中任何的旋转向量了。
+
+
+* 光照
+OpenGL的光照使用的是简化的模型，对现实的情况进行近似，这样处理起来会更容易一些。
+
+其中一个模型被称为风氏光照模型(Phong Lighting Model)。风氏光照模型的主要结构由3个分量组成：环境(Ambient)、漫反射(Diffuse)和镜面(Specular)光照。
+***** 环境光照
+即使在黑暗的情况下，世界上通常也仍然有一些光亮（月亮、远处的光），所以物体几乎永远不会是完全黑暗的。为了模拟这个，我们会使用一个环境光照常量，它永远会给物体一些颜色。
+***** 漫反射光照
+模拟光源对物体的方向性影响(Directional Impact)。它是风氏光照模型中视觉上最显著的分量。物体的某一部分越是正对着光源，它就会越亮。
++ 法向量：一个垂直于顶点表面的向量。
++ 定向的光线：作为光源的位置与片段的位置之间向量差的方向向量。为了计算这个光线，我们需要光的位置向量和片段的位置向量。
+
+***** 镜面光照
+模拟有光泽物体上面出现的亮点。镜面光照的颜色相比于物体的颜色会更倾向于光的颜色。
+***** 法线
+法向量是一个垂直于顶点表面的（单位）向量。由于顶点本身并没有表面（它只是空间中一个独立的点），我们利用它周围的顶点来计算出这个顶点的表面。
+
+法向量只是一个方向向量，不能表达空间中的特定位置。同时，法向量没有齐次坐标（顶点位置中的w分量）。这意味着，位移不应该影响到法向量。因此，如果我们打算把法向量乘以一个模型矩阵，我们就要从矩阵中移除位移部分，只选用模型矩阵左上角3×3的矩阵（注意，我们也可以把法向量的w分量设置为0，再乘以4×4矩阵；这同样可以移除位移）。对于法向量，我们只希望对它实施缩放和旋转变换。
+
+如果模型矩阵执行了不等比缩放，顶点的改变会导致法向量不再垂直于表面了。因此，我们不能用这样的模型矩阵来变换法向量。
+
+要修复不等比缩放导致的法线不再垂直于表面，可以使用法线矩阵来移除对法向量错误缩放的影响。
+
+法线矩阵被定义为「模型矩阵左上角3x3部分的逆矩阵的转置矩阵」。
+** 材质
+想要在OpenGL中模拟多种类型的物体，我们必须针对每种表面定义不同的材质(Material)属性。
+
+当描述一 个表面时，我们可以分别为三个光照分量定义一个材质颜色(Material Color)：环境光照(Ambient Lighting)、漫反射光照(Diffuse Lighting)和镜面光照(Specular Lighting)。通过为每个分量指定一个颜色，我们就能够对表面的颜色输出有细粒度的控制了。
+
+** 光照贴图
+
+*** 漫反射贴图
+就是纹理，在光照场景下叫做漫反射贴图。在GLSL中可以用一个sampler2D来存储。
+
+*** 镜面贴图
+想要让物体的某些部分以不同的强度显示镜面高光，就意味着需要一个新的纹理。镜面高光的强度可以通过图像每个像素的亮度来获取。镜面光贴图上的每个像素都可以由一个颜色向量来表示，比如说黑色代表颜色向量vec3(0.0)，灰色代表颜色向量vec3(0.5)。
+通过使用镜面光贴图我们可以可以对物体设置大量的细节，比如物体的哪些部分需要有闪闪发光的属性，我们甚至可以设置它们对应的强度。镜面光贴图能够在漫反射贴图之上给予我们更高一层的控制。
+** 投光物
+*** 平行光
+核心就是用一个光线的向量取代光源的位置。因为所有的光线都是平行的，所以物体与光源的相对位置是不重要的，因为对场景中每一个物体光的方向都是一致的。由于光的位置向量保持一致，场景中每个物体的光照计算将会是类似的。
+
+*** 点光源
+先前使用的是一个位置+不会衰减的光线，这并不符合现实世界的定义。
+光线衰减是有公式的。
+#+begin_src latex
+\[
+F_{att} =\frac{1.0}{K_c + K_1 \times d + K_q \times d^2}
+\]
+#end_src
+
+相应的，我们需要在fragment shader中去定义对应的系数。
+
+*** 聚光
+聚光是位于环境中某个位置的光源，它只朝一个特定方向而不是所有方向照射光线。这样的结果就是只有在聚光方向的特定半径内的物体才会被照亮，其它的物体都会保持黑暗。聚光很好的例子就是路灯或手电筒。OpenGL中聚光是用一个世界空间位置、一个方向和一个切光角(Cutoff Angle)来表示的，切光角指定了聚光的半径。
+
+手电筒(Flashlight)是一个位于观察者位置的聚光，通常它都会瞄准玩家视角的正前方。基本上说，手电筒就是普通的聚光，但它的位置和方向会随着玩家的位置和朝向不断更新。
+
+**** 平滑/软化边缘
+当一个片段遇到聚光圆锥的边缘时，它会完全变暗，没有一点平滑的过渡。一个真实的聚光将会在边缘处逐渐减少亮度。
+** 多光源
+为了在场景中使用多个光源，我们希望将光照计算封装到GLSL函数中。这样做的原因是，每一种光源都需要一种不同的计算方法，而一旦我们想对多个光源进行光照计算时，代码很快就会变得非常复杂。如果我们只在main函数中进行所有的这些计算，代码很快就会变得难以理解。
+
+*** 定向光
+我们需要定义一个定向光源最少所需要的变量。我们可以将这些变量储存在一个叫做DirLight的结构体中，并将它定义为一个uniform。
+#+begin_src c
+  struct DirLight {
+      vec3 direction;
+
+      vec3 ambient;
+      vec3 diffuse;
+      vec3 specular;
+  };  
+  uniform DirLight dirLight;
+  vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
+{
+    vec3 lightDir = normalize(-light.direction);
+    // 漫反射着色
+    float diff = max(dot(normal, lightDir), 0.0);
+    // 镜面光着色
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    // 合并结果
+    vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, TexCoords));
+    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoords));
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+    return (ambient + diffuse + specular);
+}
+#+end_src
+
+*** 点光源
+和定向光一样，我们也希望定义一个用于计算点光源对相应片段贡献，以及衰减，的函数。同样，我们定义一个包含了点光源所需所有变量的结构体：
+#+begin_src c
+  struct PointLight {
+      vec3 position;
+
+      float constant;
+      float linear;
+      float quadratic;
+
+      vec3 ambient;
+      vec3 diffuse;
+      vec3 specular;
+  };  
+  #define NR_POINT_LIGHTS 4
+  uniform PointLight pointLights[NR_POINT_LIGHTS];
+  vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+{
+    vec3 lightDir = normalize(light.position - fragPos);
+    // 漫反射着色
+    float diff = max(dot(normal, lightDir), 0.0);
+    // 镜面光着色
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+    // 衰减
+    float distance    = length(light.position - fragPos);
+    float attenuation = 1.0 / (light.constant + light.linear * distance + 
+                 light.quadratic * (distance * distance));    
+    // 合并结果
+    vec3 ambient  = light.ambient  * vec3(texture(material.diffuse, TexCoords));
+    vec3 diffuse  = light.diffuse  * diff * vec3(texture(material.diffuse, TexCoords));
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+    ambient  *= attenuation;
+    diffuse  *= attenuation;
+    specular *= attenuation;
+    return (ambient + diffuse + specular);
+}
+#+end_src
+这个函数从参数中获取所需的所有数据，并返回一个代表该点光源对片段的颜色贡献的vec3。
+* 模型加载
+** 网格
+没有太多好说的，主要点：
++ 导入格式需要保证兼容性
++ assimp只能导入，但是转换为OpenGL可以使用的Mesh对象需要手动处理。
+* 模板测试
+当片段着色器处理完一个片段之后，模板测试(Stencil Test)会开始执行，和深度测试一样，它也可能会丢弃片段。接下来，被保留的片段会进入深度测试，它可能会丢弃更多的片段。模板测试是根据又一个缓冲来进行的，它叫做模板缓冲(Stencil Buffer)。
+模板测试的使用场景有物体轮廓(Object Outlining)。
+* 立方体贴图
+立方体贴图是和其它纹理一样的，所以如果想创建一个立方体贴图的话，我们需要生成一个纹理，并将其绑定到纹理目标上，之后再做其它的纹理操作。这次要绑定到GL_TEXTURE_CUBE_MAP。
+
+* 阶段性复习1
+先看看Shader这一块的东西吧，对于Shader我的理解还很浅，先说Vertex Shader。
+Vertex Shader本质上就是在对与顶点相关的所有属性的操作。包括顶点位置变换（坐标变换：将顶点从模型空间转换为裁剪空间，通常通过模型、视图和投影矩阵实现；输出裁剪空间位置：通过设置 gl_Position，Vertex Shader 决定顶点在裁剪空间中的位置）、顶点属性处理（法线变换：处理顶点法线，使其适应光照计算；纹理坐标传递：从顶点传递纹理坐标到 Fragment Shader；颜色传递：将顶点颜色或其他属性传递到 Fragment Shader）等。
+
+这里涉及到一个坐标系统，也就是模型自身的空间（即模型空间、局部空间等）、世界空间（以坐标系为基准）、观察空间（视在空间，以摄像机为观察的基准，涉及到透视、前后关系等）。
+裁剪空间：在中观察空间到裁剪空间的过程中还需要一个投影矩阵，目前可以简单地理解裁剪空间就是把观察空间中可以在屏幕上呈现出来的内容用一个矩阵计算出来。
+透视投影：近大远小，这需要一个透视除法。
+#+begin_src cpp
+glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width/(float)height, 0.1f, 100.0f);
+#+end_src
+glm::perspective所做的其实就是创建了一个定义了可视空间的大平截头体，任何在这个平截头体以外的东西最后都不会出现在裁剪空间体积内，并且将会受到裁剪。
+
+** VAO, VBO和EBO
+VAO用来管理顶点属性的状态，把数据绑定到VAO的起点是glBindVertexArray。其实，任何一个glBind的函数都意味着要把一些数据绑定到一个地方，而VAO, VBO, EBO这些id就是用来标识对应的数据所存放的位置的。
+glGenXXX的作用就是创建对应的一个数据结构并把对应的数据和一个id关联起来，说白了就是句柄的模式。
+然后在glBindXXX的位置则是把一个id和数据联系起来（拷贝或者饮用）。
+后续就可以对这个id进行操作。
+
+比如说，glDrawArrays就会调用最近绑定的VAO去读取其关联的数据并渲染。
+
+glVertexAttribPointer会把数据绑定到index所对应的位置，glEnableVertexAttribArray则会把index上绑定的数据会启用这一块的数据，index可以被用来绑定别的数据，但是先前以及绑定过的数据不会被覆盖。
+换句话说，glBindXXX的作用和Kotlin中的apply是非常相似的。
+
+** 事件循环
+OpenGL的事件循环，通常会包括计算帧时间、处理输入事件、渲染设置和清空屏幕、渲染物体（使用着色器，从useProgram到drawArrays）、渲染光源（取决于光源类型）、交换缓冲区并处理事件（pollEvents）。
+
+事件循环的过程中，包含了整个渲染的流程，也就是模型矩阵的平移、旋转、缩放，视图矩阵（世界空间转移到摄像机空间），投影矩阵（摄像机空间转移到裁剪空间）的应用。
+
+通常的做法是把Camera、Shader和Texturex等组件封装起来。例如model, projection, view这些矩阵就可以通过封装Camera来简化代码，然后就可以通过封装Shader的设置uniform的操作来设置对应的属性。
+
+** 纹理
+纹理也是与VAO一样的，先通过一个loader把一张素材转化为一个char *的数据，然后也是使用一个id来与数据进行一个绑定。
+glTexImage2D是一个2D的纹理，通过glGenerateMipmap自动生成这个纹理的多级贴图。
+
+** 模型
+模型这一块要复杂得多，比如说加载模型的网格数据这一部分：
+#+begin_src cpp
+    void Mesh::setupMesh() {                                                     
+      // create buffers/arrays                                                   
+      glGenVertexArrays(1, &VAO);                                                
+      glGenBuffers(1, &VBO);                                                     
+      glGenBuffers(1, &EBO);                                                     
+      //绑定 VAO，将后续操作关联到这个顶点数组对象。                                              
+      glBindVertexArray(VAO);                                                    
+      // load data into vertex buffers
+      // 绑定 VBO 到目标 GL_ARRAY_BUFFER，接下来对顶点数据的操作将作用于这个缓冲区对象。
+      glBindBuffer(GL_ARRAY_BUFFER, VBO);                                        
+      // A great thing about structs is that their memory layout is sequential fo
+      // all its items. The effect is that we can simply pass a pointer to the   
+      // struct and it translates perfectly to a glm::vec3/2 array which again   
+      // translates to 3/2 floats which translates to a byte array.              
+      glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0],
+                   GL_STATIC_DRAW);                                              
+      //绑定 EBO，用于储存索引数据。索引用于定义顶点绘制的顺序。
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);                   
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);                                
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int)
+                   &indices[0], GL_STATIC_DRAW);                                 
+
+      // set the vertex attribute pointers                          
+      // set the vertex attribute pointers                                       
+      // vertex Positions                                                        
+      glEnableVertexAttribArray(0);                                              
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
+      // vertex normals                                                          
+      glEnableVertexAttribArray(1);                                              
+      glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),            
+                            (void *)offsetof(Vertex, Normal));                   
+      // vertex texture coords                                                   
+      glEnableVertexAttribArray(2);                                              
+      glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),            
+                            (void *)offsetof(Vertex, TexCoords));                
+      // vertex tangent                                                          
+      glEnableVertexAttribArray(3);                                              
+      glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),            
+                            (void *)offsetof(Vertex, Tangent));                  
+      // vertex bitangent                                                        
+      glEnableVertexAttribArray(4);                                              
+      glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),            
+                            (void *)offsetof(Vertex, Bitangent));                
+      // ids                                                                     
+      glEnableVertexAttribArray(5);                                              
+      glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex),                       
+                             (void *)offsetof(Vertex, m_BoneIDs));               
+
+      // weights                                        
+      // weights                                                                 
+      glEnableVertexAttribArray(6);                                              
+      glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),            
+                            (void *)offsetof(Vertex, m_Weights));                
+      glBindVertexArray(0);                                                      
+    }
+#+end_src
+
+这段代码会和之前的理解不太一样，也就是glBindVertexArray之后立马就glBindBufferData，这里的作用是为了确保当前VAO记录对VBO的使用状态。
+VAO记录有关GL_ARRAY_BUFFER绑定的信息。即这么做能使得VAO完整维护一个和特定对象渲染相关的状态集。当之后再绑定此VAO时，这些状态会自动恢复。
+
+绘制的代码也不太一样：
+#+begin_src cpp
+      void Mesh::Draw(Shader &shader) {                                                 
+        // bind appropriate textures
+        //计数变量用于跟踪不同类型的纹理：漫反射、镜面反射、法线和高度。
+        unsigned int diffuseNr = 1;                                                     
+        unsigned int specularNr = 1;                                                    
+        unsigned int normalNr = 1;                                                      
+        unsigned int heightNr = 1;
+        //循环遍历所有与网格关联的纹理，通过 glActiveTexture 激活当前纹理单元。
+        //GL_TEXTURE0 + i 指定了激活的纹理单元，确保每个纹理分配到一个单独的单元。
+        for (unsigned int i = 0; i < textures.size(); i++) {                            
+          glActiveTexture(GL_TEXTURE0 +                                                 
+                          i);  // active proper texture unit before binding             
+          // retrieve texture number (the N in diffuse_textureN)
+          // 根据纹理的类型（漫反射、镜面反射、法线、高度），决定其编号。
+          //将编号转换为字符串，标记为 number，如 "texture_diffuse1"。
+          std::string number;                                                           
+          std::string name = textures[i].type;                                          
+          if (name == "texture_diffuse")                                                 
+            number = std::to_string(diffuseNr++);                                       
+          else if (name == "texture_specular")                                           
+            number = std::to_string(specularNr++);  // transfer unsigned int to string  
+          else if (name == "texture_normal")                                             
+            number = std::to_string(normalNr++);  // transfer unsigned int to string    
+          else if (name == "texture_height")                                             
+            number = std::to_string(heightNr++);  // transfer unsigned int to string    
+  //glGetUniformLocation 返回着色器的uniform位置。
+  //glUniform1i 将当前纹理单元 i 传递给着色器中的对应采样器。
+          // now set the sampler to the correct texture unit                       
+          // now set the sampler to the correct texture unit                            
+          glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);     
+          // and finally bind the texture
+          //绑定纹理到激活的纹理单元，使得它在绘制时可用。
+          glBindTexture(GL_TEXTURE_2D, textures[i].id);                                 
+        }                                                                               
+        // 上面的过程把所有的纹理都绑定起来
+        // 下面就是进行网格的绘制
+        // draw mesh                                                                    
+        glBindVertexArray(VAO);                                                         
+        glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()),         
+                       GL_UNSIGNED_INT, 0);                                             
+        glBindVertexArray(0);                                                           
+                                                                                        
+        // always good practice to set everything back to defaults once configured.     
+        glActiveTexture(GL_TEXTURE0);                                                   
+      }
+#+end_src
+
+** 帧缓冲
+和OpenGL中的其它对象一样，我们会使用一个叫做glGenFramebuffers的函数来创建一个帧缓冲对象(Framebuffer Object, FBO)：
+#+begin_src cpp
+unsigned int fbo;
+glGenFramebuffers(1,&fbo);
+#+end_src
+它的使用函数也和其它的对象类似。首先我们创建一个帧缓冲对象，将它绑定为激活的(Active)帧缓冲，做一些操作，之后解绑帧缓冲。使用glBindFramebuffer来绑定。
+在绑定到GL_FRAMEBUFFER目标之后，所有的读取和写入帧缓冲的操作将会影响当前绑定的帧缓冲。我们也可以使用GL_READ_FRAMEBUFFER或GL_DRAW_FRAMEBUFFER，将一个帧缓冲分别绑定到读取目标或写入目标。绑定到GL_READ_FRAMEBUFFER的帧缓冲将会使用在所有像是glReadPixels的读取操作中，而绑定到GL_DRAW_FRAMEBUFFER的帧缓冲将会被用作渲染、清除等写入操作的目标。
+
+一个完整的帧缓冲需要满足以下的条件：
+
++ 附加至少一个缓冲（颜色、深度或模板缓冲）。
++ 至少有一个颜色附件(Attachment)。
++ 所有的附件都必须是完整的（保留了内存）。
++ 每个缓冲都应该有相同的样本数(sample)。
+*** 纹理附件
+当把一个纹理附加到帧缓冲的时候，所有的渲染指令将会写入到这个纹理中，就像它是一个普通的颜色/深度或模板缓冲一样。使用纹理的优点是，所有渲染操作的结果将会被储存在一个纹理图像中，我们之后可以在着色器中很方便地使用它。
+操作与普通的纹理很像：
+#+begin_src cpp
+unsigned int texture;
+glGenTextures(1, &texture);
+glBindTexture(GL_TEXTURE_2D, texture);
+
+glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+#+end_src
+主要的区别就是，我们将维度设置为了屏幕大小（尽管这不是必须的），并且我们给纹理的data参数传递了NULL。对于这个纹理，我们仅仅分配了内存而没有填充它。填充这个纹理将会在我们渲染到帧缓冲之后来进行。
+将创建好的纹理添加到帧缓冲上是通过glFramebufferTexture2D来实现。
+*** 后期处理
+既然整个场景都被渲染到了一个纹理上，我们可以简单地通过修改纹理数据创建出一些非常有意思的效果。
+**** 反向
+从屏幕纹理中取颜色值，然后用1.0减去它，对它进行反相：
+#+begin_src cpp
+void main(){
+    FragColor = vec4(vec3(1.0 - texture(screenTexture, TexCoords)), 1.0);
+}
+#+end_src
+**** 灰度
+取所有的颜色分量，将它们平均化：
+#+begin_src cpp
+void main(){
+    FragColor = texture(screenTexture, TexCoords);
+    float average = (FragColor.r + FragColor.g + FragColor.b) / 3.0;
+    FragColor = vec4(average, average, average, 1.0);
+}
+#+end_src
+**** 核效果
+在一个纹理图像上做后期处理的另外一个好处是，我们可以从纹理的其它地方采样颜色值。比如说我们可以在当前纹理坐标的周围取一小块区域，对当前纹理值周围的多个纹理值进行采样。
+这里需要用到卷积。
+核(Kernel)（或卷积矩阵(Convolution Matrix)）是一个类矩阵的数值数组，它的中心为当前的像素，它会用它的核值乘以周围的像素值，并将结果相加变成一个值。所以，基本上我们是在对当前像素周围的纹理坐标添加一个小的偏移量，并根据核将结果合并。
+* 立方体贴图
