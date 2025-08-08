@@ -10,6 +10,7 @@
   - [concept](#concept)
   - [std::ref](#stdref)
   - [std::cref](#stdcref)
+  - [std::clamp](#stdclamp)
   - [std::ignore](#stdignore)
   - [std::move_only_function::move_only_function](#stdmoveonlyfunctionmoveonlyfunction)
   - [std::atomic](#stdatomic)
@@ -76,6 +77,10 @@
       - [第一种特殊情况](#第一种特殊情况)
       - [第二种特殊情况](#第二种特殊情况)
   - [carries\_dependency](#carriesdependency)
+  - [offsetof](#offsetof)
+  - [+[]{}](#)
+  - [defer](#defer)
+  - [编译器指令](#编译器指令)
 <!--toc:end-->
 
 
@@ -959,9 +964,7 @@ Row Polymorphism 允许函数作用于多个具有相同字段的记录类型，
 
 已经被移除标准：
 
-The wording for co_await statement makes assumptions of what future
-asynchronous generator interface will be. Remove it for now as not to
-constraint the design space for asynchronous generators.
+The wording for co_await statement makes assumptions of what future asynchronous generator interface will be. Remove it for now as not to constraint the design space for asynchronous generators.
 
 ## 字符串字面量
 
