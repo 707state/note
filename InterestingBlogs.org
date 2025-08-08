@@ -11,9 +11,11 @@
 
 
 * lisyarus blog
-+ https://lisyarus.github.io/blog/feed.xml
++ https://lisyarus.github.io/blog/
+
 * Carlos Carrasco
 + https://carloscarrasco.com
+
 * Dusty Cloud
 + https://dustycloud.org/
 
@@ -29,23 +31,33 @@
 
 * Paul（未悔/强波）
 + https://paul.pub/about/
+
 * Neel Krishnaswami
 + https://semantic-domain.blogspot.com/
+
 * matins3
 + https://martins3.github.io
+
 * C++ Related
 + https://github.com/wanghenshui/cppweeklynews
 + https://blog.llvm.org
+
 * Richard Mitton
 + http://www.codersnotes.com/about/
+
 * jwhitham
 + https://www.jwhitham.org/
+
 * 谭升
 + https://face2ai.com/program-blog/#GPU编程（CUDA）
+
 * HPC from scratch
 + https://wiki.lcpu.dev/zh/hpc/from-scratch/cuda
+
 * 并行化相关
 + https://github.com/parallel101/course
++ https://lmax-exchange.github.io/disruptor/
+
 * 杂谈
 + https://liam.page
 + https://paulgraham.com/index.html
@@ -81,6 +93,10 @@
 + https://r-wos.org/about
 
 + https://chaosinmotion.com
+
++ https://www.chiark.greenend.org.uk/~sgtatham/quasiblog/
+
++ https://dengzuoheng.github.io
 
 * 苏洋
 + https://soulteary.com
