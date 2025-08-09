@@ -2,8 +2,7 @@
     -   [定义](#定义)
     -   [实现](#实现)
 
-# 146 LRU缓存 {#146-lru缓存}
-
+# 146 LRU缓存
 ## 定义
 
 LRU是Least Recently
@@ -42,7 +41,7 @@ class LRUCache {
             remove(node);
             push_front(node);
             return node;
-        }   
+        }
         return nullptr;
     }
 
@@ -52,7 +51,7 @@ public:
         dummy->next=dummy;
         dummy->prev=dummy;
     }
-    
+
     int get(int key) {
         auto node=get_node(key);
         if(node) return node->val;
