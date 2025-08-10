@@ -77,4 +77,41 @@ public:
 };
 ```
 
+标准库实现：
+
+```c++
+class LRUCache {
+     int cap;
+    std::list<std::pair<int, int>> data; // 存 key-value
+    std::unordered_map<int, std::list<std::pair<int, int>>::iterator> cache; // key -> list迭代器
+public:
+    LRUCache(int capacity):cap(capacity) {
+
+    }
+
+    int get(int key) {
+        auto it=cache.find(key);
+        if(it==cache.end()) return -1;
+        data.splice(data.begin(), data,it->second);
+        return it->second->second;
+    }
+
+    void put(int key, int value) {
+        auto it=cache.find(key);
+        if(it==cache.end()){
+            if(data.size()==cap){
+                auto last=data.back();
+                cache.erase(last.first);
+                data.pop_back();
+            }
+            data.emplace_front(key,value);
+            cache[key]=data.begin();
+        }else{
+            it->second->second=value;
+            data.splice(data.begin(),data,it->second);
+        }
+    }
+};
+```
+
 </details>
