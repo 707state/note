@@ -1,12 +1,12 @@
--   [Fisher-Yates
-    shuffle](#fisher-yates-shuffle)
-    -   [C++实现](#c实现)
--   [Inside-out
-    Algorithm](#inside-out-algorithm)
-    -   [C++实现](#c实现-1)
--   [Sattolo\'s algorithm](#sattolos-algorithm)
--   [其他Shuffle算法](#其他shuffle算法)
-    -   [Naive 的方法](#naive-的方法)
+<!--toc:start-->
+- [Fisher-Yates shuffle](#fisher-yates-shuffle)
+  - [C++实现](#c实现)
+- [Inside-out Algorithm](#inside-out-algorithm)
+  - [C++实现](#c实现)
+- [Sattolo\'s algorithm](#sattolos-algorithm)
+- [其他Shuffle算法](#其他shuffle算法)
+  - [Naive 的方法](#naive-的方法)
+<!--toc:end-->
 
 # Fisher-Yates shuffle
 
