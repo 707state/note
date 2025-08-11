@@ -172,9 +172,6 @@
   - [文法](./编译原理/文法.md)
   - [LLVM相关1-Inkwell](./编译原理/inkwell.md)
 
-- [The Art Of ComputerProgramming](./TheArtOfComputerProgramming/README.md)
-  - [基本算法](./TheArtOfComputerProgramming/基本算法.md)
-
 - [Linux](./Linux/README.md)
   - [GNU/Linux的C库](./Linux/glibc.md)
   - [NAPI](./Linux/NAPI.md)
