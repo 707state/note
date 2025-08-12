@@ -203,6 +203,7 @@
   - [路由到底是怎么回事](./前端/Router.md)
 
 - [FP](./Functional/README.md)
+  - [Polymorphism?](./Functional/Polymorphism.md)
 
 - [Redis](./Redis/README.md)
   - [常见问题](./Redis/redisOverview.md)
