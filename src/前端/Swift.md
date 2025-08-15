@@ -115,3 +115,11 @@ var propertyName: Type = initialValue {
 - 最严格的访问级别
 - 限制实体只能在定义它的声明内使用
 - 适合隐藏特定类、结构体或枚举的实现细节
+
+# actor
+
+修改 actor 的状态需要发邮件，actor 会在收到邮件之后一个一个处理并异步返回给你结果，这个叫做 actor-isolated（即属性隔离）。
+
+actor 的状态只能在自己的函数内部修改，是因为 actor 的函数的调用是在对应的 executor 上安全地执行的。如果外部的函数也能够满足这个调用条件，那么理论上也是安全的。
+
+Swift 提供了 actor-isolated paramters 这样的特性，字面意思即满足 actor 状态隔离的参数，如果我们在定义外部函数时将需要访问的 actor 类型的参数声明为 isolated，那么我们就可以在函数内部修改这个 actor 的状态了。
