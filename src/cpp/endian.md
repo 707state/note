@@ -1,17 +1,22 @@
 # C/C++判断大小端序
 
-```c
-#include <stdio.h>
+```c++
+#include <iostream>
+#include <cstring>
+
+bool isLittleEndian() {
+    int i = 1;
+    char c;
+    std::memcpy(&c, &i, 1);
+    return (c == 1);
+}
 
 int main() {
-    long a = 0x0123456789abcdef;
-    printf("Storing 0x0123456789abcdef into memory is: ");
-    char *s = (char *)&a;
-    for (int i = 0; i <sizeof(a); i++) {
-        printf("%.2x ", s[i] & 0xff);
+    if (isLittleEndian()) {
+        std::cout << "系统是小端序" << std::endl;
+    } else {
+        std::cout << "系统是大端序" << std::endl;
     }
-    printf("\n");
-
     return 0;
 }
 ```

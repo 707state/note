@@ -1,5 +1,18 @@
+<!--toc:start-->
+- [构建系统碎碎念](#构建系统碎碎念)
+  - [cmake的误解](#cmake的误解)
+  - [函数参数解析](#函数参数解析)
+    - [例子](#例子)
+- [aux_source_directory](#auxsourcedirectory)
+- [生成器表达式](#生成器表达式)
+  - [变量查询](#变量查询)
+  - [字符串生成器表达式](#字符串生成器表达式)
+  - [条件表达式](#条件表达式)
+- [cmake常用option总结](#cmake常用option总结)
+<!--toc:end-->
+
 # 构建系统碎碎念
-C++的构建系统，没10个也有5个了，de factor standard 的cmake，社区常见的meson/xmake，谷歌主推的bazel，腾讯自家的blade，facebook搞的buck/buck2，还有古老的gnu automake，就连zig和gradle也能过来凑一桌。
+C++的构建系统，没10个也有5个了，de facto standard 的cmake，社区常见的meson/xmake，谷歌主推的bazel，腾讯自家的blade，facebook搞的buck/buck2，还有古老的gnu automake，就连zig和gradle也能过来凑一桌。
 
 还是cmake吧，至少资料多，遇到问题好搜。吗？
 
