@@ -4,6 +4,7 @@
   - [协程](#协程)
   - [timer？](#timer)
     - [怎么用？](#怎么用)
+  - [awaitable operators](#awaitable-operators)
 <!--toc:end-->
 
 # 所谓协程
@@ -128,3 +129,182 @@ Asio定时器的设计是非常有意思的，如何用好Timer非常值得思�
 换句话说，Timer最好被当作“一次性、专门为某个等待事件准备的定时器”，而不是一个全局用来多处协程“轮流等待”的资源。
 
 最保守的用法应该是每一个协程里面有一个定时器，这样的做法应该是最稳妥的。
+
+## awaitable operators
+
+刚才的代码中用到了全局变量，而全局变量永远不是最好的实践，就是说，怎么才能干掉这个全局变量呢？
+
+```c++
+#include <asio.hpp>
+#include <chrono>
+#include <iostream>
+#include <random>
+#include "asio/experimental/awaitable_operators.hpp"
+#include "asio/io_context.hpp"
+#include "asio/steady_timer.hpp"
+#include "asio/this_coro.hpp"
+static auto generate_random_delay(int low, int high)
+{
+  static std::random_device device;
+  static std::mt19937 gen(device());
+  std::uniform_int_distribution dist(low, high);
+  return std::chrono::milliseconds(dist(gen));
+}
+asio::awaitable<void> main_loop(asio::steady_timer &timer)
+{
+  while (true) {
+    std::cout << "This is on async main function!!!\n";
+    std::cout << "I need to see watchdog!\n";
+    timer.expires_after(std::chrono::milliseconds(100));
+    co_await timer.async_wait(asio::use_awaitable);
+  }
+  co_return;
+}
+asio::awaitable<void> async_main()
+{
+  auto executor = co_await asio::this_coro::executor;
+  // 创建两个计时器
+  asio::steady_timer main_timer(executor);
+  asio::steady_timer watchdog_timer(executor);
+  // 设置watchdog计时器
+  watchdog_timer.expires_after(generate_random_delay(180, 400));
+  using namespace asio::experimental::awaitable_operators;
+  co_await (main_loop(main_timer) ||
+            watchdog_timer.async_wait(asio::use_awaitable));
+  std::cout << "Watchdog timer expired, shutting down...\n";
+}
+int main()
+{
+  asio::io_context io_context;
+  asio::co_spawn(io_context, async_main(), asio::detached);
+  io_context.run();
+  return 0;
+}
+```
+
+在这个demo里面，我们成功地把is\_running这个全局变量干掉了，通过asio提供的awaitable operator做到了组合的效果，但是，如果我们希望对不同的结果进行处理，怎么办？
+
+这里可以利用返回值：
+
+<details>
+
+```c++
+#include <asio.hpp>
+#include <chrono>
+#include <cstdlib>
+#include <iostream>
+#include <random>
+#include <variant>
+
+#include "asio/detached.hpp"
+#include "asio/experimental/awaitable_operators.hpp"
+#include "asio/io_context.hpp"
+#include "asio/steady_timer.hpp"
+#include "asio/this_coro.hpp"
+#include "asio/use_awaitable.hpp"
+
+asio::awaitable<void> handle_normal_completion(const asio::any_io_executor& executor);
+asio::awaitable<void> handle_timeout(const asio::any_io_executor& executor);
+
+static auto generate_random_delay(int low, int high)
+{
+  static std::random_device device;
+  static std::mt19937 gen(device());
+  std::uniform_int_distribution<int> dist(low, high);
+  return std::chrono::milliseconds(dist(gen));
+}
+
+// 返回一个值以便我们知道循环是否正常完成
+asio::awaitable<bool> main_loop(asio::steady_timer& timer)
+{
+  for (int i = 0; i < 4; ++i) {
+    std::cout << "This is on async main function!!! Task " << i + 1 << "/4\n";
+    std::cout << "I need to see watchdog!\n";
+
+    timer.expires_after(std::chrono::milliseconds(50));
+    co_await timer.async_wait(asio::use_awaitable);
+  }
+  // 如果所有任务都完成了，返回true
+  co_return true;
+}
+
+// 添加一个watchdog函数，返回bool
+asio::awaitable<bool> watchdog(asio::steady_timer& timer)
+{
+  co_await timer.async_wait(asio::use_awaitable);
+  // 返回false表示这是超时结果
+  co_return false;
+}
+
+static asio::awaitable<void> async_main()
+{
+  using namespace asio::experimental::awaitable_operators;
+  auto executor = co_await asio::this_coro::executor;
+
+  // 创建两个计时器
+  asio::steady_timer main_timer(executor);
+  asio::steady_timer watchdog_timer(executor);
+
+  // 设置watchdog计时器
+  watchdog_timer.expires_after(generate_random_delay(180, 450));
+
+  // 使用awaitable operators并获取结果
+  // 现在两个分支都返回bool
+  auto result = co_await (main_loop(main_timer) || watchdog(watchdog_timer));
+
+  // 处理结果
+  if (result.index() == 0) {
+    // 第一个分支完成 - main_loop正常结束
+    bool success = std::get<0>(result);
+    if (success) {
+      std::cout << "Main loop completed successfully without timeout!\n";
+      // 在这里添加正常完成的处理逻辑
+      co_await handle_normal_completion(executor);
+    }
+    else {
+      std::cout << "Main loop failed but didn't timeout\n";
+      // 处理main_loop内部失败的情况
+    }
+  }
+  else {
+    // 第二个分支完成 - 发生了超时
+    std::cout << "Watchdog timer expired, operation timed out!\n";
+    // 在这里添加超时处理逻辑
+    co_await handle_timeout(executor);
+  }
+}
+
+// 处理正常完成的函数
+asio::awaitable<void> handle_normal_completion(const asio::any_io_executor& executor)
+{
+  std::cout << "Performing normal completion actions...\n";
+  // 例如：保存状态，发送成功通知等
+  asio::steady_timer timer(executor);
+  timer.expires_after(std::chrono::milliseconds(50));
+  co_await timer.async_wait(asio::use_awaitable);
+  std::cout << "Normal completion handling finished\n";
+}
+
+// 处理超时的函数
+asio::awaitable<void> handle_timeout(const asio::any_io_executor& executor)
+{
+  std::cout << "Performing timeout recovery actions...\n";
+  // 例如：记录错误，重置状态，通知管理员等
+  asio::steady_timer timer(executor);
+  timer.expires_after(std::chrono::milliseconds(50));
+  co_await timer.async_wait(asio::use_awaitable);
+  std::cout << "Timeout handling finished\n";
+}
+
+int main()
+{
+  asio::io_context io_context;
+  asio::co_spawn(io_context, async_main(), asio::detached);
+  io_context.run();
+  return 0;
+}
+```
+
+</details>
+
+这里可以通过std::variant来获取对应结果。这里需要注意，void返回的事monostate，建议再多封装一次。
