@@ -98,7 +98,7 @@
 
 + https://dengzuoheng.github.io
 
-+ https://www.bennyhuo.com
++ http://chuquan.me
 
 * 苏洋
 + https://soulteary.com
@@ -110,6 +110,8 @@
 + https://righele.it
 
 * Kotlin related
+
++ https://www.bennyhuo.com
 
 * Arch Linux Related
 + https://www.rainafter.cn
@@ -160,3 +162,5 @@
 * 课程
 
 + https://transformers.run
+
++ https://paminerva.github.io/

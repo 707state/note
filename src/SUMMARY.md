@@ -168,6 +168,7 @@
   - [CMake](./cpp/cmake小记录.md)
   - [CUDA](./cpp/CUDA.md)
   - [生产者消费者模型](./cpp/生产者消费者模型.md)
+  - [单例模式](./cpp/Singleton.md)
 
 - [编译原理](./编译原理/README.md)
   - [文法](./编译原理/文法.md)
@@ -200,8 +201,7 @@
   - [JS Framework](./前端/JSFramework.md)
   - [React Hooks](./前端/ReactHooks.md)
   - [Tree Shaking](./前端/TreeShaking.md)
-  - [SolidJS 踩坑](./前端/SolidJS.md)
-  - [路由到底是怎么回事](./前端/Router.md)
+  - [KMP](./前端/KMP.md)
 
 - [FP](./Functional/README.md)
   - [Polymorphism?](./Functional/Polymorphism.md)
