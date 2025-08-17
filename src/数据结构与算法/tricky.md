@@ -1544,3 +1544,64 @@ public:
 ```
 
 </details>
+
+# n个物品中选两个，使其和为m的倍数的选法数量
+
+```c++
+#include <iostream>
+#include <vector>
+using namespace std;
+
+// 计算从n个物品中选两个，使其和为m的倍数的选法数量
+long long countPairs(vector<int>& arr, int n, int m) {
+    // 创建一个长度为m的数组，用于存储每个余数出现的次数
+    vector<long long> remainderCount(m, 0);
+
+    // 统计每个余数出现的次数
+    for (int i = 0; i < n; i++) {
+        // 注意处理负数的情况，确保余数为非负
+        int remainder = ((arr[i] % m) + m) % m;
+        remainderCount[remainder]++;
+    }
+
+    // 计算结果
+    long long result = 0;
+
+    // 处理余数为0的情况（两个余数为0的数可以配对）
+    result += (remainderCount[0] * (remainderCount[0] - 1)) / 2;
+
+    // 处理m为偶数且余数为m/2的情况
+    if (m % 2 == 0) {
+        result += (remainderCount[m / 2] * (remainderCount[m / 2] - 1)) / 2;
+    }
+
+    // 处理其他余数的情况
+    for (int i = 1; i < (m + 1) / 2; i++) {
+        result += remainderCount[i] * remainderCount[m - i];
+    }
+
+    return result;
+}
+
+int main() {
+    // 示例输入
+    int n, m;
+    cout << "输入物品数量n: ";
+    cin >> n;
+
+    cout << "输入除数m: ";
+    cin >> m;
+
+    vector<int> arr(n);
+    cout << "输入" << n << "个物品的值: ";
+    for (int i = 0; i < n; i++) {
+        cin >> arr[i];
+    }
+
+    // 计算结果
+    long long result = countPairs(arr, n, m);
+    cout << "满足条件的选法数量: " << result << endl;
+
+    return 0;
+}
+```
