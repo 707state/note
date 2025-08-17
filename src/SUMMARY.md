@@ -167,6 +167,7 @@
   - [FFI](./cpp/libffi.md)
   - [CMake](./cpp/cmake小记录.md)
   - [CUDA](./cpp/CUDA.md)
+  - [生产者消费者模型](./cpp/生产者消费者模型.md)
 
 - [编译原理](./编译原理/README.md)
   - [文法](./编译原理/文法.md)
