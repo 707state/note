@@ -4102,3 +4102,32 @@ int main() {
 ```
 
 </details>
+
+# 1277 统计全为 1 的正方形子矩阵
+
+给你一个 m * n 的矩阵，矩阵中的元素不是 0 就是 1，请你统计并返回其中完全由 1 组成的 正方形 子矩阵的个数。
+
+<details>
+
+```c++
+class Solution {
+public:
+    int countSquares(vector<vector<int>>& matrix) {
+        int n=matrix.size();
+        int m=matrix[0].size();
+        vector f(n+1,vector<int>(m+1));
+        int ans=0;
+        for(int i=0;i<n;i++){
+            for(int j=0;j<m;j++){
+                if(matrix[i][j]){
+                    f[i+1][j+1]=min({f[i][j],f[i][j+1],f[i+1][j]})+1;
+                }
+                ans+=f[i+1][j+1];
+            }
+        }
+        return ans;
+    }
+};
+```
+
+</details>
