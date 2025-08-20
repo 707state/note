@@ -81,6 +81,9 @@
 - [UNSOLVED 3363 最多可收集的水果数目](#unsolved-3363-最多可收集的水果数目)
 - [931 下降路径最小和](#931-下降路径最小和)
 - [808 分汤](#808-分汤)
+- [2787 将一个数字表示成幂的和的方案数](#2787-将一个数字表示成幂的和的方案数)
+- [837 新21点](#837-新21点)
+- [1277 统计全为 1 的正方形子矩阵](#1277-统计全为-1-的正方形子矩阵)
 <!--toc:end-->
 
 # 983 最低票价
@@ -4015,93 +4018,7 @@ public:
 
 </details>
 
-## packaged_task版本
 
-<details>
-
-```c++
-#include <iostream>
-#include <thread>
-#include <vector>
-#include <queue>
-#include <future>
-#include <mutex>
-#include <condition_variable>
-#include <functional>
-
-class ThreadPool {
-public:
-    explicit ThreadPool(size_t threads) : stop(false) {
-        for (size_t i = 0; i < threads; i++) {
-            workers.emplace_back([this] {
-                while (true) {
-                    std::function<void()> task;
-                    {
-                        std::unique_lock<std::mutex> lock(this->mtx);
-                        this->cv.wait(lock, [this] {
-                            return this->stop || !this->tasks.empty();
-                        });
-                        if (this->stop && this->tasks.empty()) return;
-                        task = std::move(this->tasks.front());
-                        this->tasks.pop();
-                    }
-                    task(); // 执行任务
-                }
-            });
-        }
-    }
-
-    // 提交任务，返回 future
-    template<class F, class... Args>
-    auto enqueue(F&& f, Args&&... args)
-        -> std::future<typename std::invoke_result<F, Args...>::type> {
-
-        using return_type = typename std::invoke_result<F, Args...>::type;
-        auto task = std::make_shared<std::packaged_task<return_type()>>(
-            std::bind(std::forward<F>(f), std::forward<Args>(args)...)
-        );
-        std::future<return_type> res = task->get_future();
-
-        {
-            std::lock_guard<std::mutex> lock(mtx);
-            if (stop) throw std::runtime_error("enqueue on stopped ThreadPool");
-            tasks.emplace([task]() { (*task)(); });
-        }
-        cv.notify_one();
-        return res;
-    }
-
-    ~ThreadPool() {
-        {
-            std::lock_guard<std::mutex> lock(mtx);
-            stop = true;
-        }
-        cv.notify_all();
-        for (std::thread &w : workers) w.join();
-    }
-
-private:
-    std::vector<std::thread> workers;
-    std::queue<std::function<void()>> tasks;
-    std::mutex mtx;
-    std::condition_variable cv;
-    bool stop;
-};
-
-int main() {
-    ThreadPool pool(3);
-
-    auto f1 = pool.enqueue([] { return 42; });
-    auto f2 = pool.enqueue([](int a, int b) { return a + b; }, 10, 20);
-
-    std::cout << "Result1: " << f1.get() << "\n";
-    std::cout << "Result2: " << f2.get() << "\n";
-
-    return 0;
-}
-```
-
-</details>
 
 # 1277 统计全为 1 的正方形子矩阵
 
