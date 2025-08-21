@@ -1,3 +1,15 @@
+<!--toc:start-->
+- [Emacs常用快捷键](#emacs常用快捷键)
+  - [magit相关](#magit相关)
+  - [elisp相关](#elisp相关)
+  - [Bookmarks](#bookmarks)
+  - [buffer相关](#buffer相关)
+- [一些lisp](#一些lisp)
+  - [内置的一些函数](#内置的一些函数)
+  - [describe-of-function](#describe-of-function)
+  - [describe-of-variable](#describe-of-variable)
+<!--toc:end-->
+
 # Emacs常用快捷键
 
 ## magit相关
@@ -30,3 +42,34 @@
 
 14. E是编辑git配置文件
 
+## elisp相关
+
+1. c-x b切换buffer/file。
+
+2. c-h f查看函数文档
+
+## Bookmarks
+
+1. C-x r m: 在当前位置设置书签
+
+2. C-x r b: 跳转到书签
+
+3. C-x r l: 列出所有书签
+
+## buffer相关
+
+1. c-x h拷贝整个buffer
+
+# 一些lisp
+
+## 内置的一些函数
+
+buffer-name，能获取到当前这个buffer的名称。总之就是buffer相关的方法都会带有buffer。
+
+## describe-of-function
+
+c-h f 查看一个函数的信息。
+
+## describe-of-variable
+
+c-h v查看一个变量的消息。
