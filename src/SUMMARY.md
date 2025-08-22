@@ -221,6 +221,7 @@
   - [Vim](./零零碎碎/Vim.md)
   - [git](./src/零零碎碎/git.md)
   - [emacs](./零零碎碎/emacs.md)
+  - [GNU Stuff？趣味小常识](./零零碎碎/gnu.md)
 
 - [面试题](./面试经验/README.md)
   - [数据结构](./面试经验/数据结构.md)

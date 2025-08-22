@@ -5,6 +5,9 @@
   - [timer？](#timer)
     - [怎么用？](#怎么用)
   - [awaitable operators](#awaitable-operators)
+  - [任务](#任务)
+  - [read/write](#readwrite)
+- [signal_set？](#signalset)
 <!--toc:end-->
 
 # 所谓协程
@@ -308,3 +311,40 @@ int main()
 </details>
 
 这里可以通过std::variant来获取对应结果。这里需要注意，void返回的事monostate，建议再多封装一次。
+
+## 任务
+
+从asio来看，一个任务就是被co\_spawn调用的函数和其整个调用链。
+
+一个任务包含许多co_await带来的上下文交换，在无栈协程中并不一定涉及到栈指针交换，因为无栈协程可以用编译期状态机转换，而如果是有栈协程就可以采用栈指针的交换。
+
+## read/write
+
+Asio有一个非常重要的设计，就是async\_read\_some和async\_read之间的区别。
+
+async\_read\_some不保证读取指定的全部数据，只保证至少读取一个字节（如果有数据可用）。他是一个流式地输入接收。
+
+
+一般会直接映射到系统调用。
+
+可以用于处理协议解析，比如说处理协议里面长度可变部分数据的接收。
+
+# signal_set？
+
+Asio提供了一个处理系统信号的能力，它允许程序以异步的方式响应操作系统发送的各种信号，aka一个信号的handler。
+
+1. 创建 signal_set 对象：首先需要创建一个 signal_set 实例，并指定要监听的信号。
+2. 注册回调函数：通过 async_wait() 方法注册一个回调函数，当指定的信号发生时，这个回调函数会被调用。
+3. 处理信号：在回调函数中实现对信号的处理逻辑。
+4. 重新注册：如果需要继续监听信号，需要在回调函数中再次调用 async_wait()。
+
+```c++
+asio::awaitable<void> async_main(asio::io_context& io_context)
+{
+  asio::signal_set signal(io_context, SIGINT, SIGTERM);
+  //等待注册的信号（由操作系统）发送
+  auto sig_num = co_await signal.async_wait(asio::use_awaitable);
+  //这之后就说明signal已经被触发，获得到了sig_num，也就是信号的值
+  ...
+}
+```
