@@ -146,7 +146,7 @@
   - [Iterators](./LSM-Tree/LSMTree2.md)
   - [Block](./LSM-Tree/LSMTree3.md)
   - [Sorted String Table](./LSM-Tree/LSMTree4.md)
-  - [RocksDB](./LSM-Tree/RocksDB)
+  - [RocksDB](./LSM-Tree/RocksDB.md)
 
 - [操作系统](./操作系统/README.md)
   - [协程](./操作系统/协程.md)
@@ -192,6 +192,7 @@
 
 - [前端](./前端/README.md)
   - [Android知识](./前端/Android.md)
+  - [Skia鸿蒙适配](./前端/Skia鸿蒙适配.md)
   - [手写Promise](./前端/Promise.md)
   - [常见题目](./前端/常见题目.md)
   - [移动应用开发技术一览](./前端/移动开发技术.md)
@@ -219,7 +220,7 @@
   - [B 树和 B+树的区别](./零零碎碎/BTreeVSBPlusTree.md)
   - [Mod Alternative](./零零碎碎/ModuloAlternative.md)
   - [Vim](./零零碎碎/Vim.md)
-  - [git](./src/零零碎碎/git.md)
+  - [git](./零零碎碎/git.md)
   - [emacs](./零零碎碎/emacs.md)
   - [GNU Stuff？趣味小常识](./零零碎碎/gnu.md)
 

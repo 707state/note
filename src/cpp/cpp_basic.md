@@ -81,6 +81,8 @@
   - [+[]{}](#)
   - [defer](#defer)
   - [编译器指令](#编译器指令)
+  - [构造函数的参数初始化顺序](#构造函数的参数初始化顺序)
+- [工程实践](#工程实践)
 <!--toc:end-->
 
 
@@ -1610,6 +1612,29 @@ template <class F> deferrer<F> operator*(defer_dummy, F f) { return {f}; }
 ## 编译器指令
 
 #pragma pack 是一个编译器指令，用于控制结构体（struct）和联合体（union）的内存对齐方式。
+
+## 构造函数的参数初始化顺序
+
+cppreference原文：
+
+```txt
+Initialization order
+The order of member initializers in the list is irrelevant, the actual order of initialization is as follows:
+1) If the constructor is for the most-derived class, virtual bases are initialized in the order in which they appear in depth-first left-to-right traversal of the base class declarations (left-to-right refers to the appearance in base-specifier lists).
+2) Then, direct bases are initialized in left-to-right order as they appear in this class's base-specifier list.
+3) Then, non-static data member are initialized in order of declaration in the class definition.
+4) Finally, the body of the constructor is executed.
+(Note: if initialization order was controlled by the appearance in the member initializer lists of different constructors, then the destructor wouldn't be able to ensure that the order of destruction is the reverse of the order of construction.)
+```
+
+根据cppreference文档，对于最派生类的构造函数，虚基类按照它们在继承层次中出现的顺序初始化。
+
+对于成员：
+
+- 类体中成员对象的顺序是关键的
+- 构造函数初始化列表中初始化器的顺序是无关的
+- _成员按声明顺序初始化，但错误的顺序可能导致垃圾值_
+- 成员变量的初始化顺序就是它们在类中的声明顺序
 
 # 工程实践
 
