@@ -82,6 +82,8 @@
   - [defer](#defer)
   - [编译器指令](#编译器指令)
   - [构造函数的参数初始化顺序](#构造函数的参数初始化顺序)
+  - [Empty Base Optimization](#empty-base-optimization)
+  - [结构体字节对齐](#结构体字节对齐)
 - [工程实践](#工程实践)
 <!--toc:end-->
 
@@ -1636,6 +1638,91 @@ The order of member initializers in the list is irrelevant, the actual order of 
 - _成员按声明顺序初始化，但错误的顺序可能导致垃圾值_
 - 成员变量的初始化顺序就是它们在类中的声明顺序
 
+## Empty Base Optimization
+
+在空类被用作基类时，如果不给它分配内存并不会导致它被存储到与同类型对象（包括子类对象）相同的地址上，那么就可以不给它分配内存。换句话说，BaseEmpty作为空基类时，下面两种情况，编译器不会为BaseEmpty对象在子类中分配内存：
+
+- 子类单继承，比如类DerivedDeeperEmpty。
+- 子类在多继承、选择第二个基类时，没有继续选择BaseEmpty及BaseEmpty的子类作为父类，那么BaseEmpty是不会被分配内存的。
+
+在空类A作为基类时，空类B继承A，空类C继承B，如果要触发编译器的EBCO机制，那么空类C不能再继承A及其子类。
+
+## 结构体字节对齐
+
+
+规则0：整个结构体必须按照其中最大成员的对齐要求对齐！
+
+```c++
+struct Test1{
+    int a;
+    char b;
+};
+```
+
+这里面最大的是int 4字节，就是4对齐。
+
+```c++
+struct Test2{
+    double a;
+    char b;
+};
+```
+最大的是double 8字节，就是8对齐。
+
+规则1：成员对齐
+每个成员都必须对齐到其自然对齐边界：
+
+```c++
+struct Example1 {
+    char a;     // offset 0, size 1
+    int b;      // offset 4, size 4 (需要3字节padding)
+    char c;     // offset 8, size 1
+};
+
+// 内存布局：
+// [a][pad][pad][pad][b][b][b][b][c][pad][pad][pad]
+//  0   1   2   3   4  5  6  7  8   9  10  11
+// sizeof(Example1) = 12 (最后还需要padding到结构体对齐边界)
+```
+
+规则2：结构体整体对齐
+结构体的对齐要求是其最大成员的对齐要求：
+
+```c++
+#include <iostream>
+
+struct AlignmentDemo {
+    char a;      // 1 byte, align 1
+    int b;       // 4 bytes, align 4
+    short c;     // 2 bytes, align 2
+};
+
+int main() {
+    std::cout << "sizeof(AlignmentDemo): " << sizeof(AlignmentDemo) << std::endl;
+    std::cout << "alignof(AlignmentDemo): " << alignof(AlignmentDemo) << std::endl;
+
+    // 查看成员偏移
+    AlignmentDemo demo;
+    std::cout << "offset of a: " << (char*)&demo.a - (char*)&demo << std::endl;
+    std::cout << "offset of b: " << (char*)&demo.b - (char*)&demo << std::endl;
+    std::cout << "offset of c: " << (char*)&demo.c - (char*)&demo << std::endl;
+
+    return 0;
+}
+```
+
+成员偏移计算：
+
+```txt
+// 对于结构体成员，其偏移量必须是其对齐要求的倍数
+offset = (previous_offset + previous_size + align - 1) & ~(align - 1)
+
+// 等价于：
+offset = ⌊(previous_offset + previous_size + align - 1) / align⌋ * align
+```
+
 # 工程实践
 
 1. 我们不认为有任何合理的工程上的理由让 移动构造函数（move constructor） 抛出异常。——来自Abseil。
+
+2. Asio signal\_set应该用在程序最外层co\_spawn，这样能更好地管理。
