@@ -65,6 +65,7 @@
 + https://0xrick.github.io
 + https://thesecretlivesofdata.com/
 + https://doc.cat-v.org/
++ http://just4coding.com
 
 * JavaScript Related
 + https://v8.dev/blog
