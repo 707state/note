@@ -154,6 +154,7 @@
   - [内存分配与内存碎片](./操作系统/内存碎片.md)
   - [Unix环境编程](./操作系统/Unix高级编程.md)
   - [进程调度](./操作系统/进程调度算法.md)
+  - [qemu gdb](./操作系统/qemu-gdb.md)
 
 - [cpp](./cpp/README.md)
   - [基本知识](./cpp/cpp_basic.md)

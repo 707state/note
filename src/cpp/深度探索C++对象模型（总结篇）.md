@@ -50,8 +50,7 @@ table的储存
 布局
 
 -   对于nonstatic data member，他们会按照声明的顺序，依次进行创建和排列
--   对于no data member
-    的class，编译器回往里面塞上一个char，确保他占用一个字节的空间，在运行的时候，编译器也会为他合成出来对应的constructor和destructor
+-   对于no data member的class，编译器回往里面塞上一个char，确保他占用一个字节的空间，在运行的时候，编译器也会为他合成出来对应的constructor和destructor
 -   对于static 类型的数据，他只有一个实例，并且存在data
     segment中，如果去他的地址，得到的是对于数据类型的指针，而与其所在的对象毫无关联
 -   对于function
