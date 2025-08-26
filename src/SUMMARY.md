@@ -187,6 +187,7 @@
   - [内存管理](./Linux/内存管理.md)
   - [进程间通信与同步机制](./Linux/进程间通信.md)
   - [UDS](./Linux/UnixDomainSocket.md)
+  - [io_uring](Linux/io_uring.md)
 
 - [Go](./Go/README.md)
   - [基础知识](./Go/basic.md)
