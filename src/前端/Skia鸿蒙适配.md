@@ -65,4 +65,4 @@ header.add_text("#define JSON_USE_EXCEPTION 0")
 
 # 后续
 
-有机会在最新版本的skia看看能不能用这个patch，比较Flutter更新速度太恐怖了。
+有机会在最新版本的skia看看能不能用这个patch，Flutter更新速度太恐怖了。

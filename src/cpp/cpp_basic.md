@@ -84,6 +84,21 @@
   - [构造函数的参数初始化顺序](#构造函数的参数初始化顺序)
   - [Empty Base Optimization](#empty-base-optimization)
   - [结构体字节对齐](#结构体字节对齐)
+- [value category](#value-category)
+  - [哪些情况是lvalue](#哪些情况是lvalue)
+  - [lvalue的一些属性](#lvalue的一些属性)
+  - [哪些情况是prvalue](#哪些情况是prvalue)
+  - [prvalue的一些属性](#prvalue的一些属性)
+  - [哪些情况是xvalue](#哪些情况是xvalue)
+    - [什么事move-eligible expression](#什么事move-eligible-expression)
+  - [xvalue的一些属性](#xvalue的一些属性)
+  - [glvalue的一些属性](#glvalue的一些属性)
+  - [rvalue的一些属性](#rvalue的一些属性)
+  - [特殊规则](#特殊规则)
+    - [Pending member function call](#pending-member-function-call)
+    - [Void expressions](#void-expressions)
+    - [Bit-fields](#bit-fields)
+  - [decltype的规则](#decltype的规则)
 - [工程实践](#工程实践)
 <!--toc:end-->
 
@@ -1154,9 +1169,10 @@ struct A<T>::B::C : A<T>
 
 如果名称满足以下条件，则将其归类为当前实例的成员：
 
-    在当前实例或其非依赖基中通过非限定查找找到的非限定名称。
-    限定名称，如果限定符（ 左侧的名称::）命名当前实例，并且查找在当前实例或其非依赖基中找到该名称
-    类成员访问表达式中使用的名称（是在x. y或者xp- > y​），其中对象表达式（十或者*经验值）是当前实例，并且查找在当前实例或其非依赖基中找到名称
+1. 在当前实例或其非依赖基中通过非限定查找找到的非限定名称。
+2. 限定名称，如果限定符（ 左侧的名称::）命名当前实例，并且查找在当前实例或其非依赖基中找到该名称
+3. 类成员访问表达式中使用的名称（是在x. y或者xp- > y​），其中对象表达式（十或者*经验值）是当前实例，并且查找在当前实例或其非依赖基中找到名称
+
 ```cpp
 template<class T>
 class A
@@ -1720,6 +1736,210 @@ offset = (previous_offset + previous_size + align - 1) & ~(align - 1)
 // 等价于：
 offset = ⌊(previous_offset + previous_size + align - 1) / align⌋ * align
 ```
+
+# value category
+
+在C++中，一个表达式只有lvalue或者rvalue两种类别，但是可以继续细分为：
+
+1. glvalue(generalized lvalue): 泛左值。glvalue是一种表达式，当对它求值时，能够确定一个对象或函数的身份（即内存中的位置或标识）。
+2. prvalue(pure rvalue): 纯右值。其求值是：计算内置运算符操作数的值、初始化一个对象、结果对象的类型、被丢弃的表达式。
+3. xvalue(expiring value): 资源可以被使用的左值。
+4. lvalue：不是xvalue的glvalue。
+
+其中，prvalue和rvalue组成了rvalue。
+
+```c++
+#include <type_traits>
+#include <utility>
+
+template <class T> struct is_prvalue : std::true_type {};
+template <class T> struct is_prvalue<T&> : std::false_type {};
+template <class T> struct is_prvalue<T&&> : std::false_type {};
+
+template <class T> struct is_lvalue : std::false_type {};
+template <class T> struct is_lvalue<T&> : std::true_type {};
+template <class T> struct is_lvalue<T&&> : std::false_type {};
+
+template <class T> struct is_xvalue : std::false_type {};
+template <class T> struct is_xvalue<T&> : std::false_type {};
+template <class T> struct is_xvalue<T&&> : std::true_type {};
+
+int main()
+{
+    int a{42};
+    int& b{a};
+    int&& r{std::move(a)};
+
+    // Expression `42` is prvalue
+    static_assert(is_prvalue<decltype((42))>::value);
+
+    // Expression `a` is lvalue
+    static_assert(is_lvalue<decltype((a))>::value);
+
+    // Expression `b` is lvalue
+    static_assert(is_lvalue<decltype((b))>::value);
+
+    // Expression `std::move(a)` is xvalue
+    static_assert(is_xvalue<decltype((std::move(a)))>::value);
+
+    // Type of variable `r` is rvalue reference
+    static_assert(std::is_rvalue_reference<decltype(r)>::value);
+
+    // Type of variable `b` is lvalue reference
+    static_assert(std::is_lvalue_reference<decltype(b)>::value);
+
+    // Expression `r` is lvalue
+    static_assert(is_lvalue<decltype((r))>::value);
+}
+```
+
+注意，这样的一个表达式a++对其求值是一个纯右值！
+
+## 哪些情况是lvalue
+
+这里记录一些比较特殊的情况。
+
+1. p->m, the built-in member of pointer expression, except where m is a member enumerator or a non-static member function;就是说如果m是一个成员，且m不是一个enum或者非静态成员函数，就是一个左值。
+2. a.*mp, the pointer to member of object expression, where a is an lvalue and mp is a pointer to data member;
+3. p->*mp, the built-in pointer to member of pointer expression, where mp is a pointer to data member;
+4. a string literal, such as "Hello, world!";
+5. a constant template parameter of an lvalue reference type;
+
+## lvalue的一些属性
+
+1. Address of an lvalue may be taken by built-in address-of operator: &++i[1] and &std::hex are valid expressions.
+2. A modifiable lvalue may be used as the left-hand operand of the built-in assignment and compound assignment operators.
+3. An lvalue may be used to initialize an lvalue reference; this associates a new name with the object identified by the expression.
+
+其他的和glvalue一致。
+
+## 哪些情况是prvalue
+
+1. a function call or an overloaded operator expression, whose return type is non-reference, such as str.substr(1, 2), str1 + str2, or it++;
+2. a++ and a--, the built-in post-increment and post-decrement expressions;
+3. a.m, the member of object expression, where m is a member enumerator or a non-static member function;
+4. a.*mp, the pointer to member of object expression, where mp is a pointer to member function;
+5. the this pointer;
+6. a lambda expression, such as \[\]\(int x\){ return x * x; };
+7. a specialization of a concept, such as std::equality_comparable\<int\>.
+8. a requires-expression, such as requires (T i) { typename T::type; }
+
+## prvalue的一些属性
+
+1. A prvalue cannot be polymorphic: the dynamic type of the object it denotes is always the type of the expression.
+2. A non-class non-array prvalue cannot be cv-qualified, unless it is materialized in order to be bound to a reference to a cv-qualified type(since C++17). (Note: a function call or cast expression may result in a prvalue of non-class cv-qualified type, but the cv-qualifier is generally immediately stripped out.)
+3. A prvalue cannot have incomplete type (except for type void, see below, or when used in decltype specifier).
+4. A prvalue cannot have abstract class type or an array thereof.
+
+其他的和rvalue保持一致。
+
+## 哪些情况是xvalue
+
+1. a.*mp, the pointer to member of object expression, where a is an rvalue and mp is a pointer to data member;
+2. a function call or an overloaded operator expression, whose return type is rvalue reference to object, such as std::move(x);
+3. a[n], the built-in subscript expression, where one operand is an array rvalue;
+4. a cast expression to rvalue reference to object type, such as static_cast<char&&>(x);
+5. any expression that designates a temporary object, after temporary materialization;
+6. a move-eligible expression.
+
+### 什么事move-eligible expression
+
+1. a return statement
+2. a co_return statement
+3. a throw expression
+4. If an expression is move-eligible, it is treated either as an rvalue or as an lvalue(until C++23)as an rvalue(since C++23) for the purpose of overload resolution (thus it may select the move constructor).
+
+## xvalue的一些属性
+
+In particular, like all rvalues, xvalues bind to rvalue references, and like all glvalues, xvalues may be polymorphic, and non-class xvalues may be cv-qualified.
+
+其他的和glvalue/rvalue一致。
+
+## glvalue的一些属性
+
+1. A glvalue may be implicitly converted to a prvalue with lvalue-to-rvalue, array-to-pointer, or function-to-pointer implicit conversion.
+2. A glvalue may be polymorphic: the dynamic type of the object it identifies is not necessarily the static type of the expression
+3. A glvalue can have incomplete type, where permitted by the expression.
+
+## rvalue的一些属性
+
+1. Address of an rvalue cannot be taken by built-in address-of operator: &int(), &i++[3], &42, and &std::move(x) are invalid.
+2. Address of an rvalue cannot be taken by built-in address-of operator: &int(), &i++[3], &42, and &std::move(x) are invalid.
+3. An rvalue can't be used as the left-hand operand of the built-in assignment or compound assignment operators.
+4. An rvalue may be used to initialize a const lvalue reference, in which case the lifetime of the temporary object identified by the rvalue is extended until the scope of the reference ends.
+5. An rvalue may be used to initialize an rvalue reference, in which case the lifetime of the temporary object identified by the rvalue is extended until the scope of the reference ends.
+6. When used as a function argument and when two overloads of the function are available, one taking rvalue reference parameter and the other taking lvalue reference to const parameter, an rvalue binds to the rvalue reference overload (thus, if both copy and move constructors are available, an rvalue argument invokes the move constructor, and likewise with copy and move assignment operators).
+
+## 特殊规则
+
+### Pending member function call
+
+The expressions a.mf and p->mf, where mf is a non-static member function, and the expressions a.*pmf and p->*pmf, where pmf is a pointer to member function, are classified as prvalue expressions, but they cannot be used to initialize references, as function arguments, or for any purpose at all, except as the left-hand argument of the function call operator, e.g. (p->*pmf)(args).
+
+待决成员函数调用：
+
+1. a.mf - 对象a的成员函数mf
+2. p->mf - 指针p指向的对象的成员函数mf
+3. a.\*pmf - 对象a的成员函数指针pmf所指向的函数
+4. p->\*pmf - 指针p指向的对象的成员函数指针pmf所指向的函数
+
+这些表达式都被分类为纯右值(prvalue)，但它们有一个重要的限制：它们只能作为函数调用运算符的左侧参数使用。
+
+举个例子：
+
+```c++
+class MyClass {
+public:
+    void foo() { std::cout << "foo called\n"; }
+    int bar(int x) { return x * 2; }
+};
+
+int main() {
+    MyClass obj;
+    MyClass* ptr = &obj;
+
+    // 直接成员函数调用
+    obj.foo();       // 正确：直接调用
+    ptr->bar(5);     // 正确：直接调用
+
+    // 使用待决成员函数调用表达式
+    (obj.foo)();     // 正确：作为函数调用运算符的左侧参数
+    (ptr->bar)(5);   // 正确：作为函数调用运算符的左侧参数
+
+    // 成员函数指针
+    void (MyClass::*pmf)() = &MyClass::foo;
+    int (MyClass::*pmf2)(int) = &MyClass::bar;
+
+    // 使用成员函数指针的待决调用
+    (obj.*pmf)();    // 正确：作为函数调用运算符的左侧参数
+    (ptr->*pmf2)(5); // 正确：作为函数调用运算符的左侧参数
+
+    // 以下用法都是错误的
+    // auto x = obj.foo;           // 错误：不能用于初始化变量
+    // void (*fp)() = obj.foo;     // 错误：不能赋值给函数指针
+    // void (*fp2)() = obj.*pmf;   // 错误：不能赋值给函数指针
+    // someFunction(obj.foo);      // 错误：不能作为函数参数
+    // someFunction(obj.*pmf);     // 错误：不能作为函数参数
+}
+```
+
+### Void expressions
+
+重点：
+> Void expressions have no result object.
+
+Function call expressions returning void, cast expressions to void, and throw-expressions are classified as prvalue expressions, but they cannot be used to initialize references or as function arguments. They can be used in discarded-value contexts (e.g. on a line of its own, as the left-hand operand of the comma operator, etc.) and in the return statement in a function returning void. In addition, throw-expressions may be used as the second and the third operands of the conditional operator ?:.
+
+### Bit-fields
+
+An expression that designates a bit-field (e.g. a.m, where a is an lvalue of type struct A { int m: 3; }) is a glvalue expression: it may be used as the left-hand operand of the assignment operator, but its address cannot be taken and a non-const lvalue reference cannot be bound to it. A const lvalue reference or rvalue reference can be initialized from a bit-field glvalue, but a temporary copy of the bit-field will be made: it won't bind to the bit-field directly.
+
+## decltype的规则
+
+1. 标识符或类成员访问表达式: 如果 decltype 的参数是一个不带括号的标识符或类成员访问表达式，则 decltype 产生该实体的声明类型。
+2. 其他表达式: 如果 decltype 的参数是任何其他表达式（包括带括号的标识符），则 decltype 根据表达式的值类别产生类型：如果表达式是左值，结果是左值引用类型 (T&); 如果表达式是亡值，结果是右值引用类型 (T&&); 如果表达式是纯右值，结果是非引用类型 (T)
+
+重点：当我们有const int&& a=1;时，decltype((a))得到左值引用的原因是：命名的右值引用是左值。
 
 # 工程实践
 

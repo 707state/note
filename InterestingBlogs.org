@@ -41,6 +41,7 @@
 * C++ Related
 + https://github.com/wanghenshui/cppweeklynews
 + https://blog.llvm.org
++ https://www.scs.stanford.edu/~dm/blog/
 
 * Richard Mitton
 + http://www.codersnotes.com/about/
