@@ -66,7 +66,7 @@
   - [std::swap VS xor](#stdswap-vs-xor)
   - [cbrt](#cbrt)
   - [sendto](#sendto)
-  - [__builtin_ffs](#builtinffs)
+  - [\_\_builtin_ffs](#builtinffs)
   - [Bitfield](#bitfield)
     - [为什么用这个东西？](#为什么用这个东西)
   - [生命周期](#生命周期)
@@ -76,7 +76,7 @@
     - [整形提升](#整形提升)
       - [第一种特殊情况](#第一种特殊情况)
       - [第二种特殊情况](#第二种特殊情况)
-  - [carries\_dependency](#carriesdependency)
+  - [carries_dependency](#carriesdependency)
   - [offsetof](#offsetof)
   - [+[]{}](#)
   - [defer](#defer)
@@ -99,9 +99,11 @@
     - [Void expressions](#void-expressions)
     - [Bit-fields](#bit-fields)
   - [decltype的规则](#decltype的规则)
+- [Initialization!](#initialization)
+  - [Cast Expression](#cast-expression)
+  - [Copy Elision](#copy-elision)
 - [工程实践](#工程实践)
 <!--toc:end-->
-
 
 # 重读\<\<C++程序设计语言\>\>
 
@@ -121,41 +123,41 @@
 
 1. 类型推导：
 
-    auto：编译器可根据初始化表达式自动推导变量类型，简化代码编写。
+   auto：编译器可根据初始化表达式自动推导变量类型，简化代码编写。
 
-    decltype：用于获取表达式的类型，常用于泛型编程中。
+   decltype：用于获取表达式的类型，常用于泛型编程中。
 
 2. 右值引用和移动语义：
 
-    引入右值引用（&&），允许对临时对象进行引用，配合移动构造函数和移动赋值运算符，可显著提高资源管理和程序性能。
+   引入右值引用（&&），允许对临时对象进行引用，配合移动构造函数和移动赋值运算符，可显著提高资源管理和程序性能。
 
 3. Lambda表达式：
 
-    支持在代码中定义匿名函数，简化回调函数的使用，增强了函数式编程的能力。
+   支持在代码中定义匿名函数，简化回调函数的使用，增强了函数式编程的能力。
 
 4. 智能指针：
 
-    引入了std::shared_ptr、std::unique_ptr和std::weak_ptr，用于自动管理动态分配的内存，减少内存泄漏的风险。
+   引入了std::shared_ptr、std::unique_ptr和std::weak_ptr，用于自动管理动态分配的内存，减少内存泄漏的风险。
 
 5. 基于范围的for循环：
 
-    允许直接遍历容器或数组，简化循环语法，提高代码可读性。
+   允许直接遍历容器或数组，简化循环语法，提高代码可读性。
 
 6. nullptr关键字：
 
-    引入了nullptr作为空指针常量，替代了原来的NULL，提高了类型安全性。
+   引入了nullptr作为空指针常量，替代了原来的NULL，提高了类型安全性。
 
 7. constexpr关键字：
 
-    用于定义在编译期可求值的常量表达式，提升程序的运行效率。
+   用于定义在编译期可求值的常量表达式，提升程序的运行效率。
 
 8. std::thread和多线程支持：
 
-    标准库中加入了对多线程的支持，包括std::thread、std::mutex、std::lock等，方便进行并发编程。
+   标准库中加入了对多线程的支持，包括std::thread、std::mutex、std::lock等，方便进行并发编程。
 
 9. std::function和std::bind：
 
-    提供了通用的函数包装器和绑定器，增强了函数对象的灵活性和可用性。
+   提供了通用的函数包装器和绑定器，增强了函数对象的灵活性和可用性。
 
 10. 初始化列表：
 
@@ -185,9 +187,9 @@
 
 1. 泛型Lambda表达式：
 
-    在C++14中，Lambda表达式的参数类型可以使用auto关键字进行自动推导，使Lambda更加通用和灵活。
+   在C++14中，Lambda表达式的参数类型可以使用auto关键字进行自动推导，使Lambda更加通用和灵活。
 
-    示例：
+   示例：
 
 ```cpp
     auto add = [](auto a, auto b) { return a + b; };
@@ -197,9 +199,9 @@
 
 2. Lambda初始化捕获：
 
-    允许在Lambda捕获列表中直接初始化新的变量，简化了在Lambda中使用外部变量的方式。
+   允许在Lambda捕获列表中直接初始化新的变量，简化了在Lambda中使用外部变量的方式。
 
-    示例：
+   示例：
 
 ```cpp
     int x = 10;
@@ -209,9 +211,9 @@
 
 3. 返回类型自动推导：
 
-    C++14支持对普通函数的返回类型进行自动推导，简化了函数的声明。
+   C++14支持对普通函数的返回类型进行自动推导，简化了函数的声明。
 
-    示例：
+   示例：
 
 ```cpp
     auto add(int a, int b) {
@@ -220,12 +222,11 @@
     auto result = add(3, 4);  // result为7
 ```
 
-
 4. constexpr函数的改进：
 
-    constexpr函数的限制有所放宽，允许包含更多的语句，如循环和条件语句，使其在编译期计算时更加灵活。
+   constexpr函数的限制有所放宽，允许包含更多的语句，如循环和条件语句，使其在编译期计算时更加灵活。
 
-    示例：
+   示例：
 
 ```cpp
     constexpr int factorial(int n) {
@@ -240,9 +241,9 @@
 
 5. 变量模板：
 
-    引入了变量模板，允许为变量定义模板，从而创建通用的常量或变量。
+   引入了变量模板，允许为变量定义模板，从而创建通用的常量或变量。
 
-    示例：
+   示例：
 
 ```cpp
     template<typename T>
@@ -254,21 +255,20 @@
 
 6. 二进制字面量和数字分隔符：
 
-    C++14支持使用二进制字面量表示二进制数，并引入了单引号作为数字分隔符，提高了数字的可读性。
+   C++14支持使用二进制字面量表示二进制数，并引入了单引号作为数字分隔符，提高了数字的可读性。
 
-    示例：
+   示例：
 
 ```cpp
     auto binary = 0b101010;      // 等于42
     auto big_number = 1'000'000; // 等于1000000
 ```
 
-
 7. std::make_unique：
 
-    在C++14中，标准库新增了std::make_unique函数，用于创建std::unique_ptr对象，提供了与std::make_shared类似的功能，简化了动态内存管理。
+   在C++14中，标准库新增了std::make_unique函数，用于创建std::unique_ptr对象，提供了与std::make_shared类似的功能，简化了动态内存管理。
 
-    示例：
+   示例：
 
 ```cpp
     auto ptr = std::make_unique<int>(42);
@@ -276,9 +276,9 @@
 
 8. std::shared_timed_mutex和std::shared_lock：
 
-    引入了共享的互斥体和锁，允许多个线程同时读取共享资源，但在写入时需要独占锁，提高了多线程编程的效率。
+   引入了共享的互斥体和锁，允许多个线程同时读取共享资源，但在写入时需要独占锁，提高了多线程编程的效率。
 
-    示例：
+   示例：
 
 ```cpp
     std::shared_timed_mutex mutex;
@@ -287,9 +287,9 @@
 
 9. \[\[deprecated\]\]属性：
 
-    新增了\[\[deprecated\]\]属性，用于标记不建议使用的函数或变量，编译器在使用这些被标记的实体时会发出警告。
+   新增了\[\[deprecated\]\]属性，用于标记不建议使用的函数或变量，编译器在使用这些被标记的实体时会发出警告。
 
-    示例：
+   示例：
 
 ```cpp
     [[deprecated("Use new_function instead")]]
@@ -315,9 +315,9 @@ void print_indices(std::index_sequence<Indices...>) {
 
 1. 结构化绑定（Structured Bindings）：
 
-    允许将元组、结构体或数组的成员解构为独立的变量，简化了对复合数据类型的访问。
+   允许将元组、结构体或数组的成员解构为独立的变量，简化了对复合数据类型的访问。
 
-    示例：
+   示例：
 
 ```cpp
     #include <tuple>
@@ -335,9 +335,9 @@ void print_indices(std::index_sequence<Indices...>) {
 
 2. if constexpr：
 
-    引入了编译期条件判断，允许在编译时根据条件选择性地编译代码块，常用于模板元编程。
+   引入了编译期条件判断，允许在编译时根据条件选择性地编译代码块，常用于模板元编程。
 
-    示例：
+   示例：
 
 ```cpp
     template<typename T>
@@ -352,9 +352,9 @@ void print_indices(std::index_sequence<Indices...>) {
 
 3. 内联变量（Inline Variables）：
 
-    允许在头文件中定义具有外部链接的变量，而不会导致多重定义问题，简化了常量的声明和使用。
+   允许在头文件中定义具有外部链接的变量，而不会导致多重定义问题，简化了常量的声明和使用。
 
-    示例：
+   示例：
 
 ```cpp
     struct Config {
@@ -364,9 +364,9 @@ void print_indices(std::index_sequence<Indices...>) {
 
 4. 类模板参数推导（Class Template Argument Deduction）：
 
-    编译器可以根据构造函数的参数自动推导类模板的参数类型，减少了显式指定模板参数的需要。
+   编译器可以根据构造函数的参数自动推导类模板的参数类型，减少了显式指定模板参数的需要。
 
-    示例：
+   示例：
 
 ```cpp
     std::pair p = {42, 3.14}; // 编译器自动推导为std::pair<int, double>
@@ -374,9 +374,9 @@ void print_indices(std::index_sequence<Indices...>) {
 
 5. 并行算法（Parallel Algorithms）：
 
-    标准库算法新增了并行执行策略，允许利用多核处理器并行执行算法，提高性能。
+   标准库算法新增了并行执行策略，允许利用多核处理器并行执行算法，提高性能。
 
-    示例：
+   示例：
 
 ```cpp
     #include <algorithm>
@@ -389,25 +389,25 @@ void print_indices(std::index_sequence<Indices...>) {
 
 6. std::optional、std::variant和std::any：
 
-    std::optional：表示可能包含或不包含值的对象，避免使用指针表示可选值。
+   std::optional：表示可能包含或不包含值的对象，避免使用指针表示可选值。
 
-    std::variant：类型安全的联合体，存储多个类型中的一个值。
+   std::variant：类型安全的联合体，存储多个类型中的一个值。
 
-    std::any：可存储任意类型的值，类似于动态类型变量。
+   std::any：可存储任意类型的值，类似于动态类型变量。
 
 7. std::filesystem：
 
-    引入了文件系统库，提供了跨平台的文件和目录操作功能，简化了文件操作的实现。
+   引入了文件系统库，提供了跨平台的文件和目录操作功能，简化了文件操作的实现。
 
 8. std::string_view：
 
-    提供了对字符串的非拥有只读视图，避免了不必要的字符串拷贝，提高了性能。
+   提供了对字符串的非拥有只读视图，避免了不必要的字符串拷贝，提高了性能。
 
 9. std::invoke和std::apply：
 
-    std::invoke：通用调用包装器，可调用函数指针、成员函数指针等。
+   std::invoke：通用调用包装器，可调用函数指针、成员函数指针等。
 
-    std::apply：将元组的元素展开作为函数的参数进行调用。
+   std::apply：将元组的元素展开作为函数的参数进行调用。
 
 10. 折叠表达式（Fold Expressions）：
 
@@ -425,6 +425,7 @@ auto sum(Args... args) {
 11. std::launder
 
 解决掉placement new和reinterpret_cast在const场景下带来的未定义行为。
+
 ```c++
 struct X{const int n;};
 union U {X x; float f;};
@@ -443,14 +444,13 @@ void tong(){
 
 std::launder是一层阻止优化的抽象，具体实现对于不同的库来说也有不同的实现，GNU C的话有一个通过插入内联汇编的方式来阻止编译器优化。
 
-
 ## C++20的重要新特性
 
 1. 概念（Concepts）：
 
-    概念为模板参数提供了明确的约束条件，使模板编程更加直观和安全。通过使用requires关键字或标准库中的概念，可以对模板参数进行类型检查，提升代码的可读性和错误诊断能力。
+   概念为模板参数提供了明确的约束条件，使模板编程更加直观和安全。通过使用requires关键字或标准库中的概念，可以对模板参数进行类型检查，提升代码的可读性和错误诊断能力。
 
-    示例：
+   示例：
 
 ```cpp
     #include <concepts>
@@ -464,9 +464,9 @@ std::launder是一层阻止优化的抽象，具体实现对于不同的库来�
 
 2. 范围（Ranges）库：
 
-    范围库提供了一种新的方式来操作和处理集合数据，支持惰性求值和管道式操作，使代码更加简洁和直观。
+   范围库提供了一种新的方式来操作和处理集合数据，支持惰性求值和管道式操作，使代码更加简洁和直观。
 
-    示例：
+   示例：
 
 ```cpp
     #include <ranges>
@@ -485,9 +485,9 @@ std::launder是一层阻止优化的抽象，具体实现对于不同的库来�
 
 3. 协程（Coroutines）：
 
-    协程引入了一种编写异步代码的新方式，允许函数在执行过程中暂停和恢复，适用于异步I/O操作、生成器等场景。
+   协程引入了一种编写异步代码的新方式，允许函数在执行过程中暂停和恢复，适用于异步I/O操作、生成器等场景。
 
-    示例：
+   示例：
 
 ```cpp
     #include <coroutine>
@@ -539,9 +539,9 @@ std::launder是一层阻止优化的抽象，具体实现对于不同的库来�
 
 4. 模块（Modules）：
 
-    模块提供了一种新的代码组织和重用方式，替代了传统的头文件机制，减少了编译时间和依赖复杂度。
+   模块提供了一种新的代码组织和重用方式，替代了传统的头文件机制，减少了编译时间和依赖复杂度。
 
-    示例：
+   示例：
 
 ```cpp
 // math.ixx
@@ -564,9 +564,9 @@ export namespace math {
 
 5. 三路比较运算符（<=>）：
 
-    引入了“太空船操作符”，用于自动生成比较运算符，简化了对象的比较操作。
+   引入了“太空船操作符”，用于自动生成比较运算符，简化了对象的比较操作。
 
-    示例：
+   示例：
 
 ```cpp
     #include <compare>
@@ -579,17 +579,17 @@ export namespace math {
 
 6. constexpr的增强：
 
-    constexpr函数现在支持更复杂的操作，包括循环、分支和异常处理等，使得更多的计算可以在编译期完成。
+   constexpr函数现在支持更复杂的操作，包括循环、分支和异常处理等，使得更多的计算可以在编译期完成。
 
 7. Lambda表达式的改进：
 
-    Lambda表达式现在支持模板参数和constexpr，并允许捕获[=, this]，提升了灵活性和适用性。
+   Lambda表达式现在支持模板参数和constexpr，并允许捕获[=, this]，提升了灵活性和适用性。
 
 8. 指定初始化器（Designated Initializers）：
 
-    允许在初始化结构体时指定成员名称，增强了可读性和维护性。
+   允许在初始化结构体时指定成员名称，增强了可读性和维护性。
 
-    示例：
+   示例：
 
 ```cpp
     struct Point {
@@ -602,7 +602,7 @@ export namespace math {
 
 9. std::span：
 
-    std::span提供了一种对连续内存序列的视图，类似于指针，但具有更丰富的接口和更好的安全性，适用于处理数组和容器的片段。
+   std::span提供了一种对连续内存序列的视图，类似于指针，但具有更丰富的接口和更好的安全性，适用于处理数组和容器的片段。
 
 ## concept
 
@@ -621,7 +621,6 @@ is_lockable 概念可以用来限制模板，使得只有那些具备 lock()、u
 try_lock() 成员函数，并且 try_lock() 返回类型可以转换为 bool
 的类型才可以作为模板参数传递。这个概念通常用于多线程编程中，以确保模板只接受那些具有锁定功能的类型，比如
 std::mutex 或 std::recursive_mutex。
-
 
 ## std::ref
 
@@ -645,6 +644,7 @@ std::cref 允许你创建对 const 类型对象的引用包装器。
 ## std::clamp
 
 一个工具函数：
+
 ```c++
 int result=std::clamp(x,low,high);
 //等价于
@@ -925,19 +925,18 @@ public:
 
 - 通过对象的 vptr 找到类的 vtbl。
 
-    这是一个简单的操作,因为编译器知道在对象内 哪里能找到 vptr(毕竟是由编译器放置的它们)。因此这个代价只是一个偏移调整(以得到 vptr)和一个指针的间接寻址(以得到 vtbl)。
+  这是一个简单的操作,因为编译器知道在对象内 哪里能找到 vptr(毕竟是由编译器放置的它们)。因此这个代价只是一个偏移调整(以得到 vptr)和一个指针的间接寻址(以得到 vtbl)。
 
 - 找到对应 vtbl 内的指向被调用函数的指针。
-    这也是很简单的, 因为编译器为每个虚函数在 vtbl 内分配了一个唯一的索引。这步的代价只是在 vtbl 数组内的一个偏移。
+  这也是很简单的, 因为编译器为每个虚函数在 vtbl 内分配了一个唯一的索引。这步的代价只是在 vtbl 数组内的一个偏移。
 
 - 调用第二步找到的的指针所指向的函数。
   1. 在单继承的情况下
 
-    调用虚函数所需的代价基本上和非虚函数效率一样，在大多数计算机上它多执行了很少的一些指令，所以有很多人一概而论说虚函数性能不行是不太科学的。
-
+  调用虚函数所需的代价基本上和非虚函数效率一样，在大多数计算机上它多执行了很少的一些指令，所以有很多人一概而论说虚函数性能不行是不太科学的。
   2. 在多继承的情况
 
-    由于会根据多个父类生成多个vptr，在对象里为寻找 vptr 而进行的偏移量计算会变得复杂一些，但这些并不是虚函数的性能瓶颈。虚函数运行时所需的代价主要是虚函数不能是内联函数。这也是非常好理解的，是因为内联函数是指在编译期间用被调用的函数体本身来代替函数调用的指令，但是虚函数的“虚”是指“直到运行时才能知道要调用的是哪一个函数。”但虚函数的运行时多态特性就是要在运行时才知道具体调用哪个虚函数，所以没法在编译时进行内联函数展开。当然如果通过对象直接调用虚函数它是可以被内联，但是大多数虚函数是通过对象的指针或引用被调用的，这种调用不能被内联。 因为这种调用是标准的调用方式，所以虚函数实际上不能被内联。
+  由于会根据多个父类生成多个vptr，在对象里为寻找 vptr 而进行的偏移量计算会变得复杂一些，但这些并不是虚函数的性能瓶颈。虚函数运行时所需的代价主要是虚函数不能是内联函数。这也是非常好理解的，是因为内联函数是指在编译期间用被调用的函数体本身来代替函数调用的指令，但是虚函数的“虚”是指“直到运行时才能知道要调用的是哪一个函数。”但虚函数的运行时多态特性就是要在运行时才知道具体调用哪个虚函数，所以没法在编译时进行内联函数展开。当然如果通过对象直接调用虚函数它是可以被内联，但是大多数虚函数是通过对象的指针或引用被调用的，这种调用不能被内联。 因为这种调用是标准的调用方式，所以虚函数实际上不能被内联。
 
 ##### 空间占用
 
@@ -947,26 +946,25 @@ public:
 
 - 内联函数 (inline)
 
-    虚函数用于实现运行时的多态，或者称为晚绑定或动态绑定。而内联函数用于提高效率。内联函数的原理是，在编译期间，对调用内联函数的地方的代码替换成函数代码。内联函数对于程序中需要频繁使用和调用的小函数非常有用。默认地，类中定义的所有函数，除了虚函数之外，会隐式地或自动地当成内联函数(注意：内联只是对于编译器的一个建议，编译器可以自己决定是否进行内联).
+  虚函数用于实现运行时的多态，或者称为晚绑定或动态绑定。而内联函数用于提高效率。内联函数的原理是，在编译期间，对调用内联函数的地方的代码替换成函数代码。内联函数对于程序中需要频繁使用和调用的小函数非常有用。默认地，类中定义的所有函数，除了虚函数之外，会隐式地或自动地当成内联函数(注意：内联只是对于编译器的一个建议，编译器可以自己决定是否进行内联).
 
-    无论何时，使用基类指针或引用来调用虚函数，它都不能为内联函数(因为调用发生在运行时)。但是，无论何时，使用类的对象(不是指针或引用)来调用时，可以当做是内联，因为编译器在编译时确切知道对象是哪个类的。
+  无论何时，使用基类指针或引用来调用虚函数，它都不能为内联函数(因为调用发生在运行时)。但是，无论何时，使用类的对象(不是指针或引用)来调用时，可以当做是内联，因为编译器在编译时确切知道对象是哪个类的。
 
 - 静态成员函数 (static)
 
-    static成员不属于任何类对象或类实例，所以即使给此函数加上virutal也是没有任何意义的。此外静态与非静态成员函数之间有一个主要的区别，那就是静态成员函数没有this指针，从而导致两者调用方式不同。虚函数依靠vptr和vtable来处理。vptr是一个指针，在类的构造函数中创建生成，并且只能用this指针来访问它，因为它是类的一个成员，并且vptr指向保存虚函数地址的vtable。虚函数的调用关系：this -> vptr -> vtable ->virtual function，对于静态成员函数，它没有this指针，所以无法访问vptr. 这就是为何static函数不能为virtual。
+  static成员不属于任何类对象或类实例，所以即使给此函数加上virutal也是没有任何意义的。此外静态与非静态成员函数之间有一个主要的区别，那就是静态成员函数没有this指针，从而导致两者调用方式不同。虚函数依靠vptr和vtable来处理。vptr是一个指针，在类的构造函数中创建生成，并且只能用this指针来访问它，因为它是类的一个成员，并且vptr指向保存虚函数地址的vtable。虚函数的调用关系：this -> vptr -> vtable ->virtual function，对于静态成员函数，它没有this指针，所以无法访问vptr. 这就是为何static函数不能为virtual。
 
 - 构造函数 (constructor)
 
-    虚函数基于虚表vtable（内存空间），构造函数 (constructor) 如果是virtual的，调用时也需要根据vtable寻找，但是constructor是virtual的情况下是找不到的，因为constructor自己本身都不存在了，创建不到class的实例，没有实例class的成员（除了public static/protected static for friend class/functions，其余无论是否virtual）都不能被访问了。此外构造函数不仅不能是虚函数。而且在构造函数中调用虚函数，实际执行的是父类的对应函数，因为自己还没有构造好,多态是被disable的。
+  虚函数基于虚表vtable（内存空间），构造函数 (constructor) 如果是virtual的，调用时也需要根据vtable寻找，但是constructor是virtual的情况下是找不到的，因为constructor自己本身都不存在了，创建不到class的实例，没有实例class的成员（除了public static/protected static for friend class/functions，其余无论是否virtual）都不能被访问了。此外构造函数不仅不能是虚函数。而且在构造函数中调用虚函数，实际执行的是父类的对应函数，因为自己还没有构造好,多态是被disable的。
 
 - 析构函数 (deconstructor)
 
-    对于可能作为基类的类的析构函数要求就是virtual的。因为如果不是virtual的，派生类析构的时候调用的是基类的析构函数，而基类的析构函数只要对基类部分进行析构，从而可能导致派生类部分出现内存泄漏问题。
+  对于可能作为基类的类的析构函数要求就是virtual的。因为如果不是virtual的，派生类析构的时候调用的是基类的析构函数，而基类的析构函数只要对基类部分进行析构，从而可能导致派生类部分出现内存泄漏问题。
 
 -纯虚函数
 
     析构函数可以是纯虚的，但纯虚析构函数必须有定义体，因为析构函数的调用是在子类中隐含的。
-
 
 ## Row Polymorphism（行多态）
 
@@ -1053,6 +1051,7 @@ struct X : B<T> // “B<T>” is dependent on T
 ### Binding Rule
 
 非依赖/限定的名称会在模板定义时就被查找和绑定，如下：
+
 ```cpp
 #include <iostream>
 
@@ -1077,6 +1076,7 @@ int main()
     s.f(); // calls g(double)
 }
 ```
+
 如果非依赖名称的含义在定义上下文和模板特化的实例化点之间发生变化，则程序格式不正确，无需进行诊断。以下情况下可能会出现这种情况：
 
 1. 非依赖名称中使用的类型在定义时不完整，但在实例化时完整。
@@ -1090,6 +1090,7 @@ int main()
 ### 查找规则 (Lookup Rule)
 
 模板中使用的依赖名称的查找被推迟，直到模板参数已知，此时:
+
 1. 非 ADL 查找检查模板定义上下文中可见的具有外部链接的函数声明
 2. DL检查具有外部链接的函数声明，这些声明在模板定义上下文或模板实例化上下文中可见（换句话说，在模板定义后添加新的函数声明不会使其可见，除非通过 ADL）。
 
@@ -1146,6 +1147,7 @@ namespace P2
 在上面的例子中，如果operator<<允许从实例化上下文中进行非 ADL 查找，则实例化E :: writeObject < vector <int> >​会有两个不同的定义：一个使用P1 ::操作符<<和一个使用P2 ::操作符<<. 链接器可能无法检测到此类 ODR 违规，从而导致在两种情况下都使用其中一个。
 
 如果嵌套类派生自其封闭类模板，则基类可以是当前实例。属于依赖类型但不是当前实例的基类是依赖基类:
+
 ```cpp
 template<class T>
 struct A
@@ -1171,7 +1173,7 @@ struct A<T>::B::C : A<T>
 
 1. 在当前实例或其非依赖基中通过非限定查找找到的非限定名称。
 2. 限定名称，如果限定符（ 左侧的名称::）命名当前实例，并且查找在当前实例或其非依赖基中找到该名称
-3. 类成员访问表达式中使用的名称（是在x. y或者xp- > y​），其中对象表达式（十或者*经验值）是当前实例，并且查找在当前实例或其非依赖基中找到名称
+3. 类成员访问表达式中使用的名称（是在x. y或者xp- > y​），其中对象表达式（十或者\*经验值）是当前实例，并且查找在当前实例或其非依赖基中找到名称
 
 ```cpp
 template<class T>
@@ -1214,21 +1216,21 @@ template int C<B>::g(); // OK: transformation to class member access syntax
                         // does not occur in the template definition context
 //在 g() 中直接使用 m，编译器会先进行 非限定名称（Unqualified Name）查找，并且它在 模板定义上下文 会把 m 当作类成员的可能候选，等到模板实例化时才解析具体的 m。在实例化时，m 会被编译器转换为 this->m，但这时它的语法规则已经不同了，不会再查找两个不同的 m，因此编译成功。
 ```
+
 ### Two Phase Name Lookup
 
 这个机制的目的是区分模板定义阶段和模板实例化阶段，以便正确解析名称。C++ 编译器在解析模板时，会分为 两个阶段 来查找名称：第一阶段（模板定义阶段）和 第二阶段（模板实例化阶段）。
 
 1. 第一阶段：模板定义阶段
-在模板定义阶段，编译器只根据模板的定义来解析名称。在此阶段，编译器不知道模板参数的类型，因此它只能查找模板本身的成员或依赖于模板参数的名称，但不会依赖于实例化的类型。
+   在模板定义阶段，编译器只根据模板的定义来解析名称。在此阶段，编译器不知道模板参数的类型，因此它只能查找模板本身的成员或依赖于模板参数的名称，但不会依赖于实例化的类型。
 
 在模板定义阶段，编译器会查看模板本身的内容，并对非依赖名称（non-dependent names）进行查找。非依赖名称指的是模板定义中直接可以解析的名称，这些名称不依赖于模板参数（类型或非类型参数）。
 
     非依赖名称的查找：例如，int x; 中的 x，编译器可以直接在模板定义中查找。
     依赖名称的查找：例如，模板中使用了 T::m，由于编译器无法在模板定义阶段知道 T 的具体类型，它只能在后续实例化时进行查找。
 
-
 2. 第二阶段：模板实例化阶段
-在模板实例化阶段，模板会根据特定类型的参数进行实例化。这时，编译器将根据实例化后的类型查找名称并解析相关内容。
+   在模板实例化阶段，模板会根据特定类型的参数进行实例化。这时，编译器将根据实例化后的类型查找名称并解析相关内容。
 
 当模板被实例化时，编译器会根据实例化的类型或非类型参数来查找和解析名称。这时，模板的依赖名称才会被解析。
 
@@ -1239,6 +1241,7 @@ template int C<B>::g(); // OK: transformation to class member access syntax
     在模板实例化阶段，编译器会根据实例化的类型（或者非类型参数）来解析依赖名称。
 
 ### 为什么需要两阶段查找？
+
 C++ 的名称查找是基于 作用域规则 的。在模板定义时，模板参数的类型尚未确定，所以不能立即解析依赖名称。两阶段查找机制通过区分模板定义和实例化阶段，允许编译器正确地解析模板中的依赖名称。
 
 ## extern template (C++ 11)
@@ -1283,6 +1286,7 @@ inline 要起作用（指内联）,必须要与函数定义放在一起，而不
 ## 构造函数默认使用浅拷贝
 
 如下代码：
+
 ```cpp
 struct Test {
   int* i;
@@ -1351,11 +1355,12 @@ cube root,开立方根。
 
 sys/socket.h 中的函数，用来将消息发送到 dest_addr。被用于实现 ping。
 
-## __builtin_ffs
+## \_\_builtin_ffs
 
-__builtin_ffs返回输入数的二进制表示的最低非零位的下标
+\_\_builtin_ffs返回输入数的二进制表示的最低非零位的下标
 
 ## Bitfield
+
 C++允许使用Bitfield的方式来让用户自行定义变量在内存中的布局。
 
 ```c++
@@ -1415,6 +1420,7 @@ int main() {
 ```
 
 ### 为什么用这个东西？
+
 C++中是有一种机制叫做内存对齐的，也就是说，C++中的struct/class默认会按照一个字节的标准进行填充，对于内存来说就有了浪费。
 
 ## 生命周期
@@ -1459,7 +1465,7 @@ pb->mutate();
 
 ```
 
-这段代码里面，ph->mutate()的调用在this上构造了新的D2对象，这就导致了*this的生命周期的结束。
+这段代码里面，ph->mutate()的调用在this上构造了新的D2对象，这就导致了\*this的生命周期的结束。
 
 ## 类型转换
 
@@ -1482,7 +1488,7 @@ glvalue也就是非函数、非数组的值可以被转换为prvalue。
 
 ### 整形提升
 
-对于除了bool, char16\_t, char32\_t和wchar\_t之外的类型，每种整数类型有一个“转换等级（rank）”，int 的rank比 char、short 等要高。
+对于除了bool, char16_t, char32_t和wchar_t之外的类型，每种整数类型有一个“转换等级（rank）”，int 的rank比 char、short 等要高。
 
 只有rank低于int的类型（如char、short）才适用这条规则。
 
@@ -1493,7 +1499,7 @@ glvalue也就是非函数、非数组的值可以被转换为prvalue。
 
 #### 第一种特殊情况
 
-char16\_t, char32\_t和wchar\_t的整形提升规则：这些类型通常用于Unicode字符编码（如UTF-16、UTF-32），它们的底层类型和大小由实现决定（比如2字节、4字节）。
+char16_t, char32_t和wchar_t的整形提升规则：这些类型通常用于Unicode字符编码（如UTF-16、UTF-32），它们的底层类型和大小由实现决定（比如2字节、4字节）。
 
 步骤1：查找能容纳所有值的类型
 
@@ -1504,7 +1510,7 @@ long int
 unsigned long int
 long long int
 unsigned long long int
-找到第一个能表示char16\_t、char32\_t或wchar\_t所有可能值的类型，就把它转换成该类型。
+找到第一个能表示char16_t、char32_t或wchar_t所有可能值的类型，就把它转换成该类型。
 
 步骤2：如果都不行
 
@@ -1545,12 +1551,15 @@ struct S {
     unsigned int b : 5; // b 是一个5位宽的无符号整型位域
 };
 ```
+
 如果int不能表示所有位域的值（比如某些无符号大位宽的位域），那么如果unsigned int可以表示所有的值，就提升为 unsigned int。
 
-## carries\_dependency
-carries\_dependency是C++11引入的一个属性，用于内存序(memory order)优化，特别是在处理依赖关系链(dependency chain)时。它主要与memory_order_consume加载操作一起使用，用于指示编译器保留数据依赖关系，防止编译器优化破坏这些依赖关系。
+## carries_dependency
+
+carries_dependency是C++11引入的一个属性，用于内存序(memory order)优化，特别是在处理依赖关系链(dependency chain)时。它主要与memory_order_consume加载操作一起使用，用于指示编译器保留数据依赖关系，防止编译器优化破坏这些依赖关系。
 
 当我们在多线程编程中使用原子操作时，memory_order_consume允许我们利用数据依赖关系来减少同步开销。carries_dependency属性告诉编译器某个函数参数或返回值携带了这种依赖关系，应该保留而不是优化掉。
+
 ```c++
 #include <atomic>
 #include <iostream>
@@ -1609,11 +1618,13 @@ C++中有一个函数可以获得一个成员在一个结构体的偏移量，�
 ## +[]{}
 
 C++ 11 spec:
+
 > The closure type for a lambda-expression with no lambda-capture has a public non-virtual non-explicit const conversion function to pointer to function having the same parameter and return types as the closure type’s function call operator. The value returned by this conversion function shall be the address of a function that, when invoked, has the same eﬀect as invoking the closure type’s function call operator.
 
 也就是说，对于没有捕获变量的Lambda Expression，可以通过+符号完成从lambda expression到function pointer的转变。
 
 ## defer
+
 C++本身没有defer，但是可以利用RAII机制实现defer。
 
 ```cpp
@@ -1665,7 +1676,6 @@ The order of member initializers in the list is irrelevant, the actual order of 
 
 ## 结构体字节对齐
 
-
 规则0：整个结构体必须按照其中最大成员的对齐要求对齐！
 
 ```c++
@@ -1683,6 +1693,7 @@ struct Test2{
     char b;
 };
 ```
+
 最大的是double 8字节，就是8对齐。
 
 规则1：成员对齐
@@ -1800,8 +1811,8 @@ int main()
 这里记录一些比较特殊的情况。
 
 1. p->m, the built-in member of pointer expression, except where m is a member enumerator or a non-static member function;就是说如果m是一个成员，且m不是一个enum或者非静态成员函数，就是一个左值。
-2. a.*mp, the pointer to member of object expression, where a is an lvalue and mp is a pointer to data member;
-3. p->*mp, the built-in pointer to member of pointer expression, where mp is a pointer to data member;
+2. a.\*mp, the pointer to member of object expression, where a is an lvalue and mp is a pointer to data member;
+3. p->\*mp, the built-in pointer to member of pointer expression, where mp is a pointer to data member;
 4. a string literal, such as "Hello, world!";
 5. a constant template parameter of an lvalue reference type;
 
@@ -1818,9 +1829,9 @@ int main()
 1. a function call or an overloaded operator expression, whose return type is non-reference, such as str.substr(1, 2), str1 + str2, or it++;
 2. a++ and a--, the built-in post-increment and post-decrement expressions;
 3. a.m, the member of object expression, where m is a member enumerator or a non-static member function;
-4. a.*mp, the pointer to member of object expression, where mp is a pointer to member function;
+4. a.\*mp, the pointer to member of object expression, where mp is a pointer to member function;
 5. the this pointer;
-6. a lambda expression, such as \[\]\(int x\){ return x * x; };
+6. a lambda expression, such as \[\]\(int x\){ return x \* x; };
 7. a specialization of a concept, such as std::equality_comparable\<int\>.
 8. a requires-expression, such as requires (T i) { typename T::type; }
 
@@ -1835,7 +1846,7 @@ int main()
 
 ## 哪些情况是xvalue
 
-1. a.*mp, the pointer to member of object expression, where a is an rvalue and mp is a pointer to data member;
+1. a.\*mp, the pointer to member of object expression, where a is an rvalue and mp is a pointer to data member;
 2. a function call or an overloaded operator expression, whose return type is rvalue reference to object, such as std::move(x);
 3. a[n], the built-in subscript expression, where one operand is an array rvalue;
 4. a cast expression to rvalue reference to object type, such as static_cast<char&&>(x);
@@ -1874,7 +1885,7 @@ In particular, like all rvalues, xvalues bind to rvalue references, and like all
 
 ### Pending member function call
 
-The expressions a.mf and p->mf, where mf is a non-static member function, and the expressions a.*pmf and p->*pmf, where pmf is a pointer to member function, are classified as prvalue expressions, but they cannot be used to initialize references, as function arguments, or for any purpose at all, except as the left-hand argument of the function call operator, e.g. (p->*pmf)(args).
+The expressions a.mf and p->mf, where mf is a non-static member function, and the expressions a.*pmf and p->*pmf, where pmf is a pointer to member function, are classified as prvalue expressions, but they cannot be used to initialize references, as function arguments, or for any purpose at all, except as the left-hand argument of the function call operator, e.g. (p->\*pmf)(args).
 
 待决成员函数调用：
 
@@ -1926,6 +1937,7 @@ int main() {
 ### Void expressions
 
 重点：
+
 > Void expressions have no result object.
 
 Function call expressions returning void, cast expressions to void, and throw-expressions are classified as prvalue expressions, but they cannot be used to initialize references or as function arguments. They can be used in discarded-value contexts (e.g. on a line of its own, as the left-hand operand of the comma operator, etc.) and in the return statement in a function returning void. In addition, throw-expressions may be used as the second and the third operands of the conditional operator ?:.
@@ -1941,8 +1953,31 @@ An expression that designates a bit-field (e.g. a.m, where a is an lvalue of typ
 
 重点：当我们有const int&& a=1;时，decltype((a))得到左值引用的原因是：命名的右值引用是左值。
 
+# Initialization!
+
+先来看这么一段代码吧
+
+```c++
+auto test=std::string("a new string");
+```
+
+这段代码里面发生的事情很值得细究，因为它既包含了初始化又包含了类型转换。
+
+## Cast Expression
+
+C++规定了形如：“type-id (expression)”的表达式为一个functional-style cast。
+
+在这段代码里面，因为std::string是一个type-id而"a new string"是一个expression，故为一个prvalue的类型转换表达式。
+
+而在auto test=...这里，在不同版本的C++中发生的行为也是不同的。
+
+## Copy Elision
+
+1. 在C++17之前，copy elision存在但是在这里不保证。这里的行为就会是：prvalue被通过metialization成为一个xvalue（一个临时对象），然后在auto test=这里面发生一个移动构造/拷贝构造，取决于构造函数实现，一般而言使用移动构造。
+2. 在C++17开始，prvalue的materialization这一步的发生被尽可能地延迟（因为"guaranteed copy elision"），特别是在处理函数返回值时，目的是避免不必要的移动和复制操作。即使 prvalue 的值最终被丢弃不用，它最终也必须被具体化（变成一个真实的对象）。因此，推迟具体化只能消除复制构造函数和移动构造函数的调用，而不能消除其他构造函数的调用。那么在这里，当test的类型被推断出来之后，这里的test就可以直接作为构造函数参数初始化test。
+
 # 工程实践
 
 1. 我们不认为有任何合理的工程上的理由让 移动构造函数（move constructor） 抛出异常。——来自Abseil。
 
-2. Asio signal\_set应该用在程序最外层co\_spawn，这样能更好地管理。
+2. Asio signal_set应该用在程序最外层co_spawn，这样能更好地管理。
