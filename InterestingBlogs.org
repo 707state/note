@@ -90,6 +90,10 @@
 
 + https://nihil.cc
 
++ https://olimi.icu
+
++ https://matklad.github.io
+
 + https://photonlibos.github.io/blog
 
 + https://r-wos.org/about
@@ -108,6 +112,8 @@
 
 + https://nekrozqliphort.github.io
 
++ https://blog.gzti.me
+  
 * 苏洋
 + https://soulteary.com
 
