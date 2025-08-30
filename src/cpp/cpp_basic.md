@@ -604,6 +604,28 @@ export namespace math {
 
    std::span提供了一种对连续内存序列的视图，类似于指针，但具有更丰富的接口和更好的安全性，适用于处理数组和容器的片段。
 
+## C++23新特性
+
+1. deducing this: 新的声明非静态成员函数的方式。通常我们调用一个C++的类成员函数，我们会隐式地传入一个this指针而不会出现在参数列表里面，现在可以自行制定如何传入。
+```c++
+#include <vector>
+
+class MyResources {
+   public:
+    // 对象是左值，返回左值引用
+    std::vector<int> &getResources(this MyResources &self) {
+        return self.m_resource;
+    }
+    // 对象是右值，资源可以被移动走
+    std::vector<int> &&getResources(this MyResources &&self) {
+        return std::move(self.m_resource);
+    }
+
+   private:
+    std::vector<int> m_resource;
+};
+```
+
 ## concept
 
 例子：
@@ -933,8 +955,7 @@ public:
 - 调用第二步找到的的指针所指向的函数。
   1. 在单继承的情况下
 
-  调用虚函数所需的代价基本上和非虚函数效率一样，在大多数计算机上它多执行了很少的一些指令，所以有很多人一概而论说虚函数性能不行是不太科学的。
-  2. 在多继承的情况
+  调用虚函数所需的代价基本上和非虚函数效率一样，在大多数计算机上它多执行了很少的一些指令，所以有很多人一概而论说虚函数性能不行是不太科学的。2. 在多继承的情况
 
   由于会根据多个父类生成多个vptr，在对象里为寻找 vptr 而进行的偏移量计算会变得复杂一些，但这些并不是虚函数的性能瓶颈。虚函数运行时所需的代价主要是虚函数不能是内联函数。这也是非常好理解的，是因为内联函数是指在编译期间用被调用的函数体本身来代替函数调用的指令，但是虚函数的“虚”是指“直到运行时才能知道要调用的是哪一个函数。”但虚函数的运行时多态特性就是要在运行时才知道具体调用哪个虚函数，所以没法在编译时进行内联函数展开。当然如果通过对象直接调用虚函数它是可以被内联，但是大多数虚函数是通过对象的指针或引用被调用的，这种调用不能被内联。 因为这种调用是标准的调用方式，所以虚函数实际上不能被内联。
 
@@ -1816,6 +1837,9 @@ int main()
 4. a string literal, such as "Hello, world!";
 5. a constant template parameter of an lvalue reference type;
 
+注意，compound literal，即复合字面量也是左值：复合字面量是形如 (T){ ... } 形式的字面量，其中我们最为关心的是当 T 为数组时的形式：(int[]) { 1, 2, 3 }，该表达式在 C 语言中是一个左值。
+
+
 ## lvalue的一些属性
 
 1. Address of an lvalue may be taken by built-in address-of operator: &++i[1] and &std::hex are valid expressions.
@@ -1852,6 +1876,36 @@ int main()
 4. a cast expression to rvalue reference to object type, such as static_cast<char&&>(x);
 5. any expression that designates a temporary object, after temporary materialization;
 6. a move-eligible expression.
+
+此规则的效果是具名右值引用被视为左值，而对对象的不具名右值引用被视为亡值；无论是否具名，对函数的右值引用都被视为左值。
+
+临时量实质化转换（temporary materialization conversion）是一个专用术语，专门用于描述任何完整类型 T 的纯右值，可转换成同类型 T 的亡值这一概念。
+
+临时量实质化转换最常见的发生情景是将纯右值绑定到 const 限定的左值引用上：
+
+```c++
+#include <iostream>
+
+class Test {
+   public:
+    Test(int value) { p = new int(value); }
+    // 注：其实本例中不涉及拷贝构造函数，因为 C++17 会进行强制的复制消除
+    Test(const Test &other) { p = new int(*other.p); }
+    ~Test() {
+        delete p;
+        p = nullptr;
+    }
+
+    int *p;
+};
+
+Test return_prvalue() { return Test(11514); }
+
+int main() {
+    const Test &ref = return_prvalue();
+    std::cout << "What will happen if I access ref.p: " << *ref.p << std::endl;
+}
+```
 
 ### 什么事move-eligible expression
 
