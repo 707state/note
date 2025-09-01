@@ -9,6 +9,7 @@ pdf/
 **/*.tex
 **/*.pdf
 !src/cpp/spec/cpp11.pdf
+!src/Java/spec/*.pdf
 !ECMAScript/spec/ecma_262.pdf
 图形学/OpenGL.md
 **/build

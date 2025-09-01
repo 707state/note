@@ -11,6 +11,7 @@
 - [1755 最接近目标值的子序列和](#1755-最接近目标值的子序列和)
 - [980 不同路径Ⅲ](#980-不同路径ⅲ)
 - [2698 求一个整数的惩罚数](#2698-求一个整数的惩罚数)
+- [3669 K 因数分解](#3669-k-因数分解)
 <!--toc:end-->
 
 
@@ -708,6 +709,53 @@ class Solution {
 public:
     int punishmentNumber(int n) {
         return PRE_SUM[n];
+    }
+};
+```
+
+</details>
+
+# 3669 K 因数分解
+
+给你两个整数 n 和 k，将数字 n 恰好分割成 k 个正整数，使得这些整数的 乘积 等于 n。
+
+返回一个分割方案，使得这些数字中 最大值 和 最小值 之间的 差值 最小化。结果可以以 任意顺序 返回。
+
+<details>
+
+```c++
+constexpr int MAX=1e5+1;
+vector<int> divisors[MAX];
+int init=[]{
+    for(int i=1;i<MAX;i++){
+        for(int j=i;j<MAX;j+=i){
+            divisors[j].emplace_back(i);
+        }
+    }
+    return 0;
+}();
+class Solution {
+public:
+    vector<int> minDifference(int n, int k) {
+        int min_diff=INT_MAX;
+        vector<int> path(k),ans;
+        auto dfs=[&](this auto&& dfs,int i,int n,int mn, int mx)->void{
+            if(i==k-1){
+                int d=max(mx,n)-min(mn,n);
+                if(d<min_diff){
+                    min_diff=d;
+                    path[i]=n;
+                    ans=path;
+                }
+                return;
+            }
+            for(auto d:divisors[n]){
+                path[i]=d;
+                dfs(i+1,n/d,min(mn,d),max(mx,d));
+            }
+        };
+        dfs(0,n,INT_MAX,0);
+        return ans;
     }
 };
 ```
