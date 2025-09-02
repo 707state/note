@@ -81,6 +81,10 @@
 * Java Related
 + https://blogs.oracle.com/javamagazine/
 
+* C++ Related
+
++ https://www.cppstories.com
+
 * Some Indie stuff
 + https://rahulsharma.pro
 
