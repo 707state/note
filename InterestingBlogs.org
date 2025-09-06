@@ -133,6 +133,16 @@
 + https://graphics.stanford.edu
 
 + https://www.sandordargo.com
+
++ https://wenfh2020.com
+
++ https://idea.popcount.org
+
++ https://nima101.github.io
+
++ https://brauner.io
+
++ https://gqqnbig.me
   
 * 9front related
 + https://9fans.topicbox.com/latest
@@ -196,3 +206,9 @@
 + https://transformers.run
 
 + https://paminerva.github.io/
+
+* Embedded Stuff
+
++ https://www.jeffgeerling.com/blog
+
++ http://www.simplyembedded.org
