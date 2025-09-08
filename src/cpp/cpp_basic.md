@@ -103,6 +103,7 @@
 - [Initialization!](#initialization)
   - [Cast Expression](#cast-expression)
   - [Copy Elision](#copy-elision)
+  - [bit_width](#bitwidth)
 - [工程实践](#工程实践)
 <!--toc:end-->
 
@@ -2030,6 +2031,16 @@ C++规定了形如：“type-id (expression)”的表达式为一个functional-s
 
 1. 在C++17之前，copy elision存在但是在这里不保证。这里的行为就会是：prvalue被通过metialization成为一个xvalue（一个临时对象），然后在auto test=这里面发生一个移动构造/拷贝构造，取决于构造函数实现，一般而言使用移动构造。
 2. 在C++17开始，prvalue的materialization这一步的发生被尽可能地延迟（因为"guaranteed copy elision"），特别是在处理函数返回值时，目的是避免不必要的移动和复制操作。即使 prvalue 的值最终被丢弃不用，它最终也必须被具体化（变成一个真实的对象）。因此，推迟具体化只能消除复制构造函数和移动构造函数的调用，而不能消除其他构造函数的调用。那么在这里，当test的类型被推断出来之后，这里的test就可以直接作为构造函数参数初始化test。
+
+## bit_width
+
+约等于:
+
+```c++
+sizeof(decltype(x))*8-__builtin_clz(x)
+```
+
+就是求一个变量的二进制的长度
 
 # 工程实践
 
