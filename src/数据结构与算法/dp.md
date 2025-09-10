@@ -85,6 +85,7 @@
 - [837 新21点](#837-新21点)
 - [1277 统计全为 1 的正方形子矩阵](#1277-统计全为-1-的正方形子矩阵)
 - [统计镜子反射路径数目](#统计镜子反射路径数目)
+- [2327 知道秘密的人数](#2327-知道秘密的人数)
 <!--toc:end-->
 
 # 983 最低票价
@@ -4107,6 +4108,40 @@ public:
         }
 
         return (dp[m-1][n-1][0] + dp[m-1][n-1][1]) % MOD;
+    }
+};
+```
+
+</details>
+
+# 2327 知道秘密的人数
+
+在第 1 天，有一个人发现了一个秘密。
+
+给你一个整数 delay ，表示每个人会在发现秘密后的 delay 天之后，每天 给一个新的人 分享 秘密。同时给你一个整数 forget ，表示每个人在发现秘密 forget 天之后会 忘记 这个秘密。一个人 不能 在忘记秘密那一天及之后的日子里分享秘密。
+
+给你一个整数 n ，请你返回在第 n 天结束时，知道秘密的人数。由于答案可能会很大，请你将结果对 109 + 7 取余 后返回。
+
+<details>
+
+```c++
+class Solution {
+    constexpr static long MOD = 1e9+7;
+public:
+    int peopleAwareOfSecret(int n, int delay, int forget) {
+        vector<int> dp(n+1);
+        dp[1]=1;
+        for(int i=2;i<=n;i++){
+            for(int j=1;j<i;j++){
+                if(i>=j+delay && i<j+forget)
+                dp[i]=(dp[i]+dp[j])%MOD;
+            }
+        }
+        long ans=0;
+        for(int i=max(1,n-forget+1);i<=n;i++){
+            ans=(ans+dp[i])%MOD;
+        }
+        return ans;
     }
 };
 ```
