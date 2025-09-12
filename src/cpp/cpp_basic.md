@@ -104,6 +104,7 @@
   - [Cast Expression](#cast-expression)
   - [Copy Elision](#copy-elision)
   - [bit_width](#bitwidth)
+  - [Unsequenced modification and access to 'i'](#unsequenced-modification-and-access-to-i)
 - [工程实践](#工程实践)
 <!--toc:end-->
 
@@ -2041,6 +2042,12 @@ sizeof(decltype(x))*8-__builtin_clz(x)
 ```
 
 就是求一个变量的二进制的长度
+
+## Unsequenced modification and access to 'i'
+
+这是项目中遇到的一个报错，这个报错是因为在同一个完整表达式里，C++ 标准没有规定 i 的修改（i++）和 i 的访问（例如用在函数参数里）谁先发生。
+
+也就是说，编译器可以选择不同的执行顺序，于是产生了 未定义行为 (undefined behavior, UB)。
 
 # 工程实践
 
