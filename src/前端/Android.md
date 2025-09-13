@@ -47,6 +47,11 @@
       - [滚动机制](#滚动机制)
     - [预加载机制](#预加载机制)
     - [总结](#总结)
+- [系统服务](#系统服务)
+  - [系统进程级核心服务（System Services）](#系统进程级核心服务system-services)
+  - [HAL / Native Daemon 层](#hal-native-daemon-层)
+  - [运行时支持服务](#运行时支持服务)
+  - [应用可见的系统服务接](#应用可见的系统服务接)
 <!--toc:end-->
 
 #  四大组件
@@ -1250,3 +1255,42 @@ RecyclerView 是 Android 中展示大量数据的首选组件，其核心优势�
 2. 灵活的布局系统：支持线性、网格、瀑布流等多种布局方式
 3. 丰富的动画效果：内置添加、删除、移动等动画
 4. 组件化设计：各组件职责明确，易于扩展和定制
+
+# 系统服务
+
+## 系统进程级核心服务（System Services）
+
+由 SystemServer 进程启动的，提供 Android Framework 的基础功能，可以用 adb shell service list 查看。常见的重要服务有：
+
+| 服务名称                             | 作用                  |
+| -------------------------------- | ------------------- |
+| **ActivityManagerService (AMS)** | 管理四大组件生命周期、进程调度、任务栈 |
+| **PackageManagerService (PMS)**  | 管理应用安装、卸载、签名验证      |
+| **WindowManagerService (WMS)**   | 管理窗口、界面布局、输入事件      |
+| **PowerManagerService**          | 电源管理、休眠/唤醒策略        |
+| **AlarmManagerService**          | 定时任务调度              |
+| **InputManagerService**          | 触控、键盘等输入事件分发        |
+| **SensorService**                | 传感器数据               |
+| **LocationManagerService**       | 位置/定位服务             |
+| **ConnectivityService**          | 网络连接、Wi-Fi/蜂窝数据管理   |
+| **AudioService**                 | 音频路由、音量控制           |
+| **SurfaceFlinger**（独立进程）         | 最终合成与显示图像的渲染服务      |
+
+
+## HAL / Native Daemon 层
+
+这些服务在 native 层实现，与硬件交互，由 init 或 hwservicemanager 启动：
+- init：系统启动的第一个进程，解析 init.rc 脚本，启动所有守护进程
+- hwservicemanager：HIDL/ AIDL HAL 服务注册与发现
+- servicemanager：Binder 的注册中心
+- 各类硬件 HAL，如 camera HAL、audio HAL、bluetooth HAL 等
+
+## 运行时支持服务
+
+- Zygote：Java 进程孵化器，用于 fork 应用进程
+- Binder：IPC 核心机制，所有 system service 都通过 Binder 通信
+- ART/Dalvik：应用运行时虚拟机
+
+## 应用可见的系统服务接
+
+开发者在 App 里通过 Context.getSystemService() 获取的各种服务，其背后就是上述的 framework 服务。
