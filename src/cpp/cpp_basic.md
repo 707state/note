@@ -142,7 +142,7 @@
 
 4. 智能指针：
 
-   引入了std::shared_ptr、std::unique_ptr和std::weak_ptr，用于自动管理动态分配的内存，减少内存泄漏的风险。
+   引入了std::shared\_ptr、std::unique\_ptr和std::weak\_ptr，用于自动管理动态分配的内存，减少内存泄漏的风险。
 
 5. 基于范围的for循环：
 
@@ -2053,8 +2053,8 @@ sizeof(decltype(x))*8-__builtin_clz(x)
 
 ## shared_ptr和weak_ptr
 
-std::shared_ptr 通过引用计数决定对象的释放时机：计数归零时析构对象。
-如果两个对象彼此持有 shared_ptr，就会出现计数永远大于 0，对象无法析构。
+std::shared\_ptr 通过引用计数决定对象的释放时机：计数归零时析构对象。
+如果两个对象彼此持有 shared\_ptr，就会出现计数永远大于 0，对象无法析构。
 
 这里有一个weak\_ptr的特性，即：
 
@@ -2062,15 +2062,16 @@ std::shared_ptr 通过引用计数决定对象的释放时机：计数归零时�
 2. 不影响对象生命周期：weak_ptr 本身不拥有对象。
 3. 可安全判断对象是否仍存在：通过 expired() 或 lock()。
 
-在“互相指向”的关系中，至少一方用 weak_ptr 替代 shared_ptr。
+在“互相指向”的关系中，至少一方用 weak\_ptr 替代 shared\_ptr。
 
 ### 使用场景
 
-父子对象：父对象用 shared_ptr 管理子对象，子对象回指父对象用 weak_ptr。
-观察者模式：被观察者用 weak_ptr 记录观察者，避免观察者和被观察者互相锁死。
+父子对象：父对象用 shared\_ptr 管理子对象，子对象回指父对象用 weak\_ptr。
+
+观察者模式：被观察者用 weak\_ptr 记录观察者，避免观察者和被观察者互相锁死。
 
 # 工程实践
 
 1. 我们不认为有任何合理的工程上的理由让 移动构造函数（move constructor） 抛出异常。——来自Abseil。
 
-2. Asio signal_set应该用在程序最外层co_spawn，这样能更好地管理。
+2. Asio signal\_set应该用在程序最外层co\_spawn，这样能更好地管理。

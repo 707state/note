@@ -51,6 +51,7 @@ libffi允许结构体作为参数的传递（返回值或者函数参数）。
         .alignment = alignof(MyStruct),
         .elements = placeholder};
 ```
+
 这之后这个struct就可以和别的ffi类型一样用了。注意，这里涉及到elements数组的生命周期，可以做封装来利用C++的RAII。
 
 
