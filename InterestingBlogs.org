@@ -149,7 +149,17 @@
 + https://blog.xzr.moe
 
 + https://www.relax.software/blog
-  
+
++ https://arialdomartini.github.io
+
++ https://lcamtuf.coredump.cx
+
++ https://retrocoding.net/?source=top_nav_blog_home
+
++ https://spaces.ac.cn/me.html
+
++ https://roife.github.io
+
 * 9front related
 + https://9fans.topicbox.com/latest
 

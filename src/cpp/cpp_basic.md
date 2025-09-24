@@ -105,6 +105,8 @@
   - [Copy Elision](#copy-elision)
   - [bit_width](#bitwidth)
   - [Unsequenced modification and access to 'i'](#unsequenced-modification-and-access-to-i)
+  - [shared_ptr和weak_ptr](#sharedptr和weakptr)
+    - [使用场景](#使用场景)
 - [工程实践](#工程实践)
 <!--toc:end-->
 
@@ -2048,6 +2050,24 @@ sizeof(decltype(x))*8-__builtin_clz(x)
 这是项目中遇到的一个报错，这个报错是因为在同一个完整表达式里，C++ 标准没有规定 i 的修改（i++）和 i 的访问（例如用在函数参数里）谁先发生。
 
 也就是说，编译器可以选择不同的执行顺序，于是产生了 未定义行为 (undefined behavior, UB)。
+
+## shared_ptr和weak_ptr
+
+std::shared_ptr 通过引用计数决定对象的释放时机：计数归零时析构对象。
+如果两个对象彼此持有 shared_ptr，就会出现计数永远大于 0，对象无法析构。
+
+这里有一个weak\_ptr的特性，即：
+
+1. 不增加引用计数：它只**观察（observe）**对象。
+2. 不影响对象生命周期：weak_ptr 本身不拥有对象。
+3. 可安全判断对象是否仍存在：通过 expired() 或 lock()。
+
+在“互相指向”的关系中，至少一方用 weak_ptr 替代 shared_ptr。
+
+### 使用场景
+
+父子对象：父对象用 shared_ptr 管理子对象，子对象回指父对象用 weak_ptr。
+观察者模式：被观察者用 weak_ptr 记录观察者，避免观察者和被观察者互相锁死。
 
 # 工程实践
 
