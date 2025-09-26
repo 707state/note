@@ -179,6 +179,7 @@
 - [编译原理](./编译原理/README.md)
   - [文法](./编译原理/文法.md)
   - [LLVM相关1-Inkwell](./编译原理/inkwell.md)
+  - [Cheney GC](./编译原理/cheney.md)
 
 - [Linux](./Linux/README.md)
   - [GNU/Linux的C库](./Linux/glibc.md)
@@ -198,6 +199,7 @@
 
 - [Go](./Go/README.md)
   - [基础知识](./Go/basic.md)
+  - [CSP](./Go/csp.md)
 
 - [前端](./前端/README.md)
   - [Android知识](./前端/Android.md)
