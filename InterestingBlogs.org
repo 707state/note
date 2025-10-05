@@ -168,9 +168,17 @@
 
 + https://hcyue.me
 
++ https://brooker.co.za/blog/
+
++ https://chhzh123.github.io
+
 * 9front related
 + https://9fans.topicbox.com/latest
 
+* Functional Stuff
++ https://blog.aiono.dev/blog.html
+
+  
 * Kotlin related
 
 + https://www.bennyhuo.com

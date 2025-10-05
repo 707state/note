@@ -1,3 +1,22 @@
+<!--toc:start-->
+- [guard](#guard)
+- [willSet](#willset)
+- [didSet](#didset)
+- [五种访问控制级别](#五种访问控制级别)
+  - [open](#open)
+  - [public](#public)
+  - [internal](#internal)
+  - [fileprivate](#fileprivate)
+  - [private](#private)
+- [actor](#actor)
+- [SwiftUI相关](#swiftui相关)
+  - [MainActor](#mainactor)
+    - [背景](#背景)
+  - [AVFoundation](#avfoundation)
+    - [元数据解析](#元数据解析)
+<!--toc:end-->
+
+
 # guard
 
 这个特性我确实没见过。
@@ -123,3 +142,60 @@ var propertyName: Type = initialValue {
 actor 的状态只能在自己的函数内部修改，是因为 actor 的函数的调用是在对应的 executor 上安全地执行的。如果外部的函数也能够满足这个调用条件，那么理论上也是安全的。
 
 Swift 提供了 actor-isolated paramters 这样的特性，字面意思即满足 actor 状态隔离的参数，如果我们在定义外部函数时将需要访问的 actor 类型的参数声明为 isolated，那么我们就可以在函数内部修改这个 actor 的状态了。
+
+# SwiftUI相关
+
+这两天写了一个minimal的音乐播放器，因为主力电脑是一个Mac mini，所以这里就直接用了swift来写，不考虑什么跨平台之类的破事。
+
+但是没想到用swift也遇上了一些抽象问题。
+
+这里记录一下。
+
+## MainActor
+自 Swift 6 起，所有会导致 UI 更新的操作必须在主线程（MainActor）上执行。
+
+### 背景
+
+Swift 6 加强了并发模型的类型安全检查，引入了「actor 隔离」的严格模式。
+
+SwiftUI 的视图更新系统本质上是 主线程（MainActor）隔离的。
+
+因此，如果在非主线程（比如后台任务）里直接修改 UI 状态（例如 @State、@Published、@EnvironmentObject），编译器会报错。
+
+这里可以采用Task包裹一个MainActor.run的方式来写，或者干脆就标记为@MainActor。
+
+这个机制我认为是合理的，但是上手还是有点难度。
+
+## AVFoundation
+
+音频/视频不可避免地需要使用到Apple在自家平台上的AVFoundation了，这个东西其实还是好用的，问题在于文档太难懂了。
+
+### 元数据解析
+
+[Apple的文档上对于元数据解析](https://developer.apple.com/documentation/avfoundation/retrieving-media-metadata) 的描述可以说是非常简陋。
+
+不过确实是好好看了文档结合debug才搞定音频文件的cover的加载。
+
+```swift
+// A local or remote asset to inspect.
+let asset = AVURLAsset(url: url)
+for format in try await asset.load(.availableMetadataFormats) {
+    let metadata = try await asset.loadMetadata(for: format)
+    // Process the format-specific metadata collection.
+    print("The available metadata format is \(metadata)")
+}
+```
+
+这段代码实际上是说的尝试所有可能的AssetLoader，换句话说你不能事先知道这个文件怎么才能被解析。
+
+在我的情况下，我需要加载mp3/flac文件，我问AI非常多次，并且也搜索了大量资料，然而没有一个资料对于AssetLoader的内容讲清楚的。这就导致我不停的获得了空的metadata。
+
+后来看了Apple官方文档，发现这个东西居然是需要试出来的，并没有一个固定的。
+
+```swift
+let metadata=try await asset.loadMetadata(for: .init(rawValue: "org.xiph.vorbis-comment"))
+```
+
+最后试出来这样做就可以了。
+
+只能说还得是官方文档。

@@ -5,6 +5,7 @@
 - [quirky stuff](#quirky-stuff)
   - [const](#const)
     - [常指针？指针常量？](#常指针指针常量)
+- [macro](#macro)
 <!--toc:end-->
 
 # C语言并不是C++的一个子集！
@@ -69,3 +70,52 @@ p=&b;//不合法，因为p指向的内容不可变
 ```
 
 这两种情况都可以理解为const修饰的变量不可变，只不过一个是对于指针类型的变量，一个是对于非指针类型的变量，关键就在于dereference的意义。
+
+# macro
+
+宏是一个非常有意思的东西。
+
+我们都知道C的宏本质上只是字符串替换，但其实是要更多一点东西的。
+
+```c
+// Prints the given object.
+static void print(Obj *obj) {
+  switch (obj->type) {
+  case TCELL:
+    printf("(");
+    for (;;) {
+      print(obj->car);
+      if (obj->cdr == Nil)
+        break;
+      if (obj->cdr->type != TCELL) {
+        printf(" . ");
+        print(obj->cdr);
+        break;
+      }
+      printf(" ");
+      obj = obj->cdr;
+    }
+    printf(")");
+    return;
+
+#define CASE(type, ...)                                                        \
+  case type:                                                                   \
+    printf(__VA_ARGS__);                                                       \
+    return
+    CASE(TINT, "%d", obj->value);
+    CASE(TSYMBOL, "%s", obj->name);
+    CASE(TRATIONAL, "%d/%d", obj->numerator, obj->denominator);
+    CASE(TPRIMITIVE, "<primitive>");
+    CASE(TFUNCTION, "<function>");
+    CASE(TMACRO, "<macro>");
+    CASE(TMOVED, "<moved>");
+    CASE(TTRUE, "t");
+    CASE(TNIL, "()");
+#undef CASE
+  default:
+    error("Bug: print: Unknown tag type: %d", obj->type);
+  }
+}
+```
+
+这里面的CASE这个宏就很取巧地处理了代码的复杂度。
