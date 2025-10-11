@@ -44,3 +44,117 @@ poll这个系统调用使用动态大小的数组来表示fd，解决了select�
 epoll：事件驱动 + 内核维护就绪列表 → O(1) 操作，非常适合高并发场景。
 
 这里面内核维护就绪列表，不再线性扫描，并且不需要每一次调用时复制数组，fd在内核只需要注册一次。
+
+来看一段样例代码。
+
+```c++
+#include <arpa/inet.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/epoll.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+constexpr int BACKLOG  = 16;
+constexpr int BUFSIZE  = 1024;
+constexpr int MAXEVENT = 32;
+
+static int set_nonblocking(int fd) {
+    int flags = fcntl(fd, F_GETFL, 0);
+    if (flags == -1) return -1;
+    return fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+}
+
+int main(int argc, char* argv[]) {
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <port>\n", argv[0]);
+        return 1;
+    }
+    int port = atoi(argv[1]);
+
+    // 1. 创建监听 socket
+    int listenfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (listenfd < 0) { perror("socket"); exit(1); }
+
+    int opt = 1;
+    setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    set_nonblocking(listenfd);
+
+    sockaddr_in addr{};
+    addr.sin_family      = AF_INET;
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    addr.sin_port        = htons(port);
+    if (bind(listenfd, (sockaddr*)&addr, sizeof(addr)) < 0) {
+        perror("bind"); exit(1);
+    }
+    if (listen(listenfd, BACKLOG) < 0) {
+        perror("listen"); exit(1);
+    }
+
+    // 2. 创建 epoll 实例
+    int epfd = epoll_create1(0);
+    if (epfd < 0) { perror("epoll_create1"); exit(1); }
+
+    epoll_event ev{};
+    ev.events  = EPOLLIN;
+    ev.data.fd = listenfd;
+    if (epoll_ctl(epfd, EPOLL_CTL_ADD, listenfd, &ev) < 0) {
+        perror("epoll_ctl listenfd"); exit(1);
+    }
+
+    printf("Server listening on port %d...\n", port);
+
+    // 3. 事件循环
+    epoll_event events[MAXEVENT];
+    while (true) {
+        int nfds = epoll_wait(epfd, events, MAXEVENT, -1);
+        if (nfds < 0) {
+            if (errno == EINTR) continue;
+            perror("epoll_wait");
+            break;
+        }
+
+        for (int i = 0; i < nfds; ++i) {
+            int fd = events[i].data.fd;
+
+            if (fd == listenfd) {
+                // 新连接
+                sockaddr_in cli{};
+                socklen_t len = sizeof(cli);
+                int connfd = accept(listenfd, (sockaddr*)&cli, &len);
+                if (connfd >= 0) {
+                    set_nonblocking(connfd);
+                    epoll_event cev{};
+                    cev.events  = EPOLLIN;
+                    cev.data.fd = connfd;
+                    epoll_ctl(epfd, EPOLL_CTL_ADD, connfd, &cev);
+                    printf("New client: %s:%d\n",
+                           inet_ntoa(cli.sin_addr), ntohs(cli.sin_port));
+                }
+            } else if (events[i].events & EPOLLIN) {
+                // 客户端可读
+                char buf[BUFSIZE];
+                ssize_t n = read(fd, buf, sizeof(buf));
+                if (n <= 0) {
+                    // 断开连接
+                    epoll_ctl(epfd, EPOLL_CTL_DEL, fd, nullptr);
+                    close(fd);
+                    printf("Client disconnected (fd=%d)\n", fd);
+                } else {
+                    write(fd, buf, n);  // echo 回显
+                }
+            }
+        }
+    }
+
+    close(listenfd);
+    close(epfd);
+    return 0;
+}
+```
+
+这是一个TCP的echo server。

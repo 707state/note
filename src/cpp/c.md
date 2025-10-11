@@ -24,6 +24,18 @@ size_t strcspn(const char *s, const char *reject);
 
 返回值为：从 s 开头起，连续不包含任何 reject 中字符的那一段子串的长度。
 
+strchr: 在目标字符串中找到某一个字符，返回这个字符起始位置的指针。
+
+```c
+const char *str = "Try not. Do, or do not. There is no try.";
+char target = 'T';
+const char* result = str; 
+while((result = strchr(result, target)) != NULL){
+    printf("Found '%c' starting at '%s'\n", target, result);
+    ++result; // Increment result, otherwise we'll find target at the same location
+}
+```
+
 # quirky stuff
 
 ## const

@@ -9,12 +9,6 @@
   - [容器网络](./Docker/容器网络.md)
   - [镜像](./Docker/镜像.md)
 
-- [rCore](./rCore/README.md)
-  - [rCore 第三章作业](./rCore/第三章作业.md)
-  - [rCore 第四章作业](rCore/第四章作业.md)
-  - [rCore 第五章作业](rCore/第五章作业.md)
-  - [rCore 第六章作业](rCore/第六章作业.md)
-
 - [数据结构](数据结构与算法/README.md)
   - [贪心法](数据结构与算法/贪心.md)
   - [动态规划](数据结构与算法/dp.md)
@@ -83,19 +77,6 @@
   - [RDMA](./计网/RDMA.md)
   - [HTTP](./计网/HTTP.md)
 
-- [数据库](./数据库/README.md)
-  - [乐观锁](./数据库/乐观锁.md)
-  - [悲观锁](./数据库/悲观锁.md)
-  - [B+树](./数据库/BPlusTree.md)
-  - [MongoDB](./数据库/MongoDB.md)
-  - [时序数据库](./数据库/TimeSeriesDB.md)
-  - [Mysql复习](./数据库/Mysql.md)
-  - [Mysql索引](./数据库/Mysql索引.md)
-  - [Mysql事务](./数据库/Mysql事务.md)
-  - [Mysql锁](./数据库/Mysql锁.md)
-  - [Mysql日志](./数据库/MySQL日志.md)
-  - [SQL题目](./数据库/SQL题目.md)
-
 - [分布式](./分布式/Raft.md)
   - [小知识](./分布式/小问题.md)
   - [UUID](./分布式/UUID.md)
@@ -123,6 +104,8 @@
   - [std::function](./cpp/function.md)
   - [ranges!](./cpp/ranges.md)
   - [C IS NOT A SUBSET OF C++](./cpp/c.md)
+  - [Address Sanizier](./cpp/asan.md)
+  - [无锁队列](./cpp/spsc.md)
   - [Endian](./cpp/endian.md)
   - [标准库容器](./cpp/标准库算法.md)
   - [短字符串优化](./cpp/SSO.md)
@@ -132,11 +115,6 @@
   - [CUDA](./cpp/CUDA.md)
   - [生产者消费者模型](./cpp/生产者消费者模型.md)
   - [单例模式](./cpp/Singleton.md)
-
-- [编译原理](./编译原理/README.md)
-  - [文法](./编译原理/文法.md)
-  - [LLVM相关1-Inkwell](./编译原理/inkwell.md)
-  - [Cheney GC](./编译原理/cheney.md)
 
 - [Linux](./Linux/README.md)
   - [GNU/Linux的C库](./Linux/glibc.md)
@@ -176,13 +154,6 @@
 - [FP](./Functional/README.md)
   - [Polymorphism?](./Functional/Polymorphism.md)
 
-- [Redis](./Redis/README.md)
-  - [常见问题](./Redis/redisOverview.md)
-  - [SDS](./Redis/sds.md)
-  - [intset](./Redis/Intset.md)
-  - [listpack](./Redis/listpack.md)
-  - [LDKV-一次 kv 的尝试](./Redis/LDKV-一个尝试实现KV的尝试.md)
-
 - [零零碎碎](./零零碎碎/README.md)
   - [Github Action](./零零碎碎/Github%20Action.md)
   - [mdbook](./零零碎碎/mdbook.md)
@@ -199,3 +170,4 @@
 
 - [汇编](./ASM/README.md)
   - [AArch64基础知识](./ASM/basic.md)
+  - [Dive Into Compiler](./ASM/C.md)

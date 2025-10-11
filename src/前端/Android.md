@@ -49,6 +49,8 @@
     - [总结](#总结)
 - [系统服务](#系统服务)
   - [系统进程级核心服务（System Services）](#系统进程级核心服务system-services)
+    - [存储与安全相关](#存储与安全相关)
+    - [声音](#声音)
   - [HAL / Native Daemon 层](#hal-native-daemon-层)
   - [运行时支持服务](#运行时支持服务)
   - [应用可见的系统服务接](#应用可见的系统服务接)
@@ -1276,6 +1278,26 @@ RecyclerView 是 Android 中展示大量数据的首选组件，其核心优势�
 | **AudioService**                 | 音频路由、音量控制           |
 | **SurfaceFlinger**（独立进程）         | 最终合成与显示图像的渲染服务      |
 
+### 存储与安全相关
+
+KeystoreService，SettingProvider，ContentProvider。
+
+SharedPreferences:
+- 应用级轻量存储，保存在 /data/data/<package>/shared_prefs/。
+- 并不属于系统服务，但由 ContextImpl 提供统一访问接口。
+- 加密需求可配合 EncryptedSharedPreferences（AndroidX Security）。
+
+### 声音
+
+AudioService:
+- 负责音频流的路由、音量控制、模式切换。
+- 管理所有音频通道（音乐、通话、通知等）。
+- 通过 JNI 调用 AudioFlinger（运行在 native 层的守护进程）。
+
+MediaPlayerService:
+- 媒体播放核心服务，提供底层音视频解码、同步、渲染。
+- 应用通过 MediaPlayer、AudioTrack、MediaCodec 等 API 访问。
+- 底层连接到 Stagefright 框架（C++ 实现的多媒体栈）。
 
 ## HAL / Native Daemon 层
 

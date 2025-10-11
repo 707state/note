@@ -211,12 +211,20 @@
 * CodeTalk
 + https://blog.howardlau.me
 
-* Scheme Related
+* PLT Related
 
 + https://www.cs.utexas.edu/ftp/garbage/cs345/schintro-v14/schintro_142.html
 
 + https://tromey.com/blog/
 
++ https://bernsteinbear.com
+
++ https://weinholt.se
+
+* Audio Stuff
+
++ http://www.rossbencina.com
+  
 * LambdaClass
 
 + https://blog.lambdaclass.com

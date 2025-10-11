@@ -52,3 +52,68 @@ ldr    w1, [x0], #4
 
 第一种写法被称为前索引寻址，将x0的值加4赋值给x0后，将对应内存取值赋值给w1
 第二种写法被称为后索引寻址，将x0对应的内存取值赋值给w1后，将x0自身值加4赋值给自身
+
+# aarch64基本知识
+
+- AArch64提供了21个64bit的通用寄存器，其中X30被用于procedure link寄存器。
+- 64bit的Program Counter, Stack Pointers还有Exception Link Registers。
+- 32个128bit的寄存器用于SIMD向量/标量浮点支持。
+- 一个单独的指令集：A64。
+- ArmV8 Exception Model，包括：EL0-EL3四个异常等级。
+- 64bit的虚地址。
+- 一系列维护PE的Process State(PSTATE)元素。
+
+## A64
+
+A64指令集是一套定长指令集，长度为32bit。
+
+A64指令集的编码格式：
+
+- 5bit的通用寄存器，选取0-30之一的寄存器，31号寄存器是特殊的。
+- Advanced SIMD和浮点寄存器以及SVE寄存器，使用5bit来获取32个寄存器之一
+
+### A64汇编语言的结构
+
+一条instruction的第31位（从0开始计数）是sf(size field)位。值为1表示这是一条用了64位寄存器的指令，为0表示用的是32位寄存器。
+
+w表示一个寄存器有32bit的字，x则是64bit表示一个双字。
+
+一个汇编指令可以用在不同的结构中。
+
+```asm
+ADD w0, w1, w2 //表示32位的寄存器相加
+ADD x0, x1, x2 //表示64位的寄存器相加
+ADD x0, x1, w2, sxtw //表示64位拓展寄存器
+ADD x0, x1, #42 //64位立即数
+```
+
+> sve assembler指的是汇编格式：operation code, destination register, predicate register, input register。
+
+
+### mov指令
+
+第21-22位是hw位，用来表示偏移量，这是因为ARM64的MOV指令只能直接编码16位立即数，但我们需要操作64位的数值。
+
+对于这样的一条指令：
+```asm
+mov x0, #0x1234
+```
+
+这条指令的立即数大小就是16位的，因为hw为00，但是如果是这样：
+
+```asm
+mov x0, #0x12340000
+```
+这时候hw就是01，以此类推。
+
+MOV（实际上是MOVZ）指令的前5个bit为Rd字段，用来表示的是目标寄存器。
+
+### PC-Relative Addressing
+
+A64指令集支持position-independent code和data addressing。
+
+## System Registers
+
+系统寄存器提供了控制和系统信息的特性。
+
+其命名方式位: register\_name.bit\_field\_name。
