@@ -12,6 +12,7 @@
 - [980 不同路径Ⅲ](#980-不同路径ⅲ)
 - [2698 求一个整数的惩罚数](#2698-求一个整数的惩罚数)
 - [3669 K 因数分解](#3669-k-因数分解)
+- [3003 执行操作后的最大分割数量](#3003-执行操作后的最大分割数量)
 <!--toc:end-->
 
 
@@ -756,6 +757,61 @@ public:
         };
         dfs(0,n,INT_MAX,0);
         return ans;
+    }
+};
+```
+
+</details>
+
+# 3003 执行操作后的最大分割数量
+
+给你一个下标从 0 开始的字符串 s 和一个整数 k。
+
+你需要执行以下分割操作，直到字符串 s 变为 空：
+
+选择 s 的最长 前缀，该前缀最多包含 k 个 不同 字符。
+删除 这个前缀，并将分割数量加一。如果有剩余字符，它们在 s 中保持原来的顺序。
+执行操作之 前 ，你可以将 s 中 至多一处 下标的对应字符更改为另一个小写英文字母。
+
+在最优选择情形下改变至多一处下标对应字符后，用整数表示并返回操作结束时得到的 最大 分割数量。
+
+<details>
+
+```c++
+class Solution {
+public:
+    int maxPartitionsAfterOperations(string s, int k) {
+        unordered_map<long long, int> memo;
+        auto dfs=[&](this auto&& dfs, int i,int mask, bool changed)->int{
+            if(i==s.length()){
+                return 1;
+            }
+            long long args=(long long)i<<32 | mask<<1 | changed;
+            auto it=memo.find(args);
+            if(it!=memo.end()){
+                return it->second;
+            }
+            int res;
+            int bit=1<<(s[i]-'a');
+            int new_mask=mask|bit;
+            if(popcount((uint32_t)new_mask)>k){
+                res=dfs(i+1,bit,changed)+1;
+            }else{
+                res=dfs(i+1,new_mask,changed);
+            }
+            if(!changed){
+                for(int j=0;j<26;j++){
+                    new_mask=mask | (1<<j);
+                    if(popcount((uint32_t)new_mask)>k){
+                        res=max(res,dfs(i+1,1<<j,true)+1);
+                    }else{
+                        res=max(res,dfs(i+1,new_mask,true));
+                    }
+                }
+            }
+            return memo[args]=res;
+        };
+        return dfs(0,0,false);
     }
 };
 ```

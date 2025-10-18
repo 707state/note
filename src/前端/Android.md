@@ -51,6 +51,7 @@
   - [系统进程级核心服务（System Services）](#系统进程级核心服务system-services)
     - [存储与安全相关](#存储与安全相关)
     - [声音](#声音)
+    - [后台任务](#后台任务)
   - [HAL / Native Daemon 层](#hal-native-daemon-层)
   - [运行时支持服务](#运行时支持服务)
   - [应用可见的系统服务接](#应用可见的系统服务接)
@@ -1298,6 +1299,121 @@ MediaPlayerService:
 - 媒体播放核心服务，提供底层音视频解码、同步、渲染。
 - 应用通过 MediaPlayer、AudioTrack、MediaCodec 等 API 访问。
 - 底层连接到 Stagefright 框架（C++ 实现的多媒体栈）。
+
+### 后台任务
+
+JobService: Android 5.0+ 官方推荐后台执行框架。
+
+```java
+val component = ComponentName(context, MyJobService::class.java)
+val jobInfo = JobInfo.Builder(123, component)
+    .setPeriodic(15 * 60 * 1000) // 15分钟周期
+    .setRequiresCharging(false)
+    .build()
+
+val scheduler = context.getSystemService(JobScheduler::class.java)
+        scheduler.schedule(jobInfo)
+
+class MyJobService : JobService() {
+    override fun onStartJob(params: JobParameters?): Boolean {
+        Log.d("JobService", "执行后台任务")
+        return false
+    }
+
+    override fun onStopJob(params: JobParameters?): Boolean = false
+}
+```
+
+Handler: postDelayed
+
+```java
+class MyJobService : JobService() {
+    override fun onStartJob(params: JobParameters?): Boolean {
+        Log.d("JobService", "执行后台任务")
+        return false
+    }
+
+    override fun onStopJob(params: JobParameters?): Boolean = false
+}
+```
+
+Kotlin协程+delay
+
+```kotlin
+scope.launch {
+    delay(5000)
+    Log.d("Timer", "延迟 5 秒执行")
+}
+```
+
+Timer/TimerTask
+
+```java
+val timer = Timer()
+timer.schedule(object : TimerTask() {
+    override fun run() {
+        Log.d("Timer", "每 2 秒执行一次")
+    }
+}, 0, 2000)
+```
+
+容易被系统挂起。
+
+AlarmManager：系统级定时器
+
+可以在 App 退出后依然触发。
+
+```java
+val alarmMgr = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+val intent = Intent(context, MyReceiver::class.java)
+val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+alarmMgr.setExact(
+    AlarmManager.RTC_WAKEUP,
+    System.currentTimeMillis() + 10_000, // 10 秒后
+    pendingIntent
+)
+```
+
+可以配合 BroadcastReceiver：
+
+```java
+class MyReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        Log.d("Alarm", "定时任务触发！")
+    }
+}
+```
+
+WorkManager, Android 官方现在强烈推荐使用 WorkManager，适用于：
+- 延迟任务；
+- 周期任务；
+- 网络/充电条件下执行；
+- App 被杀死后仍能执行。
+
+```kotlin
+class UploadWorker(context: Context, params: WorkerParameters)
+    : Worker(context, params) {
+
+    override fun doWork(): Result {
+        Log.d("WorkManager", "后台任务执行中")
+        return Result.success()
+    }
+}
+
+val workRequest = OneTimeWorkRequestBuilder<UploadWorker>()
+    .setInitialDelay(10, TimeUnit.SECONDS)
+    .build()
+
+WorkManager.getInstance(context).enqueue(workRequest)
+
+val periodicWork = PeriodicWorkRequestBuilder<UploadWorker>(
+    15, TimeUnit.MINUTES
+).build()
+
+WorkManager.getInstance(context).enqueue(periodicWork)
+
+```
 
 ## HAL / Native Daemon 层
 
