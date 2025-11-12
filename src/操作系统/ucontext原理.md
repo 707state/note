@@ -64,7 +64,7 @@ ENTRY(__getcontext)
 	ret
 PSEUDO_END(__getcontext)
 ```
-getcontext的汇编代码中，第一部分就是保存当前上下文中的各个寄存器到第一个参数rdi中，即ucontext_t中，其中目标操作数(%rdi)前面的oRBX，oRBP…的含义如下，
+getcontext的汇编代码中，第一部分就是保存当前上下文中的各个寄存器到第一个参数rdi中，即ucontext\_t中，其中目标操作数(%rdi)前面的oRBX，oRBP…的含义如下，
 ```c 
 
 #define ucontext(member)	offsetof (ucontext_t, member)

@@ -117,3 +117,80 @@ A64指令集支持position-independent code和data addressing。
 系统寄存器提供了控制和系统信息的特性。
 
 其命名方式位: register\_name.bit\_field\_name。
+
+# 编码
+
+AArch64有一类指令又非常奇葩的编码规则，这里说的就是bitmask immediate。
+
+这玩意用了一些非常抽象的编码规则，具体如下：
+[and指令imm部分](https://developer.arm.com/documentation/dui0802/b/A64-General-Instructions/AND--immediate-)
+
+> Is the bitmask immediate. Such an immediate is a 32-bit or 64-bit pattern viewed as a vector of identical elements of size e = 2, 4, 8, 16, 32, or 64 bits. Each element contains the same sub-pattern: a single run of 1 to e-1 non-zero bits, rotated by 0 to e-1 bits. This mechanism can generate 5,334 unique 64-bit patterns (as 2,667 pairs of pattern and their bitwise inverse). Because the all-zeros and all-ones values cannot be described in this way, the assembler generates an error message.
+
+理解起来非常抽象，可以这么说：imm是一个 32 位或 64 位的模式，由多个相同的“子块”（element）组成；每个子块是连续的 1（长度从 1 到 e-1），可以旋转一定的位数。
+
+# 栈指针
+
+aarch64是16字节对齐的，并且没有x86那样的负偏移寻址形式，对于汇编语句：
+
+这是x86的写法
+```asm
+mov [rsp-8],0x4
+```
+
+到aarch64可以使用
+```asm
+sub sp,sp,#0x1f // 16字节对齐
+mov X0,#4
+str X0,[sp,#8] // 将x0寄存器的值写入到栈帧偏移8处
+```
+
+而且由于aarch64支持pre-indexed addressing和post-indexed addressing，这里也可以写为
+```asm
+mov X0,#4
+str X0,[sp,#-16]
+```
+
+但是注意，x86的写法里面并不会修改rsp（栈指针）的值，而上面两个aarch64写法却会改变，所以还可以
+```asm
+mov X0,#4
+sub X1,sp, #8
+str x0,[x1]
+```
+
+## push/pop
+
+AArch64没有push/pop指令，而是提供了stp/ldp的组合。
+
+举个例子：
+
+x86的写法
+```asm
+myfunction:
+    push rbp
+    mov rbp, rsp
+    sub rsp, N         ; allocate stack space for locals
+
+    ... function body ...
+
+    mov rsp, rbp
+    pop rbp
+    ret
+
+```
+
+而在aarch64的写法：
+```asm
+myfunction:
+    stp x29, x30, [sp, #-16]!   // push frame pointer (x29) & link register (x30)
+    mov x29, sp                 // set new frame pointer
+    sub sp, sp, #N              // allocate N bytes for locals (16-byte aligned)
+
+    ... function body ...
+
+    add sp, sp, #N              // deallocate locals
+    ldp x29, x30, [sp], #16     // pop x29, x30
+    ret
+```
+
+这里，x29寄存器是帧指针寄存器，x30是返回地址保存位置。

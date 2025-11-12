@@ -13,10 +13,10 @@
 Unix Domain Socket 主要用于同一台机器上的进程间通信，比使用 TCP/IP 协议栈的网络 Socket 更高效，因为它省去了网络协议的开销。
 
 - 地址形式：
-UDS 使用文件系统中的路径作为地址，比如 /tmp/my_socket。此外也支持匿名（abstract）命名空间（主要在 Linux 上）。
+UDS 使用文件系统中的路径作为地址，比如 /tmp/my\_socket。此外也支持匿名（abstract）命名空间（主要在 Linux 上）。
 
 - 传输类型：
-支持字节流（SOCK_STREAM）（类似 TCP）和数据报（SOCK_DGRAM）（类似 UDP）。
+支持字节流（SOCK\_STREAM）（类似 TCP）和数据报（SOCK\_DGRAM）（类似 UDP）。
 
 # 优势
 

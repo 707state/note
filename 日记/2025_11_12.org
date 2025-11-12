@@ -1,0 +1,5 @@
+* AArch64
++ 搞懂Load/Store怎么用了，编解码是真复杂，每一个指令都要考虑pre-indexed/post-indexed/offset的情况。
++ 了解了Calling convention，但是具体的传参以及偏移量这些还是有点不太清楚。
+* Java
+JamVM在aarch64上跑不起来的原因是callJNIMethod这个汇编函数实现的有问题，JNIEnv的参数传递进来会变成一个不正确的指针，但是问题出在汇编的哪里还是不太确定。

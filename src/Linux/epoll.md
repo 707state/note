@@ -12,7 +12,7 @@
 
 Unix远古时代的异步API是不存在的。
 
-远古时代的连接是：一个进程一个连接，所以就有了![C10K问题](https://en.wikipedia.org/wiki/C10k_problem)。
+远古时代的连接是：一个进程一个连接，所以就有了[C10K问题](https://en.wikipedia.org/wiki/C10k_problem)。
 
 
 进程数目是不可能无限增加的，因为进程的上下午切换的开销非常大，并且IPC机制也一个比一个慢。

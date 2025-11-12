@@ -210,11 +210,11 @@ static int e1000_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 
 到这一步网卡还不是可用状态，需要通过用户配置网卡(开启网卡以及配置IP),
 如ifconfig eth0 up/ifconfig eth0 `<ip>`{=html}.
-设置网卡为UP时，会调用驱动的ndo_open函数：
+设置网卡为UP时，会调用驱动的ndo\_open函数：
 
 > 请求硬件中断，并使能该中断
 
-> napi_enable开启napi
+> napi\_enable开启napi
 
 > 启动网络的发送队列，允许发送数据
 
@@ -269,7 +269,7 @@ ethX来查看当前网卡的状态. 接下来, 再来看看数据接收的具体
 
 > 驱动处理函数处理中断，并启动一个napi处理任务
 
-> 发送接收数据的软中断NET_RX_SOFTIRQ
+> 发送接收数据的软中断NET\_RX\_SOFTIRQ
 
 > 内核线程处理网络软中断，将数据包发送给上层协议栈
 

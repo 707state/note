@@ -58,7 +58,7 @@ __attribute__((constructor)) xxxxx
 
 2. 作为动态链接库
 
-准确得说，这里叫做preload hook，通过LD_PRELOAD的方式放置在终端的开始处。
+准确得说，这里叫做preload hook，通过LD\_PRELOAD的方式放置在终端的开始处。
 
 也就是说，对于一个程序，可以用preload hook来进行运行期的链接，可以用来进行运行期的功能测试。
 
@@ -70,7 +70,7 @@ int main(){
     write(1,a,sizeof(a));
 }
 ```
-这里面调用的write是系统调用，但是，如果我们想要write能够被记录（比如说有安全/统计/其他需求），可以通过自己编写write（因为write是一个weak_alias）并用 LD\_PRELOAD的方式添加进来，这样就能够接管write函数。
+这里面调用的write是系统调用，但是，如果我们想要write能够被记录（比如说有安全/统计/其他需求），可以通过自己编写write（因为write是一个weak\_alias）并用 LD\_PRELOAD的方式添加进来，这样就能够接管write函数。
 比如：
 ```cpp write_hook.c
 ssize_t write(int fd,const void* buf,size_t count){
@@ -148,8 +148,8 @@ malloc将内存分成了大小不同的chunk，然后通过bins来组织起来�
 - 如果largebins[index]为空，进入步骤3
 - 如果largebins[index]非空，扫描链表，找到第一个大小最合适的chunk，如size=12.5K，则使用chunk B，剩下的0.5k放入unsorted_list中
 
-3. 遍历unsorted_list，查找合适size的chunk，如果找到则返回；否则，将这些chunk都归类放到smallbins和largebins里面
-4. index++从更大的链表中查找，直到找到合适大小的chunk为止，找到后将chunk拆分，并将剩余的加入到unsorted_list中
+3. 遍历unsorted\_list，查找合适size的chunk，如果找到则返回；否则，将这些chunk都归类放到smallbins和largebins里面
+4. index++从更大的链表中查找，直到找到合适大小的chunk为止，找到后将chunk拆分，并将剩余的加入到unsorted\_list中
 5. 如果还没有找到，那么使用top chunk
 6. 或者，内存<128k，使用brk；内存>128k，使用mmap获取新内存。
 
