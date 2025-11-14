@@ -237,7 +237,10 @@
 
 + https://blog.mwish.me
 
-* Asahi Linux
+* Linux Related
++ https://www.brendangregg.com/blog/index.html
+
+** Asahi Linux
 
 + https://rosenzweig.io
 

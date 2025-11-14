@@ -1,16 +1,3 @@
----
-title: "Mysql技术内幕：InnoDB学习 (1,2)"
-author: "jask"
-date: "2024-08-11"
-output: pdf_document
-header-includes:
-  - \usepackage{fontspec}
-  - \usepackage{xeCJK}
-  - \setmainfont{ComicShannsMono Nerd Font}
-  - \setCJKmainfont{Noto Sans CJK SC}  # 替换为可用的字体
-  - \setCJKmonofont{Noto Sans CJK SC}
-  - \setCJKsansfont{Noto Sans CJK SC}
----
 # Mysql技术内幕
 ## 各种存储引擎
 ### InnoDB

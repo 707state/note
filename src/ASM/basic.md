@@ -3,6 +3,16 @@
 - [adrp](#adrp)
 - [内存与寄存器](#内存与寄存器)
   - [索引模式](#索引模式)
+- [aarch64基本知识](#aarch64基本知识)
+  - [A64](#a64)
+    - [A64汇编语言的结构](#a64汇编语言的结构)
+    - [mov指令](#mov指令)
+    - [PC-Relative Addressing](#pc-relative-addressing)
+  - [System Registers](#system-registers)
+- [编码](#编码)
+- [栈指针](#栈指针)
+  - [push/pop](#pushpop)
+    - [Prologue and Epilogue](#prologue-and-epilogue)
 <!--toc:end-->
 
 # 基本格式
@@ -193,4 +203,12 @@ myfunction:
     ret
 ```
 
-这里，x29寄存器是帧指针寄存器，x30是返回地址保存位置。
+这里，x29寄存器是帧指针寄存器，x30是返回地址保存位置(aka Link Register)。
+
+### Prologue and Epilogue
+
+这里有一个会踩坑的点，就是说：
+```asm
+mov X29, sp
+```
+这个指令是MOV TO/FROM SP，是一个add imm指令的alias，跟MOV imm, MOV register都没有关系。

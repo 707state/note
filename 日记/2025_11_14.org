@@ -1,0 +1,7 @@
+* AArch64
++ Load/Store相关的指令搞懂了，学会使用栈来传递参数并且用来进行递归操作，对于stp/ldp指令有一些粗浅理解。
++ mov Xn, sp或者mov sp, Xn是一个专门的MOV TO/FROM SP指令，是add的alias，和mov imm/mov register没有关系。
++ Capstone很有意思，可以用来处理一些反汇编的东西，实际上不止这些能力。
+* Rust
++ 开工毕设，先把相关技术栈熟悉一遍，这里就好好看看Rust。
++ 用Rust取代之前的C++来编写codegen，用libc来处理一些low level的内存管理，尝试移植[[https://bernsteinbear.com/blog/compiling-a-lisp-5/][一个x86的Lisp Compiler]]到aarch64平台。目前进度到了所有一元运算符、+和-这两个二元运算符。

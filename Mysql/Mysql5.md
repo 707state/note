@@ -1,18 +1,3 @@
-
-
----
-title: "Mysql技术内幕：InnoDB学习 (7)"
-author: "jask"
-date: "2024-08-11"
-output: pdf_document
-header-includes:
-  - \usepackage{fontspec}
-  - \usepackage{xeCJK}
-  - \setmainfont{ComicShannsMono Nerd Font} 
-  - \setCJKmainfont{Noto Sans CJK SC}  # 替换为可用的字体
-  - \setCJKmonofont{Noto Sans CJK SC}
-  - \setCJKsansfont{Noto Sans CJK SC}
----
 # Mysql技术内幕
 
 ## 事务
@@ -76,7 +61,7 @@ InnoDB存储引擎中的事务完全符合ACID的特性。ACID是以下4个词�
 
 ### 日志
 
-#### redo 
+#### redo
 重做日志用来实现事务的持久性，即事务ACID中的D。其由两部分组成：一是内存中的重做日志缓冲（redo log buffer），其是易失的；二是重做日志文件（redo log file），其是持久的。
 
 InnoDB是事务的存储引擎，其通过Force Log at Commit机制实现事务的持久性，即当事务提交（COMMIT）时，必须先将该事务的所有日志写入到重做日志文件进行持久化，待事务的COMMIT操作完成才算完成。这里的日志是指重做日志，在InnoDB存储引擎中，由两部分组成，即redo log和undo log。redo log用来保证事务的持久性，undo log用来帮助事务回滚及MVCC的功能。redo log基本上都是顺序写的，在数据库运行时不需要对redo log的文件进行读取操作。而undo log是需要进行随机读写的。
@@ -93,7 +78,7 @@ InnoDB存储引擎允许用户手工设置非持久性的情况发生，以此�
 
 二进制日志只在事务提交完成后进行一次写入。而InnoDB存储引擎的重做日志在事务进行中不断地被写入，这表现为日志并不是随事务提交的顺序进行写入的。
 
-#### Log Block 
+#### Log Block
 若一个页中产生的重做日志数量大于512字节，那么需要分割为多个重做日志块进行存储。此外，由于重做日志块的大小和磁盘扇区大小一样，都是512字节，因此重做日志的写入可以保证原子性，不需要doublewrite技术。
 
 #### Log Group
@@ -165,7 +150,7 @@ update undo log记录的是对delete和update操作产生的undo log。该undo l
 
 ![Update Undo Log格式](../../Pictures/Screenshots/Screenshot_2024-08-18-08-37-44_1920x1080.png)
 
-#### Purge 
+#### Purge
 delete和update操作可能并不直接删除原有的数据。
 
 purge用于最终完成delete和update操作。这样设计是因为InnoDB存储引擎支持MVCC，所以记录不能在事务提交时立即进行处理。这时其他事物可能正在引用这行，故InnoDB存储引擎需要保存记录之前的版本。而是否可以删除该条记录通过purge来进行判断。若该行记录已不被任何其他事务引用，那么就可以进行真正的delete操作。可见，purge操作是清理之前的delete和update操作，将上述操作“最终”完成。而实际执行的操作为delete操作，清理之前行记录的版本。
@@ -210,5 +195,3 @@ XA事务由一个或多个资源管理器（Resource Managers）、一个事务�
 
 #### 内部XA事务
 在MySQL数据库中还存在另外一种分布式事务，其在存储引擎与插件之间，又或者在存储引擎与存储引擎之间，称之为内部XA事务。
-
-

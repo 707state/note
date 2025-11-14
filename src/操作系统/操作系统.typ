@@ -1,4 +1,4 @@
- #set text(font: "Comic Shanns Mono", size: 8pt )
+#set text(font: "Comic Shanns Mono", size: 8pt )
 #set page(
   paper: "a4",
   margin: (x: 1.0cm, y: 1.0cm),
