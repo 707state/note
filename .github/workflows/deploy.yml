@@ -1,40 +1,42 @@
-name: Deploy
+name: Deploy mdBook to Pages
+
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     permissions:
-      contents: write  # To push a branch 
-      pages: write  # To push to a GitHub Pages site
-      id-token: write # To update the deployment status
+      contents: write
+      pages: write
+      id-token: write
+
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+
       - name: Install latest mdbook
         run: |
-          tag=$(curl 'https://api.github.com/repos/rust-lang/mdBook/releases/latest' | jq -r '.tag_name')
+          tag=$(curl -s 'https://api.github.com/repos/rust-lang/mdBook/releases/latest' | jq -r '.tag_name')
           url="https://github.com/rust-lang/mdBook/releases/download/${tag}/mdbook-${tag}-x86_64-unknown-linux-gnu.tar.gz"
           mkdir mdbook
-          curl -sSL $url | tar -xz --directory=./mdbook
-          mv mdbook/mdbook ~/.local/bin/
+          curl -sSL "$url" | tar -xz --directory=./mdbook
+          chmod +x ./mdbook/mdbook
+
       - name: Build Book
         run: |
-          # This assumes your book is in the root of your repository.
-          # Just add a `cd` here if you need to change to another directory.
-          cd ./mdbook
-          mdbook build
+          ./mdbook/mdbook build
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: 'book'
+          path: './book'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
