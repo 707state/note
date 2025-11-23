@@ -89,12 +89,7 @@
   - [RocksDB](./LSM-Tree/RocksDB.md)
 
 - [操作系统](./操作系统/README.md)
-  - [协程](./操作系统/协程.md)
-  - [虚拟化](./操作系统/虚拟化.md)
-  - [内存分配与内存碎片](./操作系统/内存碎片.md)
-  - [Unix环境编程](./操作系统/Unix高级编程.md)
-  - [进程调度](./操作系统/进程调度算法.md)
-  - [qemu gdb](./操作系统/qemu-gdb.md)
+  - [符号！](./操作系统/symbol.md)
 
 - [cpp](./cpp/README.md)
   - [基本知识](./cpp/cpp_basic.md)

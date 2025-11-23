@@ -212,3 +212,50 @@ myfunction:
 mov X29, sp
 ```
 这个指令是MOV TO/FROM SP，是一个add imm指令的alias，跟MOV imm, MOV register都没有关系。
+
+## 跳转！
+
+学了一段时间的汇编，我对于jmp或者说跳转有一些想法。
+
+汇编器是在assembly文件给定的前提下进行翻译的，但是对于LuaJIT/Node这种具有JIT Compiler的解释器，生成二进制肯定不会利用汇编器再生成二进制，所以这里面是怎么进行bl/jmp的操作的呢？
+
+### b
+AArch64指令里面的branch指令，有一个26位的立即数，这个立即数表示的是相对跳转距离（PC-Relative）。
+
+其编码规则可用python代码：
+
+```python
+def calc_b_imm26(pc_current, target):
+    """
+    计算 AArch64 B 指令的 imm26
+    pc_current: 当前指令地址（字节）
+    target: 目标 label 地址（字节）
+    """
+    pc = pc_current
+    offset_bytes = target - pc if target > pc_current else pc - target
+    # 偏移单位是 4 字节
+    imm26 = offset_bytes // 4
+    if target < pc_current:
+        imm26_bin = 0x10000000 - imm26
+    else:
+        imm26_bin = imm26
+    print(f"PC: 0x{pc_current:X}, Target: 0x{target:X}")
+    print(f"Offset bytes: {offset_bytes} -> imm26: {imm26}")
+    print(f"imm26 26-bit binary (hex) = 0x{imm26_bin:X}")
+    return imm26, imm26_bin
+```
+
+对于b.cond，也是一样的思路。
+
+b.cond系列指令里面的imm是19位，这个19位指令就会变成0x100000来作为基准。
+
+有了这些东西，有什么用呢？
+
+答案就是：现在就可以在编译器里面绕过Assembly直接生成二进制来进行跳转了，也就是调用其他Procesure！
+
+## PCS
+
+Arm官方对于过程调用是有限制的，可以搜索关键字Procedure Call Standard。
+
+1. 参数传递通过X0-X7寄存器，更多的参数则通过栈来传递（C++中，X0寄存器被用来传递this指针）。
+2. PCS规定了那些寄存器是可以修改的，而哪些则是必须保存并恢复的。

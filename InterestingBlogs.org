@@ -42,6 +42,7 @@
 + https://github.com/wanghenshui/cppweeklynews
 + https://blog.llvm.org
 + https://www.scs.stanford.edu/~dm/blog/
++ https://www.codalogic.com/blog/
 
 * Richard Mitton
 + http://www.codersnotes.com/about/
@@ -224,7 +225,8 @@
 + https://bernsteinbear.com
 
 + https://weinholt.se
-
+* Compiler Stuff
++ https://maskray.me/blog/
 * Audio Stuff
 
 + http://www.rossbencina.com

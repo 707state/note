@@ -1,0 +1,5 @@
+* AArch64
++ bl/bcond这一类指令的编码规则搞懂了，但是对于动态链接的情况的relocation还不是很理解，需要对动态链接器(dyld这样的)深入学习。
++ GCC是没有办法绕过as来生成二进制的，但是LLVM工具链有内置的assembler，并不需要独立的as就可以处理汇编。
+* Go
++ 了解了一点Go对于跨平台的原理，事实上Go在MacOS和Windows都不能完全地静态链接，而是分别依赖于libSystem和kernel32.dll（不算是libc），在Linux上才能做到。
