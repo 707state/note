@@ -1,0 +1,7 @@
+* AArch64
++ 搞明白了fixup的基本逻辑，但是对于符号重定位（动态链接）的情形还是不太确定。诸如_printf这样的符号会通过String Table导出到Object file中，但是dyld在这里扮演了什么样的角色来帮助符号查找和方法绑定呢？
++ 对于ret/branch相关指令了解更多了一些，以及adrp/add指令的用法有一些了解。
+* Rust
++ 学习用nom写Parser，避免手搓。
+* gcc
++ cleanup这个attribute可以用来实现defer，很有意思。
