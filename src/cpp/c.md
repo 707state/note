@@ -29,12 +29,21 @@ strchr: 在目标字符串中找到某一个字符，返回这个字符起始位
 ```c
 const char *str = "Try not. Do, or do not. There is no try.";
 char target = 'T';
-const char* result = str; 
+const char* result = str;
 while((result = strchr(result, target)) != NULL){
     printf("Found '%c' starting at '%s'\n", target, result);
     ++result; // Increment result, otherwise we'll find target at the same location
 }
 ```
+
+### time.h
+
+C标准库提供了一个clock函数，这是一个不精确的函数，精度非常差，不适合用于高精度的场景。
+
+如果需要高精度的时间，需要使用操作系统的api。对于Linux/Unix-like的系统，可以用gettimeofday这个函数；对于Windows可以用QueryPerformanceCounter和QueryPerformanceFrequency这两个windows提供的api来获取。
+
+如果想要在用户空间实现一个调度器，gettimeofday并不能依赖，Linux提供了clock\_gettime这组api。
+
 
 # quirky stuff
 
