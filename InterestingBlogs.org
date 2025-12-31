@@ -225,8 +225,10 @@
 + https://bernsteinbear.com
 
 + https://weinholt.se
+  
 * Compiler Stuff
 + https://maskray.me/blog/
+  
 * Audio Stuff
 
 + http://www.rossbencina.com
@@ -239,9 +241,16 @@
 
 + https://blog.mwish.me
 
+* Data Compression
++ https://ticki.github.io/
++ https://fastcompression.blogspot.com/
+
+  
 * Linux Related
 + https://www.brendangregg.com/blog/index.html
-
++ https://venam.net/blog/
++ https://ariadne.space/
+  
 ** Asahi Linux
 
 + https://rosenzweig.io
