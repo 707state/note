@@ -4,6 +4,13 @@
   - [select时代](#select时代)
   - [poll的引入](#poll的引入)
   - [epoll: reactor模式的解决方案](#epoll-reactor模式的解决方案)
+- [libtask](#libtask)
+  - [task.h](#taskh)
+  - [task.c](#taskc)
+  - [context.c](#contextc)
+  - [qlock.c](#qlockc)
+  - [Event-Driven?](#event-driven)
+    - [poll](#poll)
 <!--toc:end-->
 
 # 异步api发展史
@@ -158,3 +165,100 @@ int main(int argc, char* argv[]) {
 ```
 
 这是一个TCP的echo server。
+
+# libtask
+
+Russ Cox的一个项目，在C中实现的csp。
+
+整体api设计非常接近go的机制（毕竟是go的作者之一）。
+
+## task.h
+
+主要是定义了Task, TaskList这些基本结构，还有QLock（任务队列的锁），RWLock（任务的读写锁），Rendez（任务的挂起与恢复，起条件变量的作用），Channel的基本结构。
+
+## task.c
+
+main函数放在这里，而调用libtask写的程序使用的是taskmain，其实是rsc认为main函数（用户写的逻辑）也只是整个调用链条的一个任务罢了（比较特殊的任务——任务的起点）。
+
+这部分代码里面最重要的就是taskscheduler，任务调度部分。不过taskscheduler里面的调度器是很简单的，取出头部的任务进行执行，等待执行完成或者被挂起后回到taskscheduler里面。
+
+## context.c
+
+这里需要和asm.S这个文件一起看看。
+
+不过这个东西的原理还是简单的，其实就是：getcontext函数用来把寄存器/PSTATE/PC这样的信息保存到一块内存上，setcontext。如果纯用汇编来写的话，可以简单地理解为保存运行时的现场，然后ldr/str恢复现场就行了。
+
+## qlock.c
+
+QLock的结构是：
+```c
+struct QLock{
+    Task *owner;
+    TaskList queue;
+};
+```
+
+这里的owner用来指示qlock是否被持有。
+
+## Event-Driven?
+
+前面只是提到libtask是如何创建和管理协程的，但是具体到协程是如何与一个event notification机制协作的呢？
+
+### poll
+
+在libtask里面为了保证Unix平台的通用,使用了poll来做IO多路复用.
+
+具体代码在fd.c的fdtask函数中:
+
+```c
+	for(;;){
+		/* let everyone else run */
+		while(taskyield() > 0)
+			;
+		/* we're the only one runnable - poll for i/o */
+		errno = 0;
+		taskstate("poll");
+		if((t=sleeping.head) == nil)
+			ms = -1;
+		else{
+			/* sleep at most 5s */
+			now = nsec();
+			if(now >= t->alarmtime)
+				ms = 0;
+			else if(now+5*1000*1000*1000LL >= t->alarmtime)
+				ms = (t->alarmtime - now)/1000000;
+			else
+				ms = 5000;
+		}
+		// poll阻塞等待
+		if(poll(pollfd, npollfd, ms) < 0){
+			if(errno == EINTR)
+				continue;
+			fprint(2, "poll: %s\n", strerror(errno));
+			taskexitall(0);
+		}
+
+		/* wake up the guys who deserve it */
+		for(i=0; i<npollfd; i++){
+		    // poll会修改这个revents字段,表示发生的事件
+			while(i < npollfd && pollfd[i].revents){
+			    //唤醒这个任务
+				taskready(polltask[i]);
+				--npollfd;
+				// 用最后一个元素覆盖掉当前元素
+				pollfd[i] = pollfd[npollfd];
+				polltask[i] = polltask[npollfd];
+			}
+		}
+
+		now = nsec();
+		while((t=sleeping.head) && now >= t->alarmtime){
+			deltask(&sleeping, t);
+			if(!t->system && --sleepingcounted == 0)
+				taskcount--;
+			taskready(t);
+		}
+	}
+```
+
+这里就可以看明白poll是怎么在事件发生时执行相应任务的. 这里的fdtask会在第一次fdwait时被创建出来,这个任务是一个长期的任务.

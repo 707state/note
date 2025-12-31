@@ -201,6 +201,9 @@
 
 + https://devblogs.microsoft.com/oldnewthing/
 
+* Graphics Related
++ http://www.songho.ca/
+
 * 蔡博士
 + https://microcai.org
 ** related
@@ -270,3 +273,9 @@
 + https://www.jeffgeerling.com/blog
 
 + http://www.simplyembedded.org
+
+* .NET Stuff
++ https://kunalspathak.github.io/
+
+* Weird but Interesting stuff
++ https://thinkingeek.com/

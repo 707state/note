@@ -205,6 +205,19 @@ myfunction:
 
 这里，x29寄存器是帧指针寄存器，x30是返回地址保存位置(aka Link Register)。
 
+### Store/Load
+AArch64的Store/Load机制很扯，比如说indexing-mode，str/ldr有Pre-index, Post-index以及Unsigned offset三种addressing mode，但是唯独没有不修改(no write back)有符号的版本。
+
+以及在汇编写法里面也是用:
+
+```asm
+str x0, [x29,#-8]
+```
+
+这样的写法，这真的是坑人。
+
+实际上只store/load而不修改寄存器的指令是stur/ldur。
+
 ### Prologue and Epilogue
 
 这里有一个会踩坑的点，就是说：
