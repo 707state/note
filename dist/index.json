@@ -1,0 +1,20 @@
+{
+  "paragraph_under_certain_topic": {
+    "Arm": [
+      "CoolPi Genbook，我的第一台Arm Laptop"
+    ],
+    "Laptop": [
+      "CoolPi Genbook，我的第一台Arm Laptop"
+    ],
+    "Linux": [
+      "CoolPi Genbook，我的第一台Arm Laptop"
+    ]
+  },
+  "table_of_content": [
+    {
+      "title": "CoolPi Genbook，我的第一台Arm Laptop",
+      "path": "content/messing_with_genbook.json",
+      "date": "2025-12-31"
+    }
+  ]
+}

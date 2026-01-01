@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>jask's blog</title>
+        <link rel="stylesheet" href="/index-1e6e7bfc1ce253a8.css" integrity="sha384-7HGVJ/Am17jQTA4GYIPcbCKZegywgrYlZxVbeeL7E7bjJlJw8smsLZrEKpxNxXmf"/>
+        
+        <link rel="icon" type="image/png" href="images/favicon.png" />
+    <link rel="modulepreload" href="/sitegen-858f755dca6df4d1.js" crossorigin="anonymous" integrity="sha384-ch6oByPD43hPRiapQXrTgIKqkQjemzzshmRm7fdad1hemfjjInqHVD5BGupvu9nu"><link rel="preload" href="/sitegen-858f755dca6df4d1_bg.wasm" crossorigin="anonymous" integrity="sha384-nU/QckjKCznoX7It82JMO44a0+8TM8EgRM52UayeM7cw3kevjxmnB+ULyFR0Rj5t" as="fetch" type="application/wasm"></head>
+    <body>
+        <div id="app"></div>
+    
+<script type="module">
+import init, * as bindings from '/sitegen-858f755dca6df4d1.js';
+const wasm = await init({ module_or_path: '/sitegen-858f755dca6df4d1_bg.wasm' });
+
+
+window.wasmBindings = bindings;
+
+
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
+
+</script></body>
+</html>
