@@ -3,17 +3,18 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <base href="https://707state.github.io/note/" />
         <title>jask's blog</title>
-        <link rel="stylesheet" href="https://raw.github.com/707state/note/deploy/dist/index.css" integrity="sha384-7HGVJ/Am17jQTA4GYIPcbCKZegywgrYlZxVbeeL7E7bjJlJw8smsLZrEKpxNxXmf"/>
+        <link rel="stylesheet" href="https://707state.github.io/note/index.css" integrity="sha384-7HGVJ/Am17jQTA4GYIPcbCKZegywgrYlZxVbeeL7E7bjJlJw8smsLZrEKpxNxXmf"/>
         
-        <link rel="icon" type="image/png" href="https://raw.github.com/707state/note/deploy/dist/images/favicon.png" />
-    <link rel="modulepreload" href="https://raw.github.com/707state/note/deploy/dist/sitegen.js" crossorigin="anonymous" integrity="sha384-ch6oByPD43hPRiapQXrTgIKqkQjemzzshmRm7fdad1hemfjjInqHVD5BGupvu9nu"><link rel="preload" href="https://raw.github.com/707state/note/deploy/dist/sitegen_bg.wasm" crossorigin="anonymous" integrity="sha384-J6gIE/ye/YzaINAb+FkOxDQifJsdordJR1ZYSMOP2gtec5WNUobg61BLJwWJQZc1" as="fetch" type="application/wasm"></head>
+        <link rel="icon" type="image/png" href="images/favicon.png" />
+    <link rel="modulepreload" href="https://707state.github.io/note/sitegen.js" crossorigin="anonymous" integrity="sha384-dicpLbvueHdOU1crdOXJVV/p3UCj0B6svXTtc2mS96m6MRYEg7AyzgRgyZ4vF+bb"><link rel="preload" href="https://707state.github.io/note/sitegen_bg.wasm" crossorigin="anonymous" integrity="sha384-Z0A6/F0VXHHo9wWtbX7WEWsXYcFOnFZ2Ix57Iwafzq3SaOI4lFaHtW9yZwMMdca/" as="fetch" type="application/wasm"></head>
     <body>
         <div id="app"></div>
     
 <script type="module">
-import init, * as bindings from "https://707state.github.io/note/sitegen.js";
-const wasm = await init({ module_or_path: "https://707state.github.io/note/sitegen_bg.wasm" });
+import init, * as bindings from 'https://707state.github.io/note/sitegen.js';
+const wasm = await init({ module_or_path: 'https://707state.github.io/note/sitegen_bg.wasm' });
 
 
 window.wasmBindings = bindings;
