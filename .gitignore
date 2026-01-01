@@ -21,3 +21,4 @@ ECMAScript/EvaluateModule.png
 **/*.o
 .obsidian/
 !Paper/**/*.pdf
+!images/*.png
