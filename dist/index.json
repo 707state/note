@@ -1,16 +1,24 @@
 {
   "paragraph_under_certain_topic": {
+    "Laptop": [
+      "CoolPi Genbook，我的第一台Arm Laptop"
+    ],
     "Linux": [
       "CoolPi Genbook，我的第一台Arm Laptop"
     ],
-    "Laptop": [
-      "CoolPi Genbook，我的第一台Arm Laptop"
+    "Blog": [
+      "收集一些有意思的博客和网站"
     ],
     "Arm": [
       "CoolPi Genbook，我的第一台Arm Laptop"
     ]
   },
   "table_of_content": [
+    {
+      "title": "收集一些有意思的博客和网站",
+      "path": "content/interesting_blogs_and_websites.json",
+      "date": "2026-01-01"
+    },
     {
       "title": "CoolPi Genbook，我的第一台Arm Laptop",
       "path": "content/messing_with_genbook.json",
