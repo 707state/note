@@ -196,3 +196,11 @@ date: 2026-01-01
 [风空之岛](https://blog.mwish.me/)
 
 [Arthur Chiao](https://arthurchiao.art/index.html)
+
+[plumz](https://plumz.me/)
+
+[belkadan](https://belkadan.com/blog/technical/)
+
+# 各种资源
+
+[rob pike](http://www.herpolhode.com/rob/)
