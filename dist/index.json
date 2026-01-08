@@ -1,22 +1,22 @@
 {
   "paragraph_under_certain_topic": {
-    "Arm": [
-      "CoolPi Genbook，我的第一台Arm Laptop"
-    ],
-    "Laptop": [
-      "CoolPi Genbook，我的第一台Arm Laptop"
-    ],
-    "Linux": [
-      "CoolPi Genbook，我的第一台Arm Laptop"
-    ],
-    "Lua": [
-      "深入理解Lua（与虚拟机）"
-    ],
     "ProgrammingLanguages": [
       "深入理解Lua（与虚拟机）"
     ],
     "Blog": [
       "收集一些有意思的博客和网站"
+    ],
+    "Linux": [
+      "CoolPi Genbook，我的第一台Arm Laptop"
+    ],
+    "Laptop": [
+      "CoolPi Genbook，我的第一台Arm Laptop"
+    ],
+    "Arm": [
+      "CoolPi Genbook，我的第一台Arm Laptop"
+    ],
+    "Lua": [
+      "深入理解Lua（与虚拟机）"
     ]
   },
   "table_of_content": [
