@@ -1,19 +1,30 @@
 {
   "paragraph_under_certain_topic": {
+    "Arm": [
+      "CoolPi Genbook，我的第一台Arm Laptop"
+    ],
     "Laptop": [
       "CoolPi Genbook，我的第一台Arm Laptop"
     ],
     "Linux": [
       "CoolPi Genbook，我的第一台Arm Laptop"
     ],
+    "Lua": [
+      "深入理解Lua（与虚拟机）"
+    ],
+    "ProgrammingLanguages": [
+      "深入理解Lua（与虚拟机）"
+    ],
     "Blog": [
       "收集一些有意思的博客和网站"
-    ],
-    "Arm": [
-      "CoolPi Genbook，我的第一台Arm Laptop"
     ]
   },
   "table_of_content": [
+    {
+      "title": "深入理解Lua（与虚拟机）",
+      "path": "content/dive_into_lua.json",
+      "date": "2026-01-05"
+    },
     {
       "title": "收集一些有意思的博客和网站",
       "path": "content/interesting_blogs_and_websites.json",
