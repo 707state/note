@@ -38,7 +38,7 @@ Hash Table采用链式冲突+Brent's variation（当插入新元素发生冲突�
 
 Lua引入upvalue来解决内层闭包引用outer local value的问题。任何一个outer local value都是通过upvalue间接访问的，当外层函数返回时，其关联的栈帧也要一并销毁，这个时候upvalue内部会有一个槽，把闭包访问的外部变量拷贝进来，同时upvalue的指针也会发生改变。
 
-# 源码阅读
+# Lua工作机制
 
 ## Compiling
 
@@ -54,8 +54,58 @@ Lua的compiler和vm设计并不是解耦合的，luac把源码转换为字节码
 
 可以看到inctop, top.p--这样的操作，这些是lua vm栈相关的操作。Lua可以通过load函数当作eval使用，所以需要在虚拟机中还能够调用parser，所以会这样设计（还没看完，继续看看）。
 
+## stdlib
+
+在实际看lua虚拟机实现之前，需要搞明白lua是怎么工作的。
+
+Lua运行环境除开lua vm全部由模块提供stdlibs提供。具体代码在linit.c当中，通过luaL_openselectedlibs加载。
+
+### baselib
+
+最基础的基础库，ipairs, load, print, pcall都是baselib提供的（这里面baselib提供print有点怪，我认为这个应该是io相关的）。
+
+从这里面的一些函数实现就可以看出来，lua是应用序，即先计算参数再传递。
+
+![luaB_print](images/lua/luaB_print.png)
+
+这个是非常简单的例子，实际上就是对于fprintf的封装。稍微复杂一点的例子可以看luaB\_setmetatable，这里面就有更具体的lua库如何与lua vm本身协作。
+
+更复杂一点的例子可以参考:
+
+![luaB_pairs](images/lua/luaB_pairs.png)
+
+这个函数会去判断pairs函数的参数的metamethod，如果设置了\_\_pairs这个metamethod就会去使用用户定义的方法（把用户的方法入栈，然后再下一次luaD\_precall就会派发到对应的部分）。
+
+注意到先前说的lua虚拟机都在用栈的方式描述，但是lua vm是一个寄存器虚拟机，这实际上是因为现在在看的都是和c交互的api。lua对外暴露了一个栈式接口，所以看起来是栈虚拟机。C API通过lapi.c里面定义的index2value和index2stack把C API的栈索引映射到TValue（tagged value）或者地址。
+
+### package
+
+package这个lib提供了path, cpath等等配置项，比如说path，如果想要lua能够打开一个自定义的lua包就必须用path来设置路径。
+
+### coroutine
+
+Lua提供了非对称协程，而协程的实现几乎是独立于VM本身的（全靠corolib），其中依赖于lua\_newthread相关的函数。
+
+corolib定义了create, resume, running, status, yield等等函数，位于coroutine包里面。
+
+协程最核心的三个函数是：resume, yield, create。create没什么好说的，就是创建协程同时分配一个sizeof(void*)的栈空间。
+
+coroutine.resume中，第一次resume传入的参数会作为协程主函数的参数，之后每一次resume传入的参数会作为上一次yield的返回值回到协程里面。coroutine.yield会把控制权还给外面，yield里面的参数会变成外面那次Resume的返回值。
+
+### io
+
+lua对于stdin/stdout/stderr的处理比较有意思。
+
+![luaopen_io](images/lua/luaopen_io.png)
+
+lua针对标准流的处理是变成Lua的file userdata并注册到io表里的函数。
+
+io还有一个\_\_gc方法用来在gc时自动close。
+
 ## VM
 
-Lua具体是怎么执行的呢？
+lua vm的指令非常精简，全部定义在lopcodes.h里面，但是具体的执行逻辑则定义在lvm.h:
 
-请看docall函数：
+![lvm.h指令定义](images/lua/lvm.png)
+
+这里面的重点是luaV\_execute函数，这个函数负责执行lua字节码。
