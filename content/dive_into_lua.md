@@ -130,13 +130,13 @@ Lua里面调用一个函数会形成OP\_CALL或者OP\_TAILCALL的指令，如果
 
 #### lua函数调用
 
-lua函数调用的核心则是luaD\_precall和lua vm之间的协作，luaD\_precall/call会返回一个CallInfo*，上层会进入VM执行循环。
+lua函数调用的核心则是luaD\_precall和lua vm之间的协作，luaD\_precall/call会返回一个CallInfo\*，上层会进入VM执行循环。
 
 ![luaV_execute](images/lua/luaV_execute_OP_CALL.png)
 
-这里newci得到了完整的CallInfo*之后修改当前ci，跳转到startfunc处去执行ci的内容。
+这里newci得到了完整的CallInfo\*之后修改当前ci，跳转到startfunc处去执行ci的内容。
 
-### 指令
+### Codegen
 
 Lua vm是寄存器机，这也就意味着指令的格式就类似于汇编的格式，即：op register1 register2这样。
 
@@ -148,3 +148,57 @@ Lua vm是寄存器机，这也就意味着指令的格式就类似于汇编的�
 
 ![luaK_code](images/lua/luaK_code.png)
 
+#### 赋值
+
+luxa是允许一次性对多个变量赋值的，并且函数返回值也允许有多个。
+
+![restassign](images/lua/restassign.png)
+
+这里可以看到对于多变量赋值就会变成递归调用，否则就会直接走luaK\_setoneret/storevar这一条路子去赋值。
+
+重点是luaK\_storevar函数。
+
+![luaK_storevar](images/lua/luaK_storevar.png)
+
+#### 寄存器分配
+
+前面的luaK\_storevar使用的是已经设置好的寄存器，而实际的寄存器分配则是luaK\_exp2nextreg/luaK\_exp2anyreg这两个函数。这两个函数会调用exp2reg->discharge2reg结合FuncState \*fs的freereg字段进行分配；而在freereg/freeregs/freeexp里面会把fs->freereg回退来释放寄存器。
+
+Lua的虚拟机寄存器分配是一个非常简单的线性栈湿分配器，主要逻辑：
+
+- **单调增长的寄存器栈顶**：`FuncState->freereg` 表示当前可用的“下一个寄存器”，分配就是 `luaK_reserveregs(n)` 把 `freereg` 往上挪。
+- **表达式求值即分配**：`luaK_exp2nextreg` / `luaK_exp2anyreg` 会把表达式结果落到寄存器里，内部走 `discharge2reg`，并确保 `freereg` 足够。
+- **作用域回收**：离开作用域或表达式结束后用 `freereg` / `freeexp` / `freeregs` 回退 `freereg`，释放临时寄存器。
+- **局部变量占用固定寄存器**：解析阶段通过 `fs->nactvar` 管理“活跃局部变量”的寄存器区间，临时寄存器只能从 `nactvar` 以上开始用。
+- **无全局重排/合并**：不做跨语句的寄存器复用优化，靠语法树的自然结构与即时释放减少峰值。
+
+### GC
+
+Lua的Functions/Closures设计在Lua 5 implementation这篇论文里面有专门的描述，主要围绕着Lua如何避免引入过于复杂的control-flow analysis(Bigloo scheme compiler)的同时能够维护upper local values。
+
+Lua引入了upvalue来实现Closure，每一个Closure外层的local variable在Closure内被访问都是间接经过upvalue来做到的。upvalue初始会指向栈偏移量（这个偏移量所在的变量就是其原本被分配的位置），当变量的作用域结束时，就会移入到upvalue内的槽，对于访问变量的代码来说，因为upvalue是间接的，所以不会影响代码。
+
+为确保在多个Closure中正确共享可变状态，一个变量最多只能有一个upvalue并按需使用，为了保证这一点，lua采用链表结构来管理open upvalues。
+
+具体内容还是参考论文，这里看看Lua的GC的代码。
+
+首先Lua GC采用的是三色标记(WHITE0, WHITE1, BLACK)，保持“不允许黑指向白”的不变式。Lua有Incremental和Generational两种GC模式，可以通过luaC\_changemode切换。
+
+VM和GC进行交互主要是依靠luaC\_newobj、luaC\_checkGC、luaC\_step这些操作。
+
+- 每一个对象都处于WHITE、GRAY、BLACK三种状态的一个。
+- 未被访问的对象会被标记为WHITE。
+- 被访问但没有被遍历的对象会被标记为GRAY。
+- 被遍历的对象会被标记为BLACK。
+
+
+举一个例子，t={}在全局环境中：
+
+1. 创建时，新的table对象被分配出来，初始是白色并挂到GC的allgc链表里面。
+2. 本轮GC的标记阶段，全局表\_G是根对象，会被标记为GRAY；遍历\_G会看到字段t指向的新table，这个table会被标记为GRAY（已发现，没有遍历）。
+3. 继续遍历，当GC处理到该table，会遍历其内容，随后变黑。
+4. sweep后，活着的对象重新转回白色，所以这张表在本轮结束后通常又是白的。
+
+如果在后面一轮里面，t=nil了，那这个表就不会被标记到它，他就会保持白色并在sweep阶段被释放。
+
+有一个[比较详细讲述GC的PPT](https://www.lua.org/wshop18/Ierusalimschy.pdf) 目前看代码还是比较吃力，还是得先把概念性的东西理清。
