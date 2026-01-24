@@ -3,23 +3,41 @@
     "Arm": [
       "CoolPi Genbook，我的第一台Arm Laptop"
     ],
+    "Blog": [
+      "收集一些有意思的博客和网站"
+    ],
+    "Arm64": [
+      "给我的genbook构建内核"
+    ],
     "Lua": [
       "深入理解Lua（与虚拟机）"
-    ],
-    "Linux": [
-      "CoolPi Genbook，我的第一台Arm Laptop"
     ],
     "ProgrammingLanguages": [
       "深入理解Lua（与虚拟机）"
     ],
-    "Blog": [
-      "收集一些有意思的博客和网站"
-    ],
     "Laptop": [
       "CoolPi Genbook，我的第一台Arm Laptop"
+    ],
+    "Linux": [
+      "CoolPi Genbook，我的第一台Arm Laptop",
+      "从Linux 2.6搞明白Linux",
+      "给我的genbook构建内核"
+    ],
+    "OS": [
+      "从Linux 2.6搞明白Linux"
     ]
   },
   "table_of_content": [
+    {
+      "title": "从Linux 2.6搞明白Linux",
+      "path": "content/dive_into_linux.json",
+      "date": "2026-01-23"
+    },
+    {
+      "title": "给我的genbook构建内核",
+      "path": "content/messing_with_genbook_2.json",
+      "date": "2026-01-14"
+    },
     {
       "title": "深入理解Lua（与虚拟机）",
       "path": "content/dive_into_lua.json",
