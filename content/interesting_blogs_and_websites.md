@@ -42,6 +42,8 @@ date: 2026-01-01
 
 [蔡博士](https://microcai.org)
 
+[Mathieu Ropert](https://mropert.github.io/)
+
 ## Rust
 
 [rust-lang blog](https://blog.rust-lang.org)
@@ -200,6 +202,8 @@ date: 2026-01-01
 [plumz](https://plumz.me/)
 
 [belkadan](https://belkadan.com/blog/technical/)
+
+[Ian Y.E. Pan](https://ianyepan.github.io/)
 
 # 各种资源
 

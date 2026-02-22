@@ -3,7 +3,7 @@ title: 给我的genbook构建内核
 author: jask
 tags:
   - Linux
-  - Arm64
+  - Arm
 date: 2026-01-14
 ---
 
