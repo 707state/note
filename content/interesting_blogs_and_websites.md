@@ -18,6 +18,10 @@ date: 2026-01-01
 
 [Some Tutorial](https://paminerva.github.io/)
 
+[Lucas Fryzek](https://fryzekconcepts.com/about.html)
+
+[Igalia: Danylo Piliaiev](https://blogs.igalia.com/dpiliaiev/)
+
 # Programming Language Related
 
 ## C++

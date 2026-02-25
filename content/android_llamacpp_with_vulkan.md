@@ -4,6 +4,7 @@ author: jask
 tags:
     - Android
     - Vulkan
+    - LLM
 date: 2026-02-08
 ---
 
