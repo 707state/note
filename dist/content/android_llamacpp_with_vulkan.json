@@ -1,0 +1,15 @@
+{
+  "path": "content/android_llamacpp_with_vulkan.md",
+  "modified_at_unix": 1772198200,
+  "metadata": {
+    "title": "在Android中用上硬件加速的llama.cpp",
+    "author": "jask",
+    "tags": [
+      "Android",
+      "Vulkan",
+      "LLM"
+    ],
+    "date": "2026-02-08"
+  },
+  "content": "<h1>准备工作</h1>\n<p>termux的源已经把llama.cpp和ollama添加了，并且都有Vulkan和OpenCL后端的支持。这里只是写给想要试试源码构建的人。</p>\n<p><a href=\"https://f-droid.org/zh_Hans/\">下载F-Droid</a>, 从F-Droid上搜索Termux并安装。</p>\n<p>打开Termux，运行termux-change-repo，选择第一个，然后选择China-Mainland换源，完成后执行</p>\n<pre><code class=\"language-bash\">pkg install clang vulkan-headers vulkan-loader-android vulkan-tools cmake shaderc git\n</code></pre>\n<p>接下来可以验证一下是否有了合适的Vulkan驱动。</p>\n<p>在termux中输入</p>\n<pre><code class=\"language-bash\">vulkaninfo --summary\n</code></pre>\n<p>注意看输出的内容中的deviceName或者driverName，如果是llvmpipe则需要执行</p>\n<pre><code class=\"language-bash\">pkg uninstall vulkan-loader-generic\n</code></pre>\n<h1>llama.cpp</h1>\n<p>获取llama.cpp的源代码，建议打开代理并且把允许应用绕过关掉。</p>\n<pre><code class=\"language-bash\">git clone https://github.com/ggml-org/llama.cpp --depth 1 &amp;&amp; cd llama.cpp\n</code></pre>\n<p>先把~/.local/bin添加到PATH中：</p>\n<pre><code class=\"language-bash\"># 如果是bash\necho 'EXPORT PATH=&quot;$PATH:~/.local/bin&quot;' &gt; ~/.bashrc #\nsource ~/.bashrc\n# 如果是fish\ncd ~/.local/bin\nfish_add_path -p $(pwd)\n</code></pre>\n<p>然后执行开始构建项目（这一步比较慢）：</p>\n<pre><code class=\"language-bash\">cmake -B build -DGGML_VULKAN=ON -DCMAKE_INSTALL_PREFIX=~/.local\ncmake --build build --config Release\ncmake --install build\n</code></pre>\n<p>这些执行完后就成功安装了llama.cpp，可以开始下载模型了。</p>\n<h1>Model</h1>\n<p>下载gemma3，这里可以用现成的（需要打开代理）:</p>\n<pre><code class=\"language-bash\">llama-cli -hf ggml-org/gemma-3-1b-it-GGUF\n</code></pre>\n<p>开始下载会看到一个进度条，下载完成后就会看到进入了会话中，可以进行简单的对话了。</p>\n<p>如果觉得终端不好用，可以用llama-server：</p>\n<pre><code class=\"language-bash\">llama-server -m .cache/llama.cpp/ggml-org_gemma-3-1b-it-GGUF_gemma-3-1b-it-Q4_K_M.gguf --port 8989\n</code></pre>\n<p>等待加载，然后在你的手机浏览器中输入localhost:8989就可以在网页中使用了。</p>\n<h1>其他</h1>\n<p>如果觉得在手机终端中使用很费劲，可以用ssh。确保电脑和手机处于同一个局域网中，在termux中执行sshd -p <!-- raw HTML omitted -->，通过whoami查看一下用户名，ifconfig查看ip，passwd设置密码，然后在电脑上ssh -p <!-- raw HTML omitted --> <!-- raw HTML omitted -->@<!-- raw HTML omitted -->，输入密码就可以连上了。</p>\n"
+}
