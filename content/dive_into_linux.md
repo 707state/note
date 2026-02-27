@@ -277,3 +277,41 @@ Linux中有Kernel Thread，提供了内核中执行后台任务的能力，这�
 ## exit
 
 进程的结束通常是自行退出，即主动调用exit（即使不在main结尾放一个exit，编译器也会在main返回后插入一个）。
+
+exit的具体逻辑在do\_exit中，大致流程：
+
+```c
+void do_exit(long code){
+    struct task_struct *tsk = current;
+	int group_dead;
+    ...
+    // 设置PF_EXITING
+    exit_irq_thread();
+	exit_signals(tsk);  /* sets PF_EXITING */
+    ...
+    acct_update_integrals(tsk); // 统计信息
+    ...
+    // 释放当前进程的mm_struct
+    tsk->exit_code = code;
+	taskstats_exit(tsk, group_dead);
+	exit_mm(tsk);
+    ...
+    exit_sem(tsk);
+    // 减少计数，计数归0时销毁对应的资源
+	exit_files(tsk);
+	exit_fs(tsk);
+    ...
+    exit_notify(tsk, group_dead); // 通知parent process
+    ...
+    exit_rcu();
+	/* causes final put_task_struct in finish_task_switch(). */
+	tsk->state = TASK_DEAD;
+	schedule();
+}
+```
+
+执行了do\_exit之后，所有资源都会被释放，现在只有thread\_info还没被释放（如果所有的资源只被这个任务使用），在do\_exit之后内核还是会保留pid，但是进程会变成zombie进程并且不能运行了。只有在release\_task被调用时，才会清理PID。
+
+![release\_task](images/linux26/release_task.png)
+
+具体的逻辑是：\_\_exit\_signal调用\_\_unhash\_process来执行detach\_pid。
