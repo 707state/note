@@ -137,6 +137,8 @@ date: 2026-01-01
 
 [强波](https://paul.pub/about/)
 
+[lolcads](https://lolcads.github.io)
+
 ## Other
 
 [Photonlib](https://photonlibos.github.io/blog)
