@@ -48,9 +48,12 @@ date: 2026-01-01
 
 [Mathieu Ropert](https://mropert.github.io/)
 
+[Honza Hubicka](https://hubicka.blogspot.com)
+
 ## Rust
 
 [rust-lang blog](https://blog.rust-lang.org)
+[Feldera](https://www.feldera.com/blog)
 
 ## Java
 
