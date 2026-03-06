@@ -214,6 +214,8 @@ date: 2026-01-01
 
 [Ian Y.E. Pan](https://ianyepan.github.io/)
 
+[Kirill Grouchnikov](https://www.pushing-pixels.org/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
