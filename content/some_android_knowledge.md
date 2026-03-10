@@ -62,3 +62,41 @@ App应用层使用Java API，在Framework Service通过Binder IPC调用HAL暴露
 
 ## AutomaticBrightnessController
 
+上面说的屏幕亮度调节是显式调节，但是Android系统有根据环境光自动调节的能力。
+
+首先是入口，相关代码在AutomaticBrightness中，这个组件通过SensorManager的onSensorChanged方法调用起来，也是通过类似的注册回调函数和移除回调函数来实现更新。Controller的修改逻辑在BrightnessController中，这是Java组件，与同名的cpp组件功能完全不同。换句话说，自动亮度调节和通过滑动按键调节用到的都是BrightnessController，只是触发机制不一样。这里就涉及到传感器到Java代码，这部分就是重点。
+
+### 内核到HAL
+相关代码都是驱动，在drivers/iio/light下，需要向内核中注册一个Interrupt Handler。
+
+对于高通设备来说，很有可能这部分代码并没有放在内核，而是走SensorService，去到高通的SLPI框架，这里有一个独立的传感器处理器，在这里运行传感器算法和驱动，最后走I2C/SPI硬件总线直接访问光传感器硬件芯片，驱动就运行在SLPI不在Linux内核中。
+
+### HAL到SensorService
+
+HAL层有一个专门poll传感器数据的方法，在传感器数据接收到之后，将其转换为HIDL Event结构。
+
+在SensorService中，onFirstRef中要获取所有的传感器列表，为每个传感器创建Sensor对象，并且启动数据分发线程。
+
+在threadLoop，会不断从传感器的事件队列中取出，通过SensorEventConnection的sendEvents把数据写入共享内存。
+
+### Native Framework层
+
+通过SensorManager、SensorEventQueue从不断读取数据，这里的数据都通过JNI方法nativeEnableSensor传递给Java侧，在数据就绪时触发receiver回调（由Looper触发）。
+
+### Java Framework层
+
+SystemSensorManager中，BaseEventQueue初始化时创建Native队列，数据到达时会调用dispatchSensorEvent方法。
+
+|层次|关键代码|
+|:---:|:---:|
+|SensorService| `frameworks/native/services/sensorservice/SensorService.cpp`|
+|SensorManager| `frameworks/native/libs/sensor/SensorManager.cpp`|
+|Java Framework| `frameworks/base/core/java/android/hardware/SystemSensorManager.java` |
+
+# 基础组件
+
+## Binder
+
+Linux上传统的IPC机制涉及到两次拷贝，从用户态拷贝到内核、再从内核拷贝到调用者。Binder将两次拷贝变成了一次拷贝，Client空间拷贝一次到内核缓冲区，通过mmap物理页共享到Server用户空间，直接映射不需要第二次拷贝。相关代码在drivers/android/下。
+
+## Looper
