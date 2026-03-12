@@ -219,3 +219,5 @@ date: 2026-01-01
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
+
+[Physically Based Rendering](https://pbr-book.org)
