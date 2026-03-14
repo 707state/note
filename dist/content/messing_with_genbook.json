@@ -1,0 +1,15 @@
+{
+  "path": "content/messing_with_genbook.md",
+  "modified_at_unix": 1768554325,
+  "metadata": {
+    "title": "CoolPi Genbook，我的第一台Arm Laptop",
+    "author": "jask",
+    "tags": [
+      "Arm",
+      "Linux",
+      "Laptop"
+    ],
+    "date": "2025-12-31"
+  },
+  "content": "<p>在狗东上闲逛看到了Pinebook、SpacemiT各种RISC架构的笔记本，本着一些猎奇心理，在拼多多上下单了一个Genbook。RK3588提供了4+4、Mali G620以及一个rockchip npu，有点意思，总之是好好玩了一把！</p>\n<h1>入手初体验</h1>\n<p>上手第一天，启动进入ubuntu之后第一件事就是换到nvme boot，看了一下他的extlinux/下面的配置感觉不复杂，毕竟之前成功在树莓派上用上了nvme，觉得方法是一样的，结果是开机进入到logo就没动静了。</p>\n<p>问了才知道u-boot对于nvme支持比较一般，只有eMMC。。。</p>\n<p>那就还是用eMMC呗，写了一下fstab让nvme开机自动挂载。</p>\n<p>折腾着就到了晚上了，用了舍友的一个USB2.0的盘才进去系统。（后来发现根本不需要这么复杂，用另一个Linux设备插根type-c的线连过去然后按电源键，另一个设备就可以挂载了）</p>\n<h1>坑真多！</h1>\n<h2>exfat</h2>\n<p>我想要接一个U盘传一些包，居然报错说kernel不支持exfat...</p>\n<p>想了想可能的解决方案，比如说fuse或者重新构建一个内核。最后选择用coolpi-george/coolpi-kernel仓库重新构建内核。修改一下arch/arm64/config/下面的文件就行，但是在替换内核的时候遇到一点点情况。通常来说内核是用过包管理器安装的，这对于我的拯救者和thinkpad x220都适用（因为x86-64吗？以后再看看），但是对于SBC，好像都不能用这样的方案。对于genbook，需要替换/boot/firmware/Image还有modules.tar.gz这些，所以直接用包管理器安装是行不通的。</p>\n<h2>OpenGL</h2>\n<p>众所周知，Arm Mali G610(Valhalla)是用在Mobile Device上的GPU，而Mobile Device几乎都不用OpenGL而是使用OpenGL ES，这基本上就宣告我不能再GenBook上直接玩高版本的Minecraft了。几经尝试，替换了mesa的源为ernstp源后，用上了比较新的mesa，但也只有OpenGL 3.1支持，没有办法使用更高版本了（Zink？我连Vulkan都跑不起来！），所以只能玩比较老版本的Minecraft了（主要是看LWJGL的要求）。</p>\n<p>总的来说，经过一番折腾之后还是能用上OpenGL/WebGL/EGL的。（如果不需要性能，也可以直接在blacklist.conf里面禁用掉panthor启动panfrost，然后就会喜提llvmpipe）</p>\n<h2>Vulkan</h2>\n<p>先前也提到了zink，如果说OpenGL驱动没有提供够高的版本，理论上来说可以使用zink来获得一些更高版本的特性，然后问题是，zink他是依赖于Vulkan的，然而在当前kernel module(panthor)下，想要跑起来Vulkan无异于痴人说梦！</p>\n<p>vulkaninfo虽然可以显示出来结果，但是会在初始化部分失败，这我现在解决不了，远远超出能力范围了。所以即使g610为Vulkan优化了很多我也没有办法用上了。</p>\n<h2>Kernel</h2>\n<p>说完前面这些，我肯定经过了大量的搜索，得到的结论是，当前内核版本（6.1）限制死了一些能力。<a href=\"https://github.com/Joshua-Riek/ubuntu-rockchip/issues/617\">根据一些issue来看</a> , Arm的闭源驱动提供了Vulkan的功能，但问题是我跑不起来，而有Vulkan功能的panthor驱动在6.10版本才进入mainline kernel。</p>\n<p>这些只能说能力有限，对于一些深入到硬件的东西我还需要学习。</p>\n"
+}
