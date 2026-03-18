@@ -216,6 +216,8 @@ date: 2026-01-01
 
 [Kirill Grouchnikov](https://www.pushing-pixels.org/)
 
+[mitjafelicijan](https://mitjafelicijan.com/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
