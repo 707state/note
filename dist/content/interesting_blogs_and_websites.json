@@ -1,0 +1,120 @@
+{
+  "path": "content/interesting_blogs_and_websites.md",
+  "modified_at_unix": 1774712263,
+  "metadata": {
+    "title": "收集一些有意思的博客和网站",
+    "author": "jask",
+    "tags": [
+      "Blog"
+    ],
+    "date": "2026-01-01"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "Game, Graphics, GPU and hardware stuff...",
+      "id": "game-graphics-gpu-and-hardware-stuff"
+    },
+    {
+      "level": 1,
+      "text": "Programming Language Related",
+      "id": "programming-language-related"
+    },
+    {
+      "level": 2,
+      "text": "C++",
+      "id": "c"
+    },
+    {
+      "level": 2,
+      "text": "Rust",
+      "id": "rust"
+    },
+    {
+      "level": 2,
+      "text": "Java",
+      "id": "java"
+    },
+    {
+      "level": 2,
+      "text": "JavaScript",
+      "id": "javascript"
+    },
+    {
+      "level": 2,
+      "text": "Go",
+      "id": "go"
+    },
+    {
+      "level": 2,
+      "text": "Kotlin",
+      "id": "kotlin"
+    },
+    {
+      "level": 2,
+      "text": "Dotnet",
+      "id": "dotnet"
+    },
+    {
+      "level": 2,
+      "text": "Scheme",
+      "id": "scheme"
+    },
+    {
+      "level": 2,
+      "text": "PLT Stuff",
+      "id": "plt-stuff"
+    },
+    {
+      "level": 2,
+      "text": "LLVM",
+      "id": "llvm"
+    },
+    {
+      "level": 1,
+      "text": "OS",
+      "id": "os"
+    },
+    {
+      "level": 2,
+      "text": "Linux",
+      "id": "linux"
+    },
+    {
+      "level": 2,
+      "text": "Unix",
+      "id": "unix"
+    },
+    {
+      "level": 2,
+      "text": "Android",
+      "id": "android"
+    },
+    {
+      "level": 2,
+      "text": "Other",
+      "id": "other"
+    },
+    {
+      "level": 1,
+      "text": "FOSS, Emacs, GNU and weird shit",
+      "id": "foss-emacs-gnu-and-weird-shit"
+    },
+    {
+      "level": 1,
+      "text": "Crypto?",
+      "id": "crypto"
+    },
+    {
+      "level": 1,
+      "text": "杂谈",
+      "id": "杂谈"
+    },
+    {
+      "level": 1,
+      "text": "各种资源",
+      "id": "各种资源"
+    }
+  ],
+  "content": "<h1 id=\"game-graphics-gpu-and-hardware-stuff\">Game, Graphics, GPU and hardware stuff...</h1>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://lisyarus.github.io/blog/\">lisyarus</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://carloscarrasco.com/\">Carlos Carrasco</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://acko.net/\">acho</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"http://www.songho.ca/\">songho</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://paminerva.github.io/\">Some Tutorial</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://fryzekconcepts.com/about.html\">Lucas Fryzek</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://blogs.igalia.com/dpiliaiev/\">Igalia: Danylo Piliaiev</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://chipsandcheese.com/\">Chips and Cheese</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://developer.arm.com/community/arm-community-blogs/b\">Arm</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://qualcomm.com/developer/blog\">Qualcomm</a></p>\n<h1 id=\"programming-language-related\">Programming Language Related</h1>\n<h2 id=\"c\">C++</h2>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.scs.stanford.edu/~dm/blog/\">David Maziere</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.codalogic.com/blog/\">Codalogic</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"http://www.codersnotes.com/about/\">Richard Mitton</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://blog.knatten.org/\">knattan</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://nekrozqliphort.github.io/\">Ryan Chung</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://lewissbaker.github.io/\">lewissbaker</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.fluentcpp.com/posts/\">fluentcpp</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.sandordargo.com/\">Sandor Dargo</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://wenfh2020.com/\">文先生</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://microcai.org\">蔡博士</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://mropert.github.io/\">Mathieu Ropert</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://hubicka.blogspot.com\">Honza Hubicka</a></p>\n<h2 id=\"rust\">Rust</h2>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://blog.rust-lang.org\">rust-lang blog</a>\n<a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.feldera.com/blog\">Feldera</a></p>\n<h2 id=\"java\">Java</h2>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.sczyh30.com/archives/\">sczyh30</a></p>\n<h2 id=\"javascript\">JavaScript</h2>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://wingolog.org/\">Wingolog</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://v8.dev/blog\">V8 team</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://webkit.org/blog/\">Webkit team</a></p>\n<h2 id=\"go\">Go</h2>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://research.swtch.com\">Russ Cox</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://go.dev/blog/all\">Golang</a></p>\n<h2 id=\"kotlin\">Kotlin</h2>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.bennyhuo.com\">霍丙乾</a></p>\n<h2 id=\"dotnet\">Dotnet</h2>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://kunalspathak.github.io/\">kunalspathak</a></p>\n<h2 id=\"scheme\">Scheme</h2>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://weinholt.se/\">weinholt</a></p>\n<h2 id=\"plt-stuff\">PLT Stuff</h2>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://semantic-domain.blogspot.com/\">Neel Krishnaswami</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://arialdomartini.github.io/\">Arialdo Martini</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://roife.github.io\">Roife</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://blog.aiono.dev/blog.html\">Aiono</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://ettolrach.com/\">ettolrach</a></p>\n<h2 id=\"llvm\">LLVM</h2>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://blog.llvm.org\">LLVM Blog</a></p>\n<h1 id=\"os\">OS</h1>\n<h2 id=\"linux\">Linux</h2>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://martins3.github.io\">martin3</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.jwhitham.org/\">jwhitham</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://0xrick.github.io/\">0xRick</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"http://just4coding.com/\">flygoast</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://soulteary.com\">苏洋</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://lwn.net/\">LWN</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.rainafter.cn\">rainafter</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://maskray.me/blog/\">MaskRay</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.brendangregg.com/blog/index.html\">BrendenGregg</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://venam.net/blog/\">Venam</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://ariadne.space/\">Ariadne</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.jeffgeerling.com/blog\">Jeff Geerling</a></p>\n<h2 id=\"unix\">Unix</h2>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://doc.cat-v.org/\">cat-v</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://rosenzweig.io\">Alyssa Rosenzweig</a></p>\n<h2 id=\"android\">Android</h2>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://paul.pub/about/\">强波</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://lolcads.github.io\">lolcads</a></p>\n<h2 id=\"other\">Other</h2>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://photonlibos.github.io/blog\">Photonlib</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://tobiasvl.github.io/\">tobiasvl</a></p>\n<h1 id=\"foss-emacs-gnu-and-weird-shit\">FOSS, Emacs, GNU and weird shit</h1>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://dustycloud.org/\">Dusty Cloud</a></p>\n<h1 id=\"crypto\">Crypto?</h1>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://fastcompression.blogspot.com/\">compression</a></p>\n<h1 id=\"杂谈\">杂谈</h1>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://liam.page/\">Liam Huang</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://paulgraham.com/index.html\">Paul Graham</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://eli.thegreenplace.net/\">Eli Bendersky</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://nihil.cc/\">Nihil</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://olimi.icu\">olimi</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://matklad.github.io/\">matklad</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://r-wos.org/about\">r-wos</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.chiark.greenend.org.uk/~sgtatham/quasiblog/\">Simon Tatham</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://dengzuoheng.github.io/blog/\">邓作恒</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://nirvana1997.github.io/\">梧</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.zwn2001.space/\">琉璃月</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://blog.gzti.me/\">GZTime</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://xr1s.me/\">克莉丝</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://idea.popcount.org/\">Marek</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://brauner.io\">Brauner</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://gqqnbig.me/\">gqqnbig</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://blog.xzr.moe/\">LibXZR</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://matt.might.net/articles/\">Matt Might</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://hcyue.me/\">hcyue</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://brooker.co.za/blog/\">Marc Brooker</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.bluepuni.com/\">Caturra</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://blog.howardlau.me/\">Codetalk</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://tromey.com/blog/\">tromey</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://bernsteinbear.com\">Bernstein</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://blog.mwish.me/\">风空之岛</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://arthurchiao.art/index.html\">Arthur Chiao</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://plumz.me/\">plumz</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://belkadan.com/blog/technical/\">belkadan</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://ianyepan.github.io/\">Ian Y.E. Pan</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://www.pushing-pixels.org/\">Kirill Grouchnikov</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://mitjafelicijan.com/\">mitjafelicijan</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://mlochbaum.github.io/\">mlochbaum</a></p>\n<h1 id=\"各种资源\">各种资源</h1>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"http://www.herpolhode.com/rob/\">rob pike</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://pbr-book.org\">Physically Based Rendering</a></p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://learn.arm.com/learning-paths\">Arm Tutorials</a></p>\n"
+}
