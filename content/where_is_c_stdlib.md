@@ -1,0 +1,40 @@
+---
+title: C的标准库？
+author: jask
+date: 2026-02-01
+tags:
+  - C
+  - ProgrammingLanguages
+---
+
+# GLib
+
+GTK工具包往往因为设计和兼容性问题而饱受诟病，2/3/4版本之间都有大量的破坏性更新，而且Client Side Decoration导致并不统一的外观，而且libadwaita带来的强制性并非所有人都接受。尽管如此，GLib还是被非常多的项目使用，比如说qemu。
+
+## 封装
+
+GLib有一套纯C实现的面向对象机制，被称为GObject。其设计与C++/Java有显著区别。在C++中，类和实例是在一起的，但是GObject中则被拆成两个结构体：类结构体全局只有一份，存储静态函数指针；实例结构体每个对象一份。存储该对象的成员变量（动态数据）。
+
+GObject通过结构体首地址偏移来模拟继承，比如说：
+
+```c
+/* 伪代码演示继承 */
+typedef struct {
+    GObject parent_instance; // 必须作为第一个成员
+    int my_data;
+} MyObject;
+```
+
+当类型从MyObject\*转换为GObject\*时，由于首地址相同，程序仍然能够正确地访问到父类的成员，这就是“向上类型转换”。
+
+实现一个类需要大量的样板代码，比如说G\_DEFINE\_TYPE宏，G\_DECLARE\_FINAL\_TYPE宏，通过xxx\_init/xxx\_finalize作为构造函数/析构函数。
+
+# Vala
+
+GTK/Gnome搞了一个Vala语言，编译到C。这门语言采用Java的语法，某种程度上算是把GLib那些令人生厌的样板代码隐藏起来了，而且只要C库有GObject Inspection就可以互操作。
+
+问题是GTK/GLib本身就缺乏广泛应用，还是不要考虑Vala吧。
+
+# 其他方案？
+
+当然还有apr以及stb这样的方案，但是并没有什么意义，当人们提到C语言时早就不像70s那样，把C和跨平台紧密关联在一起，只有在驱动开发或者嵌入式场景下C还很常见。也许C和Posix已经完成其使命，在逐渐被人们淡忘。
