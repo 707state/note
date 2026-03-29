@@ -261,6 +261,248 @@ unsafe extern "C" fn rust_add(state: *mut lua_State) -> c_int {
 }
 ```
 
-这是Rust版本的add实现，这里面全部都是当作f64处理的，可以看到这本质上还是在操作虚拟机的栈，从两个寄存器读出来参数然后压栈罢了，和C实现没有什么区别。这里完全看不出来Rust的优势，全部都是unsafe代码，但是重点在于可以充分利用上Rust了。下一步就是进一步引入Rust。
+这是Rust版本的add实现，这里面全部都是当作f64处理的，可以看到这本质上还是在操作虚拟机的栈，从两个寄存器读出来参数然后压栈罢了，和C实现没有什么区别。这里完全看不出来Rust的优势，全部都是unsafe代码，但是重点在于可以充分利用上Rust了。有趣之处在于，仅通过C abi是完全无法让我获得理想的binding的，所以这里必须使用更深程度的修改，以便于我编写代码。
 
 ## Rust the vm
+
+Lua VM是一个寄存器虚拟机，主要代码都在lvm.c中，这部分代码的逻辑比较复杂。
+
+### bridge
+
+为了用Rust取代原本的luac.c，需要添加一些代码，让Rust与lua vm进行交互。
+
+```rust
+const Proto *rust_luavm_top_proto(lua_State *L) {
+  return getproto(s2v(L->top.p - 1));
+}
+int rust_luavm_getfuncline(const Proto *f, int pc) {
+  return luaG_getfuncline(f, pc);
+}
+const TString *rust_luavm_eventname(lua_State *L, int idx) {
+  return G(L)->tmname[idx];
+}
+```
+
+通过这三个方法暴露给Rust，就可以在Rust中实现print\_code这样的方法，这就可以用Rust把luac中最难实现的-l（打印Lua Bytecode）的方法实现出来。
+
+```rust
+unsafe fn print_code(state: *mut lua_State, proto: *const Proto) {
+    let sizecode = unsafe { (*proto).sizecode };
+    for pc in 0..sizecode {
+        let instruction = unsafe { *(*proto).code.add(pc as usize) };
+        let opcode = get_opcode(instruction);
+        let a = getarg_a(instruction);
+        let b = getarg_b(instruction);
+        let c = getarg_c(instruction);
+        let ax = getarg_ax(instruction);
+        let bx = getarg_bx(instruction);
+        let sb = getarg_sb(instruction);
+        let sc = getarg_sc(instruction);
+        let vb = getarg_vb(instruction);
+        let vc = getarg_vc(instruction);
+        let sbx = getarg_sbx(instruction);
+        let isk = getarg_k(instruction);
+        let line = unsafe { rust_luavm_getfuncline(proto, pc) };
+        print!("\t{}\t", pc + 1);
+        if line > 0 {
+            print!("[{}]\t", line);
+        } else {
+            print!("[-]\t");
+        }
+        print!("{:<9}\t", OPNAMES[opcode as usize]);
+        match opcode {
+            0 => print!("{a} {b}"),
+            1 | 2 => print!("{a} {sbx}"),
+            3 => {
+                print!("{a} {bx}");
+                print!("{COMMENT}");
+                print_constant(proto, bx);
+            }
+            4 => {
+                print!("{a}");
+                print!("{COMMENT}");
+                print_constant(proto, extraarg(proto, pc));
+            }
+            5..=7 => print!("{a}"),
+            8 => {
+                print!("{a} {b}");
+                print!("{COMMENT}{} out", b + 1);
+            }
+            9 | 10 => {
+                print!("{a} {b}");
+                print!("{COMMENT}{}", upval_name(proto, b));
+            }
+            11 => {
+                print!("{a} {b} {c}");
+                print!("{COMMENT}{}", upval_name(proto, b));
+                print!(" ");
+                print_constant(proto, c);
+            }
+            12 | 13 => print!("{a} {b} {c}"),
+            14 => {
+                print!("{a} {b} {c}");
+                print!("{COMMENT}");
+                print_constant(proto, c);
+            }
+            15 => {
+                print!("{a} {b} {c}{}", if isk != 0 { "k" } else { "" });
+                print!("{COMMENT}{}", upval_name(proto, a));
+                print!(" ");
+                print_constant(proto, b);
+                if isk != 0 {
+                    print!(" ");
+                    print_constant(proto, c);
+                }
+            }
+            16 | 17 => {
+                print!("{a} {b} {c}{}", if isk != 0 { "k" } else { "" });
+                if isk != 0 {
+                    print!("{COMMENT}");
+                    print_constant(proto, c);
+                }
+            }
+            18 => {
+                print!("{a} {b} {c}{}", if isk != 0 { "k" } else { "" });
+                print!("{COMMENT}");
+                print_constant(proto, b);
+                if isk != 0 {
+                    print!(" ");
+                    print_constant(proto, c);
+                }
+            }
+            19 => {
+                print!("{a} {vb} {vc}{}", if isk != 0 { "k" } else { "" });
+                print!("{COMMENT}{}", vc + extraargc(proto, pc));
+            }
+            20 => {
+                print!("{a} {b} {c}{}", if isk != 0 { "k" } else { "" });
+                if isk != 0 {
+                    print!("{COMMENT}");
+                    print_constant(proto, c);
+                }
+            }
+            21 | 32 | 33 => print!("{a} {b} {sc}"),
+            22..=31 => {
+                print!("{a} {b} {c}");
+                print!("{COMMENT}");
+                print_constant(proto, c);
+            }
+            34..=45 => print!("{a} {b} {c}"),
+            46 => {
+                print!("{a} {b} {c}");
+                print!("{COMMENT}{}", event_name(state, c));
+            }
+            47 => {
+                print!("{a} {sb} {c} {isk}");
+                print!("{COMMENT}{}", event_name(state, c));
+                if isk != 0 {
+                    print!(" flip");
+                }
+            }
+            48 => {
+                print!("{a} {b} {c} {isk}");
+                print!("{COMMENT}{} ", event_name(state, c));
+                print_constant(proto, b);
+                if isk != 0 {
+                    print!(" flip");
+                }
+            }
+            49..=53 => print!("{a} {b}"),
+            54 | 55 => print!("{a}"),
+            56 => {
+                let sj = getarg_sj(instruction);
+                print!("{sj}");
+                print!("{COMMENT}to {}", sj + pc + 2);
+            }
+            57..=59 => print!("{a} {b} {isk}"),
+            60 => {
+                print!("{a} {b} {isk}");
+                print!("{COMMENT}");
+                print_constant(proto, b);
+            }
+            61..=65 => print!("{a} {sb} {isk}"),
+            66 => print!("{a} {isk}"),
+            67 => print!("{a} {b} {isk}"),
+            68 => {
+                print!("{a} {b} {c}");
+                print!("{COMMENT}");
+                if b == 0 {
+                    print!("all in ");
+                } else {
+                    print!("{} in ", b - 1);
+                }
+                if c == 0 {
+                    print!("all out");
+                } else {
+                    print!("{} out", c - 1);
+                }
+            }
+            69 => {
+                print!("{a} {b} {c}{}", if isk != 0 { "k" } else { "" });
+                print!("{COMMENT}{} in", b - 1);
+            }
+            70 => {
+                print!("{a} {b} {c}{}", if isk != 0 { "k" } else { "" });
+                print!("{COMMENT}");
+                if b == 0 {
+                    print!("all out");
+                } else {
+                    print!("{} out", b - 1);
+                }
+            }
+            71 => {}
+            72 => print!("{a}"),
+            73 | 77 => {
+                print!("{a} {bx}");
+                print!("{COMMENT}to {}", pc - bx + 2);
+            }
+            74 => {
+                print!("{a} {bx}");
+                print!("{COMMENT}exit to {}", pc + bx + 3);
+            }
+            75 => {
+                print!("{a} {bx}");
+                print!("{COMMENT}to {}", pc + bx + 2);
+            }
+            76 => print!("{a} {c}"),
+            78 => {
+                print!("{a} {vb} {vc}{}", if isk != 0 { "k" } else { "" });
+                if isk != 0 {
+                    print!("{COMMENT}{}", c + extraargc(proto, pc));
+                }
+            }
+            79 => {
+                print!("{a} {bx}");
+                print!("{COMMENT}{:p}", unsafe { *(*proto).p.add(bx as usize) });
+            }
+            80 => {
+                print!("{a} {b} {c}{}", if isk != 0 { "k" } else { "" });
+                print!("{COMMENT}");
+                if c == 0 {
+                    print!("all out");
+                } else {
+                    print!("{} out", c - 1);
+                }
+            }
+            81 => print!("{a} {b} {c}"),
+            82 => {
+                print!("{a} {bx}");
+                print!("{COMMENT}");
+                if bx == 0 {
+                    print!("?");
+                } else {
+                    print_constant(proto, bx - 1);
+                }
+            }
+            83 => print!("{a}"),
+            84 => print!("{ax}"),
+            _ => {}
+        }
+        println!();
+    }
+}
+```
+
+这只是第一步，现在只是通过暴露三个方法使得Rust可以直接和Lua VM进行交互，但还不算是Rust化Lua VM实现，下一步就是想办法把Lua VM本身变得锈迹斑斑。
+
+### Lua VM internal
