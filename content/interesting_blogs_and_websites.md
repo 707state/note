@@ -235,3 +235,5 @@ date: 2026-01-01
 [Physically Based Rendering](https://pbr-book.org)
 
 [Arm Tutorials](https://learn.arm.com/learning-paths)
+
+[Learn Claude Code](https://github.com/shareAI-lab/learn-claude-code)

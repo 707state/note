@@ -506,3 +506,38 @@ unsafe fn print_code(state: *mut lua_State, proto: *const Proto) {
 这只是第一步，现在只是通过暴露三个方法使得Rust可以直接和Lua VM进行交互，但还不算是Rust化Lua VM实现，下一步就是想办法把Lua VM本身变得锈迹斑斑。
 
 ### Lua VM internal
+
+在魔改VM部分的实现之前，需要搞一下lzio/ldump/lundump这些基本的功用，要不然就很难利用上Rust的安全性了。这部分完全交给AI处理，比如说：
+
+```rust
+#[repr(C)]
+pub struct ZIO {
+    pub n: usize,
+    pub p: *const c_char,
+    pub reader: LuaReader,
+    pub data: *mut c_void,
+    pub l: *mut lua_State,
+}
+#[unsafe(no_mangle)]
+pub unsafe extern "C" fn luaZ_read(z: *mut ZIO, buffer: *mut c_void, mut n: usize) -> usize {
+    let z = ZIO::as_mut(z);
+    let mut out = buffer.cast::<u8>();
+    while n != 0 {
+        if !checkbuffer(z) {
+            return n;
+        }
+        let chunk_len = z.n.min(n);
+        let src = unsafe { z.readable_bytes(chunk_len) };
+        let dst = unsafe { slice::from_raw_parts_mut(out, chunk_len) };
+        dst.copy_from_slice(src);
+        unsafe { z.advance(chunk_len) };
+        out = unsafe { out.add(chunk_len) };
+        n -= chunk_len;
+    }
+    0
+}
+```
+
+这种完全可以用Rust重写而不必担心，dump/undump本身只是导出/加载字节码的工具，并不涉及到Lua VM最复杂的能力。
+
+经过一番折腾，现在已经收敛到gc/vm/parser/lexer/code/api/string/table这几个地方无法使用Rust了。
