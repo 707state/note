@@ -541,3 +541,138 @@ pub unsafe extern "C" fn luaZ_read(z: *mut ZIO, buffer: *mut c_void, mut n: usiz
 这种完全可以用Rust重写而不必担心，dump/undump本身只是导出/加载字节码的工具，并不涉及到Lua VM最复杂的能力。
 
 经过一番折腾，现在已经收敛到gc/vm/parser/lexer/code/api/string/table这几个地方无法使用Rust了。
+
+实际上，真正复杂的部分是gc、code、vm以及parser。这三个部分耦合且复杂，非常难以直接重写。
+
+
+#### 为什么难重写
+
+按理来讲lexer/parser不该这么难替换的，因为现代语言往往采用的是：Lexer->Parser->Codegen这样的路径，前一个执行完了才往后继续。但是在上一期我讲过，Lua的Parser/Lexer完全不解耦合，而是Lexer解析第一个Token之后，提给Parser，然后parsing期间继续读token。这是种早期编译器设计，但是这对我就造成了非常大的困扰。Lexer即便迁移到Rust，也需要和Parser进行互操作，而且Parser还和Lua VM之间有很多依赖，因为Lua支持eval。
+
+好吧，还是先分析代码。
+
+```c
+LUAI_FUNC lu_byte luaY_nvarstack (FuncState *fs);
+LUAI_FUNC void luaY_checklimit (FuncState *fs, int v, int l,
+                                const char *what);
+LUAI_FUNC LClosure *luaY_parser (lua_State *L, ZIO *z, Mbuffer *buff,
+                                 Dyndata *dyd, const char *name, int firstchar);
+```
+
+这是Parser向外暴露的三个符号，而这三个符号是需要被ldo.c和lcode.c进行调用的，比如说ldo.c：
+
+```c
+/*
+** Free register 'reg', if it is neither a constant index nor
+** a local variable.
+)
+*/
+static void freereg (FuncState *fs, int reg) {
+  if (reg >= luaY_nvarstack(fs)) {
+    fs->freereg--;
+    lua_assert(reg == fs->freereg);
+  }
+}
+```
+
+Parser需要维护给定函数中的寄存器栈中变量数量，单这一点就非常难重写。
+
+_那么能不能换一种思路呢？_
+
+既然一比一迁移非常困难，那就不要重写，而是重新实现一份。
+
+#### 整体结构
+
+目前需要实现的部分是：
+
+1. Parser
+2. ldo.c部分，主要实现Lua VM中的栈、调用、错误处理以及协程切换，可以理解成汇编中对于入栈/出栈的模拟。
+3. gc。Lua实现的垃圾回收算法。
+4. lcode.c。实现了Codegen。
+
+很显然这四个没有一个是省油的灯，先看ldo.c吧。
+
+#### ldo.c
+
+在当前的实现中，ldo.c主要承担了luaD\_call、lua\_resume等功能，对于调用分派、结束调用、错误处理、保护执行、栈指针、协程恢复/yield边界都是在这里实现的。
+
+```c
+
+/*
+** Reallocate the stack to a new size, correcting all pointers into it.
+** In case of allocation error, raise an error or return false according
+** to 'raiseerror'.
+*/
+int luaD_reallocstack (lua_State *L, int newsize, int raiseerror) {
+  int oldsize = stacksize(L);
+  int i;
+  StkId newstack;
+  StkId oldstack = L->stack.p;
+  lu_byte oldgcstop = G(L)->gcstopem;
+  lua_assert(newsize <= MAXSTACK || newsize == ERRORSTACKSIZE);
+  relstack(L);  /* change pointers to offsets */
+  G(L)->gcstopem = 1;  /* stop emergency collection */
+  newstack = luaM_reallocvector(L, oldstack, oldsize + EXTRA_STACK,
+                                   newsize + EXTRA_STACK, StackValue);
+  G(L)->gcstopem = oldgcstop;  /* restore emergency collection */
+  if (l_unlikely(newstack == NULL)) {  /* reallocation failed? */
+    correctstack(L, oldstack);  /* change offsets back to pointers */
+    if (raiseerror)
+      luaM_error(L);
+    else return 0;  /* do not raise an error */
+  }
+  L->stack.p = newstack;
+  correctstack(L, oldstack);  /* change offsets back to pointers */
+  L->stack_last.p = L->stack.p + newsize;
+  for (i = oldsize + EXTRA_STACK; i < newsize + EXTRA_STACK; i++)
+    setnilvalue(s2v(newstack + i)); /* erase new segment */
+  return 1;
+}
+```
+
+以这个重新分配栈大小的函数为例，将其迁移到Rust中。
+
+```rust
+pub unsafe extern "C" fn luaD_reallocstack(
+    L: *mut lua_State,
+    newsize: c_int,
+    raiseerror: c_int,
+) -> c_int {
+	    let oldsize = unsafe { stacksize(L) };
+    let oldstack = unsafe { (*L).stack.p };
+    let oldgcstop = unsafe { (*G(L)).gcstopem };
+    unsafe { api_check(newsize <= MAXSTACK || newsize == ERRORSTACKSIZE, "invalid stack size") };
+    unsafe { relstack(L) };
+    unsafe { (*G(L)).gcstopem = 1 };
+    let newstack = unsafe {
+        luaM_realloc_(
+            L,
+            oldstack.cast(),
+            (oldsize + EXTRA_STACK) as usize * size_of::<StackValue>(),
+            (newsize + EXTRA_STACK) as usize * size_of::<StackValue>(),
+        )
+        .cast::<StackValue>()
+    };
+    unsafe { (*G(L)).gcstopem = oldgcstop };
+    if newstack.is_null() {
+        unsafe { correctstack(L, oldstack) };
+        if raiseerror != 0 {
+            unsafe { luaD_throw(L, LUA_ERRMEM) };
+        }
+        return 0;
+    }
+    unsafe {
+        (*L).stack.p = newstack;
+        correctstack(L, oldstack);
+        (*L).stack_last.p = (*L).stack.p.add(newsize as usize);
+    }
+    for i in (oldsize + EXTRA_STACK)..(newsize + EXTRA_STACK) {
+        unsafe { setnilvalue(s2v(newstack.add(i as usize))) };
+    }
+    1
+}
+```
+
+这是非常糟糕的Rust代码，因为重写到现在这个程度之后，很多C的逻辑与写法完全可以重构到Rust中而不依赖任何C的abi了。另一个问题是Lua的throw功能依赖于longjmp/setjmp，可是Rust不提供这个功能，而且ljsj并不安全。这里面LLM告诉我Rust支持[C-unwind](https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html)这样的调用，可以说是非常牛逼！
+
+现在的问题就是把Parser、垃圾回收器以及虚拟机哪一个超级大的luaV\_execute函数了。
