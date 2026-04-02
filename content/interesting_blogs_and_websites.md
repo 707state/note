@@ -228,6 +228,8 @@ date: 2026-01-01
 
 [mlochbaum](https://mlochbaum.github.io/)
 
+[老农](https://www.cnblogs.com/zkweb)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)

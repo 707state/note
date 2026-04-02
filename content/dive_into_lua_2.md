@@ -675,4 +675,46 @@ pub unsafe extern "C" fn luaD_reallocstack(
 
 这是非常糟糕的Rust代码，因为重写到现在这个程度之后，很多C的逻辑与写法完全可以重构到Rust中而不依赖任何C的abi了。另一个问题是Lua的throw功能依赖于longjmp/setjmp，可是Rust不提供这个功能，而且ljsj并不安全。这里面LLM告诉我Rust支持[C-unwind](https://rust-lang.github.io/rfcs/2945-c-unwind-abi.html)这样的调用，可以说是非常牛逼！
 
-现在的问题就是把Parser、垃圾回收器以及虚拟机哪一个超级大的luaV\_execute函数了。
+现在的问题就是把Parser、垃圾回收器以及lvm.c中的超级大的luaV\_execute函数了。
+
+```rust
+#[unsafe(no_mangle)]
+pub unsafe extern "C-unwind" fn luaV_execute(L: *mut lua_State, mut ci: *mut CallInfo) {
+    let mut trap = 0;
+    let mut keep_trap = false;
+    'newframe: loop {
+        if !keep_trap {
+            trap = (*L).hookmask;
+        }
+        keep_trap = false;
+        let cl = ci_func(ci);
+        let k = (*(*cl).p).k;
+        let mut pc = (*ci).u.l.savedpc;
+        if trap != 0 {
+            trap = luaG_tracecall(L);
+        }
+        let mut base = (*ci).func.p.add(1);
+        loop {
+            if trap != 0 {
+                trap = luaG_traceexec(L, pc);
+                updatebase(ci, &mut base);
+            }
+            let i = *pc;
+            pc = pc.add(1);
+            debug_assert!(base == (*ci).func.p.add(1));
+            debug_assert!(base <= (*L).top.p && (*L).top.p <= (*L).stack_last.p);
+            debug_assert!(luaP_isIT(i) != 0 || { (*L).top.p = base; true });
+            match GET_OPCODE(i) {
+                OP_MOVE => {
+                    let ra = RA(base, i);
+                    setobjs2s(L, ra, RB(base, i));
+                }
+				...
+				}
+			}
+		}
+	}
+```
+
+这是非常机械化的重写，完全由AI完成，可以比较一下性能：
+
