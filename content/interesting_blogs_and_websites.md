@@ -59,6 +59,7 @@ date: 2026-01-01
 ## Rust
 
 [rust-lang blog](https://blog.rust-lang.org)
+
 [Feldera](https://www.feldera.com/blog)
 
 ## Java
@@ -229,6 +230,10 @@ date: 2026-01-01
 [mlochbaum](https://mlochbaum.github.io/)
 
 [老农](https://www.cnblogs.com/zkweb)
+
+[kyou](https://kyo.iroiro.party/)
+
+[Redowan](https://rednafi.com/)
 
 # 各种资源
 
