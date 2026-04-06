@@ -716,5 +716,10 @@ pub unsafe extern "C-unwind" fn luaV_execute(L: *mut lua_State, mut ci: *mut Cal
 	}
 ```
 
-这是非常机械化的重写，完全由AI完成，可以比较一下性能：
+这是非常机械化的重写，完全由AI完成。
 
+#### A Few Minutes Later
+
+现在就得到了一个Rust和C风格混杂的代码库，但是可以在x86_64 linux、MacOS、wasm32 wasip2这几个target上编译并运行（aarch64 linux有c\_char类型问题也是非常离谱的，Rust中的c\_char跟随平台的C char类型，可能是i8也可能是u8，取决于平台）。
+
+接下来要把代码库变得更Rusty就得彻底替换掉原先的那些C风格的代码，工作量非常大。

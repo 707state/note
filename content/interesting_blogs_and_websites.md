@@ -235,6 +235,8 @@ date: 2026-01-01
 
 [Redowan](https://rednafi.com/)
 
+[ziyue](https://www.ziyue.cafe/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
@@ -244,3 +246,10 @@ date: 2026-01-01
 [Arm Tutorials](https://learn.arm.com/learning-paths)
 
 [Learn Claude Code](https://github.com/shareAI-lab/learn-claude-code)
+
+## AI Related
+
+[LiteRT](https://github.com/google-ai-edge/LiteRT-LM/tree/main)
+
+[WebGPU](https://webgpufundamentals.org/)
+
