@@ -237,6 +237,8 @@ date: 2026-01-01
 
 [ziyue](https://www.ziyue.cafe/)
 
+[Raj Raj Hans](https://rajrajhans.com/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)

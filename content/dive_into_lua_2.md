@@ -722,4 +722,74 @@ pub unsafe extern "C-unwind" fn luaV_execute(L: *mut lua_State, mut ci: *mut Cal
 
 现在就得到了一个Rust和C风格混杂的代码库，但是可以在x86_64 linux、MacOS、wasm32 wasip2这几个target上编译并运行（aarch64 linux有c\_char类型问题也是非常离谱的，Rust中的c\_char跟随平台的C char类型，可能是i8也可能是u8，取决于平台）。
 
+在[lua wasm-example](https://707state.github.io/lua)可以尝试一下。
+
 接下来要把代码库变得更Rusty就得彻底替换掉原先的那些C风格的代码，工作量非常大。
+
+## Wasm
+
+目标是在[sitegen](https://github.com/707state/sitegen)中使用Lua来构建一些有趣的功能，但是目前一个非常大的问题是，所有依赖于luaD\_throw的功能在当前的实现下都是不可用的。这个功能我为了避免依赖setjmp/longjmp而采用了Rust的catch\_unwind和AssertUnwindSafe，这两个功能我遇到了非常奇怪的bug，举个例子：
+
+
+```lua
+for k,v in pairs({name="Lua", ver=5.4}) do print(k,v) end
+```
+
+我尝试在wasmtime和浏览器中运行时，都会遇到如下的崩溃：
+
+```txt
+Lua 5.5.0  Copyright (C) 1994-2025 Lua.org, PUC-Rio
+> for k,v in pairs({name="Lua", ver=5.4}) do print(k,v) end
+Error: failed to run main module `target/wasm32-wasip2/debug/lua.wasm`
+
+Caused by:
+    0: failed to invoke `run` function
+    1: error while executing at wasm backtrace:
+    0:  0xfb34e - abort
+                    at wasisdk://v30.0/build/sysroot/wasi-libc-wasm32-wasip2-build-prefix/src/wasi-libc-wasm32-wasip2-build-build/wasisdk://v30.0/src/wasi-libc/libc-bottom-half/sources/abort.c:5:3
+    1:  0xf5af4 - std[66c934bf258a385e]::sys::pal::wasi::abort_internal
+                    at /rustc/91021ccc790478a1a89c003e7d32b8d155ae6aae/library/std/src/sys/pal/wasi/mod.rs:28:14
+    2:  0xf35dd - std[66c934bf258a385e]::process::abort
+                    at /rustc/91021ccc790478a1a89c003e7d32b8d155ae6aae/library/std/src/process.rs:2536:5
+    3:  0xf3cb5 - __rustc[e81a526174b51780]::__rust_abort
+                    at /rustc/91021ccc790478a1a89c003e7d32b8d155ae6aae/library/std/src/rt.rs:33:5
+    4:  0xf0d3e - __rustc[e81a526174b51780]::__rust_start_panic
+                    at /rustc/91021ccc790478a1a89c003e7d32b8d155ae6aae/library/panic_abort/src/lib.rs:50:5
+    5:  0xf3ae2 - __rustc[e81a526174b51780]::rust_panic
+                    at /rustc/91021ccc790478a1a89c003e7d32b8d155ae6aae/library/std/src/panicking.rs:886:25
+    6:  0xf2b7d - std[66c934bf258a385e]::panicking::panic_with_hook
+                    at /rustc/91021ccc790478a1a89c003e7d32b8d155ae6aae/library/std/src/panicking.rs:850:5
+    7:  0xdc576 - std[66c934bf258a385e]::panicking::begin_panic::<lua_rs[d85d8228016bf12d]::runtime::LuaError>::{closure#0}
+                    at /Users/jask/.rustup/toolchains/nightly-aarch64-apple-darwin/lib/rustlib/src/rust/library/std/src/panicking.rs:762:9
+    8:  0xdc39a - std[66c934bf258a385e]::sys::backtrace::__rust_end_short_backtrace::<std[66c934bf258a385e]::panicking::begin_panic<lua_rs[d85d8228016bf12d]::runtime::LuaError>::{closure#0}, !>
+                    at /Users/jask/.rustup/toolchains/nightly-aarch64-apple-darwin/lib/rustlib/src/rust/library/std/src/sys/backtrace.rs:182:18
+    9:  0xdc45b - std[66c934bf258a385e]::panicking::begin_panic::<lua_rs[d85d8228016bf12d]::runtime::LuaError>
+                    at /Users/jask/.rustup/toolchains/nightly-aarch64-apple-darwin/lib/rustlib/src/rust/library/std/src/panicking.rs:761:5
+   10:  0x708b6 - std[66c934bf258a385e]::panic::panic_any::<lua_rs[d85d8228016bf12d]::runtime::LuaError>
+                    at /Users/jask/.rustup/toolchains/nightly-aarch64-apple-darwin/lib/rustlib/src/rust/library/std/src/panic.rs:260:5
+   11:  0x9d8fa - lua_rs[d85d8228016bf12d]::do_rs::luaD_throw
+                    at /Users/jask/codes/lua/src/do.rs:167:9
+   12:  0x54790 - lua_rs[d85d8228016bf12d]::lex::luaD_throw
+                    at /Users/jask/codes/lua/src/lex.rs:73:14
+   13:  0x56239 - lua_rs[d85d8228016bf12d]::lex::lexerror
+                    at /Users/jask/codes/lua/src/lex.rs:189:14
+   14:  0x59d19 - lua_rs[d85d8228016bf12d]::lex::luaX_syntaxerror
+                    at /Users/jask/codes/lua/src/lex.rs:264:14
+   15:  0x88087 - lua_rs[d85d8228016bf12d]::parser_rs::primaryexp
+                    at /Users/jask/codes/lua/src/parser.rs:1396:18
+   16:  0x89b4d - lua_rs[d85d8228016bf12d]::parser_rs::suffixedexp
+                    at /Users/jask/codes/lua/src/parser.rs:1404:9
+   17:  0x96310 - lua_rs[d85d8228016bf12d]::parser_rs::simpleexp
+                    at /Users/jask/codes/lua/src/parser.rs:1479:17
+   18:  0x93ed2 - lua_rs[d85d8228016bf12d]::parser_rs::subexpr
+                    at /Users/jask/codes/lua/src/parser.rs:1534:13
+   19:  0x88241 - lua_rs[d85d8228016bf12d]::parser_rs::expr
+                    at /Users/jask/codes/lua/src/parser.rs:1558:9
+    2: wasm trap: wasm `unreachable` instruction executed
+```
+
+这段代码中我在primaryexp中检查了参数，并没有发现问题，但是在浏览器环境中会清清楚楚地看到unreachable的情况。经过一段时间的搜索，我认为这是[WASM这个平台的问题](https://internals.rust-lang.org/t/wasm32-unknown-unknown-panic-unwind-support-via-native-wasm-exceptions/18665)。
+
+这个时候还得是搜索引擎发挥作用了，我发现了一个[PR](https://github.com/rust-lang/rust/pull/111322)，我认为值得一试。
+
+总结一下，我现阶段目标是在Browser和wasmtime中稳定使用Lua，现在可以使用所有的不依赖于rawrunprotected的方法，而已知emscripten对于try/catch进行了专门的转换，而对于wasip1/wasip2都不存在setjmp/longjmp，所以这个方案就毙掉！那么接下来就是catch\_unwind了，确实存在一些讨论，关于如何修改panic的行为，但是目前我还没搞明白，再等一下吧。
