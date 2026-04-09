@@ -239,6 +239,8 @@ date: 2026-01-01
 
 [Raj Raj Hans](https://rajrajhans.com/)
 
+[Black forrest embedded](https://blackforrest-embedded.de/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
