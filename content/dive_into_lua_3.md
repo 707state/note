@@ -8,6 +8,3 @@ tags:
 date: 2026-04-07
 ---
 
-# WebAssembly
-
-我想是时候好好看

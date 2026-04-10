@@ -108,6 +108,10 @@ date: 2026-01-01
 
 [LLVM Blog](https://blog.llvm.org)
 
+# AI
+
+[Mikhail Shilkov](https://mikhail.io/)
+
 # OS
 
 ## Linux
@@ -240,6 +244,12 @@ date: 2026-01-01
 [Raj Raj Hans](https://rajrajhans.com/)
 
 [Black forrest embedded](https://blackforrest-embedded.de/)
+
+[hackster](https://www.hackster.io/)
+
+[Justine Tunney](https://justine.lol/)
+
+[Michael Nielsen](https://michaelnielsen.org/ddi/)
 
 # 各种资源
 
