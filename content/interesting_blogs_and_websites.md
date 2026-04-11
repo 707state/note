@@ -251,6 +251,8 @@ date: 2026-01-01
 
 [Michael Nielsen](https://michaelnielsen.org/ddi/)
 
+[hill](http://hillelwayne.com/post/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
@@ -260,6 +262,8 @@ date: 2026-01-01
 [Arm Tutorials](https://learn.arm.com/learning-paths)
 
 [Learn Claude Code](https://github.com/shareAI-lab/learn-claude-code)
+
+[Galgame](https://www.shinnku.com/)
 
 ## AI Related
 
