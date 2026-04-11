@@ -1,0 +1,16 @@
+{
+  "path": "content/dive_into_lua_3.md",
+  "modified_at_unix": 1775836844,
+  "metadata": {
+    "title": "深入理解Lua（与虚拟机）3",
+    "author": "jask",
+    "tags": [
+      "Lua",
+      "ProgrammingLanguages",
+      "WebAssembly"
+    ],
+    "date": "2026-04-07"
+  },
+  "headings": [],
+  "content": ""
+}
