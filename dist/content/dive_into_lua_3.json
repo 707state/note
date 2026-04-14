@@ -1,0 +1,27 @@
+{
+  "path": "content/dive_into_lua_3.md",
+  "modified_at_unix": 1776061415,
+  "metadata": {
+    "title": "深入理解Lua（与虚拟机）3",
+    "author": "jask",
+    "tags": [
+      "Lua",
+      "ProgrammingLanguages",
+      "WebAssembly"
+    ],
+    "date": "2026-04-13"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "异常处理",
+      "id": "异常处理"
+    },
+    {
+      "level": 1,
+      "text": "栈",
+      "id": "栈"
+    }
+  ],
+  "content": "<h1 id=\"异常处理\">异常处理</h1>\n<p>经过几天的摸索，搞出来一套可用的方案：</p>\n<ul>\n<li><code>luaD_throw (WASM)</code>           → <code>wasm_bindgen::throw_str(&quot;__lua__N&quot;)</code> 抛出 JS 字符串异常</li>\n<li><code>luaD_throwbaselevel (WASM)</code>  → <code>wasm_bindgen::throw_str(&quot;__luabase__N&quot;)</code></li>\n<li><code>luaD_rawrunprotected (WASM)</code> → 用 <code>js_sys::Function</code> 构造 JS try/catch 包装器，捕获异常并解析错误码，无需 WASM EH 特性</li>\n</ul>\n<p>现在解决了异常处理，但是还是有bug，栈大小还有问题。</p>\n<h1 id=\"栈\">栈</h1>\n<p>运行一两个指令还可以，一旦多运行了几个指令就会在浏览器Console中看到崩溃信息，显示的是与栈有关的崩溃。</p>\n<p>原因还是先前的异常处理，使用<code>wasm_bindgen::throw_str</code>就意味着<code>luaD_throw</code>到<code>luaD_rawrunprotected</code>之间的JS try/catch边界之间，任何在Rust 堆上分配的对象（String、Box、Vec 等）都会永久泄漏。多次调用后，WASM 线性内存会耗尽，从而导致堆损坏。</p>\n<p>而且GC遍历线程栈时边界计算有错，Lua 的调用栈由多个 CallInfo 帧组成，每个帧有自己的 ci-&gt;top（该帧可以使用的寄存器上界）。L-&gt;top 只表示当前执行点的栈顶，但调用帧中 ci-&gt;top 可能比 L-&gt;top 更高（帧为局部变量预留了空间）。</p>\n"
+}

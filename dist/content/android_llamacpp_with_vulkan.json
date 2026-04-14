@@ -1,0 +1,37 @@
+{
+  "path": "content/android_llamacpp_with_vulkan.md",
+  "modified_at_unix": 1775733652,
+  "metadata": {
+    "title": "在Android中用上硬件加速的llama.cpp",
+    "author": "jask",
+    "tags": [
+      "Android",
+      "Vulkan",
+      "LLM"
+    ],
+    "date": "2026-02-08"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "准备工作",
+      "id": "准备工作"
+    },
+    {
+      "level": 1,
+      "text": "llama.cpp",
+      "id": "llamacpp"
+    },
+    {
+      "level": 1,
+      "text": "Model",
+      "id": "model"
+    },
+    {
+      "level": 1,
+      "text": "其他",
+      "id": "其他"
+    }
+  ],
+  "content": "<h1 id=\"准备工作\">准备工作</h1>\n<p>termux的源已经把llama.cpp和ollama添加了，并且都有Vulkan和OpenCL后端的支持。这里只是写给想要试试源码构建的人。</p>\n<p><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://f-droid.org/zh_Hans/\">下载F-Droid</a>, 从F-Droid上搜索Termux并安装。</p>\n<p>打开Termux，运行termux-change-repo，选择第一个，然后选择China-Mainland换源，完成后执行</p>\n<pre style=\"background-color:#ffffff;\"><code class=\"language-bash\"><span style=\"color:#323232;\">pkg install clang vulkan-headers vulkan-loader-android vulkan-tools cmake shaderc git\n</span></code></pre>\n<p>接下来可以验证一下是否有了合适的Vulkan驱动。</p>\n<p>在termux中输入</p>\n<pre style=\"background-color:#ffffff;\"><code class=\"language-bash\"><span style=\"color:#323232;\">vulkaninfo --summary\n</span></code></pre>\n<p>注意看输出的内容中的deviceName或者driverName，如果是llvmpipe则需要执行</p>\n<pre style=\"background-color:#ffffff;\"><code class=\"language-bash\"><span style=\"color:#323232;\">pkg uninstall vulkan-loader-generic\n</span></code></pre>\n<h1 id=\"llamacpp\">llama.cpp</h1>\n<p>获取llama.cpp的源代码，建议打开代理并且把允许应用绕过关掉。</p>\n<pre style=\"background-color:#ffffff;\"><code class=\"language-bash\"><span style=\"color:#323232;\">git clone https://github.com/ggml-org/llama.cpp --depth 1 </span><span style=\"font-weight:bold;color:#a71d5d;\">&amp;&amp; </span><span style=\"color:#62a35c;\">cd</span><span style=\"color:#323232;\"> llama.cpp\n</span></code></pre>\n<p>先把~/.local/bin添加到PATH中：</p>\n<pre style=\"background-color:#ffffff;\"><code class=\"language-bash\"><span style=\"font-style:italic;color:#969896;\"># 如果是bash\n</span><span style=\"color:#62a35c;\">echo </span><span style=\"color:#183691;\">&#39;EXPORT PATH=&quot;$PATH:~/.local/bin&quot;&#39; </span><span style=\"font-weight:bold;color:#a71d5d;\">&gt; </span><span style=\"color:#323232;\">~/.bashrc </span><span style=\"font-style:italic;color:#969896;\">#\n</span><span style=\"color:#62a35c;\">source </span><span style=\"color:#323232;\">~/.bashrc\n</span><span style=\"font-style:italic;color:#969896;\"># 如果是fish\n</span><span style=\"color:#62a35c;\">cd </span><span style=\"color:#323232;\">~/.local/bin\n</span><span style=\"color:#323232;\">fish_add_path -p $(pwd)\n</span></code></pre>\n<p>然后执行开始构建项目（这一步比较慢）：</p>\n<pre style=\"background-color:#ffffff;\"><code class=\"language-bash\"><span style=\"color:#323232;\">cmake -B build -DGGML_VULKAN</span><span style=\"font-weight:bold;color:#a71d5d;\">=</span><span style=\"color:#323232;\">ON -DCMAKE_INSTALL_PREFIX</span><span style=\"font-weight:bold;color:#a71d5d;\">=</span><span style=\"color:#323232;\">~/.local\n</span><span style=\"color:#323232;\">cmake --build build --config Release\n</span><span style=\"color:#323232;\">cmake --install build\n</span></code></pre>\n<p>这些执行完后就成功安装了llama.cpp，可以开始下载模型了。</p>\n<h1 id=\"model\">Model</h1>\n<p>下载gemma3，这里可以用现成的（需要打开代理）:</p>\n<pre style=\"background-color:#ffffff;\"><code class=\"language-bash\"><span style=\"color:#323232;\">llama-cli -hf ggml-org/gemma-3-1b-it-GGUF\n</span></code></pre>\n<p>开始下载会看到一个进度条，下载完成后就会看到进入了会话中，可以进行简单的对话了。</p>\n<p>如果觉得终端不好用，可以用llama-server：</p>\n<pre style=\"background-color:#ffffff;\"><code class=\"language-bash\"><span style=\"color:#323232;\">llama-server -m .cache/llama.cpp/ggml-org_gemma-3-1b-it-GGUF_gemma-3-1b-it-Q4_K_M.gguf --port 8989\n</span></code></pre>\n<p>等待加载，然后在你的手机浏览器中输入localhost:8989就可以在网页中使用了。</p>\n<h1 id=\"其他\">其他</h1>\n<p>如果觉得在手机终端中使用很费劲，可以用ssh。确保电脑和手机处于同一个局域网中，在termux中执行sshd -p <!-- raw HTML omitted -->，通过whoami查看一下用户名，ifconfig查看ip，passwd设置密码，然后在电脑上ssh -p <!-- raw HTML omitted --> <!-- raw HTML omitted -->@<!-- raw HTML omitted -->，输入密码就可以连上了。</p>\n"
+}
