@@ -56,6 +56,8 @@ date: 2026-01-01
 
 [Honza Hubicka](https://hubicka.blogspot.com)
 
+[KG](https://blog.kaving.me/blog/)
+
 ## Rust
 
 [rust-lang blog](https://blog.rust-lang.org)
@@ -264,6 +266,10 @@ date: 2026-01-01
 [Learn Claude Code](https://github.com/shareAI-lab/learn-claude-code)
 
 [Galgame](https://www.shinnku.com/)
+
+[游戏机架构](https://www.copetti.org/)
+
+[ROMs](https://romsfun.com/)
 
 ## AI Related
 

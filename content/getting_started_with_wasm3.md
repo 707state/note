@@ -4,6 +4,7 @@ author: jask
 tags:
   - WebAssembly
   - C
+  - ProgrammingLanguages
 date: 2026-04-10
 ---
 
@@ -707,3 +708,80 @@ Wasm3 不采用传统的：
 
 ## Rust it!
 
+```rust
+const THROWN_VALUE: i32 = 1234;
+
+const MODULE_WAT: &str = r#"
+(module
+  (type $raise_ty (func))
+  (type $host_exn_ty (func (param i32)))
+
+  (import "" "host_exn" (tag $host_exn (type $host_exn_ty)))
+  (import "" "raise_from_rust" (func $raise_from_rust (type $raise_ty)))
+
+  (func (export "roundtrip") (result i32)
+    (try_table (result i32)
+      (catch $host_exn 0)
+      call $raise_from_rust
+      unreachable
+    )
+  )
+)
+"#;
+
+pub fn run_roundtrip() -> Result<i32> {
+    let mut config = Config::new();
+    config.wasm_gc(true);
+    config.wasm_exceptions(true);
+    config.wasm_function_references(true);
+
+    let engine = Engine::new(&config)?;
+    let module = Module::new(&engine, MODULE_WAT)?;
+    let mut store = Store::new(&engine, ());
+    let mut linker = Linker::new(&engine);
+
+    let exn_type = ExnType::new(&engine, [ValType::I32])?;
+    let allocator = ExnRefPre::new(&mut store, exn_type.clone());
+    let tag_type = TagType::new(FuncType::new(&engine, [ValType::I32], []));
+    let host_tag = Tag::new(&mut store, &tag_type)
+        .context("failed to create host exception tag")?;
+
+    linker.define(&mut store, "", "host_exn", host_tag)?;
+
+    let host_tag_for_func = host_tag;
+    let allocator_for_func = allocator;
+    let raise_from_rust = Func::wrap(
+        &mut store,
+        move |mut caller: wasmtime::Caller<'_, ()>| -> anyhow::Result<()> {
+            let mut scope = RootScope::new(&mut caller);
+            let exn = ExnRef::new(
+                &mut scope,
+                &allocator_for_func,
+                &host_tag_for_func,
+                &[Val::I32(THROWN_VALUE)],
+            )
+            .context("failed to allocate exception object")?;
+            let thrown = scope
+                .as_context_mut()
+                .throw::<()>(exn)
+                .expect_err("throw always returns an error");
+            Err(thrown.into())
+        },
+    );
+    linker.define(&mut store, "", "raise_from_rust", raise_from_rust)?;
+
+    let instance = linker.instantiate(&mut store, &module)?;
+    let roundtrip = instance
+        .get_typed_func::<(), i32>(&mut store, "roundtrip")
+        .context("missing exported roundtrip function")?;
+
+    let result = roundtrip.call(&mut store, ())?;
+    if store.has_pending_exception() {
+        bail!("wasm returned with an unexpected pending exception");
+    }
+
+    Ok(result)
+}
+```
+
+这是使用的wasm crate，感觉有点犯规，那如果是浏览器环境呢？这个很遗憾，浏览器环境中Rust不能直接用WAT模块导出的符号，只能通过JS调用，然后转发给Rust。那这样似乎还不如`wasm_bindgen::throw_str`来的直观了。总之先这样吧。
