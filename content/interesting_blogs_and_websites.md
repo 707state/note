@@ -76,6 +76,8 @@ date: 2026-01-01
 
 [Webkit team](https://webkit.org/blog/)
 
+[Christian Ekrem](https://cekrem.github.io/)
+
 ## Go
 
 [Russ Cox](https://research.swtch.com)
@@ -164,6 +166,12 @@ date: 2026-01-01
 # FOSS, Emacs, GNU and weird shit
 
 [Dusty Cloud](https://dustycloud.org/)
+
+# Hardware
+
+[Computer, Enhance!](https://www.computerenhance.com/)
+
+[Tom's Hardware](https://www.tomshardware.com/)
 
 # Crypto?
 
@@ -255,6 +263,10 @@ date: 2026-01-01
 
 [hill](http://hillelwayne.com/post/)
 
+[Caleb Connolly](https://connolly.tech/)
+
+[Renatillas(gleam)](https://renatillas.pages.dev/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
@@ -271,9 +283,10 @@ date: 2026-01-01
 
 [ROMs](https://romsfun.com/)
 
+[PCSX2](https://pcsx2.net/blog/)
+
 ## AI Related
 
 [LiteRT](https://github.com/google-ai-edge/LiteRT-LM/tree/main)
 
 [WebGPU](https://webgpufundamentals.org/)
-
