@@ -1,0 +1,83 @@
+{
+  "path": "content/some_android_knowledge.md",
+  "modified_at_unix": 1777120411,
+  "metadata": {
+    "title": "关于安卓的知识",
+    "author": "jask",
+    "tags": [
+      "Linux",
+      "Android",
+      "Arm"
+    ],
+    "series": null,
+    "date": "2026-03-09"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "总览",
+      "id": "总览"
+    },
+    {
+      "level": 1,
+      "text": "开机",
+      "id": "开机"
+    },
+    {
+      "level": 1,
+      "text": "系统服务",
+      "id": "系统服务"
+    },
+    {
+      "level": 2,
+      "text": "屏幕亮度",
+      "id": "屏幕亮度"
+    },
+    {
+      "level": 2,
+      "text": "AutomaticBrightnessController",
+      "id": "automaticbrightnesscontroller"
+    },
+    {
+      "level": 3,
+      "text": "内核到HAL",
+      "id": "内核到hal"
+    },
+    {
+      "level": 3,
+      "text": "HAL到SensorService",
+      "id": "hal到sensorservice"
+    },
+    {
+      "level": 3,
+      "text": "Native Framework层",
+      "id": "native-framework层"
+    },
+    {
+      "level": 3,
+      "text": "Java Framework层",
+      "id": "java-framework层"
+    },
+    {
+      "level": 1,
+      "text": "基础组件",
+      "id": "基础组件"
+    },
+    {
+      "level": 2,
+      "text": "Binder",
+      "id": "binder"
+    },
+    {
+      "level": 2,
+      "text": "Looper",
+      "id": "looper"
+    },
+    {
+      "level": 2,
+      "text": "MessageQueue",
+      "id": "messagequeue"
+    }
+  ],
+  "content": "<h1 id=\"总览\">总览</h1>\n<p>Android/Linux归根结底是Linux，很多知识和GNU/Linux是共同的，但是不同点也很多：</p>\n<ol>\n<li>GNU/Linux使用的是glibc，而android使用的是bionic libc。而且不像glibc和musl对于Linux的通用性，bionic有很多设计就是针对低功耗的移动设备的。</li>\n<li>init过程区别很大。常见的Linux发行版的会使用systemd来作为init system，一些老版本发行版也可能会用sysvinit，gentoo也有openrc的构建，但大体都遵从kernel启动init后就把控制权移交给用户空间的流程。但是Android的init则是一个多段流程的启动，涉及到init进程自身多次execv自己；首先是first stage，这一阶段挂载基础文件系统、加载内核模块、挂载/system；之后通过execv的方式去启动SELinux，在SELinux中加载完整SELinux策略以及restorecon；这之后又通过execv去启动second stage，这一阶段才执行解析rc、启动服务、属性系统还有epoll。此外，systemd采用dag并行展开，而Android init只是一个三段execv，对于并行化支持非常有限，而且不涉及到dbus等服务，非常精简。</li>\n<li>内核模块的差别巨大。Android有大量的私有闭源驱动，这些驱动受制于GPL协议没有办法直接进入主线Linux，因此Android通过HAL层，让内核只通过ioctl暴露接口给用户态HAL，因此每款Soc都有自己的内核分支，包含大量的私有补丁、私有驱动。手机厂商本身又会对系统进行各种调优和改动，这时候就与上游差别很大了。Android 12开始，谷歌开始推动Generic Kernel Image，厂商驱动作为独立的ko模块存在，通过稳定的Kernel Module Interface连接。</li>\n<li>图形API和Window Manager完全不同。Linux通常用X11或者Wayland Client去和X Server或者Wayland Compositor进行通信，Compositor则通过Mesa（用户态）和DRM或者KRM去调用GPU硬件。Android上则是每个窗口对应一个Surface，Surface通过SurfaceFlinger去调用OpenGL ES或者HWC进行合成，通过Gralloc进行图形内存分配，再通过帧缓冲交换上屏。SurfaceFlinger从设计开始就是合成与显示管理统一的，而X11一直被诟病的地方就是多次拷贝。而且Android很早就引入了fence机制，避免CPU等待GPU。最大的差异就是HWC，Linux上每一个Layer的合成都需要OpenGL渲染，SurfaceFlinger则是在合成前先查询HWC，通过Overlay的方式进行叠加。</li>\n<li>进程间通信机制。这个差异非常重要，后面细细道来。</li>\n</ol>\n<h1 id=\"开机\">开机</h1>\n<ol>\n<li>从主板上的PMIC检测到Power键信号，这一部分内部时钟没有配置，仅有内部RAM用，一般都是厂商的私有驱动。</li>\n<li>Bootload阶段，这一部分就是Uboot、Little Kernel或者ABL，去初始化DDR内存、时钟还有串口，这一步还需要把Linux Kernel镜像到内存，接下来跳转执行Kernel。代码在bootable/bootloader/以及arch/arm/boot或者arch/arm64/boot下。</li>\n<li>Linux Kernel需要初始化内存管理、中断还有驱动，Power Supply驱动，Display驱动以及执行第一个用户空间进程init。这部分代码主要在kernel的drivers/power/supply/下，注册到/sys/class/power_supply/管理POWER_SUPPLY_PROP_*属性；Display驱动主要在Kernel drivers/gpu/drm或者drivers/video/fbdev/；init涉及到和用户态程序交互，主要和system/core/init/main.cpp, system/core/init/init.cpp，system/core/rootdir/init.rc有关。</li>\n<li>Framework层：PowerManagerService，这是一个Android OS Service，代码主要在/frameworks/base/core/java/android/os/PowerManager.java, frameworks/base/services/core/java/com/android/server/power/PowerManagerService.java。PowerManager通过WakeLock控制屏幕状态，与之相关的HAL层在hardware/interfaces/light/这个AIDL接口和hardware/libhardware/include/hardware/lights.h里面。</li>\n</ol>\n<p>代码：</p>\n<table>\n<thead>\n<tr>\n<th align=\"center\">层次</th>\n<th align=\"center\">关键文件</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td align=\"center\">Java API</td>\n<td align=\"center\"><code>frameworks/base/core/java/android/os/PowerManager.java</code></td>\n</tr>\n<tr>\n<td align=\"center\">系统服务</td>\n<td align=\"center\"><code>frameworks/base/services/core/java/com/android/server/power/PowerManagerService.java</code></td>\n</tr>\n<tr>\n<td align=\"center\">Display服务</td>\n<td align=\"center\"><code>frameworks/base/services/core/java/com/android/server/display/DisplayManager.java</code></td>\n</tr>\n<tr>\n<td align=\"center\">Init脚本</td>\n<td align=\"center\"><code>system/core/rootdir/init.rc</code></td>\n</tr>\n<tr>\n<td align=\"center\">电源驱动</td>\n<td align=\"center\"><code>drivers/power/supply/power_supply_core.c</code></td>\n</tr>\n<tr>\n<td align=\"center\">背光驱动</td>\n<td align=\"center\"><code>hardware/interfaces/light/</code></td>\n</tr>\n</tbody>\n</table>\n<p>这样描述实际上太过简化了，具体的流程还是比较复杂的。</p>\n<h1 id=\"系统服务\">系统服务</h1>\n<p>Android的系统服务调用遵循一个统一的分层模式：</p>\n<p>App应用层使用Java API，在Framework Service通过Binder IPC调用HAL暴露的接口，在HAL里面通过驱动进入Kernel Driver去修改硬件信息。</p>\n<p>举个例子</p>\n<h2 id=\"屏幕亮度\">屏幕亮度</h2>\n<p>亮度调节通过ContentProvider写入，在DisplayManager中通过setScreenBrightness设置内部变量，然后通过scheduleScreenUpdate去推送更新。这一过程涉及到回调函数的卸载与安装，每一次设置亮度都要用到scheduleScreenUpdate通过Handler删除已有的Runnable任务。既然有更新的推送就有更新的接收，这里面的接收方时PhotonicModulator，在setState中通知后台线程，后台线程是PhotonicModulator的run方法重写的，在这个线程里面获取到亮度之后通过DisplayBlanker把真实数据写入硬件；这是一个Interface，其具体实例在DisplayManagerService中定义，会调用LogicalDisplay、DisplayDevice、LogicalDisplayAdapter。接下来就是Binder通信的对象了，这部分并没有什么计算相关的代码，基本全部是调用链条，没有复杂的计算或者分派逻辑。</p>\n<p>代码：</p>\n<table>\n<thead>\n<tr>\n<th align=\"center\">层次</th>\n<th align=\"center\">关键文件</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td align=\"center\">Java API</td>\n<td align=\"center\"><code>frameworks/base/services/core/java/com/android/server/display/</code></td>\n</tr>\n<tr>\n<td align=\"center\">SurfaceFlinger Client</td>\n<td align=\"center\"><code>frameworks/native/libs/gui/SurfaceComposerClientcpp</code></td>\n</tr>\n<tr>\n<td align=\"center\">Binder IPC</td>\n<td align=\"center\"><code>frameworks/native/services/surfaceflinger/SurfaceFlinger.cpp</code></td>\n</tr>\n<tr>\n<td align=\"center\">HWCompositor</td>\n<td align=\"center\"><code>frameworks/native/services/surfaceflinger/DisplayHardware/HWComposer.cpp</code></td>\n</tr>\n<tr>\n<td align=\"center\">Vendor HWComposer Implementation</td>\n<td align=\"center\">AIDL</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"automaticbrightnesscontroller\">AutomaticBrightnessController</h2>\n<p>上面说的屏幕亮度调节是显式调节，但是Android系统有根据环境光自动调节的能力。</p>\n<p>首先是入口，相关代码在AutomaticBrightness中，这个组件通过SensorManager的onSensorChanged方法调用起来，也是通过类似的注册回调函数和移除回调函数来实现更新。Controller的修改逻辑在BrightnessController中，这是Java组件，与同名的cpp组件功能完全不同。换句话说，自动亮度调节和通过滑动按键调节用到的都是BrightnessController，只是触发机制不一样。这里就涉及到传感器到Java代码，这部分就是重点。</p>\n<h3 id=\"内核到hal\">内核到HAL</h3>\n<p>相关代码都是驱动，在drivers/iio/light下，需要向内核中注册一个Interrupt Handler。</p>\n<p>对于高通设备来说，很有可能这部分代码并没有放在内核，而是走SensorService，去到高通的SLPI框架，这里有一个独立的传感器处理器，在这里运行传感器算法和驱动，最后走I2C/SPI硬件总线直接访问光传感器硬件芯片，驱动就运行在SLPI不在Linux内核中。</p>\n<h3 id=\"hal到sensorservice\">HAL到SensorService</h3>\n<p>HAL层有一个专门poll传感器数据的方法，在传感器数据接收到之后，将其转换为HIDL Event结构。</p>\n<p>在SensorService中，onFirstRef中要获取所有的传感器列表，为每个传感器创建Sensor对象，并且启动数据分发线程。</p>\n<p>在threadLoop，会不断从传感器的事件队列中取出，通过SensorEventConnection的sendEvents把数据写入共享内存。</p>\n<h3 id=\"native-framework层\">Native Framework层</h3>\n<p>通过SensorManager、SensorEventQueue从不断读取数据，这里的数据都通过JNI方法nativeEnableSensor传递给Java侧，在数据就绪时触发receiver回调（由Looper触发）。</p>\n<h3 id=\"java-framework层\">Java Framework层</h3>\n<p>SystemSensorManager中，BaseEventQueue初始化时创建Native队列，数据到达时会调用dispatchSensorEvent方法。</p>\n<table>\n<thead>\n<tr>\n<th align=\"center\">层次</th>\n<th align=\"center\">关键代码</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td align=\"center\">SensorService</td>\n<td align=\"center\"><code>frameworks/native/services/sensorservice/SensorService.cpp</code></td>\n</tr>\n<tr>\n<td align=\"center\">SensorManager</td>\n<td align=\"center\"><code>frameworks/native/libs/sensor/SensorManager.cpp</code></td>\n</tr>\n<tr>\n<td align=\"center\">Java Framework</td>\n<td align=\"center\"><code>frameworks/base/core/java/android/hardware/SystemSensorManager.java</code></td>\n</tr>\n</tbody>\n</table>\n<h1 id=\"基础组件\">基础组件</h1>\n<h2 id=\"binder\">Binder</h2>\n<p>Linux上传统的IPC机制涉及到两次拷贝，从用户态拷贝到内核、再从内核拷贝到调用者。Binder将两次拷贝变成了一次拷贝，Client空间拷贝一次到内核缓冲区，通过mmap物理页共享到Server用户空间，直接映射不需要第二次拷贝。相关代码在drivers/android/下。</p>\n<h2 id=\"looper\">Looper</h2>\n<p>Linux线程的默认行为是：\n线程启动 －－ 执行任务 －－ 任务完成 －－ 线程退出。</p>\n<p>但是Android要求主线程：\n线程启动 －－ 持续等待事件 －－ 处理事件 －－ 继续等待 －－ 永不退出。</p>\n<p>Looper与MessageQueue、Handler、Message支撑起这一模型。一个Looper对应一个MessageQueue对应多个Handler。</p>\n<p>Looper的核心是以线程为Key的Map，主线程的Looper单独保存一份引用；每个线程持有一个MessageQueue（Android17引入无锁队列，可能会有变化）；Looper所属线程也会被记录。loop方法是核心的事件循环，在loop中会不停地调用loopOnce，从MessageQueue中获取下一条消息，会有各种trace，重点是把消息分发给对应的Handler。</p>\n<h2 id=\"messagequeue\">MessageQueue</h2>\n<p>MessageQueue本质是一个按照时间排序的优先级队列，单向链表实现，通过epoll＋eventfd实现阻塞与唤醒。</p>\n<p>Native层立面包含了epoll相关的代码，工作流程类似于：</p>\n<p>线程A发送消息，通过write eventfd给到线程B，线程B通过epoll wait epollfd等待消息，然后read。</p>\n<p>MessageQueue核心是enqueMessage和next，next中会执行nativePollOnce，检查链表头是否是同步屏障，根据不同分支执行不同流程，但最终都会通过continue回到nativePoll。</p>\n"
+}

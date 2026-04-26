@@ -1,0 +1,16 @@
+{
+  "path": "content/dive_into_linux_2.md",
+  "modified_at_unix": 1777169449,
+  "metadata": {
+    "title": "从User API了解内核",
+    "author": "jask",
+    "tags": [
+      "Linux",
+      "OS"
+    ],
+    "series": "Linux自我修养",
+    "date": "2026-01-23"
+  },
+  "headings": [],
+  "content": ""
+}
