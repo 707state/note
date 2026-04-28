@@ -1,0 +1,4 @@
+/.cache
+/subprojects/eigen-5.0.1/
+/subprojects/packagecache/
+/*.pgm
