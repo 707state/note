@@ -5,6 +5,7 @@ tags:
   - Lua
   - ProgrammingLanguages
 date: 2026-03-28
+series: 深入理解lua
 ---
 
 # Rust the Lua

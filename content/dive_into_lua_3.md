@@ -6,6 +6,7 @@ tags:
   - ProgrammingLanguages
   - WebAssembly
 date: 2026-04-13
+series: 深入理解lua
 ---
 
 # 异常处理

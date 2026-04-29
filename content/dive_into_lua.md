@@ -5,6 +5,7 @@ tags:
   - Lua
   - ProgrammingLanguages
 date: 2026-01-05
+series: 深入理解lua
 ---
 
 # 前置知识

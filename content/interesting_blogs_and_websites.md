@@ -267,6 +267,8 @@ date: 2026-01-01
 
 [Renatillas(gleam)](https://renatillas.pages.dev/)
 
+[LuckyBlogV3](https://blog.luckykeeper.site:24680/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
@@ -284,6 +286,8 @@ date: 2026-01-01
 [ROMs](https://romsfun.com/)
 
 [PCSX2](https://pcsx2.net/blog/)
+
+[Linux Kernel](https://www.kernel.org/doc)
 
 ## AI Related
 

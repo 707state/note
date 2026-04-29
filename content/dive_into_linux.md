@@ -5,6 +5,7 @@ date: 2026-01-23
 tags:
   - Linux
   - OS
+series: Linux自我修养
 ---
 
 # 启动

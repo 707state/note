@@ -1,0 +1,67 @@
+name: Build and Deploy Blog
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout note
+        uses: actions/checkout@v4
+        with:
+          path: note
+
+      - name: Checkout sitegen
+        uses: actions/checkout@v4
+        with:
+          repository: 707state/sitegen
+          path: sitegen
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install Trunk
+        run: cargo install trunk --locked
+
+      - name: Prepare blog content
+        run: |
+          cp -R note/content sitegen/web/content
+          cp -R note/images sitegen/web/images
+
+      - name: Build site
+        working-directory: sitegen
+        run: |
+          cargo build --package cli
+          cd web
+          env -u NO_COLOR CONTENT_BASE_URL='/note' trunk build --public-url '/note/' --release
+          ../target/debug/cli content
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: sitegen/web/dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
