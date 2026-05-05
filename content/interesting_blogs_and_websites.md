@@ -289,6 +289,8 @@ date: 2026-01-01
 
 [Linux Kernel](https://www.kernel.org/doc)
 
+[Gamingemporium](https://thegamingemporium.com/)
+
 ## AI Related
 
 [LiteRT](https://github.com/google-ai-edge/LiteRT-LM/tree/main)
