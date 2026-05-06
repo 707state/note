@@ -157,6 +157,10 @@ date: 2026-01-01
 
 [lolcads](https://lolcads.github.io)
 
+[Windysha](https://windysha.github.io/)
+
+[Yorek](https://blog.yorek.xyz/)
+
 ## Other
 
 [Photonlib](https://photonlibos.github.io/blog)
@@ -269,6 +273,8 @@ date: 2026-01-01
 
 [LuckyBlogV3](https://blog.luckykeeper.site:24680/)
 
+[Glaumer](https://geekgo.tech/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
@@ -291,8 +297,16 @@ date: 2026-01-01
 
 [Gamingemporium](https://thegamingemporium.com/)
 
+## 图形学
+
+[CS180 / CS280](https://sites.cs.ucsb.edu/~lingqi/teaching/cs180.html)
+
 ## AI Related
 
 [LiteRT](https://github.com/google-ai-edge/LiteRT-LM/tree/main)
 
 [WebGPU](https://webgpufundamentals.org/)
+
+# 常用项目
+
+[Minsized Rust](https://github.com/johnthagen/min-sized-rust)
