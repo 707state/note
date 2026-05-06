@@ -1,0 +1,21 @@
+{
+  "path": "content/dive_into_linux_2.md",
+  "modified_at_unix": 1778018676,
+  "metadata": {
+    "title": "从User API了解内核",
+    "author": "jask",
+    "tags": [
+      "Linux",
+      "OS"
+    ],
+    "date": "2026-05-01"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "unshare",
+      "id": "unshare"
+    }
+  ],
+  "content": "<h1 id=\"unshare\">unshare</h1>\n<p>传统的<code>fork()/clone()</code>系统调用都会继承当前namespace的资源，父进程和子进程看到的是一样的，而<code>unshare()</code>系统调用提供了一种在不能或不想要创建新进程时在“当前进程内部”改变资源隔离关系的能力。</p>\n"
+}

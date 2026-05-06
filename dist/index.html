@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <base href="/note/" />
+        <title>jask's blog</title>
+        <link rel="stylesheet" href="/note/index.css"/>
+        
+        <link rel="icon" type="image/png" href="images/favicon.png" />
+    <link rel="modulepreload" href="/note/sitegen.js" crossorigin="anonymous"><link rel="preload" href="/note/sitegen_bg.wasm" crossorigin="anonymous" as="fetch" type="application/wasm"></head>
+    <body>
+        <div id="app"></div>
+    
+<script type="module">
+import init, * as bindings from '/note/sitegen.js';
+const wasm = await init({ module_or_path: '/note/sitegen_bg.wasm' });
+
+
+window.wasmBindings = bindings;
+
+
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
+
+</script></body>
+</html>

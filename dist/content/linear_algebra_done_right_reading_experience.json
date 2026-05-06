@@ -1,0 +1,35 @@
+{
+  "path": "content/linear_algebra_done_right_reading_experience.md",
+  "modified_at_unix": 1778083239,
+  "metadata": {
+    "title": "重学线性代数",
+    "author": "jask",
+    "tags": [
+      "Math"
+    ],
+    "date": "2026-04-29"
+  },
+  "headings": [
+    {
+      "level": 1,
+      "text": "数学概念",
+      "id": "数学概念"
+    },
+    {
+      "level": 2,
+      "text": "$F^S$",
+      "id": "fs"
+    },
+    {
+      "level": 1,
+      "text": "lean4",
+      "id": "lean4"
+    },
+    {
+      "level": 1,
+      "text": "附录",
+      "id": "附录"
+    }
+  ],
+  "content": "<p>记录我重学线性代数的过程。</p>\n<h1 id=\"数学概念\">数学概念</h1>\n<h2 id=\"fs\">$F^S$</h2>\n<p>if $S$ is a set, then $F^S$ denotes the set of functions from $S$ to $F$.</p>\n<h1 id=\"lean4\">lean4</h1>\n<p>证明复数加法：</p>\n<pre style=\"background-color:#ffffff;\"><code class=\"language-lean4\"><span style=\"color:#323232;\">@[ext]\n</span><span style=\"color:#323232;\">structure MyComplex where\n</span><span style=\"color:#323232;\">  re : ℝ\n</span><span style=\"color:#323232;\">  im : ℝ\n</span><span style=\"color:#323232;\">\n</span><span style=\"color:#323232;\">def add (a b : MyComplex) : MyComplex :=\n</span><span style=\"color:#323232;\">  {re:= a.re+b.re, im := a.im+b.im}\n</span><span style=\"color:#323232;\">def mul (a b : MyComplex) : MyComplex :=\n</span><span style=\"color:#323232;\">  {re:= a.re*b.re-a.im*b.im, im := a.re*b.im + a.im*b.re}\n</span><span style=\"color:#323232;\">\n</span><span style=\"color:#323232;\">theorem add_complex (a b : MyComplex) : add a b = add b a := by\n</span><span style=\"color:#323232;\">  cases a; cases b\n</span><span style=\"color:#323232;\">  ext\n</span><span style=\"color:#323232;\">  · simp [add, add_comm]\n</span><span style=\"color:#323232;\">  · simp [add, add_comm]\n</span><span style=\"color:#323232;\">\n</span><span style=\"color:#323232;\">theorem mul_complex (a b : MyComplex) : mul a b = mul b a := by\n</span><span style=\"color:#323232;\">  cases a; cases b\n</span><span style=\"color:#323232;\">  ext\n</span><span style=\"color:#323232;\">  · simp [mul]; ring\n</span><span style=\"color:#323232;\">  · simp [mul]; ring\n</span></code></pre>\n<p>证明 $F^n$ 上的associativity</p>\n<pre style=\"background-color:#ffffff;\"><code class=\"language-lean4\"><span style=\"color:#323232;\">`F^n` 在 Lean 4 中表示为函数类型 `Fin n → F`。\n</span><span style=\"color:#323232;\">加法定义为逐点加法：`(x + y) i = x i + y i`。\n</span><span style=\"color:#323232;\">-/\n</span><span style=\"color:#323232;\">\n</span><span style=\"color:#323232;\">-- 基础版本：直接用 funext 展开到逐点，再调用域 F 上的 add_comm\n</span><span style=\"color:#323232;\">theorem vec_add_comm_direct {F : Type*} [AddCommMonoid F] (n : ℕ)\n</span><span style=\"color:#323232;\">    (x y : Fin n → F) : x + y = y + x := by\n</span><span style=\"color:#323232;\">  funext i\n</span><span style=\"color:#323232;\">  exact add_comm (x i) (y i)\n</span><span style=\"color:#323232;\">\n</span><span style=\"color:#323232;\">-- 归纳法版本：对 n 做结构归纳，显式体现归纳步骤\n</span><span style=\"color:#323232;\">theorem vec_add_comm {F : Type*} [AddCommMonoid F] (n : ℕ)\n</span><span style=\"color:#323232;\">    (x y : Fin n → F) : x + y = y + x := by\n</span><span style=\"color:#323232;\">  induction n with\n</span><span style=\"color:#323232;\">  -- 基础步骤：n = 0，Fin 0 是空类型，两个函数在其上相等是平凡的\n</span><span style=\"color:#323232;\">  | zero =&gt;\n</span><span style=\"color:#323232;\">    funext i\n</span><span style=\"color:#323232;\">    exact Fin.elim0 i\n</span><span style=\"color:#323232;\">  -- 归纳步骤：n = k + 1\n</span><span style=\"color:#323232;\">  -- 注意：x, y 的类型随 n 变化，归纳假设 ih 针对 Fin k → F 的向量\n</span><span style=\"color:#323232;\">  -- 对任意下标 i : Fin (k+1)，逐点展开后调用 F 上的 add_comm 即可\n</span><span style=\"color:#323232;\">  | succ k _ih =&gt;\n</span><span style=\"color:#323232;\">    funext i\n</span><span style=\"color:#323232;\">    -- Pi 类型的加法逐点定义：(x + y) i = x i + y i\n</span><span style=\"color:#323232;\">    change x i + y i = y i + x i\n</span><span style=\"color:#323232;\">    exact add_comm (x i) (y i)\n</span></code></pre>\n<h1 id=\"附录\">附录</h1>\n"
+}
