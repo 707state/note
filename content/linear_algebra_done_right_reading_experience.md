@@ -31,7 +31,21 @@ if $S$ is a set, then $F^S$ denotes the set of functions from $S$ to $F$.
 
 也就是说，Direct Sum就是子空间的和并且分解方式唯一。重点就在于没一个向量只能有一种拆解开的写法。
 
-一个简单的验证两个subspaces的和是一个direct sum的方法：$$ U + W is a direct sum \leftrightarrow U \cap W = {0} $$
+一个简单的验证两个subspaces的和是一个direct sum的方法：$$ U \cap W = {0} $$
+
+## polynomial
+
+即多项式，定义：如果$F$是一个域，那么多项式p是一个函数：
+
+$$
+p: F \rightarrow F
+$$
+
+满足存在有限个系数 $a_0$、...、$a_m$含于 $F$，使得：
+
+$$
+p(z) = a_0 + a_1 \cdot z + a_2 \cdot z^2 + \cdots + a_m \cdot  z^m
+$$
 
 
 
