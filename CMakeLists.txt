@@ -16,25 +16,6 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
     endif()
 endif()
 
-set(D3D12_PACKAGE_ROOT
-    "${CMAKE_CURRENT_LIST_DIR}/../src/packages/Microsoft.Direct3D.D3D12.1.618.3/build/native"
-    CACHE PATH "Microsoft.Direct3D.D3D12 native package root")
-set(DXC_PACKAGE_ROOT
-    "${CMAKE_CURRENT_LIST_DIR}/../src/packages/Microsoft.Direct3D.DXC.1.8.2505.32/build/native"
-    CACHE PATH "Microsoft.Direct3D.DXC native package root")
-
-foreach(required_path IN ITEMS
-        "${D3D12_PACKAGE_ROOT}/include/d3d12.h"
-        "${D3D12_PACKAGE_ROOT}/include/d3dx12/d3dx12.h"
-        "${D3D12_PACKAGE_ROOT}/bin/arm64/D3D12Core.dll"
-        "${DXC_PACKAGE_ROOT}/include/dxcapi.h"
-        "${DXC_PACKAGE_ROOT}/bin/arm64/dxc.exe"
-        "${DXC_PACKAGE_ROOT}/lib/arm64/dxcompiler.lib")
-    if(NOT EXISTS "${required_path}")
-        message(FATAL_ERROR "Required package file is missing: ${required_path}")
-    endif()
-endforeach()
-
 string(TOLOWER "${CMAKE_HOST_SYSTEM_PROCESSOR}" host_processor)
 if(host_processor MATCHES "arm64|aarch64")
     set(DXC_TOOL_PLATFORM arm64)
@@ -42,12 +23,49 @@ else()
     set(DXC_TOOL_PLATFORM x64)
 endif()
 
-set(D3D_PLATFORM arm64)
-set(DXC_EXE "${DXC_PACKAGE_ROOT}/bin/${DXC_TOOL_PLATFORM}/dxc.exe")
+function(find_windows_sdk_tool out_var tool_name)
+    set(search_dirs)
 
-if(NOT EXISTS "${DXC_EXE}")
-    message(FATAL_ERROR "Host DXC executable is missing: ${DXC_EXE}")
-endif()
+    if(DEFINED ENV{WindowsSdkDir})
+        file(TO_CMAKE_PATH "$ENV{WindowsSdkDir}" sdk_root_from_env)
+        if(DEFINED ENV{WindowsSDKVersion})
+            list(APPEND search_dirs "${sdk_root_from_env}/bin/$ENV{WindowsSDKVersion}/${DXC_TOOL_PLATFORM}")
+        endif()
+
+        file(GLOB env_sdk_tool_dirs LIST_DIRECTORIES true
+            "${sdk_root_from_env}/bin/*/${DXC_TOOL_PLATFORM}")
+        list(APPEND search_dirs ${env_sdk_tool_dirs})
+    endif()
+
+    cmake_host_system_information(
+        RESULT kits_root
+        QUERY WINDOWS_REGISTRY "HKLM/SOFTWARE/Microsoft/Windows Kits/Installed Roots"
+        VALUE "KitsRoot10"
+        VIEW BOTH
+        ERROR_VARIABLE kits_root_error)
+
+    if(kits_root)
+        file(TO_CMAKE_PATH "${kits_root}" kits_root)
+        file(GLOB registry_sdk_tool_dirs LIST_DIRECTORIES true
+            "${kits_root}/bin/*/${DXC_TOOL_PLATFORM}")
+        list(APPEND search_dirs ${registry_sdk_tool_dirs})
+    endif()
+
+    if(search_dirs)
+        list(REMOVE_DUPLICATES search_dirs)
+        list(SORT search_dirs COMPARE NATURAL ORDER DESCENDING)
+    endif()
+
+    find_program(found_tool NAMES "${tool_name}" HINTS ${search_dirs})
+    if(NOT found_tool)
+        message(FATAL_ERROR "Could not find ${tool_name}. Install the Windows SDK or run CMake from a Visual Studio developer environment.")
+    endif()
+
+    set(${out_var} "${found_tool}" PARENT_SCOPE)
+endfunction()
+
+find_windows_sdk_tool(DXC_EXE dxc.exe)
+message(STATUS "Using DXC: ${DXC_EXE}")
 
 add_executable(D3D12HelloTriangle WIN32
     HelloTriangle/D3D12HelloTriangle.cpp
@@ -82,10 +100,6 @@ target_compile_options(D3D12HelloTriangle PRIVATE
 
 target_include_directories(D3D12HelloTriangle PRIVATE
     "${CMAKE_CURRENT_LIST_DIR}/HelloTriangle"
-    "${D3D12_PACKAGE_ROOT}"
-    "${D3D12_PACKAGE_ROOT}/include"
-    "${D3D12_PACKAGE_ROOT}/include/d3dx12"
-    "${DXC_PACKAGE_ROOT}/include"
 )
 
 target_link_libraries(D3D12HelloTriangle PRIVATE
@@ -93,7 +107,6 @@ target_link_libraries(D3D12HelloTriangle PRIVATE
     dxgi
     d3dcompiler
     delayimp
-    "${DXC_PACKAGE_ROOT}/lib/${D3D_PLATFORM}/dxcompiler.lib"
 )
 
 target_link_options(D3D12HelloTriangle PRIVATE /DELAYLOAD:d3d12.dll)
@@ -111,26 +124,6 @@ add_custom_command(TARGET D3D12HelloTriangle POST_BUILD
             "${CMAKE_CURRENT_LIST_DIR}/HelloTriangle/shaders.hlsl"
     VERBATIM
 )
-
-function(copy_runtime_file source_file destination_subdir)
-    if(EXISTS "${source_file}")
-        add_custom_command(TARGET D3D12HelloTriangle POST_BUILD
-            COMMAND "${CMAKE_COMMAND}" -E copy_if_different
-                    "${source_file}"
-                    "$<TARGET_FILE_DIR:D3D12HelloTriangle>/${destination_subdir}"
-            VERBATIM
-        )
-    endif()
-endfunction()
-
-copy_runtime_file("${D3D12_PACKAGE_ROOT}/bin/${D3D_PLATFORM}/D3D12Core.dll" "D3D12")
-copy_runtime_file("${D3D12_PACKAGE_ROOT}/bin/${D3D_PLATFORM}/D3D12Core.pdb" "D3D12")
-copy_runtime_file("${D3D12_PACKAGE_ROOT}/bin/${D3D_PLATFORM}/d3d12SDKLayers.dll" "D3D12")
-copy_runtime_file("${D3D12_PACKAGE_ROOT}/bin/${D3D_PLATFORM}/d3d12SDKLayers.pdb" "D3D12")
-copy_runtime_file("${DXC_PACKAGE_ROOT}/bin/${D3D_PLATFORM}/dxcompiler.dll" ".")
-copy_runtime_file("${DXC_PACKAGE_ROOT}/bin/${D3D_PLATFORM}/dxcompiler.pdb" ".")
-copy_runtime_file("${DXC_PACKAGE_ROOT}/bin/${D3D_PLATFORM}/dxil.dll" ".")
-copy_runtime_file("${DXC_PACKAGE_ROOT}/bin/${D3D_PLATFORM}/dxil.pdb" ".")
 
 enable_testing()
 

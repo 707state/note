@@ -11,5 +11,6 @@ cmake --build --preset windows-arm64-release
 ctest --preset windows-arm64-release
 ```
 
-The build uses the existing package payloads in `../src/packages` for the
-D3D12 Agility SDK and DXC.
+The build discovers `dxc.exe` from the installed Windows SDK. The `d3dx12`
+helper headers are vendored locally because they are header-only sample helpers,
+not Windows SDK system headers.
