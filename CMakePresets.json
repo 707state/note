@@ -1,0 +1,47 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 24,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "windows-arm64",
+      "displayName": "Windows ARM64",
+      "generator": "Visual Studio 18 2026",
+      "architecture": "ARM64",
+      "binaryDir": "${sourceDir}/out/build/windows-arm64"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "windows-arm64-debug",
+      "configurePreset": "windows-arm64",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-arm64-release",
+      "configurePreset": "windows-arm64",
+      "configuration": "Release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "windows-arm64-debug",
+      "configurePreset": "windows-arm64",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "windows-arm64-release",
+      "configurePreset": "windows-arm64",
+      "configuration": "Release",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}
