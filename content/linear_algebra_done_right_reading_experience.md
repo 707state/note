@@ -47,7 +47,40 @@ $$
 p(z) = a_0 + a_1 \cdot z + a_2 \cdot z^2 + \cdots + a_m \cdot  z^m
 $$
 
+## injective
 
+单射：
+
+$$
+
+T: V \rightarrow W
+
+$$
+
+is called injective if 
+
+$$ 
+
+Tu = Tv => u = v
+
+$$
+
+## surjective
+
+满射。
+
+单射就是 $V$ 一对一映射到 $W$ 中，但是可能会有 $W$ 中的元素不能够被覆盖。
+
+满射就是 $V$ 向 $W$ 能够完全覆盖 $W$ 的元素，但是 $V$ 可能有些元素不能够被映射到 $W$ 中。
+
+
+单射且满射即为双射。
+
+## Isomorphic Vector Space
+
+向量空间同构。
+
+同构映射即可逆的线性映射，有限维向量空间只要维数相同，本质上就相同。
 
 # lean4
 

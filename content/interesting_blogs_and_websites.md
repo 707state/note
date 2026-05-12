@@ -78,6 +78,8 @@ date: 2026-01-01
 
 [Christian Ekrem](https://cekrem.github.io/)
 
+[pnpm](https://pnpm.io/blog)
+
 ## Go
 
 [Russ Cox](https://research.swtch.com)
@@ -177,6 +179,12 @@ date: 2026-01-01
 
 [Tom's Hardware](https://www.tomshardware.com/)
 
+[dougallj](https://dougallj.wordpress.com/)
+
+## emulator
+
+[Emulators](http://www.emulators.com/)
+
 # Crypto?
 
 [compression](https://fastcompression.blogspot.com/)
@@ -275,6 +283,8 @@ date: 2026-01-01
 
 [Glaumer](https://geekgo.tech/)
 
+[Windows，是的，那个操作系统，这blog还是有东西的，很多有意思的东西](https://blogs.windows.com/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
@@ -285,7 +295,7 @@ date: 2026-01-01
 
 [Learn Claude Code](https://github.com/shareAI-lab/learn-claude-code)
 
-[Galgame](https://www.shinnku.com/)
+[Galgame，真红小站](https://www.shinnku.com/)
 
 [游戏机架构](https://www.copetti.org/)
 
@@ -296,6 +306,10 @@ date: 2026-01-01
 [Linux Kernel](https://www.kernel.org/doc)
 
 [Gamingemporium](https://thegamingemporium.com/)
+
+[FOSDEM](https://fosdem.org/2026/archives/)
+
+[Reverse engineering Apple's Rosetta 2](https://ffri.github.io/ProjectChampollion/)
 
 ## 图形学
 
