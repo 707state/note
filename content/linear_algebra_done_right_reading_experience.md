@@ -52,17 +52,13 @@ $$
 单射：
 
 $$
-
 T: V \rightarrow W
-
 $$
 
-is called injective if 
+is called injective if
 
-$$ 
-
-Tu = Tv => u = v
-
+$$
+Tu = Tv \rightarrow u = v
 $$
 
 ## surjective

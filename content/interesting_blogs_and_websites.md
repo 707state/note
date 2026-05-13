@@ -311,6 +311,8 @@ date: 2026-01-01
 
 [Reverse engineering Apple's Rosetta 2](https://ffri.github.io/ProjectChampollion/)
 
+[Fex Emu](https://wiki.fex-emu.com/index.php/Main_Page)
+
 ## 图形学
 
 [CS180 / CS280](https://sites.cs.ucsb.edu/~lingqi/teaching/cs180.html)
