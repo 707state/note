@@ -30,6 +30,10 @@ date: 2026-01-01
 
 # Programming Language Related
 
+[Martín Hötzel Escardó](https://martinescardo.github.io/)
+
+[Introduction to Homotopy Type Theory in Cubical Agda](https://cqts.github.io/introduction-to-cubical/)
+
 ## C++
 
 [David Maziere](https://www.scs.stanford.edu/~dm/blog/)
@@ -146,6 +150,10 @@ date: 2026-01-01
 
 [Jeff Geerling](https://www.jeffgeerling.com/blog)
 
+[Barry](https://bkhome.org/)
+
+[Root Commit](https://rootcommit.com/)
+
 ## Unix
 
 [cat-v](https://doc.cat-v.org/)
@@ -180,6 +188,8 @@ date: 2026-01-01
 [Tom's Hardware](https://www.tomshardware.com/)
 
 [dougallj](https://dougallj.wordpress.com/)
+
+[Harry Chen](https://harrychen.xyz/)
 
 ## emulator
 
@@ -285,6 +295,14 @@ date: 2026-01-01
 
 [Windows，是的，那个操作系统，这blog还是有东西的，很多有意思的东西](https://blogs.windows.com/)
 
+[Raphlinus](https://raphlinus.github.io/)
+
+[xuejie](https://xuejie.space/)
+
+[猪猪小窝](https://pigacg.wordpress.com/)
+
+[狼的公告板 ver.Hugo](https://blog.tama.guru/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
@@ -316,6 +334,8 @@ date: 2026-01-01
 ## 图形学
 
 [CS180 / CS280](https://sites.cs.ucsb.edu/~lingqi/teaching/cs180.html)
+
+[Poly Haven 素材库](https://polyhaven.com)
 
 ## AI Related
 
