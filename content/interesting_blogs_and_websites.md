@@ -303,6 +303,8 @@ date: 2026-01-01
 
 [狼的公告板 ver.Hugo](https://blog.tama.guru/)
 
+[lambdaland](https://lambdaland.org/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
@@ -330,6 +332,8 @@ date: 2026-01-01
 [Reverse engineering Apple's Rosetta 2](https://ffri.github.io/ProjectChampollion/)
 
 [Fex Emu](https://wiki.fex-emu.com/index.php/Main_Page)
+
+[blackhat](https://blackhat.com/)
 
 ## 图形学
 
