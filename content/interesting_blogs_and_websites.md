@@ -28,6 +28,10 @@ date: 2026-01-01
 
 [Qualcomm](https://qualcomm.com/developer/blog)
 
+[Sebastian Aaltonen](https://www.sebastianaaltonen.com/blog)
+
+[NVidia](https://developer.nvidia.com/blog/)
+
 # Programming Language Related
 
 [Martín Hötzel Escardó](https://martinescardo.github.io/)

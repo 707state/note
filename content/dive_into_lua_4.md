@@ -1,5 +1,5 @@
 ---
-title: 深入理解Lua（与虚拟机）4
+title: LuaJIT与JIT Compiler
 author: jask
 tags:
   - Lua
