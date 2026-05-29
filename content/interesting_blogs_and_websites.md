@@ -339,6 +339,8 @@ date: 2026-01-01
 
 [blackhat](https://blackhat.com/)
 
+[hacktricks](https://hacktricks.wiki/en/index.html)
+
 ## 图形学
 
 [CS180 / CS280](https://sites.cs.ucsb.edu/~lingqi/teaching/cs180.html)
