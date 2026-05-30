@@ -38,6 +38,8 @@ date: 2026-01-01
 
 [Introduction to Homotopy Type Theory in Cubical Agda](https://cqts.github.io/introduction-to-cubical/)
 
+[marcoshplace](https://marcosh.github.io/)
+
 ## C++
 
 [David Maziere](https://www.scs.stanford.edu/~dm/blog/)

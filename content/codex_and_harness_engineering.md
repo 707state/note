@@ -4,6 +4,7 @@ author: jask、deepseek v4 pro
 tags:
   - LLM
 date: 2026-06-01
+done: 0
 ---
 
 # Codex 和 Harness Engineering
@@ -426,32 +427,409 @@ mod user_shell_command;
 
 ---
 
-## 四、Skill / Plugin / Connector 发现层 —— 让模型知道「我有哪些工具」
+## 四、Skill 系统 —— Codex 的领域知识扩展机制
 
-### 4.1 Skills 系统
+Skills 是 Codex 最核心的扩展机制之一。它允许用户、插件编写者或系统管理员创建**自包含的知识模块**，向模型注入特定领域的指令、脚本和工作流指导。每次 Turn 执行前，Codex 都会根据用户输入动态选择并注入相关 Skill 内容。
 
-Codex 在启动时扫描配置的 Skills 目录，解析每个 skill 的声明文件，向模型注入可用 skill 列表和调用方式。
+### 4.1 Skills 的定位：与 Sub-Agent 的关系
 
-### 4.2 Apps / Connectors
+Skills 和 Sub-Agent（子 Agent）是**正交但互补**的概念：
 
-通过 MCP 连接管理器发现可用的外部服务集成，收集 `AppInfo` 并在上下文中告知模型可调用的外部工具。
+- **Skills**：提供指令/上下文，可被加载到任意 Agent（根 Agent 或子 Agent）中
+- **Sub-Agent**：通过工具调用（`spawn_agent` / `spawn`）创建的独立会话实例，继承父 Agent 的权限、模型、cwd 等配置
+- Skills 是"知识注入"，Sub-Agent 是"执行实例"
 
-`codex-rs/core/src/connectors.rs`:
+此外，`AGENTS.md` 系统（见第二节）与 Skills 属于不同层次——前者是项目级别的编码规范声明，后者是功能模块的知识包。
+
+### 4.2 Skill 文件的物理结构
+
+一个 Skill 是一个包含 `SKILL.md` 文件的目录，其完整结构如下：
+
+```
+skill-name/
+├── SKILL.md              # 必需：Skill 声明文件
+│   ├── YAML frontmatter  # 必需：name, description 等元数据
+│   └── Markdown body     # 注入给模型的指令正文
+├── agents/               # 推荐：OpenAI 元数据目录
+│   └── openai.yaml       # interface、dependencies、policy 配置
+├── scripts/              # 可选：可执行脚本
+├── references/           # 可选：按需加载的参考文档
+└── assets/               # 可选：模板、图片、字体等输出资源
+```
+
+`SKILL.md` 的 YAML frontmatter 以 `---` 分隔，示例：
+
+```yaml
+---
+name: my-skill
+description: Does something useful
+metadata:
+  short-description: Useful thing
+---
+# My Skill
+
+Detailed instructions for the model...
+```
+
+### 4.3 核心数据结构
+
+#### 4.3.1 SkillMetadata
+
+`codex-rs/core-skills/src/model.rs:11-23`:
 
 ```rust
-// 1:44:codex-rs/core/src/connectors.rs
+pub struct SkillMetadata {
+    pub name: String,                     // 如 "skill-creator" 或 "plugin:my-skill"
+    pub description: String,              // 从 YAML frontmatter 提取
+    pub short_description: Option<String>, // 来自 metadata.short-description
+    pub interface: Option<SkillInterface>, // 来自 agents/openai.yaml
+    pub dependencies: Option<SkillDependencies>, // MCP 工具依赖
+    pub policy: Option<SkillPolicy>,      // 隐式调用策略、产品门控
+    pub path_to_skills_md: AbsolutePathBuf, // SKILL.md 的绝对路径
+    pub scope: SkillScope,               // User / Repo / System / Admin
+    pub plugin_id: Option<String>,       // 来自哪个 plugin
+}
+```
+
+#### 4.3.2 SkillDependencies — MCP 工具依赖
+
+`codex-rs/core-skills/src/model.rs:67-80`:
+
+```rust
+pub struct SkillDependencies {
+    pub tools: Vec<SkillToolDependency>,
+}
+pub struct SkillToolDependency {
+    pub r#type: String,      // "mcp"（目前唯一支持的类型）
+    pub value: String,       // 服务器名称/标识
+    pub description: Option<String>,
+    pub transport: Option<String>,  // "stdio" 或 "streamable_http"
+    pub command: Option<String>,    // stdio 的命令
+    pub url: Option<String>,        // streamable_http 的 URL
+}
+```
+
+Skills 可以通过 `agents/openai.yaml` 声明 MCP 依赖。当用户提及该 Skill 时，Codex 会自动检测缺失的 MCP server 并提示安装（详见 4.7）。
+
+#### 4.3.3 SkillScope 枚举
+
+`codex_protocol::protocol::SkillScope`:
+
+```rust
+pub enum SkillScope {
+    Repo,    // .codex/skills、.agents/skills（在仓库目录层次中）
+    User,    // ~/.codex/skills、$HOME/.agents/skills、Plugin skill roots
+    System,  // $CODEX_HOME/skills/.system（编译时嵌入的系统 skills）
+    Admin,   // /etc/codex/skills
+}
+```
+
+优先级：Repo > User > System > Admin（发现时优先级高 -> 低，注入时排序相反）
+
+#### 4.3.4 SkillLoadOutcome — 加载结果
+
+`codex-rs/core-skills/src/model.rs:88-98`:
+
+```rust
+pub struct SkillLoadOutcome {
+    pub skills: Vec<SkillMetadata>,
+    pub errors: Vec<SkillError>,
+    pub disabled_paths: HashSet<AbsolutePathBuf>,
+    pub(crate) skill_roots: Vec<AbsolutePathBuf>,
+    pub(crate) skill_root_by_path: Arc<HashMap<AbsolutePathBuf, AbsolutePathBuf>>,
+    pub(crate) file_systems_by_skill_path: SkillFileSystemsByPath,
+    pub(crate) implicit_skills_by_scripts_dir: Arc<HashMap<...>>,
+    pub(crate) implicit_skills_by_doc_path: Arc<HashMap<...>>,
+}
+```
+
+此结构是 Skill 加载的最终产物，包含了技能列表、错误信息、禁用的技能路径、技能根目录关系以及隐式调用的索引。它是**不可变的共享快照**，通过 `Arc` 在多处安全共享。
+
+#### 4.3.5 TurnSkillsContext
+
+`codex-rs/core/src/session/turn_context.rs`:
+
+```rust
+pub(crate) struct TurnSkillsContext {
+    pub(crate) outcome: Arc<SkillLoadOutcome>,
+    pub(crate) implicit_invocation_seen_skills: Arc<Mutex<HashSet<String>>>,
+}
+```
+
+每个 Turn 持有 `TurnSkillsContext`，其中 `outcome` 来自 `SkillsManager` 的缓存（按 cwd 或 config key 缓存），`implicit_invocation_seen_skills` 用于去重——同一 Turn 内同一隐式 Skill 只触发一次。
+
+### 4.4 Skills 的生命周期
+
+```
+启动安装 → 目录发现 → 文件解析 → 规则过滤 → 缓存 → 用户提及匹配 → 内容注入 → 文件监控
+```
+
+#### 阶段 1：启动安装（System Skills 专用）
+
+`SkillsManager::new()` 在创建时调用 `install_system_skills()`，将编译时嵌入的系统 Skills（通过 `include_dir!` 宏打包）解压到 `$CODEX_HOME/skills/.system`，并写入 marker 文件以区分版本，避免重复解压。如果 `bundled_skills_enabled: false`，则调用 `uninstall_system_skills()` 清理。
+
+#### 阶段 2：根目录发现
+
+`codex-rs/core-skills/src/loader.rs:253-279` — `skill_roots_with_home_dir()` 从以下来源收集 SkillRoot：
+
+| 来源 | Scope | 路径 | 文件系统 |
+|------|-------|------|----------|
+| Project config layer | Repo | `$PROJECT/.codex/skills/` | repo FS（远程友好） |
+| `.agents/skills/` 目录树 | Repo | `$DIR/.agents/skills/`（project root → cwd） | repo FS |
+| User config layer | User | `$CODEX_HOME/skills/` | 本地 FS |
+| `$HOME/.agents/skills/` | User | `~/.agents/skills/` | 本地 FS |
+| 已安装的 Plugin | User | Plugin 安装目录 | 本地 FS |
+| Extra roots | User | app-server 动态设置 | 本地 FS |
+| System config layer | Admin | `/etc/codex/skills/` | 本地 FS |
+| System skills cache | System | `$CODEX_HOME/skills/.system` | 本地 FS |
+
+#### 阶段 3：目录扫描
+
+`codex-rs/core-skills/src/loader.rs:476-619` — `discover_skills_under_root()` 使用 BFS 广度优先扫描每个 root：
+
+- **深度限制**：`MAX_SCAN_DEPTH = 6`
+- **目录上限**：`MAX_SKILLS_DIRS_PER_ROOT = 2000`（超出后截断并警告）
+- **符号链接**：Repo、User、Admin scope 会跟随符号链目录；System 不跟随（因为由 Codex 自己写入）
+- **跳过隐藏**：以 `.` 开头的文件名跳过
+- **精确匹配**：只扫描名为 `SKILL.md` 的文件
+
+#### 阶段 4：文件解析
+
+`codex-rs/core-skills/src/loader.rs:621-685` — `parse_skill_file()`：
+
+1. 读取 `SKILL.md` 全文
+2. 提取 YAML frontmatter（首个 `---` 到第二个 `---` 之间的内容）
+3. 反序列化为 `SkillFrontmatter`：`name`、`description`、`metadata.short-description`
+4. 补充默认值：若 name 缺失，用父目录名作为 name
+5. **命名空间处理**：Plugin 内的 Skill 自动加上 `plugin:name` 前缀
+6. 加载可选元数据文件 `agents/openai.yaml`（`load_skill_metadata()`）：
+   - `interface`：展示名、简短描述、图标、品牌色
+   - `dependencies`：MCP server 工具依赖
+   - `policy`：`allow_implicit_invocation`、`products` 产品门控
+7. **字段长度校验**：name ≤ 64、description ≤ 1024、short_description ≤ 1024 等
+
+#### 阶段 5：规则过滤与缓存
+
+`SkillsManager` 维护两层缓存：
+
+- **cache_by_cwd**：按工作目录缓存，当 `fs` 可用且非 `force_reload` 时复用
+- **cache_by_config**：按 config hash + skill roots 组合 key 缓存，用于 role-local 隔离
+
+过滤步骤：
+
+1. **Product 门控**：`filter_skill_load_outcome_for_product()` 移除不匹配 `restriction_product` 的 Skill
+2. **Config 规则**：`SkillConfigRules` 来自 config layer stack（User + SessionFlags），支持按 `name` 或 `path` 禁用特定 Skill
+3. **Bundled Skills 开关**：若 `bundled_skills_enabled: false`，移除 System scope 的 roots
+4. **隐式调用索引**：`build_implicit_skill_path_indexes()` 对 `allowed_skills_for_implicit_invocation()` 构建快速查找表
+
+### 4.5 上下文注入：如何把 Skills 发给模型
+
+Skills 通过两类上下文片段注入到模型的 user message 中：
+
+#### 4.5.1 可用 Skills 列表（`<available_skills>`）
+
+在 Thread 开始时生成（role: `developer`），向模型展示所有可隐式调用的 Skills：
+
+`codex-rs/core/src/context/available_skills_instructions.rs`:
+
+```rust
+impl ContextualUserFragment for AvailableSkillsInstructions {
+    fn role() -> &'static str { "developer" }
+    fn type_markers() -> (&'static str, &'static str) {
+        ("<available_skills>", "</available_skills>")
+    }
+}
+```
+
+**渲染逻辑**（`codex-rs/core-skills/src/render.rs`）：
+
+- **预算控制**：默认为 context window 的 2% 或 8000 字符
+- **三级截断策略**：
+  1. 若全部完整行 ≤ budget，直接输出
+  2. 否则逐字符削减 description（每个 skill 轮流减 1 字符），保持最低行
+  3. 若最低行仍超出 budget，清空所有 description，含 description 行全部被移除
+- **路径别名优化**：当绝对路径过长时，使用 `r0`、`r1` 等别名缩短 Skill 路径。别名方案仅在它能比绝对路径方案容纳更多 Skill 时才启用
+- **顺序优先**：渲染时按 scope 排序：System > Admin > Repo > User
+
+实际发送给模型的内容示例：
+
+```xml
+<available_skills>
+## Skills
+A skill is a set of local instructions to follow that is stored in a `SKILL.md` file...
+
+### Skill roots
+- `r0` = `/home/user/.codex/skills`
+
+### Available skills
+- skill-creator: Guide for creating effective skills (file: r0/skill-creator/SKILL.md)
+- imagegen: Generate images from text descriptions (file: r0/imagegen/SKILL.md)
+
+### How to use skills
+- Discovery: The list above is the skills available...
+- Trigger rules: If the user names a skill (with `$SkillName` or plain text)...
+- How to use a skill (progressive disclosure):
+  1) After deciding to use a skill, open its `SKILL.md`...
+  ...
+</available_skills>
+```
+
+#### 4.5.2 被提及的 Skill 内容（`<skill>`）
+
+当用户输入 `$skill-name` 或结构化选择 Skill 时，Codex 读取完整 `SKILL.md` 内容并以 `role: user` 注入：
+
+`codex-rs/core/src/context/skill_instructions.rs`:
+
+```rust
+impl ContextualUserFragment for SkillInstructions {
+    fn role() -> &'static str { "user" }
+    fn markers(&self) -> (&'static str, &'static str) {
+        ("<skill>", "</skill>")
+    }
+    fn body(&self) -> String {
+        format!(
+            "\n<name>{}</name>\n<path>{}</path>\n{}\n",
+            self.name, self.path, self.contents
+        )
+    }
+}
+```
+
+实际发给模型的 XML 示例：
+
+```xml
+<skill>
+<name>skill-creator</name>
+<path>/home/user/.codex/skills/skill-creator/SKILL.md</path>
+
+# Skill Creator
+
+This skill guides you through creating a new skill...
+...
+</skill>
+```
+
+### 4.6 Skill 提及解析与选择
+
+`codex-rs/core-skills/src/injection.rs:115-172` — `collect_explicit_skill_mentions()`
+
+Skills 通过以下方式被选择：
+
+1. **结构化输入**（`UserInput::Skill`）：由 app-server 或 TUI 直接按路径指定
+2. **文本提及**：扫描用户输入中 `$skill-name` 格式的 token
+3. **链接提及**：`[$skill-name](path/to/SKILL.md)` 格式的 Markdown 链接
+4. **歧义消除**：
+   - 若一个名称同时匹配多个 Skill 或一个 Connector slug，该名称不会触发任何 Skill
+   - 采用 `skill_name_counts` 和 `connector_slug_counts` 进行消歧
+   - 先按路径精确匹配，再按名称匹配（需唯一）
+5. **顺序保持**：选中的 Skills 保持它们在 skills 列表中的原始顺序
+
+### 4.7 MCP 依赖自动安装
+
+当用户提及依赖 MCP server 的 Skill，且相应 server 尚未安装时：
+
+`codex-rs/core/src/mcp_skill_dependencies.rs`:
+
+1. `collect_missing_mcp_dependencies()` 检查每个被提及 Skill 的 `dependencies.tools`
+2. 对缺失的依赖，若 Approval Policy 为 `never`（无需审批），直接自动安装
+3. 否则通过 `request_user_input` 提示用户选择「Install」或「Continue anyway」
+4. 安装后执行 OAuth login（如需要），然后刷新 session 的 MCP server 列表
+
+### 4.8 隐式 Skill 调用
+
+Skills 不需要用户显式提及也可以被触发。每当用户执行 shell 命令时，Codex 检测是否触发了隐式调用：
+
+`codex-rs/core-skills/src/invocation_utils.rs` — `detect_implicit_skill_invocation_for_command()`：
+
+**检测场景 1 — 运行脚本**：当命令以已知 runner 开头（`python`、`bash`、`node` 等）且第一个参数以已知脚本后缀结尾（`.py`、`.sh`、`.js` 等）时，Codex 检查该脚本是否位于某 Skill 的 `scripts/` 目录下：
+
+```rust
+const RUNNERS: [&str; 10] = [
+    "python", "python3", "bash", "zsh", "sh", "node", "deno", "ruby", "perl", "pwsh",
+];
+const SCRIPT_EXTENSIONS: [&str; 7] = [".py", ".sh", ".js", ".ts", ".rb", ".pl", ".ps1"];
+```
+
+**检测场景 2 — 读取 Skill 文档**：当命令以文件阅读器开头（`cat`、`sed`、`head`、`tail`、`less`、`more`、`bat`、`awk`）且目标文件路径匹配某 Skill 的 `SKILL.md` 时，触发隐式调用。
+
+每次 Turn 内同一 Skill 的隐式调用只触发一次（通过 `implicit_invocation_seen_skills` 去重）。
+
+调用方（`codex-rs/core/src/skills.rs:48-108` — `maybe_emit_implicit_skill_invocation`）：
+
+```rust
+pub(crate) async fn maybe_emit_implicit_skill_invocation(
+    sess: &Session,
+    turn_context: &TurnContext,
+    command: &str,
+    workdir: &AbsolutePathBuf,
+) {
+    let Some(candidate) = detect_implicit_skill_invocation_for_command(
+        turn_context.turn_skills.outcome.as_ref(),
+        command, workdir,
+    ) else { return; };
+    // ... 去重检查、telemetry 记录 ...
+}
+```
+
+### 4.9 Turn 执行中的 Skills 组装流程
+
+`codex-rs/core/src/session/turn.rs:451-590` — `build_skills_and_plugins()`：
+
+```
+1. 从 TurnInput 中提取 UserInput 列表
+2. 加载当前配置下的 Plugins + MCP tools + Connectors
+3. 获取 TurnSkillsContext 中的 SkillLoadOutcome
+4. collect_explicit_skill_mentions()   → 识别用户提及的 Skills
+5. maybe_prompt_and_install_mcp_dependencies() → 检查/安装 MCP 依赖
+6. build_skill_injections()            → 读取 SKILL.md 全文，生成 SkillInjection 列表
+7. 将 SkillInjection 转换为 SkillInstructions（ResponseItem），注入到 conversation items
+8. 同时处理 Plugin 注入和 Connector 启用
+9. 返回 (injection_items, explicitly_enabled_connectors)
+```
+
+这些 injection items 先于用户消息被记录到会话历史中，模型在收到用户输入之前已经看到了 Skill 的完整指令。
+
+### 4.10 Plugin / Connector 系统（与 Skills 协同）
+
+- **Plugins**：扫描已安装的插件，发现 `ToolSuggestDiscoverable` 类型的工具，注入 Plugin 指令片段
+- **Connectors（Apps）**：通过 MCP 连接管理器发现可用的外部服务集成，`codex-rs/core/src/connectors.rs` 收集 `AppInfo` 并在上下文中告知模型可调用的外部工具
+
+```rust
+// codex-rs/core/src/connectors.rs
 use codex_mcp::CODEX_APPS_MCP_SERVER_NAME;
 use codex_mcp::McpConnectionManager;
-...
 pub use codex_app_server_protocol::AppInfo;
-pub use codex_app_server_protocol::AppBranding;
-
 const CONNECTORS_READY_TIMEOUT_ON_EMPTY_TOOLS: Duration = Duration::from_secs(30);
 ```
 
-### 4.3 Plugins 系统
+### 4.11 Skills 配置
 
-扫描已安装的插件，发现 `ToolSuggestDiscoverable` 类型的工具，注入 Plugin 指令片段。
+`codex-rs/config/src/skills_config.rs` — TOML 配置结构：
+
+```rust
+pub struct SkillsConfig {
+    pub bundled: Option<BundledSkillsConfig>,  // bundled skills 开关
+    pub include_instructions: Option<bool>,     // 是否注入 skills instructions
+    pub config: Vec<SkillConfig>,               // 单个 skill 的 enable/disable
+}
+pub struct SkillConfig {
+    pub path: Option<AbsolutePathBuf>,  // 按路径匹配
+    pub name: Option<String>,           // 按名称匹配
+    pub enabled: bool,
+}
+```
+
+### 4.12 App-Server API for Skills
+
+`codex-rs/app-server-protocol/src/protocol/v2/plugin.rs` 定义了三个 RPC：
+
+| Method | 说明 |
+|--------|------|
+| `skills/list` | 按 cwd 列出可用 Skills |
+| `skills/extra-roots/set` | 动态注册额外 Skill roots |
+| `skills/changed` (notification) | 文件变动时推送通知 |
+
+`codex-rs/app-server/src/skills_watcher.rs` 中的 `SkillsWatcher` 负责文件监控，当 Skill 文件发生变化时发出 `skills/changed` 通知。
 
 ---
 
@@ -737,31 +1115,33 @@ use crate::guardian::spawn_approval_request_review;
 ## 总结：Harness 为模型提供了什么？
 
 ```
-            ┌─────────────────────────────────────────────┐
-            │              Codex Harness                  │
-            │                                             │
-            │  ┌──────────┐  ┌──────────┐  ┌───────────┐ │
-            │  │ 环境感知  │  │ 项目理解  │  │ 权限管理   │ │
-            │  │ Shell/Git │  │ AGENTS.md│  │ Sandbox/  │ │
-            │  │ 快照/时间  │  │ 根检测   │  │ Approval  │ │
-            │  └────┬─────┘  └────┬─────┘  └─────┬─────┘ │
-            │       │             │               │       │
-            │       └─────────┬───┴───────┬───────┘       │
-            │                 │           │                │
-            │          context XML fragments               │
-            │                 │                           │
-            │  ┌──────────┐   │   ┌────────────────────┐  │
-            │  │ Tools    │◄──┼──►│  LLM (模型 API)    │  │
-            │  │ Shell/   │   │   │  理解上下文        │  │
-            │  │ Patch/   │   │   │  生成代码方案      │  │
-            │  │ MCP      │   │   │  调用工具          │  │
-            │  └────┬─────┘   │   └────────────────────┘  │
-            │       │         │                           │
-            │  ┌────┴─────┐   │                           │
-            │  │ Hooks    │───┘                           │
-            │  │ Pre/Post │                               │
-            │  └──────────┘                               │
-            └─────────────────────────────────────────────┘
+            ┌────────────────────────────────────────────────────┐
+            │                   Codex Harness                    │
+            │                                                    │
+            │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────┐│
+            │  │ 环境感知  │  │ 项目理解  │  │ 权限管理   │  │Skills│
+            │  │ Shell/Git │  │ AGENTS.md│  │ Sandbox/  │  │系统  ││
+            │  │ 快照/时间  │  │ 根检测   │  │ Approval  │  │发现/  ││
+            │  │          │  │          │  │           │  │注入  ││
+            │  └────┬─────┘  └────┬─────┘  └─────┬─────┘  └──┬──┘│
+            │       │             │               │           │   │
+            │       └─────────┬───┴───────┬───────┘           │   │
+            │                 │           │                   │   │
+            │            context XML fragments                │   │
+            │    <environment> <available_skills> <skill>      │   │
+            │                 │                               │   │
+            │  ┌──────────┐   │   ┌────────────────────┐      │   │
+            │  │ Tools    │◄──┼──►│  LLM (模型 API)    │      │   │
+            │  │ Shell/   │   │   │  理解上下文        │      │   │
+            │  │ Patch/   │   │   │  生成代码方案      │      │   │
+            │  │ MCP      │   │   │  调用工具          │      │   │
+            │  └────┬─────┘   │   └────────────────────┘      │   │
+            │       │         │                               │   │
+            │  ┌────┴─────┐   │                               │   │
+            │  │ Hooks    │───┘                               │   │
+            │  │ Pre/Post │                                   │   │
+            │  └──────────┘                                   │   │
+            └────────────────────────────────────────────────────┘
 ```
 
 **本质**：Codex 的 Harness 把一个「盲人 LLM」变成有眼睛、有手、有记忆、知道自己在哪里的 Agent。所有的本地准备工作，最终都转化为结构化的 XML/文本上下文片段，让模型在做出任何决定之前，已经知晓代码仓库的全貌、本地环境的限制、以及自己拥有的能力边界。
@@ -775,6 +1155,13 @@ use crate::guardian::spawn_approval_request_review;
 | **环境上下文** | `core/src/context/environment_context.rs` | CWD、日期、时区、权限 | 精确知道运行环境 |
 | **权限指令** | `core/src/context/permissions_instructions.rs` | Sandbox 模式、审批策略 | 知道操作边界 |
 | **片段注册** | `core/src/context/contextual_user_message.rs` | 增量上下文更新 | 避免冗余传输 |
+| **Skill 加载** | `core-skills/src/loader.rs` | 4 级 Scope 目录扫描 + YAML 解析 | 发现所有可用 Skills |
+| **Skill 过滤** | `core-skills/src/manager.rs` | Product 门控 + Config 规则 + 缓存 | 正确启用/禁用 Skill |
+| **Skill 提及解析** | `core-skills/src/injection.rs` | `$name` 文本提及 + 消歧 | 精准匹配用户意图 |
+| **Skill 可用列表** | `core-skills/src/render.rs` | 预算截断 + 路径别名优化 | 告知模型所有可选 Skill |
+| **Skill 内容注入** | `core/src/context/skill_instructions.rs` | 完整 SKILL.md 正文 | 模型获取专用领域知识 |
+| **隐式 Skill 触发** | `core-skills/src/invocation_utils.rs` | 脚本运行 + 文档读取检测 | 自动激活相关 Skills |
+| **MCP 依赖安装** | `core/src/mcp_skill_dependencies.rs` | 自动检测并安装 Skill 所需 MCP server | Skills 开箱即用 |
 | **Hook 系统** | `core/src/hook_runtime.rs` | 生命周期拦截点 | 外部工具介入 |
 | **Tool 注册** | `core/src/tools/registry.rs` | 可用工具列表 | 知道能调用哪些工具 |
 | **Turn 引擎** | `core/src/session/turn.rs` | 请求构建、循环执行 | 正确编排多轮交互 |
