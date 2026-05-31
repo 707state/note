@@ -2,7 +2,7 @@
 title: 收集一些有意思的博客和网站
 author: jask
 tags:
-    - Blog
+    - RSS
 date: 2026-01-01
 ---
 

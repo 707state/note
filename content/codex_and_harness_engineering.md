@@ -3,8 +3,7 @@ title: Codex 和 Harness Engineering
 author: jask、deepseek v4 pro
 tags:
   - LLM
-date: 2026-06-01
-done: 0
+date: 2026-05-31
 ---
 
 # Codex 和 Harness Engineering
@@ -364,14 +363,101 @@ fn sandbox_prompt_from_policy(
 - `workspace_write` — 仅工作区可写
 - `read_only` — 只读
 
-### 3.3 上下文片段注册系统
+### 3.3 上下文组装与交付：Codex 如何让 LLM "看到"运行环境
 
-Codex 使用一个**上下文片段注册表**管理所有可注入的上下文类型，支持增量更新（仅在变化时发送）。
+上面介绍了各类上下文的生成方式，但还需要回答一个核心问题：**这些零散的上下文片段，最终是如何组装成 LLM 能理解的一批消息的？**
 
-`codex-rs/core/src/context/contextual_user_message.rs`:
+整个机制可以概括为 **"双 Buffer + 双通道 + 全量/增量模式"**：
+
+#### 3.3.1 核心概念：Developer vs User 双通道
+
+Codex 将上下文分成两类角色，对应 OpenAI Responses API 的两种 message role：
+
+| 通道 | Role | 语义 | 包含内容 |
+|------|------|------|---------|
+| **Developer** | `developer` | 系统指令级约束，模型应无条件遵守 | 权限指令、协作模式、Realtime 状态、Personality、Skills 目录、Plugins 列表、模型切换指令 |
+| **Contextual User** | `user` | 运行环境信息，告知模型当前状态 | 环境上下文（cwd/shell/网络/文件系统）、用户自定义指令（AGENTS.md） |
+
+在 `build_initial_context()` 中，两类内容分别收集到 `developer_sections: Vec<String>` 和 `contextual_user_sections: Vec<String>` 两个 buffer 中，最终合并为 1 条 developer message + 1 条 user message：
+
+`codex-rs/core/src/session/mod.rs:2638-2864`:
 
 ```rust
-//46:58:codex-rs/core/src/context/contextual_user_message.rs
+let mut developer_sections = Vec::<String>::with_capacity(8);
+let mut contextual_user_sections = Vec::<String>::with_capacity(2);
+
+// 收集各种 developer 片段 ...
+// → permissions_instructions, collaboration_mode, realtime, personality, apps, skills, plugins...
+
+// 收集各种 user 片段 ...
+// → user_instructions (AGENTS.md), environment_context (cwd/shell/network/filesystem)
+
+// 最终组装
+let mut items = Vec::with_capacity(4);
+if let Some(dev_message) = build_developer_update_item(developer_sections) {
+    items.push(dev_message);                    // 1 条 aggregated developer message
+}
+if let Some(ctx_message) = build_contextual_user_message(contextual_user_sections) {
+    items.push(ctx_message);                    // 1 条 aggregated user message
+}
+```
+
+#### 3.3.2 全量注入 vs 增量 Diff
+
+Codex 不会每个 Turn 都重新发送完整的上下文。它使用 `TurnContextItem` 作为 **baseline 快照**进行增量比较：
+
+```
+Turn 1（首次启动）:
+  ┌────────────────────────────────────────────────┐
+  │  build_initial_context()                        │
+  │  → 生成完整 developer message（~8 个 section）    │
+  │  → 生成完整 contextual user message（~2 个）      │
+  │  → 存入 reference_context_item 作为 baseline     │
+  └────────────────────────────────────────────────┘
+
+Turn 2-∞（稳态运行）:
+  ┌────────────────────────────────────────────────┐
+  │  build_settings_update_items()                  │
+  │  → 逐一比对 previous TurnContextItem vs 当前值    │
+  │  → 仅发送发生变化的字段:                          │
+  │    • 环境变了？   → 发送 env diff                │
+  │    • 权限变了？   → 发送 permissions diff         │
+  │    • 模型切换了？ → 发送 model_switch_instructions │
+  │    • 都没变？     → 不发送，节省 token            │
+  └────────────────────────────────────────────────┘
+```
+
+`codex-rs/core/src/context_manager/updates.rs:209-243` — `build_settings_update_items()`:
+
+```rust
+pub(crate) fn build_settings_update_items(
+    previous: Option<&TurnContextItem>,   // 上一轮的快照
+    next: &TurnContext,                   // 当前轮的状态
+    ...
+) -> Vec<ResponseItem> {
+    // 逐字段比较，仅发送变化的部分
+    let contextual_user_message = build_environment_update_item(previous, next, shell);
+    let developer_sections = [
+        build_model_instructions_update_item(...),       // 模型变了才发
+        build_permissions_update_item(previous, next),   // 权限变了才发
+        build_collaboration_mode_update_item(...),       // 模式变了才发
+        build_realtime_update_item(...),                 // realtime 状态变了才发
+        build_personality_update_item(...),             // personality 变了才发
+    ].into_iter().flatten().collect();
+    // → 组装为 1 developer message + 1 user message
+}
+```
+
+每个 `build_*_update_item` 都遵循同样的模式：
+1. 比较 `previous` 和 `next` 的对应值
+2. 若相同 → return `None`（不输出）
+3. 若不同 → 构造并返回新的片段
+
+#### 3.3.3 上下文片段注册表
+
+`codex-rs/core/src/context/contextual_user_message.rs:46-58` 维护了所有可通过 XML 标记识别的 user 级上下文片段：
+
+```rust
 static CONTEXTUAL_USER_FRAGMENTS: &[&dyn FragmentRegistration] = &[
     &USER_INSTRUCTIONS_REGISTRATION,
     &ENVIRONMENT_CONTEXT_REGISTRATION,
@@ -381,49 +467,104 @@ static CONTEXTUAL_USER_FRAGMENTS: &[&dyn FragmentRegistration] = &[
     &TURN_ABORTED_REGISTRATION,
     &SUBAGENT_NOTIFICATION_REGISTRATION,
     &INTERNAL_MODEL_CONTEXT_REGISTRATION,
-    &LEGACY_UNIFIED_EXEC_PROCESS_LIMIT_WARNING_REGISTRATION,
-    &LEGACY_APPLY_PATCH_EXEC_COMMAND_WARNING_REGISTRATION,
-    &LEGACY_MODEL_MISMATCH_WARNING_REGISTRATION,
+    // ... legacy warnings
 ];
 ```
 
-每种片段实现 `ContextualUserFragment` trait：
+每个片段实现 `ContextualUserFragment` trait，定义自身的 XML 标记、role 和 body 渲染：
 
-`codex-rs/core/src/context/fragment.rs`:
+`codex-rs/core/src/context/fragment.rs:41-84`:
 
 ```rust
-//41:48:codex-rs/core/src/context/fragment.rs
 pub trait ContextualUserFragment {
-    fn role() -> &'static str where Self: Sized;
-    fn markers(&self) -> (&'static str, &'static str);
-    fn body(&self) -> String;
-    fn type_markers() -> (&'static str, &'static str) where Self: Sized;
+    fn role() -> &'static str;                        // "user" | "developer"
+    fn markers(&self) -> (&'static str, &'static str); // ("<env>", "</env>") 等
+    fn body(&self) -> String;                         // 片段正文
+    fn render(&self) -> String {                      // = markers + body
+        format!("{start_marker}{body}{end_marker}")
+    }
+    fn into(self) -> ResponseItem {                   // 转为 API 可发送的 ResponseItem
+        ResponseItem::Message {
+            role: Self::role().to_string(),
+            content: vec![ContentItem::InputText { text: self.render() }],
+            ...
+        }
+    }
+}
 ```
 
-上下文模块清单（`codex-rs/core/src/context/mod.rs`）：
+#### 3.3.4 Turn 执行中的上下文注入时序
 
-```rust
-//1:32:codex-rs/core/src/context/mod.rs
-mod approved_command_prefix_saved;
-mod apps_instructions;
-mod available_plugins_instructions;
-mod available_skills_instructions;
-mod collaboration_mode_instructions;
-mod contextual_user_message;
-mod environment_context;
-mod fragment;
-mod fragments;
-mod guardian_followup_review_reminder;
-mod hook_additional_context;
-mod image_generation_instructions;
-mod internal_model_context;
-mod permissions_instructions;
-mod skill_instructions;
-mod subagent_notification;
-mod turn_aborted;
-mod user_instructions;
-mod user_shell_command;
+`codex-rs/core/src/session/turn.rs:140-190` 展示了每个 Turn 中上下文注入的精确顺序：
+
 ```
+① run_pre_sampling_compact()          ← 检查 token，必要时压缩历史
+② record_context_updates_and_set_reference_context_item()
+    ├─ 首次: build_initial_context()      ← 全量 developer + user 消息
+    └─ 后续: build_settings_update_items() ← 增量 diff
+③ build_skills_and_plugins()
+    └─ 用户提及 Skill → 注入 <skill> 片段（role: user）
+④ injection_items 写入 conversation history
+    └─ 这些 items 插入到用户实际消息之前
+⑤ run_hooks_and_record_inputs()
+    └─ 用户输入 + Hook 输出的 additional_context
+⑥ 循环进入 sampling loop → 将完整 history 发送给 LLM
+```
+
+**关键设计**：第 ④ 步中，Skill 注入项被插入到**用户消息之前**。这意味着当 LLM 读取用户提问时，它已经看到了 Skill 的完整指令。整个历史通过 `sess.clone_history().for_prompt()` 在每次 sampling 请求中取出，作为 `Vec<ResponseItem>` 发送给模型。
+
+#### 3.3.5 完整的上下文片段清单
+
+`codex-rs/core/src/context/mod.rs` 汇总了所有可在 model prompt 中出现的上下文片段，按其 role 分类：
+
+| 片段 | Role | XML 标记 | 触发时机 |
+|------|------|----------|---------|
+| `PermissionsInstructions` | developer | （无标记，嵌入 developer 聚合体） | `include_permissions_instructions: true` |
+| `ModelSwitchInstructions` | developer | （无标记） | 模型切换后首个 Turn |
+| `CollaborationModeInstructions` | developer | （无标记） | `include_collaboration_mode_instructions: true` |
+| `RealtimeStartInstructions` | developer | （无标记） | Realtime 模式开启 |
+| `RealtimeEndInstructions` | developer | （无标记） | Realtime 模式关闭 |
+| `PersonalitySpecInstructions` | developer | （无标记） | Personality 变更 |
+| `AppsInstructions` | developer | （无标记） | `include_apps_instructions: true` |
+| `AvailableSkillsInstructions` | developer | `<available_skills>...</available_skills>` | `include_skill_instructions: true` |
+| `AvailablePluginsInstructions` | developer | （无标记） | Plugins 存在时 |
+| `SkillInstructions` | user | `<skill>...</skill>` | 用户提及 Skill 时 |
+| `UserInstructions` | user | `<user_instructions>...</user_instructions>` | AGENTS.md 存在时 |
+| `EnvironmentContext` | user | `<environment_context>...</environment_context>` | `include_environment_context: true` |
+| `AdditionalContextUserFragment` | user | `<external_*>...</external_*>` | Hook 输出 |
+| `SubagentNotification` | user | `<subagent_notification>...</subagent_notification>` | 子 Agent 状态变更 |
+| `TurnAborted` | user | `<turn_aborted />` | Turn 被中止 |
+| `UserShellCommand` | user | `<user_shell_command>...</user_shell_command>` | 用户执行 shell 时 |
+| `InternalModelContextFragment` | user | `<internal_context>...</internal_context>` | 内部系统注入 |
+
+#### 3.3.6 总结：上下文从 Harness 到 LLM 的完整旅程
+
+```
+config.toml ──┐                              build_initial_context()
+Hook output ──┤        ┌──────────────┐      ┌─────────────────────┐
+Shell 快照  ──┼───────►│ 各种 Context  │─────►│ developer_sections   │ → 1 条 developer msg
+Git 信息   ──┤        │ Fragment 生成  │      │ contextual_user_      │
+时间       ──┤        └──────────────┘      │   sections            │ → 1 条 user msg
+Skills     ──┤                               └─────────────────────┘
+Plugins    ──┤                                      │
+                            ┌────────────────────────┘
+                            ▼
+                  record_conversation_items()
+                            │
+                            ▼
+       ┌──────────────── conversation history ────────────────┐
+       │ [dev msg] [user msg] [skill injection] [user input]  │
+       │  ... [tool call] [tool output] [assistant msg] ...   │
+       └──────────────────────────────────────────────────────┘
+                            │
+                            ▼
+               clone_history().for_prompt()
+                            │
+                            ▼
+                   Vec<ResponseItem>  →  LLM API Request
+```
+
+**本质**：Codex 不是把一堆零散的"环境信息"随便扔进 prompt，而是通过一个**分层的、可增量更新的上下文协议**，将 Harness 层的所有感知和控制信息转化为结构化的 `ResponseItem` 序列，在正确的时机以正确的 role 注入到对话历史中，让 LLM 在每次推理时都拥有精确、精简、最新的环境快照。
 
 ---
 
@@ -676,7 +817,7 @@ A skill is a set of local instructions to follow that is stored in a `SKILL.md` 
 
 #### 4.5.2 被提及的 Skill 内容（`<skill>`）
 
-当用户输入 `$skill-name` 或结构化选择 Skill 时，Codex 读取完整 `SKILL.md` 内容并以 `role: user` 注入：
+当用户通过 `$skill-name` 显式提及某个 Skill，或 Codex 检测到隐式调用时，完整 `SKILL.md` 被读取并以 `role: user` 注入到对话历史中。这些 injection items 被**插入到用户实际消息之前**，因此模型在读取用户提问时已经掌握了 Skill 的完整指令。
 
 `codex-rs/core/src/context/skill_instructions.rs`:
 
@@ -708,6 +849,42 @@ This skill guides you through creating a new skill...
 ...
 </skill>
 ```
+
+#### 4.5.3 总结：LLM 如何知道有哪些 Skill
+
+Codex 通过**两个独立的注入时机**让 LLM 知晓 Skill：
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  时机 1: Thread 启动 / 上下文清空后                              │
+│  ───────────────────────────────────                            │
+│  build_initial_context()                                        │
+│    └─ build_available_skills()                                  │
+│         └─ AvailableSkillsInstructions (role: developer)        │
+│              └─ "<available_skills>...</available_skills>"       │
+│                                                                 │
+│  注入内容: 全部可用 Skill 的名称 + 描述 + 路径 + 使用说明          │
+│  作用: "这是你能用的技能目录，需要时按路径打开 SMKILL.md"           │
+├─────────────────────────────────────────────────────────────────┤
+│  时机 2: 每次 Turn，用户显式/隐式提及 Skill 时                    │
+│  ───────────────────────────────────────                        │
+│  build_skills_and_plugins()                                     │
+│    ├─ collect_explicit_skill_mentions()  → 识别 $skill-name     │
+│    └─ build_skill_injections()           → 读取 SKILL.md 全文    │
+│         └─ SkillInstructions (role: user)                       │
+│              └─ "<skill><name>...</name><path>...</path>         │
+│                   ...完整 SKILL.md 正文...</skill>"              │
+│                                                                 │
+│  注入内容: 被提及 Skill 的完整 SKILL.md                           │
+│  作用: 将 Skill 的指令注入到用户消息之前，模型跟随指令执行          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**关键设计点**：
+
+1. **增量更新** — `record_context_updates_and_set_reference_context_item()` 判断 baseline 是否存在：首次发送完整 `<available_skills>`，后续 Turn 只在变化时发送增量 diff，避免 token 浪费
+2. **渐进加载** — LLM 先看到 Skill **目录**（名称+描述），再按需通过 `$skill-name` 触发加载 Skill **正文**，避免无效 Skill 占用 context window
+3. **两种角色** — `<available_skills>` 用 developer role（系统指令级约束），`<skill>` 用 user role（纯指令输入），利用 OpenAI Responses API 的 role 语义让模型正确区分"持久配置"和"临时注入"
 
 ### 4.6 Skill 提及解析与选择
 
@@ -950,50 +1127,68 @@ pub(crate) trait CoreToolRuntime: ToolExecutor<ToolInvocation> {
 用户输入
    │
    ▼
-┌─ pre-sampling 上下文压缩 ─────────────────┐
-│  • 检查 token 预算                         │
-│  • 执行自动 compaction                     │
-└───────────────────────────────────────────┘
+┌─ ① pre-sampling 上下文压缩 ─────────────────────┐
+│  • 检查 token 预算                               │
+│  • 若超限则执行 auto compaction                   │
+└─────────────────────────────────────────────────┘
    │
    ▼
-┌─ record_context_updates ──────────────────┐
-│  • 记录环境上下文变更（增量 diff）          │
-└───────────────────────────────────────────┘
+┌─ ② record_context_updates ──────────────────────┐
+│  • 首次 Turn → build_initial_context()            │
+│    ├─ 全量 developer msg（权限/技能/Realtime...）  │
+│    └─ 全量 user msg（环境/md/cwd/shell...）      │
+│  • 后续 Turn → build_settings_update_items()      │
+│    ├─ build_environment_update_item() ← diff 比较  │
+│    ├─ build_permissions_update_item()              │
+│    ├─ build_model_instructions_update_item()       │
+│    └─ ... 仅发送变化的字段                         │
+│  • 存入 TurnContextItem 作为下一次 diff baseline    │
+└─────────────────────────────────────────────────┘
    │
    ▼
-┌─ build_skills_and_plugins ────────────────┐
-│  • 注入 Skill/Plugin 指令                  │
-│  • 合并 Connector 工具声明                 │
-└───────────────────────────────────────────┘
+┌─ ③ build_skills_and_plugins ────────────────────┐
+│  • 扫描用户输入 $skill-name 提及                    │
+│  • 读取 SKILL.md 全文 → <skill> 标签注入 (user)    │
+│  • 检查 MCP 依赖 → 提示安装                        │
+│  • 收集 Plugin instructions                      │
+└─────────────────────────────────────────────────┘
    │
    ▼
-┌─ Hook 执行 ───────────────────────────────┐
-│  • run_pending_session_start_hooks()      │
-│  • run_hooks_and_record_inputs()          │
-└───────────────────────────────────────────┘
+┌─ ④ Hook 执行 ───────────────────────────────────┐
+│  • run_pending_session_start_hooks()              │
+│  • run_hooks_and_record_inputs()                  │
+│  • Hook 输出 additional_context 注入到 user msg    │
+└─────────────────────────────────────────────────┘
    │
    ▼
-┌─ 请求构建 ────────────────────────────────┐
-│  • 从历史中提取 ResponseItem 列表           │
-│  • 构建 tools JSON                        │
-│  • 设置 model、reasoning 参数              │
-└───────────────────────────────────────────┘
+┌─ ⑤ injection_items 写入 history ────────────────┐
+│  • SkillInstructions（user role，在用户消息之前）     │
+│  • PluginInstructions                            │
+│  • 用户实际输入（user role）                         │
+└─────────────────────────────────────────────────┘
    │
    ▼
-┌─ API 调用（WebSocket 优先，SSE 回退）─────┐
-│  • 发送 ResponsesApiRequest               │
-│  • 流式接收 ResponseEvent                  │
-└───────────────────────────────────────────┘
+┌─ ⑥ 请求构建 ────────────────────────────────────┐
+│  • sess.clone_history().for_prompt()               │
+│  • 从 history 中提取 Vec<ResponseItem>             │
+│  • 构建 tools JSON、model、reasoning 参数          │
+└─────────────────────────────────────────────────┘
+   │
+   ▼
+┌─ ⑦ API 调用（WebSocket 优先，SSE 回退）──────────┐
+│  • 发送 ResponsesApiRequest                       │
+│  • 流式接收 ResponseEvent                          │
+└─────────────────────────────────────────────────┘
    │
    ▼
    ├── Assistant Message → 发射事件 → 继续循环
    │
    └── Tool Call → 执行 → 发送结果 → 继续循环
-                                    │
-                                    ▼
-                           检查 token 是否超限
-                           是 → auto_compact → 继续
-                           否 → 直接继续
+                                │
+                                ▼
+                       检查 token 是否超限
+                       是 → auto_compact → 继续
+                       否 → 直接继续
 ```
 
 **关键代码引用**：
@@ -1115,33 +1310,50 @@ use crate::guardian::spawn_approval_request_review;
 ## 总结：Harness 为模型提供了什么？
 
 ```
-            ┌────────────────────────────────────────────────────┐
-            │                   Codex Harness                    │
-            │                                                    │
-            │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌─────┐│
-            │  │ 环境感知  │  │ 项目理解  │  │ 权限管理   │  │Skills│
-            │  │ Shell/Git │  │ AGENTS.md│  │ Sandbox/  │  │系统  ││
-            │  │ 快照/时间  │  │ 根检测   │  │ Approval  │  │发现/  ││
-            │  │          │  │          │  │           │  │注入  ││
-            │  └────┬─────┘  └────┬─────┘  └─────┬─────┘  └──┬──┘│
-            │       │             │               │           │   │
-            │       └─────────┬───┴───────┬───────┘           │   │
-            │                 │           │                   │   │
-            │            context XML fragments                │   │
-            │    <environment> <available_skills> <skill>      │   │
-            │                 │                               │   │
-            │  ┌──────────┐   │   ┌────────────────────┐      │   │
-            │  │ Tools    │◄──┼──►│  LLM (模型 API)    │      │   │
-            │  │ Shell/   │   │   │  理解上下文        │      │   │
-            │  │ Patch/   │   │   │  生成代码方案      │      │   │
-            │  │ MCP      │   │   │  调用工具          │      │   │
-            │  └────┬─────┘   │   └────────────────────┘      │   │
-            │       │         │                               │   │
-            │  ┌────┴─────┐   │                               │   │
-            │  │ Hooks    │───┘                               │   │
-            │  │ Pre/Post │                                   │   │
-            │  └──────────┘                                   │   │
-            └────────────────────────────────────────────────────┘
+            ┌──────────────────────────────────────────────────────────┐
+            │                      Codex Harness                       │
+            │                                                          │
+            │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐ │
+            │  │ 环境感知  │  │ 项目理解  │  │ 权限管理   │  │Skills系统│ │
+            │  │ Shell/Git │  │ AGENTS.md│  │ Sandbox/  │  │发现/     │ │
+            │  │ 快照/时间  │  │ 根检测   │  │ Approval  │  │注入      │ │
+            │  └────┬─────┘  └────┬─────┘  └─────┬─────┘  └────┬─────┘ │
+            │       │             │               │             │       │
+            │       └─────────┬───┴───────┬───────┴──────┬──────┘       │
+            │                 │           │              │              │
+            │        build_initial_context() / build_settings_update_items()
+            │                 │           │              │              │
+            │        ┌────────┴─────┬─────┴──────┐       │              │
+            │        │ Developer Msg (聚合)       │       │              │
+            │        │ • Permissions Instructions │       │              │
+            │        │ • Skills Catalog           │       │              │
+            │        │ • Model/Realtime/Persona   │       │              │
+            │        ├───────────────────────────┤       │              │
+            │        │ User Msg (聚合)             │       │              │
+            │        │ • EnvironmentContext (xml) │       │              │
+            │        │ • UserInstructions (MD)    │       │              │
+            │        └─────────────┬─────────────┘       │              │
+            │                      │                     │              │
+            │                      ▼                     │              │
+            │            conversation history            │              │
+            │        ┌───────────────────────┐           │              │
+            │        │ [dev] [user] [skill]   │           │              │
+            │        │ [user input] [tool]... │           │              │
+            │        └───────────┬───────────┘           │              │
+            │                    │                       │              │
+            │                    ▼                       │              │
+            │  ┌──────────┐   ┌────────────────────┐     │              │
+            │  │ Tools    │◄──│  LLM (模型 API)    │     │              │
+            │  │ Shell/   │   │  理解上下文        │     │              │
+            │  │ Patch/   │   │  生成代码方案      │     │              │
+            │  │ MCP      │   │  调用工具          │◄────┘              │
+            │  └────┬─────┘   └────────────────────┘                    │
+            │       │                                                  │
+            │  ┌────┴─────┐   Skill/Plugin 注入在用户消息之前              │
+            │  │ Hooks    │                                            │
+            │  │ Pre/Post │                                            │
+            │  └──────────┘                                            │
+            └──────────────────────────────────────────────────────────┘
 ```
 
 **本质**：Codex 的 Harness 把一个「盲人 LLM」变成有眼睛、有手、有记忆、知道自己在哪里的 Agent。所有的本地准备工作，最终都转化为结构化的 XML/文本上下文片段，让模型在做出任何决定之前，已经知晓代码仓库的全貌、本地环境的限制、以及自己拥有的能力边界。
@@ -1154,7 +1366,10 @@ use crate::guardian::spawn_approval_request_review;
 | **AGENTS.md** | `core/src/agents_md.rs` | 编码规范、架构约定 | 遵循项目规范 |
 | **环境上下文** | `core/src/context/environment_context.rs` | CWD、日期、时区、权限 | 精确知道运行环境 |
 | **权限指令** | `core/src/context/permissions_instructions.rs` | Sandbox 模式、审批策略 | 知道操作边界 |
-| **片段注册** | `core/src/context/contextual_user_message.rs` | 增量上下文更新 | 避免冗余传输 |
+| **上下文组装** | `core/src/session/mod.rs:build_initial_context` | 双 Buffer + 双通道聚合 | 所有上下文有序注入 |
+| **增量 Diff** | `core/src/context_manager/updates.rs` | 仅发送变化的上下文字段 | 节省 token，避免冗余传输 |
+| **片段注册** | `core/src/context/contextual_user_message.rs` | XML 标记识别 + 增量更新 | 上下文可被识别/过滤 |
+| **ContextualUserFragment** | `core/src/context/fragment.rs` | 统一 Role/Marker/Body 接口 | 所有片段遵循统一编解码协议 |
 | **Skill 加载** | `core-skills/src/loader.rs` | 4 级 Scope 目录扫描 + YAML 解析 | 发现所有可用 Skills |
 | **Skill 过滤** | `core-skills/src/manager.rs` | Product 门控 + Config 规则 + 缓存 | 正确启用/禁用 Skill |
 | **Skill 提及解析** | `core-skills/src/injection.rs` | `$name` 文本提及 + 消歧 | 精准匹配用户意图 |
