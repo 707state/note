@@ -5,25 +5,9 @@ tags:
   - NPU
   - Android
 date: 2026-06-01
-done: 0
 ---
 
 # LocalDream NPU (Qualcomm Hexagon) 运行机制全解析
-
-## 目录
-
-1. [架构概览](#1-架构概览)
-2. [QNN 库的加载与初始化](#2-qnn-库的加载与初始化)
-3. [Kotlin 侧：进程管理与环境配置](#3-kotlin-侧进程管理与环境配置)
-4. [Native 入口：main.cpp 命令行解析与模型创建](#4-native-入口maincpp-命令行解析与模型创建)
-5. [QNN 模型生命周期](#5-qnn-模型生命周期)
-6. [Stable Diffusion 推理管线详解](#6-stable-diffusion-推理管线详解)
-7. [MNN 的角色：CPU/OpenCL 回退](#7-mnn-的角色cpuopencl-回退)
-8. [模型文件准备：.bin 与 .mnn](#8-模型文件准备bin-与-mnn)
-9. [性能优化策略](#9-性能优化策略)
-10. [总结：一次文生图的完整调用链路](#10-总结一次文生图的完整调用链路)
-
----
 
 ## 1. 架构概览
 
