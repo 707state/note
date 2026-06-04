@@ -315,6 +315,10 @@ date: 2026-01-01
 
 [DisposableMemory - 一次性记忆](https://driver1998.github.io/)
 
+[Tyblog](https://blog.tjll.net/)
+
+[Ryosuke](https://whoisryosuke.com/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
@@ -352,6 +356,8 @@ date: 2026-01-01
 [CS180 / CS280](https://sites.cs.ucsb.edu/~lingqi/teaching/cs180.html)
 
 [Poly Haven 素材库](https://polyhaven.com)
+
+[Game programming patterns](https://gameprogrammingpatterns.com/contents.html)
 
 ## AI Related
 
