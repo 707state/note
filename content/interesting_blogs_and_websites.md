@@ -311,6 +311,10 @@ date: 2026-01-01
 
 [lambdaland](https://lambdaland.org/)
 
+[Coia](https://blog.gov.cooking/)
+
+[DisposableMemory - 一次性记忆](https://driver1998.github.io/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
