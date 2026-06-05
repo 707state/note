@@ -1,5 +1,13 @@
 #include "App.hpp"
+#include "App.h"
+#include "Foundation/NSString.hpp"
+#include "Metal/MTLRenderPipeline.hpp"
+#include "Metal/MTLResource.hpp"
+#include "QuartzCore/CAMetalDrawable.hpp"
+#include "simd/simd.h"
+#include <cassert>
 #include <cstdlib>
+#include <iostream>
 
 #define GLFW_INCLUDE_NONE
 #define GLFW_EXPOSE_NATIVE_COCOA
@@ -16,17 +24,50 @@ App::~App() {
     cleanup();
 }
 
-void App::run() {
+void App::init() {
     if (!initWindow()) {
         return;
     }
     if (!initMetal()) {
         return;
     }
-    if (!initPipeline()) {
-        return;
+    createTriangle();
+    createDefaultLibrary();
+    createCommandQueue();
+    createRenderPipeline();
+}
+
+void App::createTriangle(){
+    simd::float3 triangleVertices[]={
+        {
+            -.5f,
+            -.5f,
+            0.f
+        },
+        {
+            .5f,
+            -.5f,
+            0.f
+        },
+        {
+            0.f,
+            .5f,
+            0.f
+        }
+    };
+    triangleVertexBuffer=m_device->newBuffer(&triangleVertices,sizeof(triangleVertices),MTL::ResourceStorageModeShared);
+
+}
+void App::createDefaultLibrary(){
+    metalDefaultLibrary=m_device->newDefaultLibrary();
+    if(!metalDefaultLibrary){
+        std::cerr<<"Failed to load default library"<<std::endl;
+        std::exit(-1);
     }
-    mainLoop();
+}
+
+void App::createCommandQueue(){
+    m_commandQueue=m_device->newCommandQueue();
 }
 
 bool App::initWindow() {
@@ -48,6 +89,22 @@ bool App::initWindow() {
     }
 
     return true;
+}
+void App::createRenderPipeline(){
+    MTL::Function* vertexShader=metalDefaultLibrary->newFunction(NS::String::string("vertexShader",NS::ASCIIStringEncoding));
+    assert(vertexShader);
+    MTL::Function *fragmentShader=metalDefaultLibrary->newFunction(NS::String::string("fragmentShader",NS::ASCIIStringEncoding));
+    assert(fragmentShader);
+    MTL::RenderPipelineDescriptor* renderPipelineDescriptor=MTL::RenderPipelineDescriptor::alloc()->init();
+    renderPipelineDescriptor->setLabel(NS::String::string("RenderPipeline",NS::ASCIIStringEncoding));
+    renderPipelineDescriptor->setVertexFunction(vertexShader);
+    renderPipelineDescriptor->setFragmentFunction(fragmentShader);
+    assert(renderPipelineDescriptor);
+    MTL::PixelFormat pixelFormat=(MTL::PixelFormat)m_metalLayer->pixelFormat();
+    renderPipelineDescriptor->colorAttachments()->object(0)->setPixelFormat(pixelFormat);
+    NS::Error* error;
+    metalRenderPSO=m_device->newRenderPipelineState(renderPipelineDescriptor,&error);
+    renderPipelineDescriptor->release();
 }
 
 bool App::initMetal() {
@@ -80,102 +137,18 @@ bool App::initMetal() {
     return true;
 }
 
-bool App::initPipeline() {
-    // Load the compiled Metal library (default.metallib) from the build directory
-    NS::Error* error = nullptr;
-
-    // Get the path to the metallib next to the executable
-    NS::String* libPath = NS::String::string("default.metallib", NS::UTF8StringEncoding);
-    MTL::Library* library = m_device->newLibrary(libPath, &error);
-
-    if (!library) {
-        fprintf(stderr, "Failed to load Metal library: %s\n",
-                error ? error->localizedDescription()->utf8String() : "unknown error");
-        return false;
-    }
-
-    // Get shader functions
-    MTL::Function* vertexFn = library->newFunction(
-        NS::String::string("vertex_main", NS::UTF8StringEncoding));
-    MTL::Function* fragmentFn = library->newFunction(
-        NS::String::string("fragment_main", NS::UTF8StringEncoding));
-
-    if (!vertexFn || !fragmentFn) {
-        fprintf(stderr, "Failed to find shader functions\n");
-        library->release();
-        return false;
-    }
-
-    // Create render pipeline descriptor
-    MTL::RenderPipelineDescriptor* pipelineDesc =
-        MTL::RenderPipelineDescriptor::alloc()->init();
-    pipelineDesc->setVertexFunction(vertexFn);
-    pipelineDesc->setFragmentFunction(fragmentFn);
-    pipelineDesc->colorAttachments()->object(0)->setPixelFormat(
-        MTL::PixelFormatBGRA8Unorm);
-
-    // Create pipeline state
-    m_pipelineState = m_device->newRenderPipelineState(pipelineDesc, &error);
-    if (!m_pipelineState) {
-        fprintf(stderr, "Failed to create pipeline state: %s\n",
-                error ? error->localizedDescription()->utf8String() : "unknown error");
-        pipelineDesc->release();
-        vertexFn->release();
-        fragmentFn->release();
-        library->release();
-        return false;
-    }
-
-    printf("Render pipeline created successfully!\n");
-
-    // Cleanup temporary objects
-    pipelineDesc->release();
-    vertexFn->release();
-    fragmentFn->release();
-    library->release();
-
-    return true;
-}
-
-void App::mainLoop() {
-    while (!glfwWindowShouldClose(m_window)) {
-        glfwPollEvents();
-        render();
-    }
-}
-
-void App::render() {
-    @autoreleasepool {
-        CA::MetalDrawable* drawable = m_metalLayer->nextDrawable();
-        if (!drawable) {
-            return;
+void App::run(){
+    while(!glfwWindowShouldClose(m_window)){
+        @autoreleasepool{
+            metalDrawable=(__bridge CA::MetalDrawable*)[m_metalLayer nextDrawable];
+            render();
         }
-
-        MTL::RenderPassDescriptor* renderPassDesc = MTL::RenderPassDescriptor::alloc()->init();
-        MTL::RenderPassColorAttachmentDescriptor* colorAttachment =
-            renderPassDesc->colorAttachments()->object(0);
-        colorAttachment->setTexture(drawable->texture());
-        colorAttachment->setLoadAction(MTL::LoadActionClear);
-        colorAttachment->setClearColor(MTL::ClearColor(0.1, 0.2, 0.3, 1.0));
-        colorAttachment->setStoreAction(MTL::StoreActionStore);
-
-        MTL::CommandBuffer* commandBuffer = m_commandQueue->commandBuffer();
-        MTL::RenderCommandEncoder* encoder =
-            commandBuffer->renderCommandEncoder(renderPassDesc);
-
-        // Draw the triangle using our pipeline
-        encoder->setRenderPipelineState(m_pipelineState);
-        encoder->drawPrimitives(MTL::PrimitiveTypeTriangle, NS::UInteger(0), NS::UInteger(3));
-
-        encoder->endEncoding();
-
-        commandBuffer->presentDrawable(drawable);
-        commandBuffer->commit();
-
-        renderPassDesc->release();
+        glfwPollEvents();
     }
 }
-
+void App::render(){
+    
+}
 void App::cleanup() {
     if (m_pipelineState) {
         m_pipelineState->release();
