@@ -32,6 +32,8 @@ date: 2026-01-01
 
 [NVidia](https://developer.nvidia.com/blog/)
 
+[Loïc Petit](https://petitl.fr/)
+
 # Programming Language Related
 
 [Martín Hötzel Escardó](https://martinescardo.github.io/)
@@ -359,11 +361,17 @@ date: 2026-01-01
 
 [Game programming patterns](https://gameprogrammingpatterns.com/contents.html)
 
+[Metal Tutorial](https://metaltutorial.com/)
+
 ## AI Related
 
 [LiteRT](https://github.com/google-ai-edge/LiteRT-LM/tree/main)
 
 [WebGPU](https://webgpufundamentals.org/)
+
+## 硬件相关
+
+[VideoCore](https://github.com/Idein/py-videocore7/tree/master)
 
 # 常用项目
 
