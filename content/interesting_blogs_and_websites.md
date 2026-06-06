@@ -34,6 +34,8 @@ date: 2026-01-01
 
 [Loïc Petit](https://petitl.fr/)
 
+[Abdelhadi](https://thegeeko.me/)
+
 # Programming Language Related
 
 [Martín Hötzel Escardó](https://martinescardo.github.io/)
