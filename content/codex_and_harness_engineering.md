@@ -4,6 +4,7 @@ author: jask、deepseek v4 pro
 tags:
   - LLM
 date: 2026-05-31
+LLM: 1
 ---
 
 # Codex 和 Harness Engineering
@@ -1382,5 +1383,3 @@ use crate::guardian::spawn_approval_request_review;
 | **Turn 引擎** | `core/src/session/turn.rs` | 请求构建、循环执行 | 正确编排多轮交互 |
 | **API 交互** | `core/src/client.rs`, `codex-api/src/provider.rs` | WebSocket/SSE 传输 | 可靠通信 |
 | **子 Agent** | `core/src/codex_delegate.rs` | 审批路由、结果回传 | 处理复杂多步任务 |
-
-

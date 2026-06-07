@@ -6,6 +6,7 @@ tags:
   - C
   - ProgrammingLanguages
 date: 2026-04-10
+LLM: 1
 ---
 
 # 定义

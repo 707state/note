@@ -6,6 +6,7 @@ tags:
   - ProgrammingLanguages
 date: 2026-05-28
 series: 深入理解lua
+LLM: 1
 ---
 
 # Luajit与ffi

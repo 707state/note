@@ -5,6 +5,7 @@ tags:
   - NPU
   - Android
 date: 2026-06-01
+LLM: 1
 ---
 
 # LocalDream NPU (Qualcomm Hexagon) 运行机制全解析
