@@ -44,6 +44,8 @@ date: 2026-01-01
 
 [marcoshplace](https://marcosh.github.io/)
 
+[Odin lang](https://odin-lang.org/news/)
+
 ## C++
 
 [David Maziere](https://www.scs.stanford.edu/~dm/blog/)
