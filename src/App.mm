@@ -1,10 +1,17 @@
 #include "App.hpp"
-#include "App.h"
 #include "Foundation/NSString.hpp"
+#include "Metal/MTLRenderCommandEncoder.hpp"
+#include "Metal/MTLRenderPass.hpp"
 #include "Metal/MTLRenderPipeline.hpp"
 #include "Metal/MTLResource.hpp"
 #include "QuartzCore/CAMetalDrawable.hpp"
 #include "simd/simd.h"
+
+// 顶点结构体，内存布局必须与 shader 中的 VertexIn 完全一致
+struct VertexData {
+    simd::float3 position;
+    simd::float4 color;
+};
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
@@ -38,30 +45,29 @@ void App::init() {
 }
 
 void App::createTriangle(){
-    simd::float3 triangleVertices[]={
-        {
-            -.5f,
-            -.5f,
-            0.f
-        },
-        {
-            .5f,
-            -.5f,
-            0.f
-        },
-        {
-            0.f,
-            .5f,
-            0.f
-        }
+    // 每个顶点包含位置 + 颜色，对应 shader 里的 VertexIn
+    VertexData triangleVertices[] = {
+        { {  0.0f,  0.5f, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },  // 顶部  — 红
+        { { -0.5f, -0.5f, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },  // 左下  — 绿
+        { {  0.5f, -0.5f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } },  // 右下  — 蓝
     };
-    triangleVertexBuffer=m_device->newBuffer(&triangleVertices,sizeof(triangleVertices),MTL::ResourceStorageModeShared);
-
+    triangleVertexBuffer = m_device->newBuffer(
+        triangleVertices,
+        sizeof(triangleVertices),
+        MTL::ResourceStorageModeShared
+    );
 }
 void App::createDefaultLibrary(){
-    metalDefaultLibrary=m_device->newDefaultLibrary();
+    // newDefaultLibrary() requires an App Bundle. For a plain CLI binary the
+    // executable lives next to default.metallib inside the build directory, so
+    // we load it by relative path.
+    NS::Error* error = nullptr;
+    NS::String* libPath = NS::String::string("default.metallib", NS::UTF8StringEncoding);
+    metalDefaultLibrary = m_device->newLibrary(libPath, &error);
     if(!metalDefaultLibrary){
-        std::cerr<<"Failed to load default library"<<std::endl;
+        std::cerr<<"Failed to load default library: "
+                 <<(error ? error->localizedDescription()->utf8String() : "unknown")
+                 <<std::endl;
         std::exit(-1);
     }
 }
@@ -91,16 +97,16 @@ bool App::initWindow() {
     return true;
 }
 void App::createRenderPipeline(){
-    MTL::Function* vertexShader=metalDefaultLibrary->newFunction(NS::String::string("vertexShader",NS::ASCIIStringEncoding));
+    MTL::Function* vertexShader=metalDefaultLibrary->newFunction(NS::String::string("vertex_main",NS::ASCIIStringEncoding));
     assert(vertexShader);
-    MTL::Function *fragmentShader=metalDefaultLibrary->newFunction(NS::String::string("fragmentShader",NS::ASCIIStringEncoding));
+    MTL::Function *fragmentShader=metalDefaultLibrary->newFunction(NS::String::string("fragment_main",NS::ASCIIStringEncoding));
     assert(fragmentShader);
     MTL::RenderPipelineDescriptor* renderPipelineDescriptor=MTL::RenderPipelineDescriptor::alloc()->init();
     renderPipelineDescriptor->setLabel(NS::String::string("RenderPipeline",NS::ASCIIStringEncoding));
     renderPipelineDescriptor->setVertexFunction(vertexShader);
     renderPipelineDescriptor->setFragmentFunction(fragmentShader);
     assert(renderPipelineDescriptor);
-    MTL::PixelFormat pixelFormat=(MTL::PixelFormat)m_metalLayer->pixelFormat();
+    MTL::PixelFormat pixelFormat = MTL::PixelFormatBGRA8Unorm;
     renderPipelineDescriptor->colorAttachments()->object(0)->setPixelFormat(pixelFormat);
     NS::Error* error;
     metalRenderPSO=m_device->newRenderPipelineState(renderPipelineDescriptor,&error);
@@ -140,19 +146,46 @@ bool App::initMetal() {
 void App::run(){
     while(!glfwWindowShouldClose(m_window)){
         @autoreleasepool{
-            metalDrawable=(__bridge CA::MetalDrawable*)[m_metalLayer nextDrawable];
+            metalDrawable = m_metalLayer->nextDrawable();
             render();
         }
         glfwPollEvents();
     }
 }
 void App::render(){
-    
+   sendRenderCommand(); 
 }
+
+void App::sendRenderCommand(){
+    metalCommandBuffer=m_commandQueue->commandBuffer();
+    MTL::RenderPassDescriptor* renderPassDescriptor=MTL::RenderPassDescriptor::alloc()->init();
+    MTL::RenderPassColorAttachmentDescriptor *cd=renderPassDescriptor->colorAttachments()->object(0);
+    cd->setTexture(metalDrawable->texture());
+    cd->setLoadAction(MTL::LoadActionClear);
+    cd->setClearColor(MTL::ClearColor(41.0f/255.0f, 42.0f/255.0f, 48.0f/255.0f, 1.0));
+    cd->setStoreAction(MTL::StoreActionStore);
+    MTL::RenderCommandEncoder* renderCommandEncoder = metalCommandBuffer->renderCommandEncoder(renderPassDescriptor);
+    encodeRenderCommand(renderCommandEncoder);
+    renderCommandEncoder->endEncoding();
+
+    metalCommandBuffer->presentDrawable(metalDrawable);
+    metalCommandBuffer->commit();
+    metalCommandBuffer->waitUntilCompleted();
+    renderPassDescriptor->release();
+}
+void App::encodeRenderCommand(MTL::RenderCommandEncoder *renderCommandEncoder){
+    renderCommandEncoder->setRenderPipelineState(metalRenderPSO);
+    renderCommandEncoder->setVertexBuffer(triangleVertexBuffer, 0, 0);
+    MTL::PrimitiveType typeTriangle = MTL::PrimitiveTypeTriangle;
+    NS::UInteger vertexStart = 0;
+    NS::UInteger vertexCount = 3;
+    renderCommandEncoder->drawPrimitives(typeTriangle, vertexStart, vertexCount);
+}
+
 void App::cleanup() {
-    if (m_pipelineState) {
-        m_pipelineState->release();
-        m_pipelineState = nullptr;
+    if (metalRenderPSO) {
+        metalRenderPSO->release();
+        metalRenderPSO = nullptr;
     }
     if (m_commandQueue) {
         m_commandQueue->release();
