@@ -111,7 +111,7 @@ target_link_libraries(D3D12HelloTriangle PRIVATE
 
 target_link_options(D3D12HelloTriangle PRIVATE /DELAYLOAD:d3d12.dll)
 
-set_property(TARGET D3D12HelloTriangle PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:D3D12HelloTriangle>")
+
 set_source_files_properties(HelloTriangle/shaders.hlsl PROPERTIES VS_TOOL_OVERRIDE "None")
 
 add_custom_command(TARGET D3D12HelloTriangle POST_BUILD
