@@ -203,6 +203,8 @@ date: 2026-01-01
 
 [Harry Chen](https://harrychen.xyz/)
 
+[Phil Shincbm](https://www.shincbm.com/)
+
 ## emulator
 
 [Emulators](http://www.emulators.com/)
@@ -356,6 +358,8 @@ date: 2026-01-01
 [blackhat](https://blackhat.com/)
 
 [hacktricks](https://hacktricks.wiki/en/index.html)
+
+[Linux Device Drivers, Third Edition](https://lwn.net/Kernel/LDD3/)
 
 ## 图形学
 
