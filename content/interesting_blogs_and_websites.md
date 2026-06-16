@@ -36,6 +36,8 @@ date: 2026-01-01
 
 [Abdelhadi](https://thegeeko.me/)
 
+[年子](https://jizhuoran.gitbook.io/mali-gpu)
+
 # Programming Language Related
 
 [Martín Hötzel Escardó](https://martinescardo.github.io/)
@@ -327,6 +329,10 @@ date: 2026-01-01
 
 [Ryosuke](https://whoisryosuke.com/)
 
+[Joyxu](https://joyxu.github.io/)
+
+[Bartosz Milewski's Programming Cafe](https://bartoszmilewski.com/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
@@ -360,6 +366,8 @@ date: 2026-01-01
 [hacktricks](https://hacktricks.wiki/en/index.html)
 
 [Linux Device Drivers, Third Edition](https://lwn.net/Kernel/LDD3/)
+
+[anandtech forum](https://forums.anandtech.com/)
 
 ## 图形学
 
