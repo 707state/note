@@ -7,6 +7,7 @@ tags:
   - Mesa
   - Graphics
 date: 2026-06-20
+series: RK3588
 ---
 
 # 为什么？

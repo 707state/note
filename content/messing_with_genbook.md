@@ -6,6 +6,7 @@ tags:
   - Linux
   - Laptop
 date: 2025-12-31
+series: RK3588
 ---
 
 在狗东上闲逛看到了Pinebook、SpacemiT各种RISC架构的笔记本，本着一些猎奇心理，在拼多多上下单了一个Genbook。RK3588提供了4+4、Mali G620以及一个rockchip npu，有点意思，总之是好好玩了一把！
