@@ -40,6 +40,8 @@ date: 2026-01-01
 
 [travis downs](https://travisdowns.github.io/)
 
+[Collabora](https://www.collabora.com/news-and-blog/)
+
 # Programming Language Related
 
 [Martín Hötzel Escardó](https://martinescardo.github.io/)
@@ -169,6 +171,8 @@ date: 2026-01-01
 [Barry](https://bkhome.org/)
 
 [Root Commit](https://rootcommit.com/)
+
+[Tomeu Vizoso](https://blog.tomeuvizoso.net/)
 
 ## Unix
 
