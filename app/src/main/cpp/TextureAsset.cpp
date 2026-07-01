@@ -1,107 +1,114 @@
 #include <android/imagedecoder.h>
 #include "TextureAsset.h"
 #include "AndroidOut.h"
-#include "Utility.h"
+#include "VulkanUtil.h"
+
+#include <cassert>
+#include <stdexcept>
 
 std::shared_ptr<TextureAsset>
-TextureAsset::loadAsset(AAssetManager *assetManager, const std::string &assetPath) {
-    // Get the image from asset manager
-    auto pAndroidRobotPng = AAssetManager_open(
-            assetManager,
-            assetPath.c_str(),
-            AASSET_MODE_BUFFER);
+TextureAsset::uploadPixels(const TextureAsset::VulkanContext &ctx,
+                          const uint8_t *pixels,
+                          uint32_t width,
+                          uint32_t height) {
+    VkDeviceSize imageSize = VkDeviceSize(width) * height * 4;
 
-    // Make a decoder to turn it into a texture
-    AImageDecoder *pAndroidDecoder = nullptr;
-    auto result = AImageDecoder_createFromAAsset(pAndroidRobotPng, &pAndroidDecoder);
+    // Staging buffer in host-visible memory.
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingMemory;
+    vkutil::createBuffer(ctx.device, ctx.physicalDevice, imageSize,
+                         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                         stagingBuffer, stagingMemory);
+
+    void *data;
+    vkMapMemory(ctx.device, stagingMemory, 0, imageSize, 0, &data);
+    memcpy(data, pixels, imageSize);
+    vkUnmapMemory(ctx.device, stagingMemory);
+
+    // The destination image lives in device-local memory for efficient GPU sampling.
+    VkImage image;
+    VkDeviceMemory imageMemory;
+    vkutil::createImage(ctx.device, ctx.physicalDevice, width, height, VK_FORMAT_R8G8B8A8_UNORM,
+                        VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+                        VK_IMAGE_TILING_OPTIMAL,
+                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, image, imageMemory);
+
+    vkutil::transitionImageLayout(ctx.device, ctx.graphicsQueue, ctx.commandPool, image,
+                                  VK_IMAGE_LAYOUT_UNDEFINED,
+                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    vkutil::copyBufferToImage(ctx.device, ctx.graphicsQueue, ctx.commandPool, stagingBuffer, image,
+                              width, height);
+    vkutil::transitionImageLayout(ctx.device, ctx.graphicsQueue, ctx.commandPool, image,
+                                  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                  VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    vkDestroyBuffer(ctx.device, stagingBuffer, nullptr);
+    vkFreeMemory(ctx.device, stagingMemory, nullptr);
+
+    VkImageView view = vkutil::createImageView(ctx.device, image, VK_FORMAT_R8G8B8A8_UNORM,
+                                               VK_IMAGE_ASPECT_COLOR_BIT);
+
+    return std::shared_ptr<TextureAsset>(new TextureAsset(ctx.device, image, imageMemory, view));
+}
+
+std::shared_ptr<TextureAsset>
+TextureAsset::loadAsset(AAssetManager *assetManager, const std::string &assetPath,
+                        const VulkanContext &ctx) {
+    auto pAsset = AAssetManager_open(assetManager, assetPath.c_str(), AASSET_MODE_BUFFER);
+    if (!pAsset) {
+        throw std::runtime_error("failed to open texture asset: " + assetPath);
+    }
+
+    AImageDecoder *pDecoder = nullptr;
+    auto result = AImageDecoder_createFromAAsset(pAsset, &pDecoder);
     assert(result == ANDROID_IMAGE_DECODER_SUCCESS);
 
-    // make sure we get 8 bits per channel out. RGBA order.
-    AImageDecoder_setAndroidBitmapFormat(pAndroidDecoder, ANDROID_BITMAP_FORMAT_RGBA_8888);
+    AImageDecoder_setAndroidBitmapFormat(pDecoder, ANDROID_BITMAP_FORMAT_RGBA_8888);
 
-    // Get the image header, to help set everything up
-    const AImageDecoderHeaderInfo *pAndroidHeader = nullptr;
-    pAndroidHeader = AImageDecoder_getHeaderInfo(pAndroidDecoder);
+    const AImageDecoderHeaderInfo *pHeader = AImageDecoder_getHeaderInfo(pDecoder);
+    auto width = AImageDecoderHeaderInfo_getWidth(pHeader);
+    auto height = AImageDecoderHeaderInfo_getHeight(pHeader);
+    auto stride = AImageDecoder_getMinimumStride(pDecoder);
 
-    // important metrics for sending to GL
-    auto width = AImageDecoderHeaderInfo_getWidth(pAndroidHeader);
-    auto height = AImageDecoderHeaderInfo_getHeight(pAndroidHeader);
-    auto stride = AImageDecoder_getMinimumStride(pAndroidDecoder);
-
-    // Get the bitmap data of the image
-    auto upAndroidImageData = std::make_unique<std::vector<uint8_t>>(height * stride);
-    auto decodeResult = AImageDecoder_decodeImage(
-            pAndroidDecoder,
-            upAndroidImageData->data(),
-            stride,
-            upAndroidImageData->size());
+    std::vector<uint8_t> pixels(height * stride);
+    auto decodeResult = AImageDecoder_decodeImage(pDecoder, pixels.data(), stride, pixels.size());
     assert(decodeResult == ANDROID_IMAGE_DECODER_SUCCESS);
 
-    // Get an opengl texture
-    GLuint textureId;
-    glGenTextures(1, &textureId);
-    glBindTexture(GL_TEXTURE_2D, textureId);
+    AImageDecoder_delete(pDecoder);
+    AAsset_close(pAsset);
 
-    // Clamp to the edge, you'll get odd results alpha blending if you don't
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // If the decoder's stride is larger than width*4, repack into a tight RGBA buffer because
+    // copyBufferToImage expects tightly-packed rows.
+    if (stride == width * 4) {
+        return uploadPixels(ctx, pixels.data(), width, height);
+    }
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // Load the texture into VRAM
-    glTexImage2D(
-            GL_TEXTURE_2D, // target
-            0, // mip level
-            GL_RGBA, // internal format, often advisable to use BGR
-            width, // width of the texture
-            height, // height of the texture
-            0, // border (always 0)
-            GL_RGBA, // format
-            GL_UNSIGNED_BYTE, // type
-            upAndroidImageData->data() // Data to upload
-    );
-
-    // generate mip levels. Not really needed for 2D, but good to do
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    // cleanup helpers
-    AImageDecoder_delete(pAndroidDecoder);
-    AAsset_close(pAndroidRobotPng);
-
-    // Create a shared pointer so it can be cleaned up easily/automatically
-    return std::shared_ptr<TextureAsset>(new TextureAsset(textureId));
+    std::vector<uint8_t> tight(width * height * 4);
+    for (uint32_t r = 0; r < height; r++) {
+        memcpy(tight.data() + r * width * 4, pixels.data() + r * stride, width * 4);
+    }
+    return uploadPixels(ctx, tight.data(), width, height);
 }
 
 std::shared_ptr<TextureAsset>
-TextureAsset::createSolidColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+TextureAsset::createSolidColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a, const VulkanContext &ctx) {
     uint8_t pixel[4] = {r, g, b, a};
-
-    GLuint textureId;
-    glGenTextures(1, &textureId);
-    glBindTexture(GL_TEXTURE_2D, textureId);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            GL_RGBA,
-            1, // width
-            1, // height
-            0,
-            GL_RGBA,
-            GL_UNSIGNED_BYTE,
-            pixel);
-
-    return std::shared_ptr<TextureAsset>(new TextureAsset(textureId));
+    return uploadPixels(ctx, pixel, 1, 1);
 }
 
+TextureAsset::TextureAsset(VkDevice device, VkImage image, VkDeviceMemory memory,
+                           VkImageView imageView)
+        : device_(device), image_(image), memory_(memory), imageView_(imageView) {}
+
 TextureAsset::~TextureAsset() {
-    // return texture resources
-    glDeleteTextures(1, &textureID_);
-    textureID_ = 0;
+    if (imageView_ != VK_NULL_HANDLE) {
+        vkDestroyImageView(device_, imageView_, nullptr);
+    }
+    if (image_ != VK_NULL_HANDLE) {
+        vkDestroyImage(device_, image_, nullptr);
+    }
+    if (memory_ != VK_NULL_HANDLE) {
+        vkFreeMemory(device_, memory_, nullptr);
+    }
 }

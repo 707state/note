@@ -1,11 +1,12 @@
 #ifndef ANDROIDGLINVESTIGATIONS_RENDERER_H
 #define ANDROIDGLINVESTIGATIONS_RENDERER_H
 
-#include <EGL/egl.h>
+#include <vulkan/vulkan.h>
 #include <chrono>
 #include <memory>
+#include <vector>
 
-#include "Model.h"
+#include "Model.h"     // Vertex / Index / Vector3 / Vector2 types
 #include "Shader.h"
 #include "TextureAsset.h"
 
@@ -23,132 +24,148 @@ struct ButtonRect {
     float halfHeight = 0.f;
 };
 
+/*!
+ * A Vulkan 1.3 renderer. Replaces the previous OpenGL ES implementation while
+ * preserving the same feature set: a textured robot that rotates 90 degrees per
+ * button press (with smooth easing), and a "proliferate" mode that tiles the
+ * screen with 2^n copies separated by dividing lines. Shaders are loaded from
+ * pre-compiled SPIR-V bytecode.
+ */
 class Renderer {
 public:
     /*!
-     * @param pApp the android_app this Renderer belongs to, needed to configure GL
+     * @param pApp the android_app this Renderer belongs to, needed to create the
+     *             Vulkan surface from the ANativeWindow.
      */
-    inline Renderer(android_app *pApp) :
-            app_(pApp),
-            display_(EGL_NO_DISPLAY),
-            surface_(EGL_NO_SURFACE),
-            context_(EGL_NO_CONTEXT),
-            width_(0),
-            height_(0),
-            shaderNeedsNewProjectionMatrix_(true),
-            robotRotationDegrees_(0.f),
-            targetRotationDegrees_(0.f),
-            proliferationLevel_(0),
-            lastFrameTime_(std::chrono::steady_clock::now()) {
+    inline explicit Renderer(android_app *pApp) : app_(pApp) {
         initRenderer();
     }
 
     virtual ~Renderer();
 
     /*!
-     * Handles input from the android_app.
-     *
-     * Note: this will clear the input queue
+     * Handles input from the android_app. Clears the input queue.
      */
     void handleInput();
 
     /*!
-     * Renders all the models in the renderer
+     * Renders and presents a single frame.
      */
     void render();
 
 private:
-    /*!
-     * Performs necessary OpenGL initialization. Customize this if you want to change your EGL
-     * context or application-wide settings.
-     */
+    static constexpr int kMaxFramesInFlight = 2;
+
     void initRenderer();
+    void createInstance();
+    void pickPhysicalDevice();
+    void createLogicalDevice();
+    void createSurface();
+    void createSwapChain();
+    void createImageViews();
+    void createCommandPool();
+    void createCommandBuffers();
+    void createDescriptorSetLayout();
+    void createPipeline();
+    void createDescriptorPool();
+    void createDescriptorSets();
+    void createSampler();
+    void createTextureResources();
+    void createVertexBuffer();
+    void createIndexBuffer();
+    void createUniformBuffers();
+    void createSyncObjects();
+    void recreateSwapChain();
+    void cleanupSwapChain();
 
-    /*!
-     * @brief we have to check every frame to see if the framebuffer has changed in size. If it has,
-     * update the viewport accordingly
-     */
-    void updateRenderArea();
+    void recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
+    void drawScene(VkCommandBuffer commandBuffer);
+    void drawRobotGrid(VkCommandBuffer commandBuffer);
+    void drawGridLines(VkCommandBuffer commandBuffer);
+    void drawButton(VkCommandBuffer commandBuffer, const ButtonRect &rect,
+                    float r, float g, float b, float a);
 
-    /*!
-     * Creates the models for this sample. You'd likely load a scene configuration from a file or
-     * use some other setup logic in your full game.
-     */
-    void createModels();
+    /// Pushes the per-draw model matrix (offset 0) and color tint (offset 64).
+    void pushModelColor(VkCommandBuffer commandBuffer, const float *model, const float *color);
 
-    /*!
-     * Recomputes the on-screen button rectangles based on the current render area. The buttons
-     * are anchored to the bottom-left and bottom-right corners of the screen and scale down on
-     * narrow (portrait) screens so they never overlap.
-     */
+    void updateProjection();
+    void updateUniformBuffer(uint32_t currentFrame);
+
+    void proliferate();
+    void computeGrid(int &cols, int &rows) const;
     void updateButtonRects();
 
-    /*!
-     * Draws a single tinted button quad at the given rectangle.
-     */
-    void drawButton(const ButtonRect &rect, float r, float g, float b, float a);
-
-    /*!
-     * Doubles the number of robot instances shown on screen (1 -> 2 -> 4 -> 8 ...). Wraps back to
-     * a single instance once the cap is reached. Triggered by tapping anywhere that isn't a button.
-     */
-    void proliferate();
-
-    /*!
-     * Computes the grid dimensions (cols x rows) for the current proliferation level, choosing the
-     * factorization of 2^level that best matches the screen aspect ratio so cells stay roughly
-     * square.
-     */
-    void computeGrid(int &cols, int &rows) const;
-
-    /*!
-     * Draws all robot instances laid out in the proliferation grid. Every instance shares the same
-     * rotation (robotRotationDegrees_) so they all point the same way.
-     */
-    void drawRobotGrid();
-
-    /*!
-     * Draws the dividing lines between grid cells, on top of the robots, so each region is clearly
-     * separated.
-     */
-    void drawGridLines();
+    VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &available);
+    VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &available);
+    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
     android_app *app_;
-    EGLDisplay display_;
-    EGLSurface surface_;
-    EGLContext context_;
-    EGLint width_;
-    EGLint height_;
 
-    bool shaderNeedsNewProjectionMatrix_;
+    // Core Vulkan state.
+    VkInstance instance_;
+    VkPhysicalDevice physicalDevice_;
+    VkDevice device_;
+    VkQueue graphicsQueue_;
+    uint32_t graphicsFamily_ = 0;
+    VkSurfaceKHR surface_;
 
+    // Swapchain.
+    VkSwapchainKHR swapchain_;
+    std::vector<VkImage> swapchainImages_;
+    std::vector<VkImageView> swapchainImageViews_;
+    VkFormat swapchainImageFormat_ = VK_FORMAT_UNDEFINED;
+    VkExtent2D swapchainExtent_{0, 0};
+
+    // Commands / sync.
+    VkCommandPool commandPool_;
+    std::vector<VkCommandBuffer> commandBuffers_;
+    std::vector<VkSemaphore> imageAvailableSemaphores_;
+    std::vector<VkSemaphore> renderFinishedSemaphores_;
+    std::vector<VkFence> inFlightFences_;
+    uint32_t currentFrame_ = 0;
+    bool framebufferResized_ = false;
+
+    // Pipeline / descriptors.
+    VkDescriptorSetLayout descriptorSetLayout_;
+    VkPipelineLayout pipelineLayout_;
+    VkPipeline pipeline_;
+    VkDescriptorPool descriptorPool_;
+    // One set per frame-in-flight, per texture (robot vs white).
+    std::vector<VkDescriptorSet> robotDescriptorSets_;
+    std::vector<VkDescriptorSet> whiteDescriptorSets_;
+    VkSampler textureSampler_;
+
+    // Shaders (SPIR-V modules).
     std::unique_ptr<Shader> shader_;
-    std::vector<Model> models_;
 
-    // A 1x1 white texture used to draw solid-color button quads (tinted via the uColor uniform).
+    // Textures.
+    std::shared_ptr<TextureAsset> robotTexture_;
     std::shared_ptr<TextureAsset> whiteTexture_;
-    // A single reusable quad model used for both on-screen buttons.
-    std::unique_ptr<Model> buttonModel_;
 
-    // Accumulated rotation of the android robot in degrees. Each tap on the left/right button
-    // adjusts this by +/-90, so the effect stacks across multiple taps.
-    float robotRotationDegrees_;
+    // Geometry buffers (a single quad shared by the robot, buttons and dividers).
+    VkBuffer vertexBuffer_ = VK_NULL_HANDLE;
+    VkDeviceMemory vertexBufferMemory_ = VK_NULL_HANDLE;
+    VkBuffer indexBuffer_ = VK_NULL_HANDLE;
+    VkDeviceMemory indexBufferMemory_ = VK_NULL_HANDLE;
+    uint32_t indexCount_ = 0;
 
-    // The angle the user is currently asking for (updated instantly on tap). robotRotationDegrees_
-    // eases toward this value every frame so the rotation animates smoothly instead of snapping.
-    float targetRotationDegrees_;
+    // Projection UBOs (one per frame-in-flight), persistently mapped.
+    std::vector<VkBuffer> uniformBuffers_;
+    std::vector<VkDeviceMemory> uniformBuffersMemory_;
+    std::vector<void *> uniformBuffersMapped_;
+    bool shaderNeedsNewProjectionMatrix_ = true;
+    float projectionMatrix_[16]{};
 
-    // Timestamp of the previous frame, used to compute a frame-rate-independent delta time for the
-    // rotation easing.
+    // ---- Feature state (preserved from the GL version) ---------------------
+    // Accumulated (displayed) rotation and the instant target the user requests.
+    float robotRotationDegrees_ = 0.f;
+    float targetRotationDegrees_ = 0.f;
     std::chrono::steady_clock::time_point lastFrameTime_;
 
-    // Proliferation level: the number of robot instances shown is 2^proliferationLevel_
-    // (0 => 1, 1 => 2, 2 => 4, 3 => 8, ...). Each tap on a non-button area increments this,
-    // wrapping back to 0 once kMaxProliferationLevel is exceeded.
-    int proliferationLevel_;
+    // Proliferation level: 2^level copies of the robot fill the screen.
+    int proliferationLevel_ = 0;
 
-    // Current on-screen button rectangles, in projection space. Recomputed whenever the
-    // render area changes (see updateButtonRects).
+    // On-screen button rectangles, in projection space.
     ButtonRect leftButton_;
     ButtonRect rightButton_;
 };
