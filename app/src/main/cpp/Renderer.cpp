@@ -101,6 +101,12 @@ static constexpr float kRotationSmoothingSpeed = 10.f;
  */
 static constexpr float kRotationMaxFrameDelta = 0.05f;
 
+/*!
+ * Highest proliferation level allowed before it wraps back to a single instance. 2^8 = 256
+ * simultaneous robots, which is still cheap to draw but keeps each cell visibly large.
+ */
+static constexpr int kMaxProliferationLevel = 8;
+
 Renderer::~Renderer() {
     if (display_ != EGL_NO_DISPLAY) {
         eglMakeCurrent(display_, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
@@ -168,22 +174,10 @@ void Renderer::render() {
     // Keep the on-screen button rectangles in sync with the current render area.
     updateButtonRects();
 
-    // Render all the models. There's no depth testing in this sample so they're accepted in the
-    // order provided. But the sample EGL setup requests a 24 bit depth buffer so you could
-    // configure it at the end of initRenderer
-    if (!models_.empty()) {
-        // The robot itself is rotated about its center by the (stackable) accumulated angle.
-        float modelMatrix[16];
-        Utility::buildRotationZMatrix(modelMatrix, robotRotationDegrees_);
-        shader_->setModelMatrix(modelMatrix);
-
-        // No tint for the textured robot.
-        shader_->setColor(1.f, 1.f, 1.f, 1.f);
-
-        for (const auto &model: models_) {
-            shader_->drawModel(model);
-        }
-    }
+    // Render the robot(s). Proliferation tiles the screen with 2^level copies that all share the
+    // same rotation, separated by clear dividing lines.
+    drawRobotGrid();
+    drawGridLines();
 
     // Draw the on-screen buttons on top of the robot. Left = rotate counter-clockwise (left),
     // right = rotate clockwise (right). Distinct colors make them easy to tell apart.
@@ -390,6 +384,127 @@ void Renderer::drawButton(const ButtonRect &rect, float r, float g, float b, flo
     shader_->drawModel(*buttonModel_);
 }
 
+void Renderer::proliferate() {
+    // Double the instance count (1 -> 2 -> 4 -> 8 ...). Wrap back to a single instance once we
+    // hit the cap so the cells never become invisibly small.
+    proliferationLevel_++;
+    if (proliferationLevel_ > kMaxProliferationLevel) {
+        proliferationLevel_ = 0;
+    }
+    aout << "Proliferation level = " << proliferationLevel_
+         << " (" << (1 << proliferationLevel_) << " copies)" << std::endl;
+}
+
+void Renderer::computeGrid(int &cols, int &rows) const {
+    const int instanceCount = 1 << proliferationLevel_; // 1, 2, 4, 8, ...
+    const float aspect = (height_ > 0) ? float(width_) / float(height_) : 1.f;
+
+    // Try every power-of-two factorization cols x rows (cols*rows == instanceCount) and keep the
+    // one whose cols/rows ratio is closest to the screen aspect ratio. This keeps cells roughly
+    // square so the robot isn't stretched and the grid fills the screen naturally.
+    int bestCols = 1;
+    int bestRows = instanceCount;
+    float bestError = std::fabs(float(bestCols) / float(bestRows) - aspect);
+    for (int a = 0; a <= proliferationLevel_; a++) {
+        int cc = 1 << a;          // cols candidate
+        int rr = instanceCount >> a; // rows candidate (= instanceCount / cc)
+        float error = std::fabs(float(cc) / float(rr) - aspect);
+        if (error < bestError) {
+            bestError = error;
+            bestCols = cc;
+            bestRows = rr;
+        }
+    }
+    cols = bestCols;
+    rows = bestRows;
+}
+
+void Renderer::drawRobotGrid() {
+    if (models_.empty() || width_ <= 0 || height_ <= 0) {
+        return;
+    }
+
+    const float halfHeight = kProjectionHalfHeight;
+    const float aspect = float(width_) / float(height_);
+    const float halfWidth = halfHeight * aspect;
+
+    int cols, rows;
+    computeGrid(cols, rows);
+
+    const float cellW = (2.f * halfWidth) / float(cols);
+    const float cellH = (2.f * halfHeight) / float(rows);
+
+    // Uniform (square) scale so rotating the quad doesn't distort the texture. The base quad spans
+    // [-1,1] (half-extent 1), so to fit a cell we scale by half the smaller cell dimension.
+    const float s = std::min(cellW, cellH) * 0.5f;
+
+    // Precompute R * S once; only the translation differs per instance.
+    float rot[16];
+    float scale[16];
+    float rotScale[16];
+    Utility::buildRotationZMatrix(rot, robotRotationDegrees_);
+    Utility::buildScaleMatrix(scale, s, s, 1.f);
+    Utility::multiplyMatrix(rotScale, rot, scale);
+
+    // No tint for the textured robot.
+    shader_->setColor(1.f, 0.5f, 1.f, 1.f);
+
+    const Model &robot = models_[0];
+    for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++) {
+            const float centerX = -halfWidth + (float(c) + 0.5f) * cellW;
+            const float centerY = -halfHeight + (float(r) + 0.5f) * cellH;
+
+            // model = T * R * S
+            float translate[16];
+            float model[16];
+            Utility::buildTranslationMatrix(translate, centerX, centerY, 0.f);
+            Utility::multiplyMatrix(model, translate, rotScale);
+
+            shader_->setModelMatrix(model);
+            shader_->drawModel(robot);
+        }
+    }
+}
+
+void Renderer::drawGridLines() {
+    // Only draw separators when there is more than one region.
+    if (proliferationLevel_ <= 0 || width_ <= 0 || height_ <= 0) {
+        return;
+    }
+
+    int cols, rows;
+    computeGrid(cols, rows);
+    if (cols <= 1 && rows <= 1) {
+        return;
+    }
+
+    const float halfHeight = kProjectionHalfHeight;
+    const float aspect = float(width_) / float(height_);
+    const float halfWidth = halfHeight * aspect;
+    const float cellW = (2.f * halfWidth) / float(cols);
+    const float cellH = (2.f * halfHeight) / float(rows);
+
+    // Line thickness scales with the cell size so it stays proportionally visible.
+    const float lineHalf = std::min(cellW, cellH) * 0.03f;
+
+    // Bright, fully opaque white stands out clearly against the cornflower-blue background and
+    // the green robot.
+    const float lr = 1.f, lg = 1.f, lb = 1.f, la = 1.f;
+
+    // Vertical separators at each internal column boundary.
+    for (int c = 1; c < cols; c++) {
+        const float x = -halfWidth + float(c) * cellW;
+        drawButton({x, 0.f, lineHalf, halfHeight}, lr, lg, lb, la);
+    }
+
+    // Horizontal separators at each internal row boundary.
+    for (int r = 1; r < rows; r++) {
+        const float y = -halfHeight + float(r) * cellH;
+        drawButton({0.f, y, halfWidth, lineHalf}, lr, lg, lb, la);
+    }
+}
+
 void Renderer::handleInput() {
     // handle all queued inputs
     auto *inputBuffer = android_app_swap_input_buffers(app_);
@@ -446,6 +561,9 @@ void Renderer::handleInput() {
                         // Clockwise == "turn right".
                         targetRotationDegrees_ -= 90.f;
                         aout << " [RIGHT button] target = " << targetRotationDegrees_;
+                    } else {
+                        // Tap anywhere else: proliferate the robot (1 -> 2 -> 4 -> 8 ...).
+                        proliferate();
                     }
                 }
                 break;

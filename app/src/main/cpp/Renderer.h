@@ -38,6 +38,7 @@ public:
             shaderNeedsNewProjectionMatrix_(true),
             robotRotationDegrees_(0.f),
             targetRotationDegrees_(0.f),
+            proliferationLevel_(0),
             lastFrameTime_(std::chrono::steady_clock::now()) {
         initRenderer();
     }
@@ -87,6 +88,31 @@ private:
      */
     void drawButton(const ButtonRect &rect, float r, float g, float b, float a);
 
+    /*!
+     * Doubles the number of robot instances shown on screen (1 -> 2 -> 4 -> 8 ...). Wraps back to
+     * a single instance once the cap is reached. Triggered by tapping anywhere that isn't a button.
+     */
+    void proliferate();
+
+    /*!
+     * Computes the grid dimensions (cols x rows) for the current proliferation level, choosing the
+     * factorization of 2^level that best matches the screen aspect ratio so cells stay roughly
+     * square.
+     */
+    void computeGrid(int &cols, int &rows) const;
+
+    /*!
+     * Draws all robot instances laid out in the proliferation grid. Every instance shares the same
+     * rotation (robotRotationDegrees_) so they all point the same way.
+     */
+    void drawRobotGrid();
+
+    /*!
+     * Draws the dividing lines between grid cells, on top of the robots, so each region is clearly
+     * separated.
+     */
+    void drawGridLines();
+
     android_app *app_;
     EGLDisplay display_;
     EGLSurface surface_;
@@ -115,6 +141,11 @@ private:
     // Timestamp of the previous frame, used to compute a frame-rate-independent delta time for the
     // rotation easing.
     std::chrono::steady_clock::time_point lastFrameTime_;
+
+    // Proliferation level: the number of robot instances shown is 2^proliferationLevel_
+    // (0 => 1, 1 => 2, 2 => 4, 3 => 8, ...). Each tap on a non-button area increments this,
+    // wrapping back to 0 once kMaxProliferationLevel is exceeded.
+    int proliferationLevel_;
 
     // Current on-screen button rectangles, in projection space. Recomputed whenever the
     // render area changes (see updateButtonRects).
