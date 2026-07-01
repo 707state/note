@@ -2,6 +2,7 @@
 #define ANDROIDGLINVESTIGATIONS_RENDERER_H
 
 #include <EGL/egl.h>
+#include <chrono>
 #include <memory>
 
 #include "Model.h"
@@ -35,7 +36,9 @@ public:
             width_(0),
             height_(0),
             shaderNeedsNewProjectionMatrix_(true),
-            robotRotationDegrees_(0.f) {
+            robotRotationDegrees_(0.f),
+            targetRotationDegrees_(0.f),
+            lastFrameTime_(std::chrono::steady_clock::now()) {
         initRenderer();
     }
 
@@ -104,6 +107,14 @@ private:
     // Accumulated rotation of the android robot in degrees. Each tap on the left/right button
     // adjusts this by +/-90, so the effect stacks across multiple taps.
     float robotRotationDegrees_;
+
+    // The angle the user is currently asking for (updated instantly on tap). robotRotationDegrees_
+    // eases toward this value every frame so the rotation animates smoothly instead of snapping.
+    float targetRotationDegrees_;
+
+    // Timestamp of the previous frame, used to compute a frame-rate-independent delta time for the
+    // rotation easing.
+    std::chrono::steady_clock::time_point lastFrameTime_;
 
     // Current on-screen button rectangles, in projection space. Recomputed whenever the
     // render area changes (see updateButtonRects).

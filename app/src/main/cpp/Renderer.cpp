@@ -3,6 +3,7 @@
 #include <game-activity/native_app_glue/android_native_app_glue.h>
 #include <GLES3/gl3.h>
 #include <algorithm>
+#include <cmath>
 #include <memory>
 #include <vector>
 #include <android/imagedecoder.h>
@@ -87,6 +88,19 @@ static constexpr float kProjectionNearPlane = -1.f;
  */
 static constexpr float kProjectionFarPlane = 1.f;
 
+/*!
+ * How quickly the displayed rotation eases toward the target angle, in 1/seconds. Larger values
+ * make the rotation snappier; smaller values make it lazier. ~10 settles a 90-degree turn in
+ * roughly a third of a second with a smooth ease-out feel.
+ */
+static constexpr float kRotationSmoothingSpeed = 10.f;
+
+/*!
+ * Maximum per-frame delta time (in seconds) used by the rotation easing. Prevents a huge jump
+ * when the app resumes after being backgrounded (where the steady clock can report a large gap).
+ */
+static constexpr float kRotationMaxFrameDelta = 0.05f;
+
 Renderer::~Renderer() {
     if (display_ != EGL_NO_DISPLAY) {
         eglMakeCurrent(display_, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
@@ -104,6 +118,21 @@ Renderer::~Renderer() {
 }
 
 void Renderer::render() {
+    // Advance the smooth rotation tween toward the target angle. This runs every frame so the
+    // robot eases into its new orientation instead of snapping when a button is tapped.
+    {
+        const auto now = std::chrono::steady_clock::now();
+        float dt = std::chrono::duration<float>(now - lastFrameTime_).count();
+        lastFrameTime_ = now;
+        // Clamp dt so a long pause (e.g. app backgrounded) doesn't cause a giant jump.
+        dt = std::min(dt, kRotationMaxFrameDelta);
+
+        // Frame-rate-independent exponential ease-out: the remaining gap is closed by
+        // (1 - e^(-speed*dt)) each frame. This is smooth and naturally slows down near the target.
+        const float alpha = 1.f - expf(-kRotationSmoothingSpeed * dt);
+        robotRotationDegrees_ += (targetRotationDegrees_ - robotRotationDegrees_) * alpha;
+    }
+
     // Check to see if the surface has changed size. This is _necessary_ to do every frame when
     // using immersive mode as you'll get no other notification that your renderable area has
     // changed.
@@ -409,13 +438,14 @@ void Renderer::handleInput() {
                     };
 
                     if (inRect(glX, glY, leftButton_)) {
-                        // Counter-clockwise in GL (y-up) == "turn left".
-                        robotRotationDegrees_ += 90.f;
-                        aout << " [LEFT button] rotation = " << robotRotationDegrees_;
+                        // Counter-clockwise in GL (y-up) == "turn left". We only move the target
+                        // here; robotRotationDegrees_ eases toward it smoothly every frame.
+                        targetRotationDegrees_ += 90.f;
+                        aout << " [LEFT button] target = " << targetRotationDegrees_;
                     } else if (inRect(glX, glY, rightButton_)) {
                         // Clockwise == "turn right".
-                        robotRotationDegrees_ -= 90.f;
-                        aout << " [RIGHT button] rotation = " << robotRotationDegrees_;
+                        targetRotationDegrees_ -= 90.f;
+                        aout << " [RIGHT button] target = " << targetRotationDegrees_;
                     }
                 }
                 break;
