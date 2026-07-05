@@ -35,7 +35,7 @@ scripts/kconfig/conf --defconfig=arch/arm64/configs/coolpi_linux_defconfig Kconf
 1. 读入顶层 `Kconfig`，递归解析所有 `source` 指令（`init/Kconfig` → … → `drivers/Kconfig` → `drivers/block/Kconfig` 等），构建完整配置树
 2. 读入 `coolpi_linux_defconfig` 中的显式设置（约 800 行），作为初始值
 3. 对于 defconfig 中没有显式设置的选项，使用 Kconfig 中定义的 `default` 值或由 `select`/`depends on` 推导
-4. 输出最终的 `.config
+4. 输出最终的 `.config`
 
 ## Kbuild
 

@@ -42,6 +42,8 @@ date: 2026-01-01
 
 [Collabora](https://www.collabora.com/news-and-blog/)
 
+[DirectXMath](https://walbourn.github.io/introducing-directxmath/)
+
 # Programming Language Related
 
 [Martín Hötzel Escardó](https://martinescardo.github.io/)
