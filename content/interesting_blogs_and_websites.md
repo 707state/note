@@ -92,6 +92,8 @@ date: 2026-01-01
 
 [sczyh30](https://www.sczyh30.com/archives/)
 
+[zed dev](https://zed.dev/blog)
+
 ## JavaScript
 
 [Wingolog](https://wingolog.org/)
@@ -117,6 +119,8 @@ date: 2026-01-01
 ## Dotnet
 
 [kunalspathak](https://kunalspathak.github.io/)
+
+[Mohundro](https://mohundro.com/)
 
 ## Scheme
 
@@ -198,6 +202,8 @@ date: 2026-01-01
 [Photonlib](https://photonlibos.github.io/blog)
 
 [tobiasvl](https://tobiasvl.github.io/)
+
+[Unikraft](https://unikraft.org/)
 
 # FOSS, Emacs, GNU and weird shit
 
@@ -340,6 +346,8 @@ date: 2026-01-01
 [Joyxu](https://joyxu.github.io/)
 
 [Bartosz Milewski's Programming Cafe](https://bartoszmilewski.com/)
+
+[Artem Loenko](https://justsitandgrin.im/posts/)
 
 # 各种资源
 
