@@ -5,7 +5,7 @@ tags:
   - Linux
   - GPU
 date: 2026-06-18
-done: 0
+done: 1
 LLM: 1
 ---
 

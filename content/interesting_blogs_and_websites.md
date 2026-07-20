@@ -44,6 +44,10 @@ date: 2026-01-01
 
 [DirectXMath](https://walbourn.github.io/introducing-directxmath/)
 
+[zed dev](https://zed.dev/blog)
+
+[HIP Ray Tracing](https://github.com/GPUOpen-LibrariesAndSDKs/HIPRTSDK/tree/main)
+
 # Programming Language Related
 
 [Martín Hötzel Escardó](https://martinescardo.github.io/)
@@ -91,8 +95,6 @@ date: 2026-01-01
 ## Java
 
 [sczyh30](https://www.sczyh30.com/archives/)
-
-[zed dev](https://zed.dev/blog)
 
 ## JavaScript
 
