@@ -1,0 +1,16 @@
+(* fibonacci.mlb — ML Basis file *)
+
+local
+   $(SML_LIB)/basis/basis.mlb
+   regexp.sig
+   regexp.sml
+   matcher.sig
+   matcher.sml
+   main.sig
+   main.sml
+   call-main.sml
+in
+   structure RegExp
+   structure Matcher
+   structure Main
+end
