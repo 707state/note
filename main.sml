@@ -18,13 +18,13 @@ structure Main :> MAIN =
          , ("a*",     "b",     false)
          , ("(a+b)*", "a",     true)
          , ("(a+b)*", "b",     true)
-         , ("ab",     "ab",    true)
-         , ("ab",     "ba",    false)
+         , ("a.b",     "ab",    true)
+         , ("a.b",     "ba",    false)
          , ("a+b",    "a",     true)
          , ("a+b",    "b",     true)
          , ("a+b",    "ab",    false)
-         , ("(ab)*",  "abab",  true)
-         , ("(ab)*",  "aba",   false)
+         , ("(a.b)*",  "abab",  true)
+         , ("(a.b)*",  "aba",   false)
          ]
 
       fun runTests () =

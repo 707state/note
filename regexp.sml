@@ -12,79 +12,90 @@ structure RegExp :> regexp =
 
       exception SyntaxError of string
 
-      (* Recursive descent parser.
-       * Grammar:
-       *   expr    -> seq ('+' seq)*
-       *   seq     -> factor*
+      open Lexer
+
+      (* Token-based recursive descent parser.
+       * Grammar (post-tokenization):
+       *   expr    -> term ('+' term)*
+       *   term    -> factor ('.' factor)*
        *   factor  -> atom '*'?
-       *   atom    -> char | '(' expr ')' | epsilon
+       *   atom    -> AtSign | Percent | Literal c | '(' expr ')' | epsilon
        *)
       fun parse s =
          let
-            val n = String.size s
-            val pos = ref 0
+            val toks = Lexer.tokenize s
 
-            fun peek () = if !pos >= n then NONE else SOME (String.sub (s, !pos))
-            fun next () = pos := !pos + 1
-
-            fun parseExpr () =
-               let
-                  val r = parseSeq ()
-               in
-                  case peek () of
-                     SOME #"+" => (next (); Plus (r, parseExpr ()))
-                   | _ => r
-               end
-
-            and parseSeq () =
-               case peek () of
-                  NONE => One
-                | SOME c =>
-                     if c = #")" orelse c = #"+" then One
-                     else
+            fun parseExpr (PlusSign :: _) = raise SyntaxError "unexpected '+'"
+              | parseExpr toks =
+                  case parseTerm toks of
+                     (r, PlusSign :: rest) =>
                         let
-                           val f = parseFactor ()
+                           val (r', remaining) = parseExpr rest
+                              handle _ => raise SyntaxError "expected expression after '+'"
                         in
-                           case peek () of
-                              NONE => f
-                            | SOME c' =>
-                                 if c' = #")" orelse c' = #"+" then f
-                                 else Times (f, parseSeq ())
+                           (Plus (r, r'), remaining)
                         end
+                   | (r, rest) => (r, rest)
 
-            and parseFactor () =
-               let
-                  val a = parseAtom ()
-               in
-                  case peek () of
-                     SOME #"*" => (next (); Star a)
-                   | _ => a
-               end
+            and parseTerm (TimesSign :: _) = raise SyntaxError "unexpected '.'"
+              | parseTerm toks =
+                  case parseFactor toks of
+                     (r, TimesSign :: rest) =>
+                        let
+                           val (r', rest') = parseTerm rest
+                        in
+                           (Times (r, r'), rest')
+                        end
+                   | (r, rest) => (r, rest)
 
-            and parseAtom () =
-               case peek () of
-                  NONE => One
-                | SOME #"(" =>
-                     (next ()
-                      ; let val r = parseExpr () in
-                           case peek () of
-                              SOME #")" => (next (); r)
-                            | _ => raise SyntaxError "missing closing parenthesis"
-                        end)
-                | SOME c =>
-                     if c = #")" orelse c = #"+" orelse c = #"*" then One
-                     else (next (); Char c)
+            and parseFactor toks =
+               case parseAtom toks of
+                  (r, Asterisk :: rest) => (Star r, rest)
+                | (r, rest) => (r, rest)
+
+            and parseAtom (AtSign :: rest) = (Char #"@", rest)
+              | parseAtom (Percent :: rest) = (Char #"%", rest)
+              | parseAtom (Literal c :: rest) = (Char c, rest)
+              | parseAtom (LParen :: rest) =
+                  (case parseExpr rest of
+                      (r, RParen :: rest') => (r, rest')
+                    | (_, _) => raise SyntaxError "missing closing parenthesis")
+              | parseAtom [] = (One, [])
+              | parseAtom _ = raise SyntaxError "unexpected token"
+
+            val (r, remaining) = parseExpr toks
          in
-            parseExpr ()
+            if null remaining then r
+            else raise SyntaxError "trailing tokens"
          end
+
+      fun isSpecial c =
+         c = #"+" orelse c = #"." orelse c = #"*"
+         orelse c = #"(" orelse c = #")"
+         orelse c = #"@" orelse c = #"%"
+         orelse c = #"\\" orelse c = #" "
 
       fun format r =
          case r of
             Zero => "0"
           | One => ""
-          | Char c => String.str c
-          | Plus (r1, r2) => "(" ^ format r1 ^ "+" ^ format r2 ^ ")"
-          | Times (r1, r2) => format r1 ^ format r2
+          | Char c =>
+               if isSpecial c then "\\" ^ String.str c
+               else String.str c
+          | Plus (r1, r2) => format r1 ^ "+" ^ format r2
+          | Times (r1, r2) =>
+               let
+                  val left =
+                     case r1 of
+                        Plus _ => "(" ^ format r1 ^ ")"
+                      | _ => format r1
+                  val right =
+                     case r2 of
+                        Plus _ => "(" ^ format r2 ^ ")"
+                      | _ => format r2
+               in
+                  left ^ "." ^ right
+               end
           | Star r =>
                let
                   val s = format r

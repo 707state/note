@@ -2,6 +2,8 @@
 
 local
    $(SML_LIB)/basis/basis.mlb
+   lexer.sig
+   lexer.sml
    regexp.sig
    regexp.sml
    matcher.sig
