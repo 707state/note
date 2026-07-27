@@ -1,0 +1,42 @@
+# clang-format 配置文件
+# 运行: git clang-format --staged    (格式化暂存区变更)
+#       clang-format -i src/main.cc   (格式化单个文件)
+
+BasedOnStyle: Google
+
+# 基本格式
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+
+# 大括号风格: Allman (大括号另起一行)
+BreakBeforeBraces: Allman
+
+# 控制语句 (if/for/while) 前加空格: if (cond)
+SpaceBeforeParens: ControlStatements
+
+# 指针/引用靠左: int* p
+PointerAlignment: Left
+
+# 不允许短函数/if/循环放在一行
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+# 函数参数/参数过长换行时，每行一个
+BinPackArguments: false
+BinPackParameters: false
+
+# 构造函数初始化列表前换行
+BreakConstructorInitializers: BeforeColon
+
+# 头文件排序规则
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+
+# 尾部注释对齐
+AlignTrailingComments: true
+
+# 空行: 保留最多 1 个连续空行
+MaxEmptyLinesToKeep: 1
