@@ -8,21 +8,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
-include(FetchContent)
-
-
 #
-# Vulkan-Headers — 始终从 GitHub 拉取，不依赖系统头文件
-# OVERRIDE_FIND_PACKAGE 确保 Vulkan-Loader 的 find_package 也会找到这份头文件
+# Vulkan-Headers — 始终使用 externals 中的源代码
 #
-FetchContent_Declare(
-    Vulkan-Headers
-    GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
-    GIT_TAG        v1.4.313
-    OVERRIDE_FIND_PACKAGE
-)
-
-FetchContent_MakeAvailable(Vulkan-Headers)
+add_subdirectory(externals/Vulkan-Headers)
 
 
 add_executable(
@@ -33,21 +22,21 @@ add_executable(
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     #
-    # Debug 模式：从源码构建 Vulkan-Loader
+    # Debug 模式：从 externals 源码构建 Vulkan-Loader
     #   便于调试 loader 内部逻辑
     #
-    FetchContent_Declare(
-        Vulkan-Loader
-        GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Loader.git
-        GIT_TAG        v1.4.313
-    )
+    # 禁用所有 WSI 支持——只用 compute shader，不做窗口渲染
+    set(BUILD_WSI_XCB_SUPPORT OFF CACHE BOOL "" FORCE)
+    set(BUILD_WSI_XLIB_SUPPORT OFF CACHE BOOL "" FORCE)
+    set(BUILD_WSI_XLIB_XRANDR_SUPPORT OFF CACHE BOOL "" FORCE)
+    set(BUILD_WSI_WAYLAND_SUPPORT OFF CACHE BOOL "" FORCE)
 
-    FetchContent_MakeAvailable(Vulkan-Loader)
+    add_subdirectory(externals/Vulkan-Loader)
 
     target_link_libraries(
         MyVulkanApp
         PRIVATE
-        Vulkan::Headers     # FetchContent 拉取的头文件
+        Vulkan::Headers     # externals 中的头文件
         Vulkan::Loader      # 源码构建的 loader（内部已链接 Vulkan::Headers）
     )
 else()
@@ -60,7 +49,9 @@ else()
     target_link_libraries(
         MyVulkanApp
         PRIVATE
-        Vulkan::Headers      # FetchContent 拉取的头文件
+        Vulkan::Headers      # externals 中的头文件
         ${VULKAN_LIBRARY}    # 系统 libvulkan.so
     )
 endif()
+
+
