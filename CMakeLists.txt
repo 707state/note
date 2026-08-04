@@ -47,7 +47,10 @@ else()
     # 链接系统的 libvulkan.so
     #   使用 GPU 驱动提供的 loader，体积更小
     #
-    find_library(VULKAN_LIBRARY NAMES vulkan REQUIRED)
+    find_library(VULKAN_LIBRARY
+        NAMES vulkan-1 vulkan
+        HINTS "$ENV{VULKAN_SDK}/Lib" "$ENV{VULKAN_SDK}/Lib32"
+        REQUIRED)
 
     target_link_libraries(
         MyVulkanApp
