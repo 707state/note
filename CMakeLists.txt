@@ -20,9 +20,12 @@ add_executable(
 )
 
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+
+option(BUILD_VULKAN_LOADER "Build Vulkan-Loader from externals source" OFF)
+
+if(BUILD_VULKAN_LOADER)
     #
-    # Debug 模式：从 externals 源码构建 Vulkan-Loader
+    # 从 externals 源码构建 Vulkan-Loader
     #   便于调试 loader 内部逻辑
     #
     # 禁用所有 WSI 支持——只用 compute shader，不做窗口渲染
@@ -41,7 +44,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     )
 else()
     #
-    # Release 模式：链接系统的 libvulkan.so
+    # 链接系统的 libvulkan.so
     #   使用 GPU 驱动提供的 loader，体积更小
     #
     find_library(VULKAN_LIBRARY NAMES vulkan REQUIRED)
