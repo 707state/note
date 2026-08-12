@@ -86,6 +86,8 @@ date: 2026-01-01
 
 [KG](https://blog.kaving.me/blog/)
 
+[Ryan Keane](https://ryanjk5.github.io/)
+
 ## Rust
 
 [rust-lang blog](https://blog.rust-lang.org)
@@ -139,6 +141,8 @@ date: 2026-01-01
 [Aiono](https://blog.aiono.dev/blog.html)
 
 [ettolrach](https://ettolrach.com/)
+
+[SML](https://standardml.fyi/)
 
 ## LLVM
 
@@ -387,6 +391,8 @@ date: 2026-01-01
 
 [anandtech forum](https://forums.anandtech.com/)
 
+[游戏编程模式](https://gpp.tkchu.me/)
+
 ## 图形学
 
 [CS180 / CS280](https://sites.cs.ucsb.edu/~lingqi/teaching/cs180.html)
@@ -396,6 +402,8 @@ date: 2026-01-01
 [Game programming patterns](https://gameprogrammingpatterns.com/contents.html)
 
 [Metal Tutorial](https://metaltutorial.com/)
+
+[Inigo Quilez](https://iquilezles.org/)
 
 ## AI Related
 
