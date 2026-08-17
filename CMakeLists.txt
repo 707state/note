@@ -6,5 +6,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(deps/FTXUI)
 
-add_executable(main main.cc)
-target_link_libraries(main PRIVATE ftxui)
+add_executable(main_2d_animation main.cc)
+target_link_libraries(main_2d_animation PRIVATE ftxui)
