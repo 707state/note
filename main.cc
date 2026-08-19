@@ -14,7 +14,6 @@
 
 #include "ftxui/dom/canvas.hpp"  // for Canvas
 #include "ftxui/dom/node.hpp"    // for Render
-
 namespace {
 
 constexpr float kPi = 3.14159265358979f;
@@ -150,7 +149,7 @@ int main() {
 
   auto document = canvas(60, 60, [](Canvas& c) {
     static float t = 0.0f;
-    t += 0.03f;
+    t = std::fmod(t + 0.03f, 2.0f * kPi);
     DrawFrame(c, t, 0.6f);
   }) | border;
 
@@ -158,7 +157,7 @@ int main() {
 
   // Animate in place: render, print, then rewind the cursor so the next
   // frame overwrites the previous one.
-  for (int frame = 0; frame < 200; frame++) {
+  for (;;) {
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     screen.Clear();
     Render(screen, document);
@@ -169,4 +168,3 @@ int main() {
 
   return 0;
 }
-

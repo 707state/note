@@ -1,4 +1,3 @@
-option(FTXUI_BUILD_DOCS "Set to ON to build docs" OFF)
 option(FTXUI_BUILD_EXAMPLES "Set to ON to build examples" OFF)
 option(FTXUI_BUILD_MODULES "Build the C++20 modules" OFF)
 option(FTXUI_BUILD_TESTS "Set to ON to build tests" OFF)
@@ -195,7 +194,6 @@ include(cmake/ftxui_package.cmake)
 include(cmake/ftxui_modules.cmake)
 
 add_subdirectory(examples)
-add_subdirectory(doc)
 
 # You can generate ./examples_modules/ by running
 # ./tools/generate_examples_modules.sh
