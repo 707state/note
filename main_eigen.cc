@@ -2,59 +2,40 @@
 // Fake-3D demo: a rotating tetrahedron rendered with the FTXUI canvas.
 // Pipeline: rotate vertices -> perspective project -> backface culling ->
 // draw wireframe edges colored per visible face, in a terminal animation loop.
-#include <algorithm>                  // for max, sort
-#include <cmath>                      // for cos, sin
-#include <chrono>                     // for steady_clock, duration
+#include <chrono>                      // for steady_clock, duration
+#include <cmath>                       // for fmod
+#include <ftxui/component/app.hpp>     // for App, Loop via App::Loop
 #include <ftxui/component/component.hpp>  // for Renderer, CatchEvent, Event
-#include <ftxui/component/app.hpp>    // for App, Loop via App::Loop
-#include <ftxui/dom/elements.hpp>     // for canvas, border, Element, Fit
-#include <ftxui/screen/color.hpp>     // for Color, Color::Red...
-#include <vector>                     // for vector
+#include <ftxui/dom/elements.hpp>      // for canvas, border, Element
+#include <ftxui/screen/color.hpp>      // for Color, Color::Red...
+#include <vector>                      // for vector
+
+#include <Eigen/Geometry>              // for Vector3f, AngleAxis, Matrix3f
 
 #include "ftxui/dom/canvas.hpp"  // for Canvas
+
 namespace {
 
 constexpr float kPi = 3.14159265358979f;
 
-struct Vec3 {
-  float x, y, z;
-};
+using Vec3 = Eigen::Vector3f;
+using Vec2 = Eigen::Vector2f;
 
-struct Vec2 {
-  float x, y;
-};
-
-Vec3 RotateY(Vec3 v, float a) {
-  float c = std::cos(a), s = std::sin(a);
-  return {v.x * c + v.z * s, v.y, -v.x * s + v.z * c};
+// Build 3x3 rotation matrices from Eigen's axis/angle representation.
+Eigen::Matrix3f RotationY(float a) {
+  return Eigen::AngleAxis<float>(a, Eigen::Vector3f::UnitY()).toRotationMatrix();
 }
-
-Vec3 RotateX(Vec3 v, float a) {
-  float c = std::cos(a), s = std::sin(a);
-  return {v.x, v.y * c - v.z * s, v.y * s + v.z * c};
-}
-
-float Dot(Vec3 a, Vec3 b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
-
-Vec3 Cross(Vec3 a, Vec3 b) {
-  return {a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x};
-}
-
-Vec3 Normalize(Vec3 v) {
-  float len = std::sqrt(Dot(v, v));
-  return len > 1e-6f ? Vec3{v.x / len, v.y / len, v.z / len} : v;
-}
-Vec3 operator-(Vec3 a, Vec3 b) {
-  return {a.x - b.x, a.y - b.y, a.z - b.z};
+Eigen::Matrix3f RotationX(float a) {
+  return Eigen::AngleAxis<float>(a, Eigen::Vector3f::UnitX()).toRotationMatrix();
 }
 
 // Regular tetrahedron: unit-ish vertices, center at origin.
 std::vector<Vec3> TetrahedronVertices() {
   return {
-      {1.0f, 1.0f, 1.0f},
-      {1.0f, -1.0f, -1.0f},
-      {-1.0f, 1.0f, -1.0f},
-      {-1.0f, -1.0f, 1.0f},
+      Vec3(1.0f, 1.0f, 1.0f),
+      Vec3(1.0f, -1.0f, -1.0f),
+      Vec3(-1.0f, 1.0f, -1.0f),
+      Vec3(-1.0f, -1.0f, 1.0f),
   };
 }
 
@@ -90,20 +71,21 @@ void DrawFrame(ftxui::Canvas& c, float angle_y, float angle_x) {
   const float focal = 90.0f;   // focal length in pixels
   const float cx = c.width() * 0.5f;
   const float cy = c.height() * 0.5f;
-  auto project = [&](Vec3 v) -> Vec2 {
+  auto project = [&](const Vec3& v) -> Vec2 {
     // Camera looks down -z, world +z goes away from camera. Rotate first.
-    float depth = eye_z - v.z;  // distance from eye
+    float depth = eye_z - v.z();  // distance from eye
     if (depth < 0.1f)
       depth = 0.1f;
     float s = focal / depth;
-    return {cx + v.x * s, cy - v.y * s};
+    return Vec2(cx + v.x() * s, cy - v.y() * s);
   };
 
-  // Rotate and project all vertices.
+  // Rotate (Y then X) and project all vertices. Rotation matrices are
+  // multiplied once and applied to every vertex.
+  const Eigen::Matrix3f rot = RotationY(angle_y) * RotationX(angle_x);
   std::vector<Vec3> rotated = TetrahedronVertices();
   for (auto& v : rotated) {
-    v = RotateX(RotateY(v, angle_y), angle_x);
-    // Keep world y up on screen: canvas y grows downward, so project negates.
+    v = rot * v;
   }
   Vec2 pts[4];
   for (int i = 0; i < 4; i++)
@@ -120,12 +102,9 @@ void DrawFrame(ftxui::Canvas& c, float angle_y, float angle_x) {
       Vec3 a = rotated[face[0]];
       Vec3 b = rotated[face[1]];
       Vec3 cc = rotated[face[2]];
-      Vec3 normal = Normalize(Cross(b - a, cc - a));
-      Vec3 view_dir = {0.0f, 0.0f, eye_z};  // from face point toward the eye
-      Vec3 face_point = a;
-      Vec3 to_eye = {view_dir.x - face_point.x, view_dir.y - face_point.y,
-                     view_dir.z - face_point.z};
-      bool visible = Dot(normal, to_eye) > 0.0f;
+      Vec3 normal = (b - a).cross(cc - a).normalized();
+      Vec3 view_dir(0.0f, 0.0f, eye_z);  // from face point toward the eye
+      bool visible = normal.dot(view_dir - a) > 0.0f;
       if (visible != want_visible)
         continue;
       const ftxui::Color& color =
@@ -134,7 +113,8 @@ void DrawFrame(ftxui::Canvas& c, float angle_y, float angle_x) {
       for (int e = 0; e < 3; e++) {
         const Vec2& p1 = pts[face[e]];
         const Vec2& p2 = pts[face[(e + 1) % 3]];
-        c.DrawPointLine(int(p1.x), int(p1.y), int(p2.x), int(p2.y), color);
+        c.DrawPointLine(int(p1.x()), int(p1.y()), int(p2.x()), int(p2.y()),
+                        color);
       }
     }
   }
