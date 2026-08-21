@@ -52,19 +52,27 @@ Vec3 operator-(Vec3 a, Vec3 b) {
 std::vector<Vec3> TetrahedronVertices() {
   return {
       {1.0f, 1.0f, 1.0f},
+      {1.0f,1.0f,-1.0f},
+      {1.0f, -1.0f, 1.0f},
       {1.0f, -1.0f, -1.0f},
+      {-1.0f, 1.0f, 1.0f},
       {-1.0f, 1.0f, -1.0f},
       {-1.0f, -1.0f, 1.0f},
+      {-1.0f, -1.0f, -1.0f},
   };
 }
 
 // Faces are triples of vertex indices, wound counter-clockwise when viewed
 // from outside, so the outward normal is Cross(b-a, c-a).
-constexpr int kFaces[4][3] = {
-    {0, 1, 2},
-    {0, 3, 1},
-    {0, 2, 3},
-    {1, 3, 2},
+constexpr int kFaces[8][3] = {
+    {0, 1, 3},
+    {0,2,3},
+    {0,4,5},
+    {0,1,5},
+    {2,6,7},
+    {2,3,7},
+    {4,5,7},
+    {4,6,7}
 };
 
 const ftxui::Color kFaceColors[4] = {
@@ -87,7 +95,7 @@ const ftxui::Color kFaceColorsDim[4] = {
 void DrawFrame(ftxui::Canvas& c, float angle_y, float angle_x) {
   // Project a world point with weak perspective onto the canvas.
   const float eye_z = 6.0f;    // camera distance along +z
-  const float focal = 90.0f;   // focal length in pixels
+  const float focal = 100.0f;   // focal length in pixels
   const float cx = c.width() * 0.5f;
   const float cy = c.height() * 0.5f;
   auto project = [&](Vec3 v) -> Vec2 {
@@ -105,8 +113,8 @@ void DrawFrame(ftxui::Canvas& c, float angle_y, float angle_x) {
     v = RotateX(RotateY(v, angle_y), angle_x);
     // Keep world y up on screen: canvas y grows downward, so project negates.
   }
-  Vec2 pts[4];
-  for (int i = 0; i < 4; i++)
+  std::array<Vec2,8> pts;
+  for (int i = 0; i < pts.size(); i++)
     pts[i] = project(rotated[i]);
   // Translucent rendering: instead of culling, draw back-facing faces first
   // in dim colors, then front-facing faces in bright colors on top. Where a
@@ -115,7 +123,7 @@ void DrawFrame(ftxui::Canvas& c, float angle_y, float angle_x) {
   // translucency via painter's algorithm.
   for (int pass = 0; pass < 2; pass++) {
     bool want_visible = (pass == 1);
-    for (int f = 0; f < 4; f++) {
+    for (int f = 0; f < 8; f++) {
       const auto& face = kFaces[f];
       Vec3 a = rotated[face[0]];
       Vec3 b = rotated[face[1]];
@@ -131,7 +139,7 @@ void DrawFrame(ftxui::Canvas& c, float angle_y, float angle_x) {
       const ftxui::Color& color =
           visible ? kFaceColors[f] : kFaceColorsDim[f];
       // Draw the triangle's three edges in this face's color.
-      for (int e = 0; e < 3; e++) {
+      for (int e = 0; e < 2; e++) {
         const Vec2& p1 = pts[face[e]];
         const Vec2& p2 = pts[face[(e + 1) % 3]];
         c.DrawPointLine(int(p1.x), int(p1.y), int(p2.x), int(p2.y), color);
@@ -154,8 +162,9 @@ int main() {
     float elapsed =
         std::chrono::duration<float>(std::chrono::steady_clock::now() - start)
             .count();
-    float angle_y = std::fmod(elapsed * 0.5f, 2.0f * kPi);
-    DrawFrame(c, angle_y, 0.6f);
+    float angle_y = std::fmod(elapsed * (kPi / 4.0f), 2.0f * kPi);
+    float angle_x = 0.3f;
+    DrawFrame(c, angle_y, angle_x);
   }) | border;
 
   auto renderer = Renderer([&] {
@@ -177,4 +186,5 @@ int main() {
   screen.Loop(component);
   return 0;
 }
+
 
