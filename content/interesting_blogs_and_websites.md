@@ -405,6 +405,8 @@ date: 2026-01-01
 
 [Inigo Quilez](https://iquilezles.org/)
 
+[lyc8503](https://blog.lyc8503.net/)
+
 ## AI Related
 
 [LiteRT](https://github.com/google-ai-edge/LiteRT-LM/tree/main)
