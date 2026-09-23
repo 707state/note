@@ -355,6 +355,8 @@ date: 2026-01-01
 
 [Artem Loenko](https://justsitandgrin.im/posts/)
 
+[Sahilister's Reimagined Doodle](https://blog.sahilister.in/)
+
 # 各种资源
 
 [rob pike](http://www.herpolhode.com/rob/)
