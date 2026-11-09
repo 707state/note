@@ -48,6 +48,8 @@ date: 2026-01-01
 
 [HIP Ray Tracing](https://github.com/GPUOpen-LibrariesAndSDKs/HIPRTSDK/tree/main)
 
+[Ten Minute Physics](https://matthias-research.github.io/pages/tenMinutePhysics/index.html)
+
 # Programming Language Related
 
 [Martín Hötzel Escardó](https://martinescardo.github.io/)
